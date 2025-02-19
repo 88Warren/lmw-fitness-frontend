@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+    --color-limeGreen: #21fc0d;
+    --color-brightYellow: #ffcf00;
+    --color-hotPink: #ff11ff;
+    --color-customGray: #747474;
+
+    --font-higherJump: higher-jump, sans-serif;
+    --font-westerners: westerners, cursive;
+    --font-titillium: titillium, sans-serif;
+
+  }
+
+@layer components {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .title-section {
+    @apply text-center mt-8;
+  }
+
+  .h1-primary {
+    @apply text-4xl font-titillium font-bold text-customGray leading-tight mb-2 py-4 border-t-4 border-b-4;
+    border-image: linear-gradient(to right, #21fc0d, #ffcf00, #21fc0d ) 1;
+  }
+
+  .h2-primary {
+    @apply text-xl font-semibold font-titillium text-customGray tracking-wide mb-2;
+  }
+
+  .p-primary {
+    @apply font-titillium text-customGray leading-loose
+  }
+}

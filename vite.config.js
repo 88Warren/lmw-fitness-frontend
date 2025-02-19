@@ -8,7 +8,7 @@ export default defineConfig({
       "@": "/src",
     },
   },
-  plugins : [
+  plugins: [
     react(),
     tailwindcss(),
   ],
