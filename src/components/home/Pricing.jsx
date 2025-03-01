@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 
 const Pricing = () => {
   return (
@@ -48,14 +49,50 @@ const Pricing = () => {
                 </div>
 
                 {/* Bonus Resources */}
-                <div className="mt-16 p-6 bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-white rounded-lg shadow-lg">
-                    <h3 className="text-2xl font-bold mb-4">🎁 Bonus Resource Package</h3>
-                    <p className="text-lg mb-4">Sign up for any plan and get exclusive access to:</p>
-                    <ul className="text-lg text-white text-left space-y-2">
-                        <li>✔ Weekly Fitness & Nutrition Newsletter</li>
-                        <li>✔ Habit-Building Worksheets</li>
-                        <li>✔ Mindset Coaching for Long-Term Success</li>
-                    </ul>
+                <div className="mt-16 p-12 bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-white rounded-lg shadow-lg">
+                    <h3 className="text-4xl font-bold text-center mb-10">Bonus Resources</h3>
+
+                    {/* Flex container for cards */}
+                    <div className="flex flex-col md:flex-row justify-center gap-10">
+
+                        {/* Blog Section */}
+                        <div className="bg-white md:w-1/2 p-6 rounded-lg text-customGray shadow-md">
+                            <h4 className="text-xl font-semibold text-customGray mb-6">
+                                Weekly Fitness & Nutrition Blog (Free)
+                            </h4>
+                            <p className="text-lg text-customGray mb-4">
+                            Get expert tips straight to your inbox:
+                            </p>
+                            <ul className="text-lg space-y-2 mb-4">
+                                <li>✔ <strong>Fitness & Nutrition Advice</strong></li>
+                                <li>✔ <strong>Expert Insights & Tips</strong></li>
+                                <li>✔ <strong>Exclusive Content for Subscribers</strong></li>
+                                <li>✔ <strong>Weekly Motivation</strong> to stay on track</li>
+                                <li>✔ <strong>Goal Setting Techniques</strong> for success</li>
+                            </ul>
+                            <div className="flex justify-center">
+                                <Link to="/blog" className="btn-primary mb-2">Subscribe Now</Link>
+                            </div>
+                        </div>
+
+                        {/* Standalone Package */}
+                        <div className="bg-white md:w-1/2 p-6 rounded-lg text-customGray shadow-md">
+                            <h4 className="text-xl font-semibold text-customGray mb-6">
+                            Ultimate Habit & Mindset Package (£20)
+                            </h4>
+                            <p className="text-lg text-customGray mb-4">Get instant access to:</p>
+                                <ul className="text-lg space-y-2 mb-4">
+                                    <li>✔ <strong>Habit Building Worksheet</strong></li>
+                                    <li>✔ <strong>Mindset Coaching Guide</strong></li>
+                                    <li>✔ <strong>7 Day Habit Challenge</strong></li>
+                                    <li>✔ <strong>Daily Motivation & Productivity Checklist</strong></li>
+                                    <li>✔ <span className="font-bold">£20 off</span> any package purchased within 30 days</li>
+                                </ul>
+                            <div className="flex justify-center">
+                                <Link to="/purchase-bonus-package" className="btn-primary">Buy Now</Link>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

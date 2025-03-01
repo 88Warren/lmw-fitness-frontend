@@ -17,6 +17,7 @@
     --color-brightYellow: #ffcf00;
     --color-hotPink: #ff11ff;
     --color-customGray: #747474;
+    --color-logoGray: #cecece;
 
     --font-higherJump: higherJump, sans-serif;
     --font-westerners: westerners, cursive;
@@ -54,8 +55,9 @@
   }
 
  .fitness{
-  @apply font-westerners text-2xl text-white pr-10;
+  @apply font-westerners text-2xl text-logoGray pr-10;
   }
+
   .title-section {
     @apply text-center mt-8;
   }
