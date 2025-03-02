@@ -54,14 +54,14 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center">
               <h1 className="lmw">
-                <span className="l">L</span>
-                <span className="m">M</span>
-                <span className="w">W</span>
+                <span className="l pr-1.5">L</span>
+                <span className="m pr-1.5">M</span>
+                <span className="w pr-4">W</span>
                 <span className='fitness'>fitness</span>
               </h1>
             </Link>
             <div className="hidden md:flex items-center">
-              {['Home', 'WhatWeOffer', 'Pricing', 'Contact'].map((section) => (
+              {['Home', 'About', 'Testimonials', 'Pricing', 'Contact'].map((section) => (
                 <button key={section} onClick={() => scrollToSection(section)} className={navLink(section)}>
                   {section.replace(/([A-Z])/g, ' $1').trim()}
                 </button>
@@ -92,7 +92,7 @@ const Navbar = () => {
       <div
         className={`md:hidden font-titillium text-center text-customGray transform transition-opacity ${isMenuOpen ? 'block opacity-100' : 'hidden opacity-0'}`}
       >
-        {['Home', 'WhatWeOffer', 'Pricing', 'Contact'].map((section) => (
+        {['Home', 'About', 'Testimonials', 'Pricing', 'Contact'].map((section) => (
           <button key={section} onClick={() => { scrollToSection(section); setIsMenuOpen(false); }} className="hamburger-nav-bar">
             {section.replace(/([A-Z])/g, ' $1').trim()}
           </button>

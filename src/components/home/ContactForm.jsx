@@ -35,17 +35,17 @@ const ContactForm = () => {
     <section id="Contact" className="py-16 px-6 bg-gray-100">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
         <h2 className="text-4xl font-higherJump text-center mb-6 text-black">
-          Get In Touch
+          Get In Touch <span className="w">w</span>ith <span className="m">m</span>e
         </h2>
         <p className="text-lg text-center text-customGray mb-8">
-          Have questions or want to start your fitness journey? Send us a message!
+          Have a question or need more info? Drop me a message here:
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name Field */}
           <div>
             <label className="block text-black font-bold mb-2" htmlFor="name">
-              Name
+              Name:
             </label>
             <input
               type="text"
@@ -61,7 +61,7 @@ const ContactForm = () => {
           {/* Email Field */}
           <div>
             <label className="block text-black font-bold mb-2" htmlFor="email">
-              Email
+              Email:
             </label>
             <input
               type="email"
@@ -77,7 +77,7 @@ const ContactForm = () => {
           {/* Message Field */}
           <div>
             <label className="block text-black font-bold mb-2" htmlFor="message">
-              Message
+              Message:
             </label>
             <textarea
               name="message"

@@ -8,66 +8,68 @@ const Footer = () => {
     };
 
     return (
-        <footer className="bg-customGray mx-auto max-w-7xl p-6 lg:py-8 text-white">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
-                
-                {/* Logo Column */}
-                <div className="flex justify-center md:justify-start">
-                    <Link to="/" onClick={handleClick}>
-                    <h1 className="lmw">
-                        <span className="l">L</span>
-                        <span className="m">M</span>
-                        <span className="w">W</span>
-                        <span className='fitness'>fitness</span>
-                    </h1>
-                    </Link>
-                </div>
-                
-                {/* Company Links */}
-                <div>
-                    <h2 className="font-titillium mb-4 font-semibold uppercase">Company</h2>
-                    <ul className="space-y-2">
-                        <li><Link to="/about" onClick={handleClick} className="hover:text-brightYellow">About</Link></li>
-                        <li><Link to="/blog" onClick={handleClick} className="hover:text-brightYellow">Blog</Link></li>
-                    </ul>
+        <footer className="bg-customGray p-6 lg:py-8 text-white">
+            <div className="mx-auto max-w-7xl">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
+                    
+                    {/* Logo Column */}
+                    <div className="flex justify-center md:justify-start">
+                        <Link to="/" onClick={handleClick}>
+                        <h1 className="lmw">
+                            <span className="l">L</span>
+                            <span className="m">M</span>
+                            <span className="w">W</span>
+                            <span className='fitness'>fitness</span>
+                        </h1>
+                        </Link>
+                    </div>
+                    
+                    {/* Company Links */}
+                    <div>
+                        <h2 className="font-titillium mb-4 font-semibold uppercase">Pages</h2>
+                        <ul className="space-y-2">
+                            <li><Link to="/about" onClick={handleClick} className="hover:text-brightYellow">About</Link></li>
+                            <li><Link to="/blog" onClick={handleClick} className="hover:text-brightYellow">Blog</Link></li>
+                        </ul>
+                    </div>
+
+                    {/* Social Links */}
+                    <div>
+                        <h2 className="font-titillium mb-4 font-semibold uppercase">Follow Me</h2>
+                        <ul className="space-y-2">
+                            <li><a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" className="hover:text-brightYellow">Facebook</a></li>
+                            <li><a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="hover:text-brightYellow">Instagram</a></li>
+                        </ul>
+                    </div>
+
+                    {/* Legal Links */}
+                    <div>
+                        <h2 className="font-titillium mb-4 font-semibold uppercase">Legal</h2>
+                        <ul className="space-y-2">
+                            <li><Link to="/privacy-policy" onClick={handleClick} className="hover:text-brightYellow">Privacy Policy</Link></li>
+                            <li><Link to="/terms" onClick={handleClick} className="hover:text-brightYellow">Terms & Conditions</Link></li>
+                        </ul>
+                    </div>
                 </div>
 
-                {/* Social Links */}
-                <div>
-                    <h2 className="font-titillium mb-4 font-semibold uppercase">Follow Us</h2>
-                    <ul className="space-y-2">
-                        <li><a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" className="hover:text-brightYellow">Facebook</a></li>
-                        <li><a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="hover:text-brightYellow">Instagram</a></li>
-                    </ul>
-                </div>
+                <hr className="my-6 border-white" />
 
-                {/* Legal Links */}
-                <div>
-                    <h2 className="font-titillium mb-4 font-semibold uppercase">Legal</h2>
-                    <ul className="space-y-2">
-                        <li><Link to="/privacy-policy" onClick={handleClick} className="hover:text-brightYellow">Privacy Policy</Link></li>
-                        <li><Link to="/terms" onClick={handleClick} className="hover:text-brightYellow">Terms & Conditions</Link></li>
-                    </ul>
-                </div>
-            </div>
-
-            <hr className="my-6 border-white" />
-
-            {/* Bottom Section */}
-            <div className="flex flex-col md:flex-row justify-between items-center text-sm">
-                <span>© 2025 LMW fitness</span>
-                
-                {/* Social Icons */}
-                <div className="hidden md:flex space-x-4 justify-center items-center">
-                    <a href="#" className="text-limeGreen" aria-label="Facebook">
-                    <FaFacebook className="text-2xl" />
-                    </a>
-                    <a href="#" className="text-brightYellow" aria-label="Instagram">
-                    <FaInstagram className="text-2xl" />
-                    </a>
-                    <a href="#" className="text-hotPink" aria-label="TikTok">
-                    <FaTiktok className="text-2xl" />
-                    </a>
+                {/* Bottom Section */}
+                <div className="flex flex-col md:flex-row justify-between items-center text-sm">
+                    <span>© 2025 LMW Fitness</span>
+                    
+                    {/* Social Icons */}
+                    <div className="hidden md:flex space-x-4 justify-center items-center">
+                        <a href="#" className="text-limeGreen" aria-label="Facebook">
+                        <FaFacebook className="text-2xl" />
+                        </a>
+                        <a href="#" className="text-brightYellow" aria-label="Instagram">
+                        <FaInstagram className="text-2xl" />
+                        </a>
+                        <a href="#" className="text-hotPink" aria-label="TikTok">
+                        <FaTiktok className="text-2xl" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </footer>

@@ -43,15 +43,15 @@
   }
 
   .l{
-    @apply text-limeGreen pr-1.5;
+    @apply text-limeGreen;
   }
 
   .m{
-    @apply text-brightYellow pr-1.5;
+    @apply text-brightYellow;
   }
 
   .w{
-    @apply text-hotPink pr-4;
+    @apply text-hotPink;
   }
 
  .fitness{
