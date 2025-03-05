@@ -1,11 +1,23 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { FaBars, FaTimes, FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
+import { getCookie } from '../../utils/fetchCookie';
 
 const Navbar = () => {
+  const handleClick = () => {
+    window.scrollTo(0, 0);
+    closeMobileMenu();
+  };
+
   const [activeSection, setActiveSection] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const token = getCookie('access_token');
+  const isLoggedIn = !!token;
+
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  const userId = currentUser ? currentUser.id : null;
 
   const sections = useMemo(() => document.querySelectorAll('section'), []);
 
@@ -66,6 +78,7 @@ const Navbar = () => {
                   {section.replace(/([A-Z])/g, ' $1').trim()}
                 </button>
               ))}
+              <NavLink to="/blogs" onClick={handleClick} className={navLink('Blog')}>Blog</NavLink>
             </div>
           </div>
 
@@ -97,6 +110,7 @@ const Navbar = () => {
             {section.replace(/([A-Z])/g, ' $1').trim()}
           </button>
         ))}
+        <NavLink to="/blogs" onClick={handleClick} className="block py-2 px-4 rounded hover:bg-lightGray transition-colors mx-auto w-fit">Blog</NavLink>
       </div>
     </nav>
   );

@@ -1,9 +1,9 @@
 import React from 'react'
 
-const AboutMe = () => {
+const About = () => {
   return (
     <>
-    <section id="AboutMe" className="py-16 px-6 bg-gray-100">
+    <section id="About" className="py-16 px-6 bg-gray-100">
       <div className="max-w-5xl mx-auto text-center">
         <h2 className="text-4xl font-higherJump text-black mb-10 leading-loose">
         <span className="w">W</span>elco<span className="m">M</span>e to <br></br>
@@ -68,4 +68,4 @@ const AboutMe = () => {
   )
 }
 
-export default AboutMe
+export default About

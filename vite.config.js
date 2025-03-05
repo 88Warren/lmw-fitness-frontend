@@ -15,16 +15,16 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8081',
+        target: 'http://localhost:8082',
         // target: 'http://backend-service:8080',
         changeOrigin: true,
       },
       '/images': {
-        target: 'http://localhost:8081',
+        target: 'http://localhost:8082',
         // target: 'http://backend-service:8080',
       }
     },
-    port: 5051,
+    port: 5052,
     host: '0.0.0.0',
     strictPort: true,
   },
