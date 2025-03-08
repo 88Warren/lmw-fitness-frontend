@@ -1,35 +1,61 @@
 import React, { useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+import { RECAPTCHA_SITE_KEY } from "../../utils/config";
 
 const ContactForm = () => {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState(null);
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    email: "", 
+    message: "" 
+  });
+  const [status, setStatus] = useState("");
+  const [captchaValue, setCaptchaValue] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); 
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus("Submitting...");
+    setIsLoading(true);
+    if (!formData.name || !formData.email || !formData.message) {
+      alert('Please fill out all fields');
+      return;
+    }
+
+    // if (!captchaValue) {
+    //   setStatus("❌ Please complete the reCAPTCHA.");
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        // body: JSON.stringify({ ...form, token: captchaValue }), 
+        body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
-      if (data.status === "success") {
-        setStatus("✅ Message sent successfully!");
-        setForm({ name: "", email: "", message: "" });
+      console.log("Response from server:", res.status, res.statusText);
+
+      if (res.ok) {
+        alert('Email sent successfully!');
       } else {
-        setStatus("❌ Submission failed. Please try again.");
+        alert('Failed to send email');
       }
     } catch (error) {
-      setStatus("❌ Error: " + error.message);
+      console.error('Error sending email:', error);
+      alert('Failed to send email');
     }
   };
+
+      const handleCaptchaChange = (value) => {
+          setCaptchaValue(value);
+          console.log("Captcha value:", value);
+      };
+
 
   return (
     <section id="Contact" className="py-16 px-6 bg-gray-100">
@@ -42,47 +68,38 @@ const ContactForm = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Field */}
           <div>
-            <label className="block text-black font-bold mb-2" htmlFor="name">
-              Name:
-            </label>
+            <label className="block text-black font-bold mb-2" htmlFor="name">Name:</label>
             <input
               type="text"
               name="name"
               id="name"
-              value={form.name}
+              value={formData.name}
               onChange={handleChange}
               className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
               required
             />
           </div>
 
-          {/* Email Field */}
           <div>
-            <label className="block text-black font-bold mb-2" htmlFor="email">
-              Email:
-            </label>
+            <label className="block text-black font-bold mb-2" htmlFor="email">Email:</label>
             <input
               type="email"
               name="email"
               id="email"
-              value={form.email}
+              value={formData.email}
               onChange={handleChange}
               className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
               required
             />
           </div>
 
-          {/* Message Field */}
           <div>
-            <label className="block text-black font-bold mb-2" htmlFor="message">
-              Message:
-            </label>
+            <label className="block text-black font-bold mb-2" htmlFor="message">Message:</label>
             <textarea
               name="message"
               id="message"
-              value={form.message}
+              value={formData.message}
               onChange={handleChange}
               className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
               rows="5"
@@ -90,13 +107,18 @@ const ContactForm = () => {
             ></textarea>
           </div>
 
-          {/* Submit Button */}
+          {/* <ReCAPTCHA
+            sitekey={RECAPTCHA_SITE_KEY}
+            onChange={handleCaptchaChange}
+          /> */}
+
           <button
             type="submit"
-            className="w-full py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all"
-          >
-            Send Message
+            disabled={isLoading}
+            className='w-full py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all duration-300'>
+            {isLoading ? 'Submitting...' : 'Submit'}
           </button>
+          {status && <div>{status}</div>}
         </form>
 
         {status && <p className="mt-6 text-center text-lg font-bold">{status}</p>}
