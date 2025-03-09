@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { RECAPTCHA_SITE_KEY } from "../../utils/config";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { InputField, TextAreaField } from "../../controllers/forms/formFields"; 
+import { showToast } from "../../utils/toastUtil"; 
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({ 
@@ -8,9 +12,9 @@ const ContactForm = () => {
     email: "", 
     message: "" 
   });
-  const [status, setStatus] = useState("");
   const [captchaValue, setCaptchaValue] = useState(null);
   const [isLoading, setIsLoading] = useState(false); 
+  const recaptchaRef = useRef();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,41 +23,50 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     if (!formData.name || !formData.email || !formData.message) {
-      alert('Please fill out all fields');
+      showToast("warn", "⚠️ Please fill out all fields!");
+      setIsLoading(false);
       return;
     }
 
-    // if (!captchaValue) {
-    //   setStatus("❌ Please complete the reCAPTCHA.");
-    //   setIsLoading(false);
-    //   return;
-    // }
+    if (!captchaValue) {
+      showToast("warn", "❌ Please complete the reCAPTCHA.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // body: JSON.stringify({ ...form, token: captchaValue }), 
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, token: captchaValue }), 
       });
 
-      console.log("Response from server:", res.status, res.statusText);
+      // console.log("Sending data to backend:", JSON.stringify({ ...formData, token: captchaValue }));
+      // console.log("Response from server:", res.status, res.statusText);
+      // console.log("reCAPTCHA site key:", RECAPTCHA_SITE_KEY);
 
       if (res.ok) {
-        alert('Email sent successfully!');
+        // console.log("Toast should appear: ", res.ok ? "Success" : "Error");
+        showToast("success", "Message sent successfully!");
+        setFormData({ name: "", email: "", message: "" });
+        setCaptchaValue(null);
+        recaptchaRef.current.reset(); 
       } else {
-        alert('Failed to send email');
+        showToast("error", "Failed to send message. Please try again.");
       }
     } catch (error) {
       console.error('Error sending email:', error);
-      alert('Failed to send email');
+      showToast("error", "❌ An error occurred. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
       const handleCaptchaChange = (value) => {
           setCaptchaValue(value);
-          console.log("Captcha value:", value);
+          // console.log("Captcha value:", value);
       };
 
 
@@ -68,49 +81,11 @@ const ContactForm = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-black font-bold mb-2" htmlFor="name">Name:</label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
-              required
-            />
-          </div>
+          <InputField label="Name:" type="text" name="name" value={formData.name} onChange={handleChange} />
+          <InputField label="Email:" type="email" name="email" value={formData.email} onChange={handleChange} />
+          <TextAreaField label="Message:" name="message" value={formData.message} onChange={handleChange} />
 
-          <div>
-            <label className="block text-black font-bold mb-2" htmlFor="email">Email:</label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-black font-bold mb-2" htmlFor="message">Message:</label>
-            <textarea
-              name="message"
-              id="message"
-              value={formData.message}
-              onChange={handleChange}
-              className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
-              rows="5"
-              required
-            ></textarea>
-          </div>
-
-          {/* <ReCAPTCHA
-            sitekey={RECAPTCHA_SITE_KEY}
-            onChange={handleCaptchaChange}
-          /> */}
+          <ReCAPTCHA ref={recaptchaRef} sitekey={RECAPTCHA_SITE_KEY} onChange={handleCaptchaChange} />
 
           <button
             type="submit"
@@ -118,10 +93,8 @@ const ContactForm = () => {
             className='w-full py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all duration-300'>
             {isLoading ? 'Submitting...' : 'Submit'}
           </button>
-          {status && <div>{status}</div>}
         </form>
-
-        {status && <p className="mt-6 text-center text-lg font-bold">{status}</p>}
+        <ToastContainer />
       </div>
     </section>
   );

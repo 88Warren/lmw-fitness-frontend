@@ -1,4 +1,6 @@
 import React from 'react'
+import { HashLink } from 'react-router-hash-link';
+
 
 const Testimonials = () => {
   return (
@@ -14,10 +16,12 @@ const Testimonials = () => {
             <br /><span className="l font-bold text-5xl text-right">"</span>
           </p>
           <p className="text-lg text-white leading-relaxed text-right mt-2">
-          <span className="m">M</span>ichelle
+          <span className="m font-higherJump">M</span>ichelle
           </p>
           <button className="btn-primary mt-10 w-48">
-            Start Your Journey Today
+            <HashLink to="/#Contact" >
+              Start Your Journey Today
+            </HashLink>
           </button>
         </div>
       </section>

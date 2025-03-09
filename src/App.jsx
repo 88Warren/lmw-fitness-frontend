@@ -12,7 +12,6 @@ const ScrollToTop = () => {
   return null;
 };
 
-// Router setup
 const router = createBrowserRouter(routes);
 
 const App = () => {

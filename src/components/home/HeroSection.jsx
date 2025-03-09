@@ -1,4 +1,5 @@
 import React from 'react'
+import { HashLink } from 'react-router-hash-link';
 
 const HeroSection = () => {
   return (
@@ -19,8 +20,10 @@ const HeroSection = () => {
               <p className="font-titillium text-2xl mt-4 tracking-wide leading-loose">
               Online personal training tailored just for you. <br />
               </p>
-              <button className="btn-primary">
-              Get Started Today
+              <button className="btn-primary mt-4">
+                <HashLink to="/#Contact">
+                Get Started Today
+                </HashLink>
               </button>
             </div>
           </div>

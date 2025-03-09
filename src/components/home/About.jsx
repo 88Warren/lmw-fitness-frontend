@@ -1,4 +1,5 @@
 import React from 'react'
+import { HashLink } from 'react-router-hash-link';
 
 const About = () => {
   return (
@@ -59,7 +60,11 @@ const About = () => {
             If you want to be challenged, lose weight & tone up in a tailored, focused session, LMW Fitness is for you.  
             <br></br>Join others who have transformed their health with LMW Fitness & take the first step towards a fitter, stronger you.
           </p>
-          <button className="btn-primary px-8 py-3 text-lg">Get Started</button>
+          <button className="btn-primary px-8 py-3 text-lg">
+            <HashLink to="/#Contact">            
+              Get Started
+            </HashLink>    
+          </button>
         </div>
 
       </div>

@@ -26,29 +26,29 @@ const Footer = () => {
                     
                     {/* Company Links */}
                     <div>
-                        <h2 className="font-titillium mb-4 font-semibold uppercase">Pages</h2>
+                        {/* <h2 className="font-titillium mb-4 font-semibold uppercase">Pages</h2>
                         <ul className="space-y-2">
                             <li><Link to="/about" onClick={handleClick} className="hover:text-brightYellow">About</Link></li>
                             <li><Link to="/blog" onClick={handleClick} className="hover:text-brightYellow">Blog</Link></li>
-                        </ul>
+                        </ul> */}
                     </div>
 
                     {/* Social Links */}
                     <div>
-                        <h2 className="font-titillium mb-4 font-semibold uppercase">Follow Me</h2>
+                        {/* <h2 className="font-titillium mb-4 font-semibold uppercase">Follow Me</h2>
                         <ul className="space-y-2">
                             <li><a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" className="hover:text-brightYellow">Facebook</a></li>
                             <li><a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="hover:text-brightYellow">Instagram</a></li>
-                        </ul>
+                        </ul> */}
                     </div>
 
                     {/* Legal Links */}
                     <div>
-                        <h2 className="font-titillium mb-4 font-semibold uppercase">Legal</h2>
+                        {/* <h2 className="font-titillium mb-4 font-semibold uppercase">Legal</h2>
                         <ul className="space-y-2">
                             <li><Link to="/privacy-policy" onClick={handleClick} className="hover:text-brightYellow">Privacy Policy</Link></li>
                             <li><Link to="/terms" onClick={handleClick} className="hover:text-brightYellow">Terms & Conditions</Link></li>
-                        </ul>
+                        </ul> */}
                     </div>
                 </div>
 
@@ -60,15 +60,15 @@ const Footer = () => {
                     
                     {/* Social Icons */}
                     <div className="hidden md:flex space-x-4 justify-center items-center">
-                        <a href="#" className="text-limeGreen" aria-label="Facebook">
+                        <Link to="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" className="text-limeGreen" aria-label="Facebook">
                         <FaFacebook className="text-2xl" />
-                        </a>
-                        <a href="#" className="text-brightYellow" aria-label="Instagram">
+                        </Link>
+                        <Link to="ttps://www.instagram.com/lmw__fitness/" target="_blank" className="text-brightYellow" aria-label="Instagram">
                         <FaInstagram className="text-2xl" />
-                        </a>
-                        <a href="#" className="text-hotPink" aria-label="TikTok">
+                        </Link>
+                        <Link to="https://www.tiktok.com/en/" target="_blank" className="text-hotPink" aria-label="TikTok">
                         <FaTiktok className="text-2xl" />
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

@@ -23,7 +23,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50); // Change when scrolled 50px down
+      setIsScrolled(window.scrollY > 25); // Change when scrolled 50px down
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -52,6 +52,7 @@ const Navbar = () => {
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
+    setIsMenuOpen(false);
   };
 
   const navLink = (section) =>
@@ -60,59 +61,74 @@ const Navbar = () => {
       : 'font-titillium py-2 px-6 text-xl text-white rounded hover:bg-brightYellow hover:text-customGray';
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-customGray opacity-80 shadow-md' : 'bg-transparent'}`}>
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between">
+  <>
+    {/* Navbar */}
+    <nav className={`fixed top-0 left-0 right-0 z-50 h-16 flex items-center transition-all duration-300 ${isScrolled ? 'bg-customGray opacity-80 shadow-md' : 'bg-transparent'}`}>
+        <div className="max-w-7xl mx-auto w-full flex justify-between px-4">
           <div className="flex items-center">
-            <Link to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center">
+            <NavLink to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center">
               <h1 className="lmw">
                 <span className="l pr-1.5">L</span>
                 <span className="m pr-1.5">M</span>
                 <span className="w pr-4">W</span>
                 <span className='fitness'>fitness</span>
               </h1>
-            </Link>
-            <div className="hidden md:flex items-center">
-              {['Home', 'About', 'Testimonials', 'Pricing', 'Contact'].map((section) => (
-                <button key={section} onClick={() => scrollToSection(section)} className={navLink(section)}>
+            </NavLink>
+
+             {/* Desktop Navigation */}
+             <div className="hidden md:flex items-center space-x-6 ml-8">
+              {['Home', 'About', 'Testimonials', 'Contact'].map((section) => (
+                <button key={section} onClick={() => scrollToSection(section)} className="nav-link">
                   {section.replace(/([A-Z])/g, ' $1').trim()}
                 </button>
               ))}
-              <NavLink to="/blogs" onClick={handleClick} className={navLink('Blog')}>Blog</NavLink>
             </div>
           </div>
 
-          {/* Social Icons */}    
+          {/* Social Icons */}
           <div className="hidden md:flex space-x-4 justify-center items-center">
-            <a href="#" className="text-limeGreen" aria-label="Facebook">
+            <NavLink to="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" className="text-limeGreen" aria-label="Facebook">
               <FaFacebook className="text-2xl" />
-            </a>
-            <a href="#" className="text-brightYellow" aria-label="Instagram">
+            </NavLink>
+            
+            <NavLink to="https://www.instagram.com/lmw__fitness/" target="_blank" className="text-brightYellow" aria-label="Instagram">
               <FaInstagram className="text-2xl" />
-            </a>
-            <a href="#" className="text-hotPink" aria-label="TikTok">
+            </NavLink>
+
+            <NavLink to="https://www.tiktok.com/en/" target="_blank" className="text-hotPink" aria-label="TikTok">
               <FaTiktok className="text-2xl" />
-            </a>
+            </NavLink>
           </div>
 
-          <div className="md:hidden flex items-center">
-            <button className="text-customGray focus:outline-none" onClick={() => setIsMenuOpen((prev) => !prev)}>
-              {isMenuOpen ? <FaTimes className="text-2xl" /> : <FaBars className="text-2xl" />}
-            </button>
-          </div>
-        </div>
-      </div>
-      <div
-        className={`md:hidden font-titillium text-center text-customGray transform transition-opacity ${isMenuOpen ? 'block opacity-100' : 'hidden opacity-0'}`}
-      >
-        {['Home', 'About', 'Testimonials', 'Pricing', 'Contact'].map((section) => (
-          <button key={section} onClick={() => { scrollToSection(section); setIsMenuOpen(false); }} className="hamburger-nav-bar">
-            {section.replace(/([A-Z])/g, ' $1').trim()}
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
+            {isMenuOpen ? <FaTimes className="text-3xl" /> : <FaBars className="text-3xl" />}
           </button>
-        ))}
-        <NavLink to="/blogs" onClick={handleClick} className="block py-2 px-4 rounded hover:bg-lightGray transition-colors mx-auto w-fit">Blog</NavLink>
-      </div>
-    </nav>
+        </div>
+      </nav>
+
+      {/* Side Navbar (Mobile Menu) */}
+      <aside
+        className={`fixed top-0 left-0 w-3/4 max-w-xs h-full bg-customGray/90 backdrop-blur-md shadow-lg z-40 transform transition-transform duration-300 ${
+          isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex flex-col items-center mt-24 space-y-6">
+          {['Home', 'About', 'Testimonials', 'Contact'].map((section) => (
+            <button
+              key={section}
+              onClick={() => scrollToSection(section)}
+              className="text-white text-xl font-titillium py-3 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+            >
+              {section.replace(/([A-Z])/g, ' $1').trim()}
+            </button>
+          ))}
+        </div>
+      </aside>
+    </>
   );
 };
 
