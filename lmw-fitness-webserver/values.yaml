@@ -1,0 +1,17 @@
+namespace: lmw-fitness
+
+webserver:
+  port: 5052
+  nodePort: 31333
+  host: lmw-fitness.com
+
+image:
+  repository: lmwcode/lmw_fitness_webserver
+  tag: v1.0.0
+  pullPolicy: Always
+
+replicaCount: 1
+
+api:
+  port: 8082
+  releaseName: lmw-fitness-release
