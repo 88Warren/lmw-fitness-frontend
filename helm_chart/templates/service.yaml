@@ -11,7 +11,7 @@ metadata:
 spec:
   selector:
     app: frontend
-  type: NodePort
+  type: {{ .Values.webserver.type }}
   ports:
   - port: {{ .Values.webserver.port }}
     targetPort: {{ .Values.webserver.port }}

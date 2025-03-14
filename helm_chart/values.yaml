@@ -2,8 +2,11 @@ namespace: lmw-fitness
 
 webserver:
   port: 5052
+  type: NodePort
   nodePort: 31333
   host: lmw-fitness.com
+  path: /
+  pathType: Prefix
 
 image:
   repository: lmwcode/lmw_fitness_webserver
@@ -14,5 +17,16 @@ replicaCount: 1
 
 api:
   port: 8082
-  nodePort: 30260
   releaseName: lmw-fitness-api
+  path: /api/
+
+livenessProbe:
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+readinessProbe:
+  initialDelaySeconds: 15
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3

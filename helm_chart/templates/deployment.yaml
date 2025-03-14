@@ -40,20 +40,20 @@ spec:
             cpu: "1000m"
         readinessProbe:
           httpGet:
-            path: /
+            path: {{ .Values.webserver.path }}
             port: {{ .Values.webserver.port }}
-          initialDelaySeconds: 5
-          timeoutSeconds: 10
-          periodSeconds: 120
-          failureThreshold: 3
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
         livenessProbe:
           httpGet:
-            path: /
+            path: {{ .Values.webserver.path }}
             port: {{ .Values.webserver.port }}
-          initialDelaySeconds: 5
-          timeoutSeconds: 10
-          periodSeconds: 120
-          failureThreshold: 3
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
         volumeMounts:
         - name: frontend-config
           mountPath: /etc/nginx/conf.d

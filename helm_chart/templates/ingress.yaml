@@ -15,8 +15,8 @@ spec:
   - host: {{ .Values.webserver.host }}
     http:
       paths:
-      - path: /
-        pathType: Prefix
+      - path: {{ .Values.webserver.path }}
+        pathType: {{ .Values.webserver.pathType }}
         backend:
           service:
             name: {{ .Release.Name }}-frontend-service
