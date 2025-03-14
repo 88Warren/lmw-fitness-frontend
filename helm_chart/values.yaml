@@ -7,11 +7,12 @@ webserver:
 
 image:
   repository: lmwcode/lmw_fitness_webserver
-  tag: v3.0.0
+  tag: v4.0.0
   pullPolicy: Always
 
 replicaCount: 1
 
 api:
   port: 8082
+  nodePort: 30260
   releaseName: lmw-fitness-api
