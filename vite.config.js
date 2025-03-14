@@ -2,28 +2,46 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-export default defineConfig({
-  base: "/", // Change this if deploying to a subfolder (e.g., "/app/")
-  resolve: {
-    alias: {
-      "@": "/src",
+export default defineConfig(({ mode }) => {
+  const isProduction = mode === 'production';
+
+  return {
+    resolve: {
+      alias: {
+        "@": "/src",
+      },
     },
-  },
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-  build: {
-    outDir: "dist", 
-    sourcemap: false, 
-    chunkSizeWarningLimit: 500, 
-  },
-  define: {
-    "process.env.NODE_ENV": JSON.stringify("production"), 
-  },
-  server: {
-    port: 5052,
-    host: '0.0.0.0',
-    strictPort: true,
-  }
-})
+    plugins: [
+      react(),
+      tailwindcss(),
+    ],
+    server: {
+      proxy: {
+        '/api': {
+          target: isProduction 
+            ? 'http://lmw-fitness-api-backend-service:8082' 
+            : 'http://localhost:8082',
+          changeOrigin: true,
+        },
+        '/images': {
+          target: isProduction 
+            ? 'http://lmw-fitness-api-backend-service:8082' 
+            : 'http://localhost:8082',
+          changeOrigin: true,
+        },
+      },
+      port: 5052,
+      host: '0.0.0.0',
+      strictPort: true,
+    },
+    build: {
+      outDir: "dist",
+      sourcemap: false,
+      chunkSizeWarningLimit: 500,
+    },
+    define: {
+      "process.env.NODE_ENV": JSON.stringify(mode),
+    },
+    base: isProduction ? "/" : "/", 
+  };
+});
