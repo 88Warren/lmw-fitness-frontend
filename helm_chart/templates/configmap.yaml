@@ -16,7 +16,7 @@ data:
       error_log /var/log/nginx/error.log warn;
 
       location {{ .Values.api.path }} {
-        proxy_pass http://{{ .Values.api.releaseName }}-backend-service:{{ .Values.api.port }}/;
+        proxy_pass http://{{ .Values.namespace }}-backend-service:{{ .Values.api.port }}/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

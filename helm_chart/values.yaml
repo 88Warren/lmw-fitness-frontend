@@ -17,7 +17,6 @@ replicaCount: 1
 
 api:
   port: 8082
-  releaseName: lmw-fitness-api
   path: /api/
 
 livenessProbe:
