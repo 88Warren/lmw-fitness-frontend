@@ -101,4 +101,8 @@
   .custom-toast {
     @apply bg-white text-customGray font-titillium p-4 rounded-lg shadow-lg text-lg font-bold w-96 text-center;
   }
+
+  .socials:hover {
+    @apply transform scale-125 brightness-150;
+  }
 }

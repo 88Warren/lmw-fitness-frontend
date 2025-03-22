@@ -60,13 +60,13 @@ const Footer = () => {
                     
                     {/* Social Icons */}
                     <div className="hidden md:flex space-x-4 justify-center items-center">
-                        <Link to="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" className="text-limeGreen" aria-label="Facebook">
+                        <Link to="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" className="text-limeGreen socials" aria-label="Facebook">
                         <FaFacebook className="text-2xl" />
                         </Link>
-                        <Link to="ttps://www.instagram.com/lmw__fitness/" target="_blank" className="text-brightYellow" aria-label="Instagram">
+                        <Link to="https://www.instagram.com/lmw__fitness/" target="_blank" className="text-brightYellow socials" aria-label="Instagram">
                         <FaInstagram className="text-2xl" />
                         </Link>
-                        <Link to="https://www.tiktok.com/en/" target="_blank" className="text-hotPink" aria-label="TikTok">
+                        <Link to="https://www.tiktok.com/en/" target="_blank" className="text-hotPink socials" aria-label="TikTok">
                         <FaTiktok className="text-2xl" />
                         </Link>
                     </div>
