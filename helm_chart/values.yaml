@@ -10,7 +10,7 @@ webserver:
 
 image:
   repository: lmwcode/lmw_fitness_webserver
-  tag: v1.3.0
+  tag: v1.4.0
   pullPolicy: Always
 
 replicaCount: 1
@@ -25,6 +25,7 @@ livenessProbe:
   periodSeconds: 120
   failureThreshold: 3
 readinessProbe:
+  endpoint: /index.html
   initialDelaySeconds: 15
   timeoutSeconds: 5
   periodSeconds: 120

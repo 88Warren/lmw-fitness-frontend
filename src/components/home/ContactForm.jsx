@@ -72,25 +72,27 @@ const ContactForm = () => {
 
   return (
     <section id="Contact" className="py-16 px-6 bg-gray-100">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-4xl font-higherJump text-center mb-6 text-black">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 md:p-8">
+        <h2 className="text-3xl md:text-4xl font-higherJump text-center mb-4 text-black leading-relaxed md:leading-loose">
           Get In Touch <span className="w">w</span>ith <span className="m">m</span>e
         </h2>
-        <p className="text-lg text-center text-customGray mb-8">
+        <p className="text-lg text-center text-customGray mb-6 md:mb-8">
           Have a question or need more info? Drop me a message here:
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
           <InputField label="Name:" type="text" name="name" value={formData.name} onChange={handleChange} />
           <InputField label="Email:" type="email" name="email" value={formData.email} onChange={handleChange} />
           <TextAreaField label="Message:" name="message" value={formData.message} onChange={handleChange} />
 
-          <ReCAPTCHA ref={recaptchaRef} sitekey={RECAPTCHA_SITE_KEY} onChange={handleCaptchaChange} />
+          <div className="flex justify-center mb-4">
+           <ReCAPTCHA ref={recaptchaRef} sitekey={RECAPTCHA_SITE_KEY} onChange={handleCaptchaChange} size="compact" />
+          </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className='w-full py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all duration-300'>
+            className='w-full py-2 md:py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all duration-300'>
             {isLoading ? 'Submitting...' : 'Submit'}
           </button>
         </form>
