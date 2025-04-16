@@ -19,13 +19,13 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': {
           target: isProduction 
-            ? 'http://localhost:30260' 
+            ? 'http://api.lmwfitness.co.uk' 
             : 'http://localhost:8082',
           changeOrigin: true,
         },
         '/images': {
           target: isProduction 
-            ? 'http://localhost:30260' 
+            ? 'http://api.lmwfitness.co.uk' 
             : 'http://localhost:8082',
           changeOrigin: true,
         },
@@ -38,10 +38,11 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       sourcemap: false,
       chunkSizeWarningLimit: 500,
+      assetsInlineLimit: 0,
     },
     define: {
       "process.env.NODE_ENV": JSON.stringify(mode),
     },
-    base: isProduction ? "/" : "/", 
+    base: "/", 
   };
 });

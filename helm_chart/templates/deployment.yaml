@@ -33,11 +33,11 @@ spec:
           protocol: TCP
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "500m"
+            memory: "48Mi"
+            cpu: "150m"
           limits:
-            memory: "256Mi"
-            cpu: "1000m"
+            memory: "64Mi"
+            cpu: "250m"
         readinessProbe:
           httpGet:
             path: {{ .Values.webserver.path }}
@@ -56,7 +56,8 @@ spec:
           failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
         volumeMounts:
         - name: frontend-config
-          mountPath: /etc/nginx/conf.d
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
         - name: nginx-cache
           mountPath: /var/cache/nginx
         - name: nginx-run

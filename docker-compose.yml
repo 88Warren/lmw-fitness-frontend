@@ -3,7 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: lmwcode/lmw_fitness_webserver:v4.0.0
+      args:
+        PLATFORM: linux/amd64
+    image: lmwcode/lmw_fitness_webserver:v1.3.0
     container_name: lmw_fitness_webserver
     ports:
        - "5052:5052"

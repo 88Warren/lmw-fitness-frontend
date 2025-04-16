@@ -9,10 +9,16 @@ metadata:
     meta.helm.sh/release-name: {{ .Release.Name }}-frontend-ingress
     meta.helm.sh/release-namespace: {{ .Values.namespace }}
     nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-certificate: lmwfitness-ssl
 spec:
   ingressClassName: nginx
+  tls: 
+    - hosts:
+      - {{ .Values.webserver.host | quote }}
+      secretName: lmwfitness-ssl
   rules:
-  - host: {{ .Values.webserver.host }}
+  - host: {{ .Values.webserver.host | quote }}
     http:
       paths:
       - path: {{ .Values.webserver.path }}

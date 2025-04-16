@@ -21,3 +21,6 @@
 .idea/
 *.tmproj
 .vscode/
+
+nginx-configmap.yaml
+nginx-ingress.yaml.bak
