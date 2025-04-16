@@ -13,17 +13,11 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const token = getCookie('access_token');
-  const isLoggedIn = !!token;
-
-  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  const userId = currentUser ? currentUser.id : null;
-
   const sections = useMemo(() => document.querySelectorAll('section'), []);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 25); // Change when scrolled 50px down
+      setIsScrolled(window.scrollY > 25); 
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -43,7 +37,6 @@ const Navbar = () => {
     );
 
     sections.forEach((section) => observer.observe(section));
-
     return () => sections.forEach((section) => observer.unobserve(section));
   }, [sections]);
 
@@ -64,21 +57,23 @@ const Navbar = () => {
   <>
     {/* Navbar */}
     <nav className={`fixed top-0 left-0 right-0 z-50 h-16 flex items-center transition-all duration-300 ${isScrolled ? 'bg-customGray opacity-80 shadow-md' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto w-full flex justify-between px-4">
+        <div className="max-w-7xl mx-auto w-full flex justify-between px-10">
           <div className="flex items-center">
             <NavLink to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center">
-              <h1 className="lmw">
-                <span className="l pr-1.5">L</span>
-                <span className="m pr-1.5">M</span>
-                <span className="w pr-4">W</span>
-                <span className='fitness'>fitness</span>
-              </h1>
+              {/* <div className="flex items-end relative top-2"> */}
+                <h1 className="lmw items-end pt-10">
+                  <span className="l pr-1.5">L</span>
+                  <span className="m pr-1.5">M</span>
+                  <span className="w pr-4">W</span>
+                  <span className='fitness'>fitness</span>
+                </h1>
+              {/* </div> */}
             </NavLink>
 
              {/* Desktop Navigation */}
              <div className="hidden md:flex items-center space-x-6 ml-8">
               {['Home', 'About', 'Testimonials', 'Contact'].map((section) => (
-                <button key={section} onClick={() => scrollToSection(section)} className="nav-link">
+                <button key={section} onClick={() => scrollToSection(section)} className={navLink(section)}>
                   {section.replace(/([A-Z])/g, ' $1').trim()}
                 </button>
               ))}
@@ -87,15 +82,15 @@ const Navbar = () => {
 
           {/* Social Icons */}
           <div className="hidden md:flex space-x-4 justify-center items-center">
-            <NavLink to="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" className="text-limeGreen" aria-label="Facebook">
+            <NavLink to="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" className="text-limeGreen socials" aria-label="Facebook">
               <FaFacebook className="text-2xl" />
             </NavLink>
             
-            <NavLink to="https://www.instagram.com/lmw__fitness/" target="_blank" className="text-brightYellow" aria-label="Instagram">
+            <NavLink to="https://www.instagram.com/lmw__fitness/" target="_blank" className="text-brightYellow socials" aria-label="Instagram">
               <FaInstagram className="text-2xl" />
             </NavLink>
 
-            <NavLink to="https://www.tiktok.com/en/" target="_blank" className="text-hotPink" aria-label="TikTok">
+            <NavLink to="https://www.tiktok.com/en/" target="_blank" className="text-hotPink socials" aria-label="TikTok">
               <FaTiktok className="text-2xl" />
             </NavLink>
           </div>

@@ -1,0 +1,22 @@
+services:
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PLATFORM: linux/amd64
+    image: lmwcode/lmw_fitness_webserver:v1.3.0
+    container_name: lmw_fitness_webserver
+    ports:
+       - "5052:5052"
+    networks:
+      - lmw_fitness_network
+    volumes:
+      - ./webserver/default.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-logs:/var/log/nginx
+      - ./nginx-selfsigned.crt:/etc/nginx/nginx-selfsigned.crt:ro
+      - ./nginx-selfsigned.key:/etc/nginx/nginx-selfsigned.key:ro
+
+networks:
+  lmw_fitness_network:
+    external: true

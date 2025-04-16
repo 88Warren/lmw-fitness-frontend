@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-frontend-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}-frontend-service
+    meta.helm.sh/release-namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: frontend
+  type: {{ .Values.webserver.type }}
+  ports:
+  - port: {{ .Values.webserver.port }}
+    targetPort: {{ .Values.webserver.port }}
+    nodePort: {{ .Values.webserver.nodePort }}

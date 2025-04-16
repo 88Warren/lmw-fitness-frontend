@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-frontend-ingress
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}-frontend-ingress
+    meta.helm.sh/release-namespace: {{ .Values.namespace }}
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-certificate: lmwfitness-ssl
+spec:
+  ingressClassName: nginx
+  tls: 
+    - hosts:
+      - {{ .Values.webserver.host | quote }}
+      secretName: lmwfitness-ssl
+  rules:
+  - host: {{ .Values.webserver.host | quote }}
+    http:
+      paths:
+      - path: {{ .Values.webserver.path }}
+        pathType: {{ .Values.webserver.pathType }}
+        backend:
+          service:
+            name: {{ .Release.Name }}-frontend-service
+            port:
+              number: {{ .Values.webserver.port }}
