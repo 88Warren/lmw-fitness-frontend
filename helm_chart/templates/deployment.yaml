@@ -42,10 +42,12 @@ spec:
           httpGet:
             path: {{ .Values.readinessProbe.endpoint }}
             port: {{ .Values.webserver.port }}
+            scheme: {{ .Values.readinessProbe.scheme }}
           initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
           timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
           periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
           failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          successThreshold: {{ .Values.readinessProbe.successThreshold }}
         livenessProbe:
           exec:
             command:
@@ -56,6 +58,7 @@ spec:
           timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
           periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
           failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          successThreshold: {{ .Values.livenessProbe.successThreshold }}
         volumeMounts:
         - name: frontend-config
           mountPath: /etc/nginx/nginx.conf

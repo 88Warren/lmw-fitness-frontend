@@ -10,7 +10,7 @@ webserver:
 
 image:
   repository: lmwcode/lmw_fitness_webserver
-  tag: v1.4.0
+  tag: v1.1.9
   pullPolicy: Always
 
 replicaCount: 1
@@ -18,15 +18,19 @@ replicaCount: 1
 api:
   port: 8082
   path: /api/
+  url: https://api.lmwfitness.co.uk/api/
 
 livenessProbe:
+  initialDelaySeconds: 45
+  timeoutSeconds: 5
+  periodSeconds: 120
+  failureThreshold: 3
+  successThreshold: 1
+readinessProbe:
+  endpoint: /health
+  scheme: HTTP
   initialDelaySeconds: 30
   timeoutSeconds: 5
   periodSeconds: 120
   failureThreshold: 3
-readinessProbe:
-  endpoint: /index.html
-  initialDelaySeconds: 15
-  timeoutSeconds: 5
-  periodSeconds: 120
-  failureThreshold: 3
+  successThreshold: 1
