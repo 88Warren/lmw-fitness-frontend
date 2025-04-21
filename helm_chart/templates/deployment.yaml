@@ -40,20 +40,17 @@ spec:
             cpu: "250m"
         readinessProbe:
           httpGet:
-            path: {{ .Values.readinessProbe.endpoint }}
+            path: {{ .Values.webserver.path }}
             port: {{ .Values.webserver.port }}
-            scheme: {{ .Values.readinessProbe.scheme }}
           initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
           timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
           periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
           failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
           successThreshold: {{ .Values.readinessProbe.successThreshold }}
         livenessProbe:
-          exec:
-            command:
-            - /bin/sh
-            - -c
-            - "nginx -t"
+          httpGet:
+            path: {{ .Values.webserver.path }}
+            port: {{ .Values.webserver.port }}
           initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
           timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
           periodSeconds: {{ .Values.livenessProbe.periodSeconds }}

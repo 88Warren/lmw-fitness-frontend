@@ -8,16 +8,17 @@ metadata:
   annotations:
     meta.helm.sh/release-name: {{ .Release.Name }}-frontend-ingress
     meta.helm.sh/release-namespace: {{ .Values.namespace }}
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-certificate: lmwfitness-ssl
 spec:
   ingressClassName: nginx
   tls: 
     - hosts:
-      - {{ .Values.webserver.host }}
+      - {{ .Values.webserver.host | quote }}
       secretName: lmwfitness-ssl
   rules:
-  - host: {{ .Values.webserver.host }}
+  - host: {{ .Values.webserver.host | quote }}
     http:
       paths:
       - path: {{ .Values.webserver.path }}
@@ -27,10 +28,3 @@ spec:
             name: {{ .Release.Name }}-frontend-service
             port:
               number: {{ .Values.webserver.port }}
-      - path: /api(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: {{ .Values.namespace }}-backend-service
-            port:
-              number: {{ .Values.api.port }}

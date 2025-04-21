@@ -10,90 +10,45 @@ metadata:
     meta.helm.sh/release-namespace: {{ .Values.namespace }}
 data:
   nginx.conf: |
-   events {}
-
+    events {}
     http {
-      include /etc/nginx/mime.types;
-      default_type application/octet-stream;
-      sendfile on;
-
       server {
         listen {{ .Values.webserver.port }};
         server_name {{ .Values.webserver.host }};
-
-        root /usr/share/nginx/html;
-        index index.html;
-
-        add_header X-Content-Type-Options nosniff;
-        add_header X-Debug-URI $uri always;
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
 
         error_log /var/log/nginx/error.log warn;
-        access_log off;
+        access_log /var/log/nginx/access.log;
 
-        location /health {
-          return 200 "healthy";
-          access_log off;
-          add_header Content-Type text/plain;
-        }
-
-        location /assets/ {
-          alias /usr/share/nginx/html/assets/;
-          try_files $uri =404;
-          access_log off;
-          expires 30d;
-          add_header Cache-Control "public, no-transform";
-        }
-
-        location ~* \.(js|mjs)$ {
-          root /usr/share/nginx/html;
-          add_header Content-Type application/javascript;
-          try_files $uri =404;
-          expires 30d;
+        location {{ .Values.api.path }} {
+          proxy_pass http://{{ .Values.namespace }}-backend-service:{{ .Values.api.port }}/;
+          proxy_http_version 1.1;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
           access_log off;
         }
 
-        location ~* \.css$ {
-          root /usr/share/nginx/html;
-          add_header Content-Type text/css;
-          try_files $uri =404;
-          expires 30d;
-          access_log off;
-        }
-
-        location ~* \.(png|jpg|jpeg|gif|ico|svg|woff2?)$ {
-          root /usr/share/nginx/html;
-          try_files $uri =404;
-          expires 30d;
+        location /images/ {
+          access_log /var/log/nginx/images_access.log;
+          error_log /var/log/nginx/images_error.log debug;
+          proxy_pass http://{{ .Values.namespace }}-backend-service:{{ .Values.api.port }}/images/;
+          proxy_http_version 1.1;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
           access_log off;
         }
 
         location / {
+          root /usr/share/nginx/html;
+          index index.html;
+          access_log off;
           try_files $uri $uri/ /index.html;
         }
-
-        location {{ .Values.api.path }} {
-          proxy_pass https://{{ .Values.namespace }}-backend-service:{{ .Values.api.port }}/;
-          proxy_http_version 1.1;
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-          access_log off;
-          error_log /var/log/nginx/api_error.log debug;
-        }
-
-        location /images/ {
-          proxy_pass https://{{ .Values.namespace }}-backend-service:{{ .Values.api.port }}/images/;
-          proxy_http_version 1.1;
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-          access_log off;
-          error_log /var/log/nginx/images_error.log debug;
-        }
-
-        error_page 404 /index.html;
 
         error_page 500 502 503 504 /50x.html;
         location = /50x.html {
