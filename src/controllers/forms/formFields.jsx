@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 export const InputField = ({ label, type, name, value, onChange }) => (
     <div>
       <label className="block text-black font-bold mb-2" htmlFor={name}>
@@ -14,6 +16,15 @@ export const InputField = ({ label, type, name, value, onChange }) => (
       />
     </div>
   );
+
+  InputField.propTypes = {
+    label: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired
+  };
+  
   
   export const TextAreaField = ({ label, name, value, onChange }) => (
     <div>
@@ -31,3 +42,10 @@ export const InputField = ({ label, type, name, value, onChange }) => (
       />
     </div>
   );
+
+  TextAreaField.propTypes = {
+    label: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired
+  };

@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import useBlogForm from '../../hooks/useBlogForm.jsx';
+import PropTypes from 'prop-types';
 
 const BlogForm = ({ formData: initialData, onSubmit, title, buttonText, footer }) => {
   const initialFormData = {
@@ -10,6 +11,14 @@ const BlogForm = ({ formData: initialData, onSubmit, title, buttonText, footer }
     image_url: initialData?.image_url || '',
     published_at: initialData?.published_at || '',
     is_published: initialData?.is_published || false,
+  };
+
+  BlogForm.propTypes = {
+    formData: PropTypes.object.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    title: PropTypes.string.isRequired,
+    buttonText: PropTypes.string.isRequired,
+    footer: PropTypes.string.isRequired,
   };
 
   const { formData, setFormData, handleChange, handleSubmit, handleImageChange, imagePreview, setImagePreview } = 
