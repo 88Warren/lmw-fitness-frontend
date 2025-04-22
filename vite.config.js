@@ -19,13 +19,13 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': {
           target: isProduction 
-            ? 'http://api.lmwfitness.co.uk' 
+            ? 'https://api.lmwfitness.co.uk' 
             : 'http://localhost:8082',
           changeOrigin: true,
         },
         '/images': {
           target: isProduction 
-            ? 'http://api.lmwfitness.co.uk' 
+            ? 'https://api.lmwfitness.co.uk' 
             : 'http://localhost:8082',
           changeOrigin: true,
         },

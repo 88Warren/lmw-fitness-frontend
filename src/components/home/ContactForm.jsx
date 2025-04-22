@@ -1,10 +1,11 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { RECAPTCHA_SITE_KEY } from "../../utils/config";
+import { RECAPTCHA_KEY } from "../../utils/config";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { InputField, TextAreaField } from "../../controllers/forms/formFields"; 
 import { showToast } from "../../utils/toastUtil"; 
+import { BACKEND_URL } from "../../utils/config";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({ 
@@ -37,7 +38,7 @@ const ContactForm = () => {
     }
 
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(`${BACKEND_URL}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, token: captchaValue }), 
@@ -86,7 +87,7 @@ const ContactForm = () => {
           <TextAreaField label="Message:" name="message" value={formData.message} onChange={handleChange} />
 
           <div className="flex justify-center mb-4">
-           <ReCAPTCHA ref={recaptchaRef} sitekey={RECAPTCHA_SITE_KEY} onChange={handleCaptchaChange} size="compact" />
+           <ReCAPTCHA ref={recaptchaRef} sitekey={RECAPTCHA_KEY} onChange={handleCaptchaChange} size="compact" />
           </div>
 
           <button

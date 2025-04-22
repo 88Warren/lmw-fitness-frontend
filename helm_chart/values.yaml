@@ -7,10 +7,12 @@ webserver:
   host: www.lmwfitness.co.uk
   path: /
   pathType: Prefix
+  recaptcha: 6Ldn3-0qAAAAAMWv4iekZdMl4Xrfj2Av2zEL7onD
+  backendUrl: https://api.lmwfitness.co.uk
 
 image:
   repository: lmwcode/lmw_fitness_webserver
-  tag: v1.2.6
+  tag: v1.3.2
   pullPolicy: Always
 
 replicaCount: 1
