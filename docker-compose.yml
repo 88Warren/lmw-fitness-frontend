@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         PLATFORM: linux/amd64
-    image: lmwcode/lmw_fitness_webserver:v1.2.6
+    image: lmwcode/lmw_fitness_webserver:v1.3.7
     container_name: lmw_fitness_webserver
     ports:
        - "5052:5052"

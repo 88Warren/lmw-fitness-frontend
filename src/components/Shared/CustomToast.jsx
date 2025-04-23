@@ -1,5 +1,5 @@
-import React from "react";
 import "react-toastify/dist/ReactToastify.css";
+import PropTypes from 'prop-types';
 
 const CustomToast = ({ type, message }) => {
   const bgColor =
@@ -14,6 +14,11 @@ const CustomToast = ({ type, message }) => {
       </div>
     </div>
   );
+};
+
+CustomToast.propTypes = {
+  type: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired
 };
 
 export default CustomToast;

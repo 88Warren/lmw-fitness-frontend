@@ -1,10 +1,11 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { RECAPTCHA_SITE_KEY } from "../../utils/config";
+import { RECAPTCHA_KEY } from "../../utils/config";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { InputField, TextAreaField } from "../../controllers/forms/formFields"; 
 import { showToast } from "../../utils/toastUtil"; 
+import { BACKEND_URL } from "../../utils/config";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({ 
@@ -24,6 +25,9 @@ const ContactForm = () => {
     e.preventDefault();
     setIsLoading(true);
 
+    const maxRetries = 3;
+    let retryCount = 0;
+
     if (!formData.name || !formData.email || !formData.message) {
       showToast("warn", "⚠️ Please fill out all fields!");
       setIsLoading(false);
@@ -36,16 +40,45 @@ const ContactForm = () => {
       return;
     }
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, token: captchaValue }), 
-      });
+    const submitWithRetry = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/contact`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ ...formData, token: captchaValue }), 
+        });
+        return res;
+      } catch (error) {
+        if (retryCount < maxRetries) {
+          retryCount++;
+          // console.log(`Retrying... Attempt ${retryCount} of ${maxRetries}`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          return submitWithRetry();
+        }
+        throw error;
+      }
+    };
 
+    try {
+      // console.log('Sending request to:', `${BACKEND_URL}/api/contact`);
+      // console.log('Request payload:', { ...formData, token: captchaValue });
+        const res = await submitWithRetry();
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Error response:', errorText);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      // console.log('Response status:', res.status);
+      const data = await res.json();
+      // console.log('Response data:', data);
+      // console.log('Captcha Value:', captchaValue);
+      // console.log("reCAPTCHA site key:", RECAPTCHA_KEY);
       // console.log("Sending data to backend:", JSON.stringify({ ...formData, token: captchaValue }));
       // console.log("Response from server:", res.status, res.statusText);
-      // console.log("reCAPTCHA site key:", RECAPTCHA_SITE_KEY);
+      
 
       if (res.ok) {
         // console.log("Toast should appear: ", res.ok ? "Success" : "Error");
@@ -55,6 +88,11 @@ const ContactForm = () => {
         recaptchaRef.current.reset(); 
       } else {
         showToast("error", "Failed to send message. Please try again.");
+      }
+
+      if (!navigator.onLine) {
+        showToast("error", "❌ No internet connection. Please check your connection and try again.");
+        return;
       }
     } catch (error) {
       console.error('Error sending email:', error);
@@ -86,7 +124,7 @@ const ContactForm = () => {
           <TextAreaField label="Message:" name="message" value={formData.message} onChange={handleChange} />
 
           <div className="flex justify-center mb-4">
-           <ReCAPTCHA ref={recaptchaRef} sitekey={RECAPTCHA_SITE_KEY} onChange={handleCaptchaChange} size="compact" />
+           <ReCAPTCHA ref={recaptchaRef} sitekey={RECAPTCHA_KEY} onChange={handleCaptchaChange} size="compact" />
           </div>
 
           <button

@@ -11,6 +11,7 @@ metadata:
 spec:
   selector:
     app: frontend
+    app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.webserver.type }}
   ports:
   - port: {{ .Values.webserver.port }}
