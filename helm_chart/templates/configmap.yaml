@@ -23,7 +23,7 @@ data:
 
         location {{ .Values.api.path }} {
           # proxy_pass http://{{ .Values.namespace }}-backend-service:{{ .Values.api.port }}/;
-          proxy_pass https://lmw-fitness-backend-service.lmw-fitness.svc.cluster.local:8082/;
+          proxy_pass http://lmw-fitness-backend-service.lmw-fitness.svc.cluster.local:8082/;
           proxy_ssl_verify off;  # For internal cluster communication
           proxy_ssl_server_name on;
           proxy_http_version 1.1;
@@ -36,13 +36,13 @@ data:
           # Add CORS headers
           add_header 'Access-Control-Allow-Origin' 'https://www.lmwfitness.co.uk' always;
           add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
-          add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           add_header 'Access-Control-Allow-Credentials' 'true' always;
           
           if ($request_method = 'OPTIONS') {
               add_header 'Access-Control-Allow-Origin' 'https://www.lmwfitness.co.uk' always;
               add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
-              add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type' always;
+              add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
               add_header 'Access-Control-Allow-Credentials' 'true' always;
               add_header 'Content-Type' 'text/plain charset=UTF-8';
               add_header 'Content-Length' '0';
@@ -54,7 +54,7 @@ data:
           access_log /var/log/nginx/images_access.log;
           error_log /var/log/nginx/images_error.log debug;
           # proxy_pass http://{{ .Values.namespace }}-backend-service:{{ .Values.api.port }}/images/;
-          proxy_pass https://lmw-fitness-backend-service.lmw-fitness.svc.cluster.local:8082/images/;
+          proxy_pass http://lmw-fitness-backend-service.lmw-fitness.svc.cluster.local:8082/images/;
           proxy_ssl_verify off;  # For internal cluster communication
           proxy_ssl_server_name on;
           proxy_http_version 1.1;

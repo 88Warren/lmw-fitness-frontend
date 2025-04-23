@@ -38,18 +38,29 @@ const ContactForm = () => {
     }
 
     try {
+      console.log('Sending request to:', `${BACKEND_URL}/api/contact`);
+      console.log('Request payload:', { ...formData, token: captchaValue });
       const res = await fetch(`${BACKEND_URL}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, token: captchaValue }), 
       });
-
-      // console.log("Sending data to backend:", JSON.stringify({ ...formData, token: captchaValue }));
-      // console.log("Response from server:", res.status, res.statusText);
-      // console.log("reCAPTCHA site key:", RECAPTCHA_SITE_KEY);
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Error response:', errorText);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      console.log('Response status:', res.status);
+      const data = await res.json();
+      console.log('Response data:', data);
+      console.log('Captcha Value:', captchaValue);
+      console.log("reCAPTCHA site key:", RECAPTCHA_KEY);
+      console.log("Sending data to backend:", JSON.stringify({ ...formData, token: captchaValue }));
+      console.log("Response from server:", res.status, res.statusText);
+      
 
       if (res.ok) {
-        // console.log("Toast should appear: ", res.ok ? "Success" : "Error");
+        console.log("Toast should appear: ", res.ok ? "Success" : "Error");
         showToast("success", "Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
         setCaptchaValue(null);
@@ -67,7 +78,7 @@ const ContactForm = () => {
 
       const handleCaptchaChange = (value) => {
           setCaptchaValue(value);
-          // console.log("Captcha value:", value);
+          console.log("Captcha value:", value);
       };
 
 

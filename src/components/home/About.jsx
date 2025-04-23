@@ -45,7 +45,7 @@ const About = () => {
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h4 className="text-xl md:text-2xl font-bold text-black mb-4">Flexible & Accessible</h4>
             <p className="text-lg text-customGray">
-              My 30-Day Fat Loss Program is designed for people with busy lifestyles. No gym required – just commitment and a positive mindset!
+              My 30-Day Fat Loss Program is designed for people with busy lifestyles. Can do at home or in the gym – you just need commitment and a positive mindset!
               I offer quality, effective fat loss programmes for beginners and the more advanced.
               They are available online and you will be sent a daily video, every day, for 30 days to enable you to exercise in the comfort of your own home.
             </p>

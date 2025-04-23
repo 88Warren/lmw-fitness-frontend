@@ -1,5 +1,5 @@
 # Step 1 build the production react app
-FROM node:23-alpine AS builder
+FROM node:23-alpine3.21 AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
