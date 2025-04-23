@@ -25,6 +25,9 @@ const ContactForm = () => {
     e.preventDefault();
     setIsLoading(true);
 
+    const maxRetries = 3;
+    let retryCount = 0;
+
     if (!formData.name || !formData.email || !formData.message) {
       showToast("warn", "⚠️ Please fill out all fields!");
       setIsLoading(false);
@@ -37,36 +40,59 @@ const ContactForm = () => {
       return;
     }
 
+    const submitWithRetry = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/contact`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ ...formData, token: captchaValue }), 
+        });
+        return res;
+      } catch (error) {
+        if (retryCount < maxRetries) {
+          retryCount++;
+          // console.log(`Retrying... Attempt ${retryCount} of ${maxRetries}`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          return submitWithRetry();
+        }
+        throw error;
+      }
+    };
+
     try {
-      console.log('Sending request to:', `${BACKEND_URL}/api/contact`);
-      console.log('Request payload:', { ...formData, token: captchaValue });
-      const res = await fetch(`${BACKEND_URL}/api/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, token: captchaValue }), 
-      });
+      // console.log('Sending request to:', `${BACKEND_URL}/api/contact`);
+      // console.log('Request payload:', { ...formData, token: captchaValue });
+        const res = await submitWithRetry();
       if (!res.ok) {
         const errorText = await res.text();
         console.error('Error response:', errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      console.log('Response status:', res.status);
+      // console.log('Response status:', res.status);
       const data = await res.json();
-      console.log('Response data:', data);
-      console.log('Captcha Value:', captchaValue);
-      console.log("reCAPTCHA site key:", RECAPTCHA_KEY);
-      console.log("Sending data to backend:", JSON.stringify({ ...formData, token: captchaValue }));
-      console.log("Response from server:", res.status, res.statusText);
+      // console.log('Response data:', data);
+      // console.log('Captcha Value:', captchaValue);
+      // console.log("reCAPTCHA site key:", RECAPTCHA_KEY);
+      // console.log("Sending data to backend:", JSON.stringify({ ...formData, token: captchaValue }));
+      // console.log("Response from server:", res.status, res.statusText);
       
 
       if (res.ok) {
-        console.log("Toast should appear: ", res.ok ? "Success" : "Error");
+        // console.log("Toast should appear: ", res.ok ? "Success" : "Error");
         showToast("success", "Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
         setCaptchaValue(null);
         recaptchaRef.current.reset(); 
       } else {
         showToast("error", "Failed to send message. Please try again.");
+      }
+
+      if (!navigator.onLine) {
+        showToast("error", "❌ No internet connection. Please check your connection and try again.");
+        return;
       }
     } catch (error) {
       console.error('Error sending email:', error);
@@ -78,7 +104,7 @@ const ContactForm = () => {
 
       const handleCaptchaChange = (value) => {
           setCaptchaValue(value);
-          console.log("Captcha value:", value);
+          // console.log("Captcha value:", value);
       };
 
 

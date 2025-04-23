@@ -8,11 +8,11 @@ webserver:
   path: /
   pathType: Prefix
   recaptcha: 6Ldn3-0qAAAAAMWv4iekZdMl4Xrfj2Av2zEL7onD
-  backendUrl: https://api.lmwfitness.co.uk
+  backendUrl: ""
 
 image:
   repository: lmwcode/lmw_fitness_webserver
-  tag: v1.3.4
+  tag: v1.3.7
   pullPolicy: Always
 
 replicaCount: 1
