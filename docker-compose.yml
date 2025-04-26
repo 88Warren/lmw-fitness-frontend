@@ -16,7 +16,6 @@ services:
       - ./nginx-logs:/var/log/nginx
       - ./nginx-selfsigned.crt:/etc/nginx/nginx-selfsigned.crt:ro
       - ./nginx-selfsigned.key:/etc/nginx/nginx-selfsigned.key:ro
-
 networks:
   lmw_fitness_network:
     external: true

@@ -5,6 +5,7 @@ webserver:
   type: NodePort
   nodePort: 31333
   host: www.lmwfitness.co.uk
+  strippedHost: lmwfitness.co.uk
   path: /
   pathType: Prefix
   recaptcha: 6Ldn3-0qAAAAAMWv4iekZdMl4Xrfj2Av2zEL7onD

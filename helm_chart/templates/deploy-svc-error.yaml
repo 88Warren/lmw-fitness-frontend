@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-default-backend
+  namespace: ingress-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-default-backend
+  template:
+    metadata:
+      labels:
+        app: custom-default-backend
+    spec:
+      containers:
+      - name: default-http-backend
+        image: nginx:stable
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c", "nginx -g 'daemon off;'"]
+        volumeMounts:
+        - name: error-pages
+          mountPath: /usr/share/nginx/html
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: error-pages
+        configMap:
+          name: custom-errors
+          items:
+          - key: 404.html
+            path: 404.html
+      - name: nginx-config
+        configMap:
+          name: custom-errors
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-default-backend
+  namespace: ingress-nginx
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: custom-default-backend

@@ -17,3 +17,4 @@ metadata:
 data:
   ssl-certificate: /etc/nginx/ssl/tls.crt
   ssl-certificate-key: /etc/nginx/ssl/tls.key
+  custom-http-errors: 404, 500, 502, 503, 504

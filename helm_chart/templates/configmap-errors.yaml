@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-errors
+  namespace: ingress-nginx
+data:
+  404.html: |
+    <html>
+    <head><title>404 Not Found</title></head>
+    <body style="text-align: center; font-family: Arial; padding-top: 100px;">
+      <h1 style="font-size: 80px; color: #ff4c4c;">404</h1>
+      <h2>Oops! Page not found</h2>
+      <p>The page you are looking for might have been removed or is temporarily unavailable.</p>
+      <a href="https://www.lmwfitness.co.uk" style="text-decoration: none; color: #007bff;">Return Home</a>
+    </body>
+    </html>
+  nginx.conf: |
+    events {}
+    http {
+      server {
+        listen 80;
+        root /usr/share/nginx/html;
+        location / {
+          try_files $uri /404.html;
+        }
+        error_page 404 /404.html;
+      }
+    }
