@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-frontend-runtime-config
+  namespace: {{ .Values.namespace }}
+data:
+  config.js: |
+    window._env_ = {
+      VITE_BACKEND_URL: "{{ .Values.webserver.backendUrl }}",
+      VITE_RECAPTCHA_SITE_KEY: "{{ .Values.webserver.recaptcha }}"
+    };

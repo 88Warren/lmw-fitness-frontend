@@ -1,14 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { FaBars, FaTimes, FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
-import { getCookie } from '../../utils/fetchCookie';
 
 const Navbar = () => {
-  const handleClick = () => {
-    window.scrollTo(0, 0);
-    closeMobileMenu();
-  };
-
   const [activeSection, setActiveSection] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
