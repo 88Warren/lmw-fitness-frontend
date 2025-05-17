@@ -1,5 +1,9 @@
 # Step 1 build the production react app
 FROM node:23-alpine3.21 AS builder
+
+ENV GOOS=linux
+ENV GOARCH=amd64
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
