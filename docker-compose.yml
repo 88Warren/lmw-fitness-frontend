@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        PLATFORM: linux/amd64
+        PLATFORM: ${PLATFORM}
     image: lmwcode/lmw-fitness-frontend:v0.0.1
     container_name: lmw_fitness_webserver
     ports:
