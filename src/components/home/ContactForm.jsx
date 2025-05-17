@@ -1,11 +1,13 @@
 import { useState, useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { RECAPTCHA_KEY } from "../../utils/config";
+import { getEnvVar } from "../../utils/config";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { InputField, TextAreaField } from "../../controllers/forms/formFields"; 
 import { showToast } from "../../utils/toastUtil"; 
-import { BACKEND_URL } from "../../utils/config";
+
+const RECAPTCHA_KEY = getEnvVar("VITE_RECAPTCHA_SITE_KEY");
+const BACKEND_URL = getEnvVar("VITE_BACKEND_URL");
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({ 
@@ -15,10 +17,16 @@ const ContactForm = () => {
   });
   const [captchaValue, setCaptchaValue] = useState(null);
   const [isLoading, setIsLoading] = useState(false); 
+  const [captchaError, setCaptchaError] = useState(false);
   const recaptchaRef = useRef();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleCaptchaError = () => {
+    setCaptchaError(true);
+    showToast("warn", "⚠️ reCAPTCHA failed to load. Please try refreshing the page.");
   };
 
   const handleSubmit = async (e) => {
@@ -34,8 +42,14 @@ const ContactForm = () => {
       return;
     }
 
-    if (!captchaValue) {
+    if (!captchaValue && !captchaError) {
       showToast("warn", "❌ Please complete the reCAPTCHA.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!navigator.onLine) {
+      showToast("error", "❌ No internet connection. Please check your connection and try again.");
       setIsLoading(false);
       return;
     }
@@ -50,8 +64,19 @@ const ContactForm = () => {
           },
           body: JSON.stringify({ ...formData, token: captchaValue }), 
         });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Error response:', errorText);
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         return res;
       } catch (error) {
+        if (!navigator.onLine) {
+          throw new Error("No internet connection");
+        }
+        
         if (retryCount < maxRetries) {
           retryCount++;
           // console.log(`Retrying... Attempt ${retryCount} of ${maxRetries}`);
@@ -63,50 +88,32 @@ const ContactForm = () => {
     };
 
     try {
-      // console.log('Sending request to:', `${BACKEND_URL}/api/contact`);
-      // console.log('Request payload:', { ...formData, token: captchaValue });
-        const res = await submitWithRetry();
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Error response:', errorText);
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      // console.log('Response status:', res.status);
-      const data = await res.json();
-      // console.log('Response data:', data);
-      // console.log('Captcha Value:', captchaValue);
-      // console.log("reCAPTCHA site key:", RECAPTCHA_KEY);
-      // console.log("Sending data to backend:", JSON.stringify({ ...formData, token: captchaValue }));
-      // console.log("Response from server:", res.status, res.statusText);
+      const res = await submitWithRetry();
       
-
       if (res.ok) {
-        // console.log("Toast should appear: ", res.ok ? "Success" : "Error");
         showToast("success", "Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
         setCaptchaValue(null);
-        recaptchaRef.current.reset(); 
+        recaptchaRef.current.reset();
       } else {
         showToast("error", "Failed to send message. Please try again.");
       }
-
-      if (!navigator.onLine) {
-        showToast("error", "❌ No internet connection. Please check your connection and try again.");
-        return;
-      }
     } catch (error) {
       console.error('Error sending email:', error);
-      showToast("error", "❌ An error occurred. Please try again later.");
+      if (error.message === "No internet connection") {
+        showToast("error", "❌ No internet connection. Please check your connection and try again.");
+      } else {
+        showToast("error", "❌ An error occurred. Please try again later.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-      const handleCaptchaChange = (value) => {
-          setCaptchaValue(value);
-          // console.log("Captcha value:", value);
-      };
-
+  const handleCaptchaChange = (value) => {
+    setCaptchaValue(value);
+    // console.log("Captcha value:", value);
+  };
 
   return (
     <section id="Contact" className="py-16 px-6 bg-gray-100">
@@ -124,7 +131,26 @@ const ContactForm = () => {
           <TextAreaField label="Message:" name="message" value={formData.message} onChange={handleChange} />
 
           <div className="flex justify-center mb-4">
-           <ReCAPTCHA ref={recaptchaRef} sitekey={RECAPTCHA_KEY} onChange={handleCaptchaChange} size="compact" />
+            {!captchaError ? (
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={RECAPTCHA_KEY}
+                onChange={handleCaptchaChange}
+                onError={handleCaptchaError}
+                size="normal"
+              />
+            ) : (
+              <div className="text-center p-4 bg-gray-100 rounded-lg">
+                <p className="text-red-500 mb-2">reCAPTCHA is currently unavailable</p>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="text-blue-500 hover:text-blue-700 underline"
+                >
+                  Refresh Page
+                </button>
+              </div>
+            )}
           </div>
 
           <button
