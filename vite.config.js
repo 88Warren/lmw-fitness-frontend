@@ -41,8 +41,6 @@ export default defineConfig(({ mode }) => {
       assetsInlineLimit: 0,
       assetsDir: 'images',
     },
-    base: "/", 
-
     define: {
       "process.env.NODE_ENV": JSON.stringify(mode),
     },
