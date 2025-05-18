@@ -7,6 +7,16 @@ ENV GOARCH=amd64
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
+
+# Copy environment variables
+COPY .env.production .env
+
+# Create config.js with environment variables
+RUN echo "window._env_ = {" > public/config.js && \
+    echo "  VITE_BACKEND_URL: '${VITE_BACKEND_URL}'," >> public/config.js && \
+    echo "  VITE_RECAPTCHA_SITE_KEY: '${VITE_RECAPTCHA_SITE_KEY}'" >> public/config.js && \
+    echo "};" >> public/config.js
+
 COPY . .
 RUN npm run build
 
