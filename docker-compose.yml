@@ -11,11 +11,14 @@ services:
        - "5052:5052"
     networks:
       - lmw_fitness_network
+    env_file:
+      - .env.production
     volumes:
       - ./webserver/default.conf:/etc/nginx/nginx.conf:ro
       - ./nginx-logs:/var/log/nginx
       - ./nginx-selfsigned.crt:/etc/nginx/nginx-selfsigned.crt:ro
       - ./nginx-selfsigned.key:/etc/nginx/nginx-selfsigned.key:ro
+    restart: unless-stopped
 
 networks:
   lmw_fitness_network:
