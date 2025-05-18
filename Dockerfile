@@ -8,8 +8,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Create a placeholder config.js for build time
-RUN echo "// This is a placeholder config file that will be replaced at runtime" > public/config.js
+# Create public directory and placeholder config.js for build time
+RUN mkdir -p public && \
+    echo "// This is a placeholder config file that will be replaced at runtime" > public/config.js
 
 COPY . .
 RUN npm run build
