@@ -7,6 +7,9 @@ services:
         PLATFORM: ${PLATFORM}
     image: lmwcode/lmw-fitness-frontend:v0.0.1
     container_name: lmw_fitness_webserver
+    environment:
+      VITE_BACKEND_URL: ${VITE_BACKEND_URL}
+      VITE_RECAPTCHA_SITE_KEY: ${VITE_RECAPTCHA_SITE_KEY}
     ports:
        - "5052:5052"
     networks:
@@ -14,6 +17,7 @@ services:
     env_file:
       - .env.production
     volumes:
+      - .env:/app/.env
       - ./webserver/default.conf:/etc/nginx/nginx.conf:ro
       - ./nginx-logs:/var/log/nginx
       - ./nginx-selfsigned.crt:/etc/nginx/nginx-selfsigned.crt:ro
