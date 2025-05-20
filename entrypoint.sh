@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e # Exit immediately if a command exits with a non-zero status
 
+echo "
+printenv
+echo "
+
 # Ensure the NGINX HTML directory exists
 mkdir -p /usr/share/nginx/html
 
