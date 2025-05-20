@@ -22,6 +22,9 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 COPY entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
+RUN ls -la /docker-entrypoint.sh
+RUN cat /docker-entrypoint.sh
+
 EXPOSE 5052
 # CMD ["nginx", "-g", "daemon off;"]
 ENTRYPOINT ["/docker-entrypoint.sh"]
