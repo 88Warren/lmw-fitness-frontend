@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- This script will be replaced at runtime -->
+    <!-- This script will be replaced at runtime
     <script type="module">
       // This placeholder will be replaced by the actual config.js at runtime
       window._env_ = {
@@ -12,7 +12,8 @@
         VITE_RECAPTCHA_SITE_KEY: ''
       };
     </script>
-    
+     -->
+
     <!-- SEO Meta Tags -->
     <meta name="description" content="LMW Fitness offers custom online personal training to help you get fit on your schedule. Get motivated, stay consistent, and transform your habits today.">
     <meta name="keywords" content="LMW Fitness, online personal training, fitness coach, custom workout plans, habit building, motivation, health and wellness">
@@ -41,9 +42,6 @@
     <meta http-equiv="Expires" content="0" />
 
     <title>LMW Fitness</title>
-  
-    <!-- reCAPTCHA -->
-    <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -53,6 +51,12 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <script src="/env-config.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-FVKJGWBKRN"></script>
@@ -85,8 +89,6 @@
     <main class="flex-grow bg-white">
     
       <div id="root"></div>
-
-      <script type="module" src="/src/main.jsx"></script>
       
     </main>
   </body>
