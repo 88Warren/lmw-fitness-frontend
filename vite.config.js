@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       chunkSizeWarningLimit: 500,
       assetsInlineLimit: 0,
-      assetsDir: 'images',
+      assetsDir: 'assets',
     },
     define: {
       "process.env.NODE_ENV": JSON.stringify(mode),
