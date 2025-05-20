@@ -19,12 +19,12 @@ RUN npm run build
 FROM nginx:stable-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+COPY entrypoint.sh /lmw-entrypoint.sh
+RUN chmod +x /lmw-entrypoint.sh
 
-RUN ls -la /docker-entrypoint.sh
-RUN cat /docker-entrypoint.sh
+RUN ls -la /lmw-entrypoint.sh
+RUN cat /lmw-entrypoint.sh
 
 EXPOSE 5052
 # CMD ["nginx", "-g", "daemon off;"]
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/lmw-entrypoint.sh"]
