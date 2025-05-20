@@ -1,9 +1,21 @@
 #!/bin/sh
-set -e # Exit immediately if a command exits with a non-zero status
+set -e
 
-echo "
+# --- EXPLICITLY SOURCE THE ENVIRONMENT ---
+if [ -f /etc/profile ]; then
+  source /etc/profile
+fi
+if [ -f /etc/environment ]; then
+  source /etc/environment
+fi
+if [ -f /root/.profile ]; then
+  source /root/.profile
+fi
+# --- END ENVIRONMENT SOURCING ---
+
+echo "--- Environment Variables (from printenv) ---"
 printenv
-echo "
+echo "--- End Environment Variables ---"
 
 # Ensure the NGINX HTML directory exists
 mkdir -p /usr/share/nginx/html
@@ -27,8 +39,6 @@ for var in $(env | grep "^VITE_"); do
 done
 
 # Remove the trailing comma from the last line (if any variables were added)
-# This sed command targets the last line ($) and substitutes a comma (,) with nothing
-# if it's at the end of the line.
 sed -i '$s/,$//' /usr/share/nginx/html/env-config.js
 
 echo "};" >> /usr/share/nginx/html/env-config.js
