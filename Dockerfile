@@ -8,9 +8,16 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# # Create public directory and placeholder config.js for build time
-# RUN mkdir -p public && \
-#     echo "// This is a placeholder config file that will be replaced at runtime" > public/config.js
+ARG VITE_BACKEND_URL
+ARG VITE_RECAPTCHA_SITE_KEY
+
+# Make environment variables available to Vite build process
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+ENV VITE_RECAPTCHA_SITE_KEY=$VITE_RECAPTCHA_SITE_KEY
+
+# Print environment variables for debugging
+RUN echo "VITE_BACKEND_URL: $VITE_BACKEND_URL"
+RUN echo "VITE_RECAPTCHA_SITE_KEY: $VITE_RECAPTCHA_SITE_KEY"
 
 COPY . .
 RUN npm run build
