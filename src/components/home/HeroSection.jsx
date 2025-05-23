@@ -1,4 +1,7 @@
 import { HashLink } from 'react-router-hash-link';
+import { getEnvVar } from "../../utils/config";
+
+const BACKEND_URL = getEnvVar("VITE_BACKEND_URL");
 
 const HeroSection = () => {
   return (
@@ -6,7 +9,7 @@ const HeroSection = () => {
       {/* hero section */}
       <section id="Home" className='h-screen flex items-center'
         style={{ 
-          backgroundImage: 'url("/images/LMW_fitness_Hero_Image3.jpg")',
+          backgroundImage: `url(${BACKEND_URL}/images/LMW_fitness_Hero_Image3.jpg)`,
           backgroundSize: 'cover',        
           backgroundPosition: 'center top', 
           backgroundRepeat: 'no-repeat',
