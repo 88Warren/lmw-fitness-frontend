@@ -19,7 +19,7 @@ export const getEnvVar = (name) => {
         return 'http://localhost:8082';
       }
       if (name === 'VITE_RECAPTCHA_SITE_KEY') {
-        return '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Google's test key
+        return '6Ldn3-0qAAAAAMWv4iekZdMl4Xrfj2Av2zEL7onD'; 
       }
     }
     
