@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from 'react-router-dom'
+import { getEnvVar } from "../../utils/config";
+
+const RECAPTCHA_KEY = getEnvVar("VITE_RECAPTCHA_SITE_KEY");
+const BACKEND_URL = getEnvVar("VITE_BACKEND_URL");
 
 const Blog = () => {
   const handleClick = () => {
@@ -13,7 +17,7 @@ const Blog = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await fetch("/api/blogs");
+        const response = await fetch(`${BACKEND_URL}/api/contact`);
         if (!response.ok) throw new Error("Failed to fetch blogs");
 
         const data = await response.json();

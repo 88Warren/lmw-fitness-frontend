@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes, FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 
 const Navbar = () => {
   const [activeSection, setActiveSection] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
   const [sections, setSections] = useState([]);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   useEffect(() => {
     const sectionElements = Array.from(document.querySelectorAll('section'));
@@ -37,20 +42,66 @@ const Navbar = () => {
 
     sections.forEach((section) => observer.observe(section));
     return () => sections.forEach((section) => observer.unobserve(section));
-  }, [sections]);
+   }, [sections, location.pathname]);
+
+  useEffect(() => {
+  if (location.pathname !== '/') {
+    setSections([]);
+    return;
+  }
+  const interval = setInterval(() => {
+    const sectionElements = Array.from(document.querySelectorAll('section'));
+    if (sectionElements.length > 0) {
+      setSections(sectionElements);
+      clearInterval(interval); 
+    }
+  }, 100);
+  return () => clearInterval(interval);
+}, [location.pathname]);
 
   const scrollToSection = (sectionId) => {
+    if (location.pathname !== '/') {
+    navigate('/', { replace: false });
+
+    setTimeout(() => {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 200); 
+  } else {
     const section = document.getElementById(sectionId);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
-    setIsMenuOpen(false);
-  };
+  }
 
-  const navLink = (section) =>
-    section === activeSection
-      ? 'font-titillium font-bold py-2 px-4 md:px-6 mr-2 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink'
-      : 'font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray';
+  setIsMenuOpen(false);
+};
+
+const navLink = (sectionName) => {
+  const isOnHomePage = location.pathname === '/';
+  let isActive = false;
+
+  if (isOnHomePage) {
+    isActive = (sectionName === activeSection);
+  } else {
+    if (sectionName === 'Home') {
+      isActive = false; 
+    } else {
+      isActive = false; 
+    }
+  }
+      return isActive
+        ? 'font-titillium font-bold py-2 px-4 md:px-6 mr-2 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink'
+        : 'font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray';
+    };
+
+      useEffect(() => {
+      if (location.pathname !== '/') {
+        setActiveSection('');
+      }
+    }, [location.pathname]);
 
   return (
   <>
@@ -76,6 +127,16 @@ const Navbar = () => {
                   {section.replace(/([A-Z])/g, ' $1').trim()}
                 </button>
               ))}
+              <NavLink
+                to="/blog"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink'
+                    : 'font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray'
+                }
+              >
+                Blog
+              </NavLink>
             </div>
           </div>
 
@@ -120,6 +181,17 @@ const Navbar = () => {
               {section.replace(/([A-Z])/g, ' $1').trim()}
             </button>
           ))}
+          <NavLink
+            to="/blog"
+            onClick={() => setIsMenuOpen(false)}
+            className={({ isActive }) =>
+              isActive
+                ? 'font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink'
+                : 'font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray'
+            }
+          >
+            Blog
+          </NavLink>
         </div>
       </aside>
     </>
