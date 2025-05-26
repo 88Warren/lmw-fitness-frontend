@@ -1,13 +1,10 @@
 import { useState, useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { getEnvVar } from "../../utils/config";
+import { BACKEND_URL, RECAPTCHA_SITE_KEY } from "../../utils/config";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { InputField, TextAreaField } from "../../controllers/forms/formFields"; 
 import { showToast } from "../../utils/toastUtil"; 
-
-const RECAPTCHA_KEY = getEnvVar("VITE_RECAPTCHA_SITE_KEY");
-const BACKEND_URL = getEnvVar("VITE_BACKEND_URL");
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({ 
@@ -134,7 +131,7 @@ const ContactForm = () => {
             {!captchaError ? (
               <ReCAPTCHA
                 ref={recaptchaRef}
-                sitekey={RECAPTCHA_KEY}
+                sitekey={RECAPTCHA_SITE_KEY}
                 onChange={handleCaptchaChange}
                 onError={handleCaptchaError}
                 size="normal"

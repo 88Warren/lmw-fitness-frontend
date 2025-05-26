@@ -1,7 +1,4 @@
-import React from 'react'
-import { getEnvVar } from '../utils/config.js';
-
-const BACKEND_URL = getEnvVar("VITE_BACKEND_URL");
+import { BACKEND_URL } from '../utils/config.js';
 
 const TestConnection = async () => {
     try {

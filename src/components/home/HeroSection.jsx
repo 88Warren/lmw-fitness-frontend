@@ -1,7 +1,5 @@
 import { HashLink } from 'react-router-hash-link';
-import { getEnvVar } from "../../utils/config";
-
-const BACKEND_URL = getEnvVar("VITE_BACKEND_URL");
+import { BACKEND_URL } from "../../utils/config";
 
 const HeroSection = () => {
   return (
