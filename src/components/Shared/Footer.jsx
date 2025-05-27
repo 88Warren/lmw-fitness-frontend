@@ -7,6 +7,11 @@ const Footer = () => {
     };
 
     return (
+    <>
+        <div>
+            <hr className="h-1 border-0 bg-limeGreen"></hr>
+        </div>
+        
         <footer className="bg-customGray p-6 lg:py-8 text-white">
             <div className="mx-auto max-w-7xl">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
@@ -72,6 +77,7 @@ const Footer = () => {
                 </div>
             </div>
         </footer>
+    </>
     );
 };
 

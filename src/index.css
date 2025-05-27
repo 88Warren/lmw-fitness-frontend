@@ -15,8 +15,10 @@
     --color-limeGreen: #21fc0d;
     --color-brightYellow: #ffcf00;
     --color-hotPink: #ff11ff;
-    --color-customGray: #747474;
+    --color-customGray: #2a3241;
     --color-logoGray: #cecece;
+    --color-customWhite: #f3f4f6;
+
 
     --font-higherJump: higherJump, sans-serif;
     --font-westerners: westerners, cursive;
@@ -81,15 +83,25 @@
   .p-primary {
     @apply font-titillium text-customGray leading-loose;
   }
+  .word-spacing-wide {
+    word-spacing: .5em;
+  }
 
   .btn-primary {
     @apply mt-6 px-6 py-3 bg-brightYellow text-customGray font-bold rounded-lg transition-all;
   }
 
-  .btn-primary:hover {
+   .btn-primary:hover {
     background: linear-gradient(to right, #21fc0d, #ffcf00, #ff11ff);
   }
+  .btn-full-colour {
+    @apply mt-6 px-6 py-3 bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-customGray font-bold rounded-lg transition-all;
+  }
 
+  .btn-full-colour:hover {
+    @apply bg-gradient-to-l from-limeGreen via-brightYellow to-hotPink;
+  }
+ 
   .btn-secondary {
     @apply py-2 px-3 font-titillium bg-brightYellow hover:bg-hotPink text-white rounded transition duration-300;
   }

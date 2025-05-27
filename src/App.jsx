@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { createBrowserRouter, RouterProvider, useLocation } from 'react-router-dom';
 import routes from './routes/routes.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 const ScrollToTop = () => {
   const location = useLocation();
@@ -16,9 +17,11 @@ const router = createBrowserRouter(routes);
 
 const App = () => {
   return (
-    <RouterProvider router={router}>
-      <ScrollToTop />
-    </RouterProvider>
+    <AuthProvider>
+      <RouterProvider router={router}>
+        <ScrollToTop />
+      </RouterProvider>
+    </AuthProvider>
   );
 };
 
