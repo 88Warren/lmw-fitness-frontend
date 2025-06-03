@@ -6,161 +6,266 @@ const BlogForm = ({
   handleBackToList,
 }) => {
   return (
-    <div
-      className="bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl border border-hotPink animate-fadeIn text-white"
-      data-oid="hmv21r5"
-    >
-      {" "}
-      {/* Darker background, hotPink border */}
-      <h1
-        className="text-4xl md:text-5xl font-bold text-brightYellow mb-6 font-higherJump leading-tight text-center"
-        data-oid="4-9tt-g"
-      >
-        {isEditMode ? "Edit Blog Post" : "Create New Blog Post"}
-      </h1>
-      <form
-        onSubmit={handleFormSubmit}
-        className="space-y-4"
-        data-oid="emenqmw"
-      >
-        <div data-oid="0je5hzc">
-          <label
-            htmlFor="title"
-            className="block text-lg font-bold text-logoGray mb-2 font-titillium"
-            data-oid="0c0d0ro"
-          >
-            Title
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={newBlogData.title}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-limeGreen bg-gray-700 text-white font-titillium"
-            placeholder="Enter blog title"
-            required
-            data-oid="za:wv6v"
-          />
-        </div>
-        <div data-oid=".rdfnvf">
-          <label
-            htmlFor="date"
-            className="block text-lg font-bold text-logoGray mb-2 font-titillium"
-            data-oid="w:ajbr4"
-          >
-            Date
-          </label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={newBlogData.date}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-limeGreen bg-gray-700 text-white font-titillium"
-            required
-            data-oid="v86fli0"
-          />
-        </div>
-        <div data-oid="6q:b:b9">
-          <label
-            htmlFor="image"
-            className="block text-lg font-bold text-logoGray mb-2 font-titillium"
-            data-oid="les94m9"
-          >
-            Image URL
-          </label>
-          <input
-            type="url"
-            id="image"
-            name="image"
-            value={newBlogData.image}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-limeGreen bg-gray-700 text-white font-titillium"
-            placeholder="e.g., https://placehold.co/600x400"
-            data-oid="z.i14wj"
-          />
-        </div>
-        <div data-oid="l4b7j:l">
-          <label
-            htmlFor="excerpt"
-            className="block text-lg font-bold text-logoGray mb-2 font-titillium"
-            data-oid="9u8scpe"
-          >
-            Excerpt
-          </label>
-          <textarea
-            id="excerpt"
-            name="excerpt"
-            rows="3"
-            value={newBlogData.excerpt}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-limeGreen bg-gray-700 text-white font-titillium"
-            placeholder="A short summary of the blog post"
-            required
-            data-oid="2tdo_5:"
-          ></textarea>
-        </div>
-        <div
-          className="flex items-center space-x-3 bg-gray-700 p-3 rounded-lg border border-gray-600"
-          data-oid="vx7no1s"
+    <div className="max-w-4xl mx-auto" data-oid="cic8edp">
+      {/* Header */}
+      <div className="text-center mb-8" data-oid="n6dptge">
+        <h1
+          className="text-4xl md:text-5xl font-higherJump text-brightYellow leading-tight mb-4"
+          data-oid="jlc.:fk"
         >
-          <input
-            type="checkbox"
-            id="isFeatured"
-            name="isFeatured"
-            checked={newBlogData.isFeatured || false}
-            onChange={handleInputChange}
-            className="h-5 w-5 text-limeGreen rounded border-gray-600 focus:ring-limeGreen"
-            data-oid="_8gt6_f"
-          />
+          {isEditMode ? "Edit Article" : "Create New Article"}
+        </h1>
+        <p className="text-logoGray font-titillium text-lg" data-oid="mesvam4">
+          {isEditMode
+            ? "Update your blog post"
+            : "Share your fitness insights with the community"}
+        </p>
+      </div>
 
-          <label
-            htmlFor="isFeatured"
-            className="text-lg font-bold text-logoGray font-titillium"
-            data-oid="bxo:zz4"
+      {/* Form */}
+      <div
+        className="bg-customGray/30 backdrop-blur-sm rounded-2xl p-8 border border-logoGray/20"
+        data-oid="cgbkwjb"
+      >
+        <form
+          onSubmit={handleFormSubmit}
+          className="space-y-6"
+          data-oid="p87fu6e"
+        >
+          {/* Title */}
+          <div data-oid="cdsb765">
+            <label
+              htmlFor="title"
+              className="block text-lg font-semibold text-customWhite mb-3 font-titillium"
+              data-oid="0qege7r"
+            >
+              Article Title *
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              value={newBlogData.title}
+              onChange={handleInputChange}
+              className="w-full p-4 border border-logoGray/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-brightYellow focus:border-transparent bg-customDarkBackground/50 text-white font-titillium placeholder-logoGray transition-all duration-300"
+              placeholder="Enter an engaging title for your article"
+              required
+              data-oid="c1kmsxd"
+            />
+          </div>
+
+          {/* Date and Featured Toggle Row */}
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            data-oid="91oikh_"
           >
-            Feature this post?
-          </label>
-        </div>
-        <div data-oid="6kdo449">
-          <label
-            htmlFor="fullContent"
-            className="block text-lg font-bold text-logoGray mb-2 font-titillium"
-            data-oid="-h7t0bq"
+            <div data-oid="jq8sv3h">
+              <label
+                htmlFor="date"
+                className="block text-lg font-semibold text-customWhite mb-3 font-titillium"
+                data-oid="xnkbpfm"
+              >
+                Publication Date *
+              </label>
+              <input
+                type="date"
+                id="date"
+                name="date"
+                value={newBlogData.date}
+                onChange={handleInputChange}
+                className="w-full p-4 border border-logoGray/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-brightYellow focus:border-transparent bg-customDarkBackground/50 text-white font-titillium transition-all duration-300"
+                required
+                data-oid="w_8sfnc"
+              />
+            </div>
+
+            <div className="flex items-end" data-oid="tfft:6f">
+              <div
+                className="flex items-center space-x-3 bg-customDarkBackground/50 p-4 rounded-lg border border-logoGray/30 w-full"
+                data-oid="p0k965y"
+              >
+                <input
+                  type="checkbox"
+                  id="isFeatured"
+                  name="isFeatured"
+                  checked={newBlogData.isFeatured || false}
+                  onChange={handleInputChange}
+                  className="h-5 w-5 text-brightYellow rounded border-logoGray/30 focus:ring-brightYellow bg-customDarkBackground"
+                  data-oid=":ody8pf"
+                />
+
+                <label
+                  htmlFor="isFeatured"
+                  className="text-lg font-semibold text-customWhite font-titillium cursor-pointer"
+                  data-oid="5xas5lk"
+                >
+                  Feature this article
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Image URL */}
+          <div data-oid="kn209:h">
+            <label
+              htmlFor="image"
+              className="block text-lg font-semibold text-customWhite mb-3 font-titillium"
+              data-oid="anovvoj"
+            >
+              Featured Image URL
+            </label>
+            <input
+              type="url"
+              id="image"
+              name="image"
+              value={newBlogData.image}
+              onChange={handleInputChange}
+              className="w-full p-4 border border-logoGray/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-brightYellow focus:border-transparent bg-customDarkBackground/50 text-white font-titillium placeholder-logoGray transition-all duration-300"
+              placeholder="https://example.com/your-image.jpg"
+              data-oid="wv4j86e"
+            />
+
+            <p
+              className="text-sm text-logoGray mt-2 font-titillium"
+              data-oid="3w0r:sc"
+            >
+              Add a compelling image to make your article stand out
+            </p>
+          </div>
+
+          {/* Excerpt */}
+          <div data-oid="z:2nzgn">
+            <label
+              htmlFor="excerpt"
+              className="block text-lg font-semibold text-customWhite mb-3 font-titillium"
+              data-oid="8u3jh_7"
+            >
+              Article Excerpt *
+            </label>
+            <textarea
+              id="excerpt"
+              name="excerpt"
+              rows="4"
+              value={newBlogData.excerpt}
+              onChange={handleInputChange}
+              className="w-full p-4 border border-logoGray/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-brightYellow focus:border-transparent bg-customDarkBackground/50 text-white font-titillium placeholder-logoGray resize-none transition-all duration-300"
+              placeholder="Write a compelling summary that will entice readers to click and read more..."
+              required
+              data-oid="78g4n8p"
+            />
+
+            <p
+              className="text-sm text-logoGray mt-2 font-titillium"
+              data-oid="jnkc0j7"
+            >
+              This will appear in the article preview cards (recommended:
+              150-200 characters)
+            </p>
+          </div>
+
+          {/* Full Content */}
+          <div data-oid="qjj27s6">
+            <label
+              htmlFor="fullContent"
+              className="block text-lg font-semibold text-customWhite mb-3 font-titillium"
+              data-oid="oh95u71"
+            >
+              Article Content *
+            </label>
+            <textarea
+              id="fullContent"
+              name="fullContent"
+              rows="15"
+              value={newBlogData.fullContent}
+              onChange={handleInputChange}
+              className="w-full p-4 border border-logoGray/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-brightYellow focus:border-transparent bg-customDarkBackground/50 text-white font-titillium placeholder-logoGray resize-none transition-all duration-300"
+              placeholder="Write your full article content here. You can use HTML tags like <p>, <h2>, <h3>, <strong>, <em>, <ul>, <ol>, <li>, <blockquote>, etc."
+              required
+              data-oid="lbz2cc1"
+            />
+
+            <p
+              className="text-sm text-logoGray mt-2 font-titillium"
+              data-oid="q4:b9f8"
+            >
+              HTML formatting is supported. Use headings, paragraphs, lists, and
+              other HTML elements to structure your content.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div
+            className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-6 border-t border-logoGray/20"
+            data-oid="dez3hpl"
           >
-            Full Content (HTML allowed)
-          </label>
-          <textarea
-            id="fullContent"
-            name="fullContent"
-            rows="10"
-            value={newBlogData.fullContent}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-limeGreen bg-gray-700 text-white font-titillium"
-            placeholder="Write your full blog content here (HTML tags like <p>, <h3>, <ul> are supported)"
-            required
-            data-oid="k:iy12:"
-          ></textarea>
-        </div>
-        <div className="flex justify-end space-x-4 mt-6" data-oid=":907khi">
-          <button
-            type="button"
-            onClick={handleBackToList}
-            className="btn-primary bg-gray-600 hover:bg-gray-700 text-white" // Custom button styling
-            data-oid="d-w_i96"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="btn-primary" // Custom button styling
-            data-oid="cdt-pqj"
-          >
-            {isEditMode ? "Update Blog Post" : "Create Blog Post"}
-          </button>
-        </div>
-      </form>
+            <button
+              type="button"
+              onClick={handleBackToList}
+              className="px-8 py-3 bg-customDarkBackground/50 hover:bg-customDarkBackground/80 text-logoGray hover:text-customWhite border border-logoGray/30 hover:border-logoGray/50 rounded-lg transition-all duration-300 font-titillium font-semibold"
+              data-oid="zsgv3o-"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-full-colour inline-flex items-center justify-center space-x-2"
+              data-oid=".tv9l-a"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                data-oid="-nf4p-y"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                  data-oid="gk3qq:-"
+                />
+              </svg>
+              <span data-oid=".v5bcbr">
+                {isEditMode ? "Update Article" : "Publish Article"}
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Help Section */}
+      <div
+        className="mt-8 bg-gradient-to-r from-brightYellow/10 to-hotPink/10 rounded-xl p-6 border border-brightYellow/20"
+        data-oid="0acdz:g"
+      >
+        <h3
+          className="text-lg font-higherJump text-brightYellow mb-3"
+          data-oid=".ec4b3j"
+        >
+          Writing Tips
+        </h3>
+        <ul
+          className="text-sm text-logoGray font-titillium space-y-2"
+          data-oid="js-b2y4"
+        >
+          <li data-oid="0xxw_zd">
+            • Use clear, engaging headlines that grab attention
+          </li>
+          <li data-oid="tr9033a">
+            • Write a compelling excerpt that summarizes your main points
+          </li>
+          <li data-oid="8uco0fl">
+            • Structure your content with headings and subheadings
+          </li>
+          <li data-oid="i-0wi8t">
+            • Include actionable tips and practical advice
+          </li>
+          <li data-oid="_kgn8gx">
+            • Add a high-quality featured image to increase engagement
+          </li>
+        </ul>
+      </div>
     </div>
   );
 };
