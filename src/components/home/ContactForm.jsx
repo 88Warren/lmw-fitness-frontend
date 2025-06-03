@@ -3,17 +3,17 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { BACKEND_URL, RECAPTCHA_SITE_KEY } from "../../utils/config";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { InputField, TextAreaField } from "../../controllers/forms/formFields"; 
-import { showToast } from "../../utils/toastUtil"; 
+import { InputField, TextAreaField } from "../../controllers/forms/formFields";
+import { showToast } from "../../utils/toastUtil";
 
 const ContactForm = () => {
-  const [formData, setFormData] = useState({ 
-    name: "", 
-    email: "", 
-    message: "" 
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
   });
   const [captchaValue, setCaptchaValue] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
   const recaptchaRef = useRef();
 
@@ -23,7 +23,10 @@ const ContactForm = () => {
 
   const handleCaptchaError = () => {
     setCaptchaError(true);
-    showToast("warn", "⚠️ reCAPTCHA failed to load. Please try refreshing the page.");
+    showToast(
+      "warn",
+      "⚠️ reCAPTCHA failed to load. Please try refreshing the page.",
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -46,7 +49,10 @@ const ContactForm = () => {
     }
 
     if (!navigator.onLine) {
-      showToast("error", "❌ No internet connection. Please check your connection and try again.");
+      showToast(
+        "error",
+        "❌ No internet connection. Please check your connection and try again.",
+      );
       setIsLoading(false);
       return;
     }
@@ -55,16 +61,16 @@ const ContactForm = () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/contact`, {
           method: "POST",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            Accept: "application/json",
           },
-          body: JSON.stringify({ ...formData, token: captchaValue }), 
+          body: JSON.stringify({ ...formData, token: captchaValue }),
         });
 
         if (!res.ok) {
           const errorText = await res.text();
-          console.error('Error response:', errorText);
+          console.error("Error response:", errorText);
           throw new Error(`HTTP error! status: ${res.status}`);
         }
 
@@ -73,11 +79,13 @@ const ContactForm = () => {
         if (!navigator.onLine) {
           throw new Error("No internet connection");
         }
-        
+
         if (retryCount < maxRetries) {
           retryCount++;
           // console.log(`Retrying... Attempt ${retryCount} of ${maxRetries}`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          await new Promise((resolve) =>
+            setTimeout(resolve, 1000 * retryCount),
+          );
           return submitWithRetry();
         }
         throw error;
@@ -86,7 +94,7 @@ const ContactForm = () => {
 
     try {
       const res = await submitWithRetry();
-      
+
       if (res.ok) {
         showToast("success", "Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
@@ -96,9 +104,12 @@ const ContactForm = () => {
         showToast("error", "Failed to send message. Please try again.");
       }
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
       if (error.message === "No internet connection") {
-        showToast("error", "❌ No internet connection. Please check your connection and try again.");
+        showToast(
+          "error",
+          "❌ No internet connection. Please check your connection and try again.",
+        );
       } else {
         showToast("error", "❌ An error occurred. Please try again later.");
       }
@@ -113,21 +124,62 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="Contact" className="py-16 px-6 bg-gray-100">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 md:p-8">
-        <h2 className="text-3xl md:text-4xl font-higherJump text-center mb-4 text-black leading-relaxed md:leading-loose">
-          Get In Touch <span className="w">w</span>ith <span className="m">m</span>e
+    <section id="Contact" className="py-16 px-6 bg-gray-100" data-oid="ww3xl29">
+      <div
+        className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 md:p-8"
+        data-oid="etnizw0"
+      >
+        <h2
+          className="text-3xl md:text-4xl font-higherJump text-center mb-4 text-black leading-relaxed md:leading-loose"
+          data-oid="75sv_y9"
+        >
+          Get In Touch{" "}
+          <span className="w" data-oid="j.emk8v">
+            w
+          </span>
+          ith{" "}
+          <span className="m" data-oid="7487oc9">
+            m
+          </span>
+          e
         </h2>
-        <p className="text-lg text-center text-customGray mb-6 md:mb-8">
+        <p
+          className="text-lg text-center text-customGray mb-6 md:mb-8"
+          data-oid="e8t932z"
+        >
           Have a question or need more info? Drop me a message here:
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-          <InputField label="Name:" type="text" name="name" value={formData.name} onChange={handleChange} />
-          <InputField label="Email:" type="email" name="email" value={formData.email} onChange={handleChange} />
-          <TextAreaField label="Message:" name="message" value={formData.message} onChange={handleChange} />
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 md:space-y-6"
+          data-oid="vjwhdx9"
+        >
+          <InputField
+            label="Name:"
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            data-oid="z6m9hmq"
+          />
+          <InputField
+            label="Email:"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            data-oid="vw895d_"
+          />
+          <TextAreaField
+            label="Message:"
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            data-oid="dojbcij"
+          />
 
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-4" data-oid="850:vyb">
             {!captchaError ? (
               <ReCAPTCHA
                 ref={recaptchaRef}
@@ -135,14 +187,21 @@ const ContactForm = () => {
                 onChange={handleCaptchaChange}
                 onError={handleCaptchaError}
                 size="normal"
+                data-oid="6zvw:nn"
               />
             ) : (
-              <div className="text-center p-4 bg-gray-100 rounded-lg">
-                <p className="text-red-500 mb-2">reCAPTCHA is currently unavailable</p>
+              <div
+                className="text-center p-4 bg-gray-100 rounded-lg"
+                data-oid=".ehax7:"
+              >
+                <p className="text-red-500 mb-2" data-oid="9sq565q">
+                  reCAPTCHA is currently unavailable
+                </p>
                 <button
                   type="button"
                   onClick={() => window.location.reload()}
                   className="text-blue-500 hover:text-blue-700 underline"
+                  data-oid="t.e4y3a"
                 >
                   Refresh Page
                 </button>
@@ -153,11 +212,13 @@ const ContactForm = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className='w-full py-2 md:py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all duration-300'>
-            {isLoading ? 'Submitting...' : 'Submit'}
+            className="w-full py-2 md:py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all duration-300"
+            data-oid="5hkkpm_"
+          >
+            {isLoading ? "Submitting..." : "Submit"}
           </button>
         </form>
-        <ToastContainer />
+        <ToastContainer data-oid="-26c.fk" />
       </div>
     </section>
   );

@@ -1,23 +1,30 @@
-import { useEffect, useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { FaBars, FaTimes, FaFacebook, FaInstagram, FaTiktok, FaRegUser } from 'react-icons/fa';
-import useAuth from '../../hooks/useAuth'; 
+import { useEffect, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import {
+  FaBars,
+  FaTimes,
+  FaFacebook,
+  FaInstagram,
+  FaTiktok,
+  FaRegUser,
+} from "react-icons/fa";
+import useAuth from "../../hooks/useAuth";
 
 const Navbar = () => {
-  const [activeSection, setActiveSection] = useState('');
+  const [activeSection, setActiveSection] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [sections, setSections] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoggedIn, user, logout } = useAuth(); 
+  const { isLoggedIn, user, logout } = useAuth();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
   useEffect(() => {
-    const sectionElements = Array.from(document.querySelectorAll('section'));
+    const sectionElements = Array.from(document.querySelectorAll("section"));
     setSections(sectionElements);
   }, []);
 
@@ -26,8 +33,8 @@ const Navbar = () => {
       setIsScrolled(window.scrollY > 25);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -39,7 +46,7 @@ const Navbar = () => {
           }
         });
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
 
     sections.forEach((section) => observer.observe(section));
@@ -47,12 +54,12 @@ const Navbar = () => {
   }, [sections, location.pathname]);
 
   useEffect(() => {
-    if (location.pathname !== '/') {
+    if (location.pathname !== "/") {
       setSections([]);
       return;
     }
     const interval = setInterval(() => {
-      const sectionElements = Array.from(document.querySelectorAll('section'));
+      const sectionElements = Array.from(document.querySelectorAll("section"));
       if (sectionElements.length > 0) {
         setSections(sectionElements);
         clearInterval(interval);
@@ -62,19 +69,19 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const scrollToSection = (sectionId) => {
-    if (location.pathname !== '/') {
-      navigate('/', { replace: false });
+    if (location.pathname !== "/") {
+      navigate("/", { replace: false });
 
       setTimeout(() => {
         const section = document.getElementById(sectionId);
         if (section) {
-          section.scrollIntoView({ behavior: 'smooth' });
+          section.scrollIntoView({ behavior: "smooth" });
         }
       }, 200);
     } else {
       const section = document.getElementById(sectionId);
       if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
+        section.scrollIntoView({ behavior: "smooth" });
       }
     }
 
@@ -82,115 +89,171 @@ const Navbar = () => {
   };
 
   const navLink = (sectionName) => {
-    const isOnHomePage = location.pathname === '/';
+    const isOnHomePage = location.pathname === "/";
     let isActive = false;
 
     if (isOnHomePage) {
-      isActive = (sectionName === activeSection);
+      isActive = sectionName === activeSection;
     } else {
-      if (sectionName === 'Home') {
+      if (sectionName === "Home") {
         isActive = false;
       } else {
         isActive = false;
       }
     }
     return isActive
-      ? 'font-titillium font-bold py-2 px-4 md:px-6 mr-2 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink'
-      : 'font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray';
+      ? "font-titillium font-bold py-2 px-4 md:px-6 mr-2 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
+      : "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray";
   };
 
   useEffect(() => {
-    if (location.pathname !== '/') {
-      setActiveSection('');
+    if (location.pathname !== "/") {
+      setActiveSection("");
     }
   }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
-    setIsMenuOpen(false); 
-    navigate('/'); 
+    setIsMenuOpen(false);
+    navigate("/");
   };
 
   return (
     <>
       {/* Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 h-16 flex items-center transition-all duration-300 ${isScrolled ? 'bg-customGray opacity-80 shadow-md' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10">
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 h-16 flex items-center transition-all duration-300 ${isScrolled ? "bg-customGray opacity-80 shadow-md" : "bg-transparent"}`}
+        data-oid="rxq3pr8"
+      >
+        <div
+          className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10"
+          data-oid="qm7bbn2"
+        >
           {/* Logo */}
-          <NavLink to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center">
-            <h1 className="lmw items-end text-lg md:text-xl">
-              <span className="l pr-1">L</span>
-              <span className="m pr-1">M</span>
-              <span className="w pr-2">W</span>
-              <span className='fitness'>fitness</span>
+          <NavLink
+            to="/"
+            onClick={() => window.scrollTo(0, 0)}
+            className="flex items-center"
+            data-oid="_n63g0d"
+          >
+            <h1 className="lmw items-end text-lg md:text-xl" data-oid="q50b:m1">
+              <span className="l pr-1" data-oid=":i:t1mq">
+                L
+              </span>
+              <span className="m pr-1" data-oid="-f7:fty">
+                M
+              </span>
+              <span className="w pr-2" data-oid="nqaj6f1">
+                W
+              </span>
+              <span className="fitness" data-oid="8gfi4zv">
+                fitness
+              </span>
             </h1>
           </NavLink>
 
           {/* Web Menu */}
-          <div className="hidden lg:flex items-center justify-between w-full px-4">
-          {/* Left: Navigation Links */}
-          <div className="flex items-center space-x-4">
-            {['Home', 'About', 'Contact'].map((section) => (
-              <button key={section} onClick={() => scrollToSection(section)} className={navLink(section)}>
-                {section.replace(/([A-Z])/g, ' $1').trim()}
-              </button>
-            ))}
-            <NavLink
-              to="/blog"
-              className={({ isActive }) =>
-                isActive
-                  ? 'font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink'
-                  : 'font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray'
-              }>
-              Blog
-            </NavLink>
-          </div>
-
-          {/* Center: User Links */}
-          <div className="flex items-center justify-end">
-            {!isLoggedIn ? (
-              <NavLink
-                to="/login"
-                className="font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:bg-brightYellow hover:text-customGray transition-colors duration-300" 
-                onClick={() => setIsMenuOpen(false)}
-                aria-label="Login"
-              >
-                Login
-              </NavLink>
-            ) : (
-              <>
-                <NavLink
-                  to="/profile" 
-                  className="font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink" 
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-label="Profile"
+          <div
+            className="hidden lg:flex items-center justify-between w-full px-4"
+            data-oid="sbfycx:"
+          >
+            {/* Left: Navigation Links */}
+            <div className="flex items-center space-x-4" data-oid="cl4reny">
+              {["Home", "About", "Contact"].map((section) => (
+                <button
+                  key={section}
+                  onClick={() => scrollToSection(section)}
+                  className={navLink(section)}
+                  data-oid="6d06-2f"
                 >
-                  Profile
+                  {section.replace(/([A-Z])/g, " $1").trim()}
+                </button>
+              ))}
+              <NavLink
+                to="/blog"
+                className={({ isActive }) =>
+                  isActive
+                    ? "font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
+                    : "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray"
+                }
+                data-oid=".0ucrly"
+              >
+                Blog
+              </NavLink>
+            </div>
+
+            {/* Center: User Links */}
+            <div className="flex items-center justify-end" data-oid="e4v7ilc">
+              {!isLoggedIn ? (
+                <NavLink
+                  to="/login"
+                  className="font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:bg-brightYellow hover:text-customGray transition-colors duration-300"
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-label="Login"
+                  data-oid="z02wuni"
+                >
+                  Login
                 </NavLink>
-              </>
-            )}
-          </div>
+              ) : (
+                <>
+                  <NavLink
+                    to="/profile"
+                    className="font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
+                    onClick={() => setIsMenuOpen(false)}
+                    aria-label="Profile"
+                    data-oid="t7e__-l"
+                  >
+                    Profile
+                  </NavLink>
+                </>
+              )}
+            </div>
 
             {/* Right: Social Icons */}
-            <div className="flex items-center space-x-4">
-              <NavLink to="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" className="text-limeGreen socials" aria-label="Facebook">
-                <FaFacebook className="text-xl md:text-2xl" />
+            <div className="flex items-center space-x-4" data-oid="cvmkh-a">
+              <NavLink
+                to="https://www.facebook.com/profile.php?id=61573194721199"
+                target="_blank"
+                className="text-limeGreen socials"
+                aria-label="Facebook"
+                data-oid="d3a9sw_"
+              >
+                <FaFacebook
+                  className="text-xl md:text-2xl"
+                  data-oid="fs:6mmz"
+                />
               </NavLink>
 
-              <NavLink to="https://www.instagram.com/lmw__fitness/" target="_blank" className="text-brightYellow socials" aria-label="Instagram">
-                <FaInstagram className="text-xl md:text-2xl" />
+              <NavLink
+                to="https://www.instagram.com/lmw__fitness/"
+                target="_blank"
+                className="text-brightYellow socials"
+                aria-label="Instagram"
+                data-oid="g6ty25p"
+              >
+                <FaInstagram
+                  className="text-xl md:text-2xl"
+                  data-oid=".3ifgq8"
+                />
               </NavLink>
 
-              <NavLink to="https://www.tiktok.com/en/" target="_blank" className="text-hotPink socials" aria-label="TikTok">
-                <FaTiktok className="text-xl md:text-2xl" />
+              <NavLink
+                to="https://www.tiktok.com/en/"
+                target="_blank"
+                className="text-hotPink socials"
+                aria-label="TikTok"
+                data-oid="tru4lip"
+              >
+                <FaTiktok className="text-xl md:text-2xl" data-oid="plb09z4" />
               </NavLink>
               {isLoggedIn && (
-                  <button
-                    onClick={handleLogout}
-                    className="font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded bg-red-500 hover:bg-red-600 transition-colors duration-300"
-                  >
-                    Logout
-                  </button>
+                <button
+                  onClick={handleLogout}
+                  className="font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded bg-red-500 hover:bg-red-600 transition-colors duration-300"
+                  data-oid="zdwvkj6"
+                >
+                  Logout
+                </button>
               )}
             </div>
           </div>
@@ -199,8 +262,13 @@ const Navbar = () => {
           <button
             className="lg:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
             onClick={() => setIsMenuOpen((prev) => !prev)}
+            data-oid="qyvjc:e"
           >
-            {isMenuOpen ? <FaTimes className="text-3xl" /> : <FaBars className="text-3xl" />}
+            {isMenuOpen ? (
+              <FaTimes className="text-3xl" data-oid="ftn35e:" />
+            ) : (
+              <FaBars className="text-3xl" data-oid="6te0-wp" />
+            )}
           </button>
         </div>
       </nav>
@@ -208,17 +276,22 @@ const Navbar = () => {
       {/* Side Navbar (Mobile Menu) */}
       <aside
         className={`fixed top-0 left-0 w-3/4 max-w-xs h-full bg-customGray/90 backdrop-blur-md shadow-lg z-40 transform transition-transform duration-300 ${
-          isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        data-oid="-wk7orb"
       >
-        <div className="flex flex-col items-center mt-24 space-y-4">
-          {['Home', 'About', 'Contact'].map((section) => (
+        <div
+          className="flex flex-col items-center mt-24 space-y-4"
+          data-oid="jila.uf"
+        >
+          {["Home", "About", "Contact"].map((section) => (
             <button
               key={section}
               onClick={() => scrollToSection(section)}
               className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+              data-oid="jq1j0n:"
             >
-              {section.replace(/([A-Z])/g, ' $1').trim()}
+              {section.replace(/([A-Z])/g, " $1").trim()}
             </button>
           ))}
           <NavLink
@@ -226,9 +299,10 @@ const Navbar = () => {
             onClick={() => setIsMenuOpen(false)}
             className={({ isActive }) =>
               isActive
-                ? 'font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink'
-                : 'font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray'
+                ? "font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
+                : "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray"
             }
+            data-oid="eavklij"
           >
             Blog
           </NavLink>
@@ -240,6 +314,7 @@ const Navbar = () => {
                 to="/login"
                 className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
                 onClick={() => setIsMenuOpen(false)}
+                data-oid="nu04_hw"
               >
                 Login
               </NavLink>
@@ -247,6 +322,7 @@ const Navbar = () => {
                 to="/register"
                 className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
                 onClick={() => setIsMenuOpen(false)}
+                data-oid="pk2eptu"
               >
                 Register
               </NavLink>
@@ -257,12 +333,14 @@ const Navbar = () => {
                 to="/profile"
                 className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
                 onClick={() => setIsMenuOpen(false)}
+                data-oid="l3sx8du"
               >
                 Profile
               </NavLink>
               <button
                 onClick={handleLogout}
                 className="text-white text-lg font-titillium py-2 w-3/4 text-center rounded bg-red-500 hover:bg-red-600 transition-colors duration-300"
+                data-oid="cu_s-u1"
               >
                 Logout
               </button>

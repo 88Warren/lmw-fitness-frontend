@@ -1,18 +1,18 @@
 import HeroSection from "../components/home/HeroSection";
 import Testimonials from "../components/home/Testimonials";
 import AboutSection from "../components/home/About";
-import ContactForm from "../components/home/ContactForm"
+import ContactForm from "../components/home/ContactForm";
 
 const HomePage = () => {
   return (
     <>
-      <HeroSection />
-      <AboutSection />
-      <Testimonials />
+      <HeroSection data-oid="mqf53x1" />
+      <AboutSection data-oid="o3pm3yp" />
+      <Testimonials data-oid="mh6n1.8" />
       {/* <Pricing /> */}
-      <ContactForm />
+      <ContactForm data-oid="cop1zak" />
     </>
-  )
-}
+  );
+};
 
 export default HomePage;

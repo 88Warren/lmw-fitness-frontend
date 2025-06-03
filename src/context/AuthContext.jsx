@@ -1,6 +1,6 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback } from "react";
 import { BACKEND_URL } from "../utils/config";
-import axios from 'axios';
+import axios from "axios";
 
 // Create the Auth Context
 export const AuthContext = createContext(null);
@@ -15,30 +15,30 @@ export const AuthProvider = ({ children }) => {
 
   // Function to store token and user data in local storage
   const storeAuthData = useCallback((newToken, userData) => {
-    localStorage.setItem('jwtToken', newToken);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("jwtToken", newToken);
+    localStorage.setItem("user", JSON.stringify(userData));
     setToken(newToken);
     setUser(userData);
     setIsLoggedIn(true);
-    setIsAdmin(userData.role === 'admin');
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`; // Set default Authorization header
+    setIsAdmin(userData.role === "admin");
+    axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`; // Set default Authorization header
   }, []);
 
   // Function to remove token and user data from local storage
   const clearAuthData = useCallback(() => {
-    localStorage.removeItem('jwtToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("user");
     setToken(null);
     setUser(null);
     setIsLoggedIn(false);
     setIsAdmin(false);
-    delete axios.defaults.headers.common['Authorization']; // Remove Authorization header
+    delete axios.defaults.headers.common["Authorization"]; // Remove Authorization header
   }, []);
 
   // Effect to load auth data from local storage on initial mount
   useEffect(() => {
-    const storedToken = localStorage.getItem('jwtToken');
-    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem("jwtToken");
+    const storedUser = localStorage.getItem("user");
 
     if (storedToken && storedUser) {
       try {
@@ -59,28 +59,51 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/login`, { email, password });
+      const response = await axios.post(`${BACKEND_URL}/api/login`, {
+        email,
+        password,
+      });
       const { token, user } = response.data;
       storeAuthData(token, user);
-      return { success: true, message: 'Login successful!' };
+      return { success: true, message: "Login successful!" };
     } catch (error) {
-      console.error('Login failed:', error.response?.data?.error || error.message);
+      console.error(
+        "Login failed:",
+        error.response?.data?.error || error.message,
+      );
       clearAuthData();
-      return { success: false, error: error.response?.data?.error || 'Login failed. Please check your credentials.' };
+      return {
+        success: false,
+        error:
+          error.response?.data?.error ||
+          "Login failed. Please check your credentials.",
+      };
     }
   };
 
   // Register function
   const register = async (email, password) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/register`, { email, password });
+      const response = await axios.post(`${BACKEND_URL}/api/register`, {
+        email,
+        password,
+      });
       const { token, user } = response.data;
       storeAuthData(token, user);
-      return { success: true, message: 'Registration successful! You are now logged in.' };
+      return {
+        success: true,
+        message: "Registration successful! You are now logged in.",
+      };
     } catch (error) {
-      console.error('Registration failed:', error.response?.data?.error || error.message);
+      console.error(
+        "Registration failed:",
+        error.response?.data?.error || error.message,
+      );
       clearAuthData();
-      return { success: false, error: error.response?.data?.error || 'Registration failed.' };
+      return {
+        success: false,
+        error: error.response?.data?.error || "Registration failed.",
+      };
     }
   };
 
@@ -89,7 +112,7 @@ export const AuthProvider = ({ children }) => {
     clearAuthData();
     // You might want to invalidate the token on the backend too for security
     // But for JWT, simply deleting it client-side is often sufficient for practical purposes.
-    return { success: true, message: 'Logged out successfully.' };
+    return { success: true, message: "Logged out successfully." };
   };
 
   const authContextValue = {
@@ -105,11 +128,11 @@ export const AuthProvider = ({ children }) => {
 
   if (loading) {
     // You could render a loading spinner or splash screen here
-    return <div>Loading authentication...</div>;
+    return <div data-oid="knl6uzq">Loading authentication...</div>;
   }
 
   return (
-    <AuthContext.Provider value={authContextValue}>
+    <AuthContext.Provider value={authContextValue} data-oid="sft1_q_">
       {children}
     </AuthContext.Provider>
   );
