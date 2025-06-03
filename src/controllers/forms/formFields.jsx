@@ -1,11 +1,11 @@
 import PropTypes from "prop-types";
 
 export const InputField = ({ label, type, name, value, onChange }) => (
-  <div data-oid="a5bjc_l">
+  <div data-oid="z88lxgh">
     <label
       className="block text-black font-bold mb-2"
       htmlFor={name}
-      data-oid="pubfobc"
+      data-oid=".qifiye"
     >
       {label}
     </label>
@@ -17,7 +17,7 @@ export const InputField = ({ label, type, name, value, onChange }) => (
       onChange={onChange}
       className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
       required
-      data-oid="2pmhcfs"
+      data-oid="v4.qt:a"
     />
   </div>
 );
@@ -31,11 +31,11 @@ InputField.propTypes = {
 };
 
 export const TextAreaField = ({ label, name, value, onChange }) => (
-  <div data-oid="0bqewa.">
+  <div data-oid="6487pz-">
     <label
       className="block text-black font-bold mb-2"
       htmlFor={name}
-      data-oid="alcblel"
+      data-oid="6h:zifz"
     >
       {label}
     </label>
@@ -47,7 +47,7 @@ export const TextAreaField = ({ label, name, value, onChange }) => (
       className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
       rows="5"
       required
-      data-oid="3.h2tvs"
+      data-oid="wa3u2zr"
     />
   </div>
 );

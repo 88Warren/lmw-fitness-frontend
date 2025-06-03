@@ -53,11 +53,11 @@ const RegisterPage = () => {
     return (
       <div
         className="min-h-screen flex items-center justify-center bg-customWhite p-4"
-        data-oid="kmsmmfr"
+        data-oid="u7td7:d"
       >
         <p
           className="text-xl font-titillium text-customGray"
-          data-oid="5sq_qb8"
+          data-oid="a2ozd22"
         >
           Redirecting...
         </p>
@@ -68,24 +68,24 @@ const RegisterPage = () => {
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-customWhite py-20"
-      data-oid="71q14vb"
+      data-oid="gg5z5bs"
     >
       <div
         className="bg-customGray p-10 rounded-lg shadow-lg max-w-lg w-full border-3 border-brightYellow"
-        data-oid="8t.k9gb"
+        data-oid="82ymmxn"
       >
         <h2
           className="text-3xl font-bold text-center text-customWhite mt-6 pb-14 font-higherJump tracking-widest"
-          data-oid="m:sq_.f"
+          data-oid="dkw:6qs"
         >
           Register
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-8" data-oid="d61jsmp">
-          <div data-oid="iz:n70l">
+        <form onSubmit={handleSubmit} className="space-y-8" data-oid="vbhwonq">
+          <div data-oid="iymnty6">
             <label
               htmlFor="email"
               className="block mb-2 text-m text-customWhite font-titillium tracking-wide"
-              data-oid="kmvj659"
+              data-oid="u8wmjmz"
             >
               Email Address
             </label>
@@ -98,14 +98,14 @@ const RegisterPage = () => {
               required
               className="mt-1 block w-full px-4 py-3 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-50 focus:border-gray-50 sm:text-m font-titillium"
               placeholder="ifnotnowthenwhen@myself.co.uk"
-              data-oid="viask:s"
+              data-oid=":wgqlra"
             />
           </div>
-          <div data-oid="bx4-gk6">
+          <div data-oid="::s5qbc">
             <label
               htmlFor="password"
               className="block mb-2 text-m text-customWhite font-titillium tracking-wide"
-              data-oid="m_39smn"
+              data-oid="7o8j:8g"
             >
               Password
             </label>
@@ -118,14 +118,14 @@ const RegisterPage = () => {
               required
               className="mt-1 block w-full px-4 py-3 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-50 focus:border-gray-50 sm:text-m font-titillium"
               placeholder="••••••••"
-              data-oid="pdm6k-1"
+              data-oid="o_rzxps"
             />
           </div>
-          <div data-oid="01_a78k">
+          <div data-oid="b42643s">
             <label
               htmlFor="confirmPassword"
               className="block mb-2 text-m text-customWhite font-titillium tracking-wide"
-              data-oid="9n.qk7l"
+              data-oid="9t0kx-r"
             >
               Confirm Password
             </label>
@@ -138,14 +138,14 @@ const RegisterPage = () => {
               required
               className="mt-1 block w-full px-4 py-3 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-50 focus:border-gray-50 sm:text-m font-titillium"
               placeholder="••••••••"
-              data-oid="zbmifee"
+              data-oid="cbby02v"
             />
           </div>
 
           {error && (
             <div
               className="text-hotPink text-sm font-titillium text-center"
-              data-oid="j.97vkv"
+              data-oid="yeuh-7y"
             >
               {error}
             </div>
@@ -153,7 +153,7 @@ const RegisterPage = () => {
           {successMessage && (
             <div
               className="text-limeGreen text-sm font-titillium text-center"
-              data-oid="vs59n0a"
+              data-oid="sbyj97p"
             >
               {successMessage}
             </div>
@@ -162,20 +162,20 @@ const RegisterPage = () => {
           <button
             type="submit"
             className="btn-full-colour w-full"
-            data-oid="sjckdo7"
+            data-oid="y:r6cpe"
           >
             Register
           </button>
         </form>
         <p
           className="mt-6 text-center text-sm text-logoGray font-titillium"
-          data-oid="aonm3kl"
+          data-oid="y5fwrux"
         >
           Already have an account?{" "}
           <Link
             to="/login"
             className="font-medium text-brightYellow hover:text-hotPink font-titillium"
-            data-oid="10unaez"
+            data-oid="kc8fbv9"
           >
             Login here
           </Link>

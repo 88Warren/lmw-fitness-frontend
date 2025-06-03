@@ -6,11 +6,11 @@ import ContactForm from "../components/home/ContactForm";
 const HomePage = () => {
   return (
     <>
-      <HeroSection data-oid="mqf53x1" />
-      <AboutSection data-oid="o3pm3yp" />
-      <Testimonials data-oid="mh6n1.8" />
+      <HeroSection data-oid="edsd6j3" />
+      <AboutSection data-oid="29d2j98" />
+      <Testimonials data-oid="qrnxf2j" />
       {/* <Pricing /> */}
-      <ContactForm data-oid="cop1zak" />
+      <ContactForm data-oid="nd1awid" />
     </>
   );
 };

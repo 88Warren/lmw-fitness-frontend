@@ -128,11 +128,11 @@ export const AuthProvider = ({ children }) => {
 
   if (loading) {
     // You could render a loading spinner or splash screen here
-    return <div data-oid="knl6uzq">Loading authentication...</div>;
+    return <div data-oid="onu9n81">Loading authentication...</div>;
   }
 
   return (
-    <AuthContext.Provider value={authContextValue} data-oid="sft1_q_">
+    <AuthContext.Provider value={authContextValue} data-oid="xh6n.dh">
       {children}
     </AuthContext.Provider>
   );

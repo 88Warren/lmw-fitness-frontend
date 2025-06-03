@@ -32,16 +32,16 @@ const BlogPage = () => {
         backgroundPosition: "center top",
         backgroundRepeat: "no-repeat",
       }}
-      data-oid="0_3.vk5"
+      data-oid="7f:yex3"
     >
       <div
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-        data-oid="dh:ew_y"
+        data-oid="tb-buig"
       >
         {loading && (
           <div
             className="text-center text-brightYellow text-xl mb-4"
-            data-oid="ztg8-3t"
+            data-oid="m.q59x3"
           >
             Loading...
           </div>
@@ -49,7 +49,7 @@ const BlogPage = () => {
         {error && (
           <div
             className="bg-red-500 text-white p-4 rounded-lg mb-4 text-center"
-            data-oid="_a025hu"
+            data-oid="awrfas:"
           >
             {error}
           </div>
@@ -57,7 +57,7 @@ const BlogPage = () => {
         {message && (
           <div
             className="bg-limeGreen text-white p-4 rounded-lg mb-4 text-center"
-            data-oid="fhdmg_l"
+            data-oid="e-xtan0"
           >
             {message}
           </div>
@@ -69,7 +69,7 @@ const BlogPage = () => {
             handleBackToList={handleBackToList}
             handleEditClick={handleEditClick}
             handleDelete={handleDelete}
-            data-oid="44qh0e4"
+            data-oid="x4ss..x"
           />
         ) : viewMode === "create" ? (
           <BlogForm
@@ -78,7 +78,7 @@ const BlogPage = () => {
             handleInputChange={handleInputChange}
             handleFormSubmit={handleFormSubmit}
             handleBackToList={handleBackToList}
-            data-oid="..8i3g_"
+            data-oid="h:s53aw"
           />
         ) : viewMode === "edit" && editingPost ? (
           <BlogForm
@@ -87,7 +87,7 @@ const BlogPage = () => {
             handleInputChange={handleInputChange}
             handleFormSubmit={handleFormSubmit}
             handleBackToList={handleBackToList}
-            data-oid="-a9_.uy"
+            data-oid="_dthmyk"
           />
         ) : (
           <BlogList
@@ -98,7 +98,7 @@ const BlogPage = () => {
             handleEditClick={handleEditClick}
             handleDelete={handleDelete}
             handleCreateNewBlogClick={handleCreateNewBlogClick}
-            data-oid="ly7uf2m"
+            data-oid="fmoxmjz"
           />
         )}
       </div>

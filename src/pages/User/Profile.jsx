@@ -29,11 +29,11 @@ const ProfilePage = () => {
     return (
       <div
         className="min-h-screen flex items-center justify-center bg-gray-900 p-4"
-        data-oid="j_:tkci"
+        data-oid="ek2x3f7"
       >
         <p
           className="text-xl font-titillium text-brightYellow"
-          data-oid="bfdtif."
+          data-oid="23om308"
         >
           Loading profile or redirecting...
         </p>
@@ -45,33 +45,33 @@ const ProfilePage = () => {
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-gray-900 p-4"
-      data-oid=".qd1p.i"
+      data-oid="gw.k95t"
     >
       <div
         className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full border border-limeGreen text-white"
-        data-oid="c-fa7-m"
+        data-oid="f:3mx-1"
       >
         <h2
           className="text-3xl font-bold text-center text-brightYellow mb-6 font-higherJump"
-          data-oid="ojq1k-o"
+          data-oid="ch47l4."
         >
           User Profile
         </h2>
-        <div className="space-y-4 text-center" data-oid="sg54jph">
+        <div className="space-y-4 text-center" data-oid="la5gj7w">
           <p
             className="text-lg font-titillium text-logoGray"
-            data-oid="2-z6kol"
+            data-oid="nsx51g3"
           >
-            <span className="font-bold text-limeGreen" data-oid="g6ohweo">
+            <span className="font-bold text-limeGreen" data-oid="0q17rwd">
               Email:
             </span>{" "}
             {user.email}
           </p>
           <p
             className="text-lg font-titillium text-logoGray"
-            data-oid="v2_wf-x"
+            data-oid="5j-vfi2"
           >
-            <span className="font-bold text-brightYellow" data-oid=".6z2awb">
+            <span className="font-bold text-brightYellow" data-oid="g_ej6gf">
               Role:
             </span>{" "}
             {user.role}
@@ -81,7 +81,7 @@ const ProfilePage = () => {
         <button
           onClick={handleLogout}
           className="btn-primary w-full mt-8 bg-red-500 hover:bg-red-600"
-          data-oid="2k11opx"
+          data-oid="60uxn:b"
         >
           Logout
         </button>

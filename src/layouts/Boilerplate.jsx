@@ -5,9 +5,9 @@ import Footer from "../components/Shared/Footer";
 const Boilerplate = () => {
   return (
     <>
-      <Navbar data-oid="84lsxg6" />
-      <Outlet data-oid="kuf4vnl" />
-      <Footer data-oid="9m41qpp" />
+      <Navbar data-oid="0w0kncx" />
+      <Outlet data-oid="brhwl:e" />
+      <Footer data-oid="d2.3dl9" />
     </>
   );
 };

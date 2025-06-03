@@ -124,28 +124,28 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="Contact" className="py-16 px-6 bg-gray-100" data-oid="ww3xl29">
+    <section id="Contact" className="py-16 px-6 bg-gray-100" data-oid="044uxbj">
       <div
         className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 md:p-8"
-        data-oid="etnizw0"
+        data-oid="5yo_m3m"
       >
         <h2
           className="text-3xl md:text-4xl font-higherJump text-center mb-4 text-black leading-relaxed md:leading-loose"
-          data-oid="75sv_y9"
+          data-oid="4200:ie"
         >
           Get In Touch{" "}
-          <span className="w" data-oid="j.emk8v">
+          <span className="w" data-oid="pzww4a.">
             w
           </span>
           ith{" "}
-          <span className="m" data-oid="7487oc9">
+          <span className="m" data-oid="1aa2nmu">
             m
           </span>
           e
         </h2>
         <p
           className="text-lg text-center text-customGray mb-6 md:mb-8"
-          data-oid="e8t932z"
+          data-oid="y4dv6zg"
         >
           Have a question or need more info? Drop me a message here:
         </p>
@@ -153,7 +153,7 @@ const ContactForm = () => {
         <form
           onSubmit={handleSubmit}
           className="space-y-4 md:space-y-6"
-          data-oid="vjwhdx9"
+          data-oid=".a_9rnu"
         >
           <InputField
             label="Name:"
@@ -161,25 +161,27 @@ const ContactForm = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            data-oid="z6m9hmq"
+            data-oid="jlk9oie"
           />
+
           <InputField
             label="Email:"
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            data-oid="vw895d_"
+            data-oid="q8zlyxf"
           />
+
           <TextAreaField
             label="Message:"
             name="message"
             value={formData.message}
             onChange={handleChange}
-            data-oid="dojbcij"
+            data-oid="30x.g6u"
           />
 
-          <div className="flex justify-center mb-4" data-oid="850:vyb">
+          <div className="flex justify-center mb-4" data-oid="44ofkev">
             {!captchaError ? (
               <ReCAPTCHA
                 ref={recaptchaRef}
@@ -187,21 +189,21 @@ const ContactForm = () => {
                 onChange={handleCaptchaChange}
                 onError={handleCaptchaError}
                 size="normal"
-                data-oid="6zvw:nn"
+                data-oid="8.kkr_1"
               />
             ) : (
               <div
                 className="text-center p-4 bg-gray-100 rounded-lg"
-                data-oid=".ehax7:"
+                data-oid="nyfhmja"
               >
-                <p className="text-red-500 mb-2" data-oid="9sq565q">
+                <p className="text-red-500 mb-2" data-oid="62is9jv">
                   reCAPTCHA is currently unavailable
                 </p>
                 <button
                   type="button"
                   onClick={() => window.location.reload()}
                   className="text-blue-500 hover:text-blue-700 underline"
-                  data-oid="t.e4y3a"
+                  data-oid="z5.jenn"
                 >
                   Refresh Page
                 </button>
@@ -213,12 +215,12 @@ const ContactForm = () => {
             type="submit"
             disabled={isLoading}
             className="w-full py-2 md:py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all duration-300"
-            data-oid="5hkkpm_"
+            data-oid="2cg5r33"
           >
             {isLoading ? "Submitting..." : "Submit"}
           </button>
         </form>
-        <ToastContainer data-oid="-26c.fk" />
+        <ToastContainer data-oid="aou.ycz" />
       </div>
     </section>
   );

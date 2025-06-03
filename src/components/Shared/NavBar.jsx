@@ -123,30 +123,30 @@ const Navbar = () => {
       {/* Navbar */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 h-16 flex items-center transition-all duration-300 ${isScrolled ? "bg-customGray opacity-80 shadow-md" : "bg-transparent"}`}
-        data-oid="rxq3pr8"
+        data-oid="3ownl0b"
       >
         <div
           className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10"
-          data-oid="qm7bbn2"
+          data-oid="ntirh6a"
         >
           {/* Logo */}
           <NavLink
             to="/"
             onClick={() => window.scrollTo(0, 0)}
             className="flex items-center"
-            data-oid="_n63g0d"
+            data-oid="kxi_k2c"
           >
-            <h1 className="lmw items-end text-lg md:text-xl" data-oid="q50b:m1">
-              <span className="l pr-1" data-oid=":i:t1mq">
+            <h1 className="lmw items-end text-lg md:text-xl" data-oid="zc7r9ow">
+              <span className="l pr-1" data-oid=".u89pvu">
                 L
               </span>
-              <span className="m pr-1" data-oid="-f7:fty">
+              <span className="m pr-1" data-oid="62gui-g">
                 M
               </span>
-              <span className="w pr-2" data-oid="nqaj6f1">
+              <span className="w pr-2" data-oid="3fukn92">
                 W
               </span>
-              <span className="fitness" data-oid="8gfi4zv">
+              <span className="fitness" data-oid="m8lqucd">
                 fitness
               </span>
             </h1>
@@ -155,16 +155,16 @@ const Navbar = () => {
           {/* Web Menu */}
           <div
             className="hidden lg:flex items-center justify-between w-full px-4"
-            data-oid="sbfycx:"
+            data-oid="wbmaait"
           >
             {/* Left: Navigation Links */}
-            <div className="flex items-center space-x-4" data-oid="cl4reny">
+            <div className="flex items-center space-x-4" data-oid="pm5sm24">
               {["Home", "About", "Contact"].map((section) => (
                 <button
                   key={section}
                   onClick={() => scrollToSection(section)}
                   className={navLink(section)}
-                  data-oid="6d06-2f"
+                  data-oid="e79e3f_"
                 >
                   {section.replace(/([A-Z])/g, " $1").trim()}
                 </button>
@@ -176,21 +176,21 @@ const Navbar = () => {
                     ? "font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
                     : "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray"
                 }
-                data-oid=".0ucrly"
+                data-oid="1gey9_w"
               >
                 Blog
               </NavLink>
             </div>
 
             {/* Center: User Links */}
-            <div className="flex items-center justify-end" data-oid="e4v7ilc">
+            <div className="flex items-center justify-end" data-oid="7:efdno">
               {!isLoggedIn ? (
                 <NavLink
                   to="/login"
                   className="font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:bg-brightYellow hover:text-customGray transition-colors duration-300"
                   onClick={() => setIsMenuOpen(false)}
                   aria-label="Login"
-                  data-oid="z02wuni"
+                  data-oid="jlqtnf:"
                 >
                   Login
                 </NavLink>
@@ -201,7 +201,7 @@ const Navbar = () => {
                     className="font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
                     onClick={() => setIsMenuOpen(false)}
                     aria-label="Profile"
-                    data-oid="t7e__-l"
+                    data-oid="_anc1.4"
                   >
                     Profile
                   </NavLink>
@@ -210,17 +210,17 @@ const Navbar = () => {
             </div>
 
             {/* Right: Social Icons */}
-            <div className="flex items-center space-x-4" data-oid="cvmkh-a">
+            <div className="flex items-center space-x-4" data-oid="j25uj9g">
               <NavLink
                 to="https://www.facebook.com/profile.php?id=61573194721199"
                 target="_blank"
                 className="text-limeGreen socials"
                 aria-label="Facebook"
-                data-oid="d3a9sw_"
+                data-oid=":ycb2av"
               >
                 <FaFacebook
                   className="text-xl md:text-2xl"
-                  data-oid="fs:6mmz"
+                  data-oid="ngjlsvl"
                 />
               </NavLink>
 
@@ -229,11 +229,11 @@ const Navbar = () => {
                 target="_blank"
                 className="text-brightYellow socials"
                 aria-label="Instagram"
-                data-oid="g6ty25p"
+                data-oid="0:s5zrn"
               >
                 <FaInstagram
                   className="text-xl md:text-2xl"
-                  data-oid=".3ifgq8"
+                  data-oid="bgcd-:b"
                 />
               </NavLink>
 
@@ -242,15 +242,15 @@ const Navbar = () => {
                 target="_blank"
                 className="text-hotPink socials"
                 aria-label="TikTok"
-                data-oid="tru4lip"
+                data-oid="4f5iyqs"
               >
-                <FaTiktok className="text-xl md:text-2xl" data-oid="plb09z4" />
+                <FaTiktok className="text-xl md:text-2xl" data-oid="1y-mc4d" />
               </NavLink>
               {isLoggedIn && (
                 <button
                   onClick={handleLogout}
                   className="font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded bg-red-500 hover:bg-red-600 transition-colors duration-300"
-                  data-oid="zdwvkj6"
+                  data-oid="y-dw:7v"
                 >
                   Logout
                 </button>
@@ -262,12 +262,12 @@ const Navbar = () => {
           <button
             className="lg:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            data-oid="qyvjc:e"
+            data-oid="dze93g6"
           >
             {isMenuOpen ? (
-              <FaTimes className="text-3xl" data-oid="ftn35e:" />
+              <FaTimes className="text-3xl" data-oid="k6hwt9i" />
             ) : (
-              <FaBars className="text-3xl" data-oid="6te0-wp" />
+              <FaBars className="text-3xl" data-oid="kkd5777" />
             )}
           </button>
         </div>
@@ -278,18 +278,18 @@ const Navbar = () => {
         className={`fixed top-0 left-0 w-3/4 max-w-xs h-full bg-customGray/90 backdrop-blur-md shadow-lg z-40 transform transition-transform duration-300 ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
-        data-oid="-wk7orb"
+        data-oid="cjyy7kn"
       >
         <div
           className="flex flex-col items-center mt-24 space-y-4"
-          data-oid="jila.uf"
+          data-oid="h-rl.v9"
         >
           {["Home", "About", "Contact"].map((section) => (
             <button
               key={section}
               onClick={() => scrollToSection(section)}
               className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
-              data-oid="jq1j0n:"
+              data-oid="o7srs3k"
             >
               {section.replace(/([A-Z])/g, " $1").trim()}
             </button>
@@ -302,7 +302,7 @@ const Navbar = () => {
                 ? "font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
                 : "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray"
             }
-            data-oid="eavklij"
+            data-oid="a11t-pu"
           >
             Blog
           </NavLink>
@@ -314,7 +314,7 @@ const Navbar = () => {
                 to="/login"
                 className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
                 onClick={() => setIsMenuOpen(false)}
-                data-oid="nu04_hw"
+                data-oid="97xrb_-"
               >
                 Login
               </NavLink>
@@ -322,7 +322,7 @@ const Navbar = () => {
                 to="/register"
                 className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
                 onClick={() => setIsMenuOpen(false)}
-                data-oid="pk2eptu"
+                data-oid="p2yo:uq"
               >
                 Register
               </NavLink>
@@ -333,14 +333,14 @@ const Navbar = () => {
                 to="/profile"
                 className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
                 onClick={() => setIsMenuOpen(false)}
-                data-oid="l3sx8du"
+                data-oid="--7i82r"
               >
                 Profile
               </NavLink>
               <button
                 onClick={handleLogout}
                 className="text-white text-lg font-titillium py-2 w-3/4 text-center rounded bg-red-500 hover:bg-red-600 transition-colors duration-300"
-                data-oid="cu_s-u1"
+                data-oid="b0a-.xb"
               >
                 Logout
               </button>

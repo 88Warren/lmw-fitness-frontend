@@ -21,9 +21,9 @@ const router = createBrowserRouter(routes);
 
 const App = () => {
   return (
-    <AuthProvider data-oid="z78zrym">
-      <RouterProvider router={router} data-oid="0qpmx:l">
-        <ScrollToTop data-oid=":3.7c4c" />
+    <AuthProvider data-oid="546g8cf">
+      <RouterProvider router={router} data-oid="078a8p7">
+        <ScrollToTop data-oid="2h1jxqu" />
       </RouterProvider>
     </AuthProvider>
   );

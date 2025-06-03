@@ -7,60 +7,60 @@ const Pricing = () => {
       <section
         id="Pricing"
         className="py-16 px-6 bg-gray-100"
-        data-oid="k5a71fi"
+        data-oid="ffp4ejl"
       >
-        <div className="max-w-5xl mx-auto text-center" data-oid="ln-amhh">
+        <div className="max-w-5xl mx-auto text-center" data-oid="7cgf0az">
           <h2
             className="text-3xl md:text-4xl font-higherJump text-black mb-8"
-            data-oid=".:76stm"
+            data-oid="7fze9nx"
           >
             Choose Your P
-            <span className="l" data-oid="rf6r8:5">
+            <span className="l" data-oid="jii4_xl">
               l
             </span>
             an
           </h2>
-          <p className="text-lg text-customGray mb-10" data-oid="ut8wo1u">
+          <p className="text-lg text-customGray mb-10" data-oid="tut__eb">
             Whether you're looking for a fitness package or a tailored coaching
             programme
-            <br data-oid="7ouwrne" />I have the perfect solution to support your
+            <br data-oid="em94mu7" />I have the perfect solution to support your
             fitness journey.
           </p>
           <div
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            data-oid="67wtvoa"
+            data-oid="8y0lp7m"
           >
             {/* Basic Training Programs */}
             <div
               className="p-6 bg-white border rounded-lg shadow-lg"
-              data-oid="lrzn:7t"
+              data-oid="lsi7nkg"
             >
               <h3
                 className="text-xl md:text-2xl font-bold text-black mb-4"
-                data-oid="iof7y_m"
+                data-oid="zwqknoi"
               >
                 Basic 30-day programme
               </h3>
               <p
                 className="text-lg font-semibold text-limeGreen mb-4"
-                data-oid=":xm9-wa"
+                data-oid="e-qxcx2"
               >
                 £50 (One-off fee)
               </p>
               <ul
                 className="text-customGray text-left mb-6 space-y-2"
-                data-oid="k9z6zhl"
+                data-oid="kog8rk8"
               >
-                <li data-oid="ku_2fp0">✔ Starting fitness test</li>
-                <li data-oid=":zo-ygp">✔ Measurement guide</li>
-                <li data-oid="7:s3inp">✔ 30-day fitness journal</li>
-                <li data-oid="jznd7nx">
+                <li data-oid=":ugz3d1">✔ Starting fitness test</li>
+                <li data-oid="f7d1xwl">✔ Measurement guide</li>
+                <li data-oid="8m9o:yq">✔ 30-day fitness journal</li>
+                <li data-oid="-0cf9jo">
                   ✔ 30 x daily advice & support emails
                 </li>
-                <li data-oid="s:ufnuu">✔ 30 x daily videos</li>
-                <li data-oid="nct13vk">✔ Finishing fitness test</li>
+                <li data-oid="mf_8rxi">✔ 30 x daily videos</li>
+                <li data-oid="juso9n_">✔ Finishing fitness test</li>
               </ul>
-              <button className="btn-primary w-full" data-oid="3dsy7vz">
+              <button className="btn-primary w-full" data-oid=".bb91yd">
                 Sign up
               </button>
             </div>
@@ -68,34 +68,34 @@ const Pricing = () => {
             {/* Advanced Training Programs */}
             <div
               className="p-6 bg-white border rounded-lg shadow-lg"
-              data-oid="4xsk7ym"
+              data-oid="uwvwc1f"
             >
               <h3
                 className="text-lg md:text-2xl font-bold text-black mb-4"
-                data-oid="-p5z8pu"
+                data-oid="nv0r324"
               >
                 Advanced 30-day programme
               </h3>
               <p
                 className="text-lg font-semibold text-limeGreen mb-4"
-                data-oid="ywofgnz"
+                data-oid="cvp5cyf"
               >
                 £65 (One-off fee)
               </p>
               <ul
                 className="text-customGray text-left mb-6 space-y-2"
-                data-oid="8-jyasr"
+                data-oid="1e-7lvr"
               >
-                <li data-oid="dntdds3">✔ Starting fitness test</li>
-                <li data-oid="h4s2lwj">✔ Measurement guide</li>
-                <li data-oid="k8cfgep">✔ 30-day fitness journal</li>
-                <li data-oid="y:ag0-v">
+                <li data-oid="fo-tral">✔ Starting fitness test</li>
+                <li data-oid="xwachye">✔ Measurement guide</li>
+                <li data-oid="q9dmv0q">✔ 30-day fitness journal</li>
+                <li data-oid="e1-eeh3">
                   ✔ 30 x advanced level daily advice & support emails
                 </li>
-                <li data-oid="ntdp.pr">✔ 30 x advanced level daily videos</li>
-                <li data-oid="njxic_5">✔ Finishing fitness test</li>
+                <li data-oid="7m_gs1e">✔ 30 x advanced level daily videos</li>
+                <li data-oid="nruxirr">✔ Finishing fitness test</li>
               </ul>
-              <button className="btn-primary w-full" data-oid="ob62jxy">
+              <button className="btn-primary w-full" data-oid=".8pxsvd">
                 Sign up
               </button>
             </div>
@@ -103,62 +103,62 @@ const Pricing = () => {
             {/* Basic Coaching Plan */}
             <div
               className="p-6 bg-white border rounded-lg shadow-lg"
-              data-oid="s8zlzl5"
+              data-oid="57o__w-"
             >
               <h3
                 className="text-lg md:text-2xl font-bold text-black mb-4"
-                data-oid="whi0ja7"
+                data-oid="9g3l0p3"
               >
-                Tailored <br data-oid="jwwkzx2" />
+                Tailored <br data-oid="d_k7-32" />
                 Coaching
               </h3>
               <p
                 className="text-lg font-semibold text-limeGreen mb-4"
-                data-oid=":j0tkvk"
+                data-oid=":t8ef2i"
               >
                 £250 per month
               </p>
               <ul
                 className="text-customGray text-left mb-6 space-y-2"
-                data-oid="lzulm:q"
+                data-oid="dlrwrxf"
               >
-                <li data-oid="pjp5l8_">✔ Weekly Check-ins</li>
-                <li data-oid="bvs2tg7">
+                <li data-oid="kdkq110">✔ Weekly Check-ins</li>
+                <li data-oid="kec13_1">
                   ✔ Tailored workout plan (updated monthly)
                 </li>
-                <li data-oid="__jwkk3">✔ Habit & mindset coaching</li>
-                <li data-oid="3p426ah">✔ Weekly habit challenges</li>
-                <li data-oid=":mofrwi">✔ Daily motivational checklist</li>
-                <li data-oid="og8dpuv">
+                <li data-oid="p7usptq">✔ Habit & mindset coaching</li>
+                <li data-oid="7i.hvfi">✔ Weekly habit challenges</li>
+                <li data-oid="eufayro">✔ Daily motivational checklist</li>
+                <li data-oid="j566-jc">
                   ✔ Message Support & Progress Adjustments
                 </li>
               </ul>
-              <button className="btn-primary w-full" data-oid="iccsh_h">
+              <button className="btn-primary w-full" data-oid="xueoh4k">
                 Sign Up
               </button>
             </div>
 
             {/* Premium Coaching Plan
-              <div className="p-6 bg-white border rounded-lg shadow-lg">
-                 <h3 className="text-2xl font-bold text-black mb-4">Premium Coaching</h3>
-                 <p className="text-lg font-semibold text-limeGreen mb-4">£350/month</p>
-                 <ul className="text-customGray text-left mb-6 space-y-2">
-                     <li>✔ 1 x Weekly Check-ins</li>
-                     <li>✔ Personalized Training & Nutrition Guide</li>
-                     <li>✔ Message Support & Progress Adjustments</li>
-                 </ul>
-                 <button className="btn-primary w-full">Sign Up</button>
-              </div> */}
+                 <div className="p-6 bg-white border rounded-lg shadow-lg">
+                    <h3 className="text-2xl font-bold text-black mb-4">Premium Coaching</h3>
+                    <p className="text-lg font-semibold text-limeGreen mb-4">£350/month</p>
+                    <ul className="text-customGray text-left mb-6 space-y-2">
+                        <li>✔ 1 x Weekly Check-ins</li>
+                        <li>✔ Personalized Training & Nutrition Guide</li>
+                        <li>✔ Message Support & Progress Adjustments</li>
+                    </ul>
+                    <button className="btn-primary w-full">Sign Up</button>
+                 </div> */}
           </div>
 
           {/* Bonus Resources */}
           <div
             className="mt-16 p-8 md:p-12 bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-white rounded-lg shadow-lg"
-            data-oid="t-4q18b"
+            data-oid="i3b8zr1"
           >
             <h3
               className="text-2xl md:text-4xl font-bold text-center mb-8"
-              data-oid="itkqi-t"
+              data-oid="zq3um0j"
             >
               Bonus Resources
             </h3>
@@ -166,54 +166,54 @@ const Pricing = () => {
             {/* Flex container for cards */}
             <div
               className="flex flex-col md:flex-row justify-center gap-10"
-              data-oid="ps6bq:p"
+              data-oid=".regk_c"
             >
               {/* Blog Section */}
               <div
                 className="bg-white md:w-1/2 p-6 rounded-lg text-customGray shadow-md"
-                data-oid="7wr.lgi"
+                data-oid="ovhe_jo"
               >
                 <h4
                   className="text-lg font-semibold text-customGray mb-4"
-                  data-oid="hqxy_5l"
+                  data-oid="5tnrw6i"
                 >
                   Fortnightly fitness & nutrition blog (Free)
                 </h4>
-                <p className="text-lg text-customGray mb-4" data-oid="95bigbp">
+                <p className="text-lg text-customGray mb-4" data-oid="6v:s2zt">
                   Get expert tips straight to your inbox:
                 </p>
-                <ul className="text-lg space-y-2 mb-4" data-oid="m.eixs:">
-                  <li data-oid="9d3b3mb">
+                <ul className="text-lg space-y-2 mb-4" data-oid="zxsno4a">
+                  <li data-oid="e.qfb0n">
                     ✔{" "}
-                    <strong data-oid="-we_6st">
+                    <strong data-oid="c9t1_ms">
                       Fitness & nutrition advice
                     </strong>
                   </li>
-                  <li data-oid="90_f-5r">
+                  <li data-oid="q2hkcmc">
                     ✔{" "}
-                    <strong data-oid="p.gp0pp">Expert insights & tips</strong>
+                    <strong data-oid="c6tngzt">Expert insights & tips</strong>
                   </li>
-                  <li data-oid="4fe-nm-">
+                  <li data-oid="xu0x79h">
                     ✔{" "}
-                    <strong data-oid="7efj61.">
+                    <strong data-oid="p..jd20">
                       Exclusive content for subscribers
                     </strong>
                   </li>
-                  <li data-oid="bkntvue">
-                    ✔ <strong data-oid="o17l:uw">Weekly motivation</strong> to
+                  <li data-oid="7-rb728">
+                    ✔ <strong data-oid="55ukw:o">Weekly motivation</strong> to
                     stay on track
                   </li>
-                  <li data-oid="tmm0yo2">
+                  <li data-oid="zm.2s88">
                     ✔{" "}
-                    <strong data-oid=".rovzzi">Goal setting techniques</strong>{" "}
+                    <strong data-oid="a6yeu0e">Goal setting techniques</strong>{" "}
                     for success
                   </li>
                 </ul>
-                <div className="flex justify-center" data-oid="4:btfsd">
+                <div className="flex justify-center" data-oid="53b44kx">
                   <Link
                     to="/blog"
                     className="btn-primary mb-2"
-                    data-oid="1qqgdxu"
+                    data-oid="xz9od:o"
                   >
                     Subscribe Now
                   </Link>
@@ -223,48 +223,48 @@ const Pricing = () => {
               {/* Standalone Package */}
               <div
                 className="bg-white md:w-1/2 p-6 rounded-lg text-customGray shadow-md"
-                data-oid="5cqvsjr"
+                data-oid="a7chcjm"
               >
                 <h4
                   className="text-lg font-semibold text-customGray mb-4"
-                  data-oid="txt6fn2"
+                  data-oid=".fciv1j"
                 >
                   Ultimate habit & mindset package (£25)
                 </h4>
-                <p className="text-lg text-customGray mb-4" data-oid="xk-ab8x">
+                <p className="text-lg text-customGray mb-4" data-oid="e77s-4k">
                   Get instant access to:
                 </p>
-                <ul className="text-lg space-y-2 mb-4" data-oid="6u39lad">
-                  <li data-oid="kiqvyta">
+                <ul className="text-lg space-y-2 mb-4" data-oid="pbrzq:9">
+                  <li data-oid="tohlcxc">
                     ✔{" "}
-                    <strong data-oid="9g7i8db">Habit building worksheet</strong>
+                    <strong data-oid="nh2tdo3">Habit building worksheet</strong>
                   </li>
-                  <li data-oid="7d3o4pi">
+                  <li data-oid="_t67-rj">
                     ✔{" "}
-                    <strong data-oid="10r8m5x">Mindset coaching guide</strong>
+                    <strong data-oid="avhyy18">Mindset coaching guide</strong>
                   </li>
-                  <li data-oid=".f8rmow">
-                    ✔ <strong data-oid="gs2bnrf">7 Day habit challenge</strong>
+                  <li data-oid="_-lcphn">
+                    ✔ <strong data-oid="546t3fj">7 Day habit challenge</strong>
                   </li>
-                  <li data-oid="-w7paet">
+                  <li data-oid="dn-01y3">
                     ✔{" "}
-                    <strong data-oid="aj2m1x8">
+                    <strong data-oid="1j._ypi">
                       Daily motivation & productivity checklist
                     </strong>
                   </li>
-                  <li data-oid="-aekz58">
+                  <li data-oid="40qn54e">
                     ✔{" "}
-                    <span className="font-bold" data-oid="o5u6vw1">
+                    <span className="font-bold" data-oid="c-t12pl">
                       £20 off
                     </span>{" "}
                     any package purchased within 30 days
                   </li>
                 </ul>
-                <div className="flex justify-center" data-oid="fxd9rw:">
+                <div className="flex justify-center" data-oid="hwgep_4">
                   <Link
                     to="/purchase-bonus-package"
                     className="btn-primary"
-                    data-oid="ujptz0p"
+                    data-oid="nv895qb"
                   >
                     Buy Now
                   </Link>
