@@ -53,114 +53,131 @@ const LoginPage = () => {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-customWhite py-20"
-      data-oid="ck8y.gc"
-    >
+    <div className="min-h-screen flex bg-customWhite" data-oid="ck8y.gc">
+      {/* Left Side - Login Card */}
       <div
-        className="bg-customGray p-12 shadow-lg max-w-lg border-3 border-brightYellow w-[661px] h-[655px] rounded-none"
+        className="w-1/2 bg-customGray flex items-center justify-center p-8"
         data-oid="q0n.yk9"
       >
-        <h2
-          className="text-3xl font-bold text-center text-customWhite mt-6 pb-14 font-higherJump tracking-widest"
-          data-oid="di.8xar"
-        >
-          <span className="l" data-oid="df1i3cd">
-            L
-          </span>
-          ogin
-        </h2>
+        <div className="w-full max-w-md" data-oid="z8-et8m">
+          <h2
+            className="text-3xl font-bold text-center text-customWhite mb-8 font-higherJump tracking-widest"
+            data-oid="di.8xar"
+          >
+            <span className="l" data-oid="df1i3cd">
+              L
+            </span>
+            ogin
+          </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-8" data-oid="w3klv7o">
-          <div data-oid="ex4vel2">
-            <label
-              htmlFor="email"
-              className="block mb-2 text-m text-customWhite font-titillium tracking-wide"
-              data-oid="4bp6a4_"
-            >
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white"
-              placeholder="youareawesome@myself.co.uk"
-              data-oid="r5.dkrf"
-            />
-          </div>
-          <div data-oid="mj8kxhg">
-            <label
-              htmlFor="password"
-              className="block mb-2 text-m text-customWhite font-titillium tracking-wide"
-              data-oid="993mgn5"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white"
-              placeholder="••••••••"
-              data-oid="93:g2o8"
-            />
-          </div>
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+            data-oid="w3klv7o"
+          >
+            <div data-oid="ex4vel2">
+              <label
+                htmlFor="email"
+                className="block mb-2 text-m text-customWhite font-titillium tracking-wide"
+                data-oid="4bp6a4_"
+              >
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white"
+                placeholder="youareawesome@myself.co.uk"
+                data-oid="r5.dkrf"
+              />
+            </div>
+            <div data-oid="mj8kxhg">
+              <label
+                htmlFor="password"
+                className="block mb-2 text-m text-customWhite font-titillium tracking-wide"
+                data-oid="993mgn5"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white"
+                placeholder="••••••••"
+                data-oid="93:g2o8"
+              />
+            </div>
 
-          <div className="text-right mt-2" data-oid=".1lna5.">
+            <div className="text-right mt-2" data-oid=".1lna5.">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-logoGray hover:text-brightYellow font-titillium"
+                data-oid="xwz5odc"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
+            {error && (
+              <div
+                className="text-hotPink text-sm font-titillium text-center"
+                data-oid="pzwpi3v"
+              >
+                {error}
+              </div>
+            )}
+            {successMessage && (
+              <div
+                className="text-limeGreen text-sm font-titillium text-center"
+                data-oid="s2k1v9y"
+              >
+                {successMessage}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="btn-full-colour w-full"
+              data-oid="w-g4m6g"
+            >
+              Login
+            </button>
+          </form>
+          <p
+            className="mt-6 text-center text-sm text-logoGray font-titillium"
+            data-oid="-g141nc"
+          >
+            Don't have an account?{" "}
             <Link
-              to="/forgot-password"
-              className="text-sm text-logoGray hover:text-brightYellow font-titillium"
-              data-oid="xwz5odc"
+              to="/register"
+              className="font-medium text-brightYellow hover:text-hotPink font-titillium"
+              data-oid="qd9:ccb"
             >
-              Forgot Password?
+              Register here
             </Link>
-          </div>
+          </p>
+        </div>
+      </div>
 
-          {error && (
-            <div
-              className="text-hotPink text-sm font-titillium text-center"
-              data-oid="pzwpi3v"
-            >
-              {error}
-            </div>
-          )}
-          {successMessage && (
-            <div
-              className="text-limeGreen text-sm font-titillium text-center"
-              data-oid="s2k1v9y"
-            >
-              {successMessage}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="btn-full-colour w-full"
-            data-oid="w-g4m6g"
-          >
-            Login
-          </button>
-        </form>
-        <p
-          className="mt-6 text-center text-sm text-logoGray font-titillium"
-          data-oid="-g141nc"
-        >
-          Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="font-medium text-brightYellow hover:text-hotPink font-titillium"
-            data-oid="qd9:ccb"
-          >
-            Register here
-          </Link>
-        </p>
+      {/* Right Side - Image */}
+      <div
+        className="w-1/2 bg-customDarkBackground flex items-center justify-center"
+        data-oid="0vgiw8h"
+      >
+        <img
+          src="/images/login-page-example-cube-factory.png.webp"
+          alt="Fitness motivation"
+          className="w-full h-full object-cover"
+          data-oid="7uifs.c"
+        />
       </div>
     </div>
   );
