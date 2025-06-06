@@ -1,108 +1,54 @@
-import { useState, useEffect, useCallback } from "react";
-import { BACKEND_URL } from "../utils/config";
-import useAuth from "../hooks/useAuth";
+import { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../utils/config';
+import { useNavigate } from 'react-router-dom';
+import useAuth from './useAuth'; 
 
 const useBlogData = () => {
-  const { token, isAdmin } = useAuth();
-  const [viewMode, setViewMode] = useState("list"); // 'list', 'detail', 'create', 'edit'
-  const [selectedPost, setSelectedPost] = useState(null); // For detail view
-  const [editingPost, setEditingPost] = useState(null); // For edit view
+  const { user, token } = useAuth(); 
   const [actualBlogPosts, setActualBlogPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState('');
+  const [viewMode, setViewMode] = useState('list');
   const [newBlogData, setNewBlogData] = useState({
-    // Used for both create and edit forms
-    title: "",
-    date: "",
-    image: "",
-    excerpt: "",
-    fullContent: "",
+    title: '',
+    excerpt: '',
+    fullContent: '',
+    image: '',
     isFeatured: false,
   });
+  const [editingPost, setEditingPost] = useState(null);
+  const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [message, setMessage] = useState(null);
-
-  // Function to fetch blog posts
-  const fetchBlogPosts = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/blog`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setActualBlogPosts(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setError(
-        "Failed to load blog posts. Please ensure the backend server is running and accessible, and check your network connection.",
-      );
-      console.error("Error fetching blog posts:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Effect to trigger fetching based on viewMode
   useEffect(() => {
-    if (
-      viewMode === "list" ||
-      viewMode === "deleteSuccess" ||
-      viewMode === "updateSuccess" ||
-      viewMode === "createSuccess"
-    ) {
-      fetchBlogPosts();
-      // Reset viewMode after successful action to ensure re-fetch from list
-      if (
-        viewMode === "deleteSuccess" ||
-        viewMode === "updateSuccess" ||
-        viewMode === "createSuccess"
-      ) {
-        setViewMode("list");
+    const fetchBlogPosts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/blog`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setActualBlogPosts(data); 
+      } catch (err) {
+        console.error('Error fetching blog posts:', err);
+        setError('Failed to load blog posts.');
+      } finally {
+        setLoading(false);
       }
-    }
-  }, [viewMode]); // Re-fetch when viewMode changes to list or success states
+    };
 
-  // Handlers for navigation and state changes
-  const handleReadMore = (post) => {
-    setSelectedPost(post);
-    setViewMode("detail");
-    window.scrollTo(0, 0);
-  };
-
-  const handleBackToList = () => {
-    setSelectedPost(null);
-    setEditingPost(null);
-    setViewMode("list");
-    window.scrollTo(0, 0);
-  };
-
-  const handleCreateNewBlogClick = useCallback(() => {
-    if (!isAdmin) {
-      alert(
-        "You must be logged in as an administrator to create a new blog post.",
-      );
-      return;
-    }
-
-    setNewBlogData({
-      // Clear form for new entry
-      title: "",
-      date: "",
-      image: "",
-      excerpt: "",
-      fullContent: "",
-      isFeatured: false,
-    });
-    setViewMode("create");
-    window.scrollTo(0, 0);
-  }, [isAdmin]);
+    fetchBlogPosts();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setNewBlogData((prevData) => ({
       ...prevData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -110,162 +56,184 @@ const useBlogData = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setMessage(null);
+    setMessage('');
 
-    try {
-      if (!token) {
-        throw new Error(
-          "Authorisation token not found. Please log in as an administrator.",
-        );
-      }
+    if (!token) { 
+    setError('You must be logged in to perform this action.');
+    setLoading(false);
+    return;
+  }
 
-      const method = editingPost ? "PUT" : "POST";
-      const url = editingPost
-        ? `${BACKEND_URL}/api/blog/${editingPost.ID}`
-        : `${BACKEND_URL}/api/blog`;
+    console.log("Submitting newBlogData:", newBlogData);
 
-      const response = await fetch(url, {
+try {
+    let response;
+    let url;
+    let method;
+    let successMessage;
+
+    if (viewMode === 'create') {
+      url = `${BACKEND_URL}/api/blog`;
+      method = 'POST';
+      successMessage = 'Blog post created successfully!';
+    } else if (viewMode === 'edit' && editingPost) {
+      url = `${BACKEND_URL}/api/blog/${editingPost.ID}`;
+      method = 'PUT';
+      successMessage = 'Blog post updated successfully!';
+    } else {
+      throw new Error("Invalid view mode for form submission.");
+    }
+
+    response = await fetch(url, {
         method: method,
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(newBlogData),
+        credentials: 'include',
+        body: JSON.stringify({
+          title: newBlogData.title,
+          excerpt: newBlogData.excerpt,
+          fullContent: newBlogData.fullContent,
+          image: newBlogData.image,
+          isFeatured: newBlogData.isFeatured,
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
-        );
+        console.error("Server error response:", errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const resultPost = await response.json();
-      if (editingPost) {
-        setMessage("Blog post updated successfully!");
-        console.log("Blog post updated:", resultPost);
-        setViewMode("updateSuccess"); // Trigger re-fetch for list
-      } else {
-        setMessage("Blog post created successfully!");
-        console.log("New blog post created:", resultPost);
-        setViewMode("createSuccess"); // Trigger re-fetch for list
+      setMessage(successMessage);
+
+      // Refresh the blog posts
+      const refreshResponse = await fetch(`${BACKEND_URL}/api/blog`);
+      if (!refreshResponse.ok) {
+        throw new Error(`Failed to refresh blog posts after submission. Status: ${refreshResponse.status}`);
       }
-      setEditingPost(null); // Clear editing state
+      const refreshData = await refreshResponse.json();
+      setActualBlogPosts(refreshData);
+
+      setViewMode('list');
       setNewBlogData({
-        // Clear form data
-        title: "",
-        date: "",
-        image: "",
-        excerpt: "",
-        fullContent: "",
+        title: '',
+        excerpt: '',
+        fullContent: '',
+        image: '',
         isFeatured: false,
       });
-    } catch (e) {
-      setError(
-        `Failed to save blog post: ${e.message}. Please check backend server and your network connection.`,
-      );
-      console.error("Error saving blog post:", e);
+      setEditingPost(null);
+      navigate('/blog');
+    } catch (err) {
+      console.error('Error submitting blog post:', err);
+      setError('Failed to save blog post. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditClick = useCallback(
-    (post) => {
-      if (!isAdmin) {
-        alert("You must be logged in as an administrator to edit a blog post.");
-        return;
-      }
+  const handleCreateNewBlogClick = () => {
+    setViewMode('create');
+    setNewBlogData({
+      title: '',
+      excerpt: '',
+      fullContent: '',
+      image: '',
+      isFeatured: false,
+    });
+    navigate('/blog/create'); 
+  };
 
-      setEditingPost(post);
-      setNewBlogData({
-        // Pre-populate form with existing data
-        title: post.title,
-        date: post.date,
-        image: post.image,
-        excerpt: post.excerpt,
-        fullContent: post.fullContent,
-        isFeatured: post.isFeatured || false,
-      });
-      setViewMode("edit");
-      window.scrollTo(0, 0);
-    },
-    [isAdmin],
-  );
+  const handleEditClick = (postToEdit) => {
+    setViewMode('edit');
+    setEditingPost(postToEdit);
+    setNewBlogData({
+      title: postToEdit.title,
+      excerpt: postToEdit.excerpt,
+      fullContent: postToEdit.fullContent,
+      image: postToEdit.image,
+      isFeatured: postToEdit.isFeatured,
+    });
+    navigate('/blog/edit');
+  };
 
-  const handleDelete = async (id) => {
-    if (!isAdmin) {
-      alert("You must be logged in as an administrator to delete a blog post.");
-      return;
-    }
-
-    if (!window.confirm("Are you sure you want to delete this blog post?")) {
+  const handleDelete = async (postIdToDelete) => {
+    if (!window.confirm("Are you sure you want to delete this post?")) {
       return;
     }
 
     setLoading(true);
     setError(null);
-    setMessage(null);
+    setMessage('');
+
+    if (!token) { // <--- Add check for token
+    setError('You must be logged in to perform this action.');
+    setLoading(false);
+    return;
+  }
+
+    console.log(`Attempting to delete post with ID: ${postIdToDelete}`);
 
     try {
-      if (!token) {
-        throw new Error(
-          "Authorisation token not found. Please log in as an administrator.",
-        );
-      }
-
-      const response = await fetch(`${BACKEND_URL}/api/blog/${id}`, {
-        method: "DELETE",
-        headers: {
-          // <--- ADD HEADERS FOR DELETE TOO
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch(`${BACKEND_URL}/api/blog/${postIdToDelete}`, {
+        method: 'DELETE',
+        headers: { 
+        'Authorization': `Bearer ${token}`, 
+      },
+        credentials: 'include',
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
-        );
+        const errorData = await response.json(); 
+        console.error("Server error response on delete:", errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      setMessage("Blog post deleted successfully!");
-      console.log(`Blog post with ID ${id} deleted.`);
-      setViewMode("deleteSuccess"); // Trigger re-fetch for list
-      setSelectedPost(null); // Clear selected post if it was deleted from detail view
-    } catch (e) {
-      setError(`Failed to delete blog post: ${e.message}.`);
-      console.error("Error deleting blog post:", e);
+      setMessage('Blog post deleted successfully!');
+      setActualBlogPosts(prevPosts => 
+        prevPosts.filter(post => post.ID !== postIdToDelete)
+      );
+
+      if (window.location.pathname.includes(`/blog/${postIdToDelete}`)) {
+        navigate('/blog');
+      }
+    } catch (err) {
+      console.error('Error deleting blog post:', err);
+      setError('Failed to delete blog post.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleBackToList = () => {
+    setViewMode('list'); // Set view mode to list
+    setNewBlogData({ // Reset form data
+      title: '',
+      excerpt: '',
+      fullContent: '',
+      image: '',
+      isFeatured: false,
+    });
+    setEditingPost(null); // Clear any editing post
+    navigate('/blog'); // Navigate to the blog list page
+  };
+
   return {
     viewMode,
-    setViewMode,
-    selectedPost,
-    setSelectedPost,
     editingPost,
-    setEditingPost,
     actualBlogPosts,
-    setActualBlogPosts,
     newBlogData,
-    setNewBlogData,
     loading,
-    setLoading,
     error,
-    setError,
     message,
-    setMessage,
-    fetchBlogPosts,
-    handleReadMore,
-    handleBackToList,
     handleCreateNewBlogClick,
     handleInputChange,
     handleFormSubmit,
     handleEditClick,
     handleDelete,
+    handleBackToList, 
   };
 };
 

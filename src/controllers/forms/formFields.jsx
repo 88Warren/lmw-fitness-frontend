@@ -1,11 +1,10 @@
 import PropTypes from "prop-types";
 
-export const InputField = ({ label, type, name, value, onChange }) => (
-  <div data-oid="z88lxgh">
-    <label
-      className="block text-black font-bold mb-2"
+export const InputField = ({ label, type, name, value, onChange, placeholder, className, required, infoText }) => (
+  <div>
+    <label 
+      className="block mb-2 text-m text-customWhite font-titillium tracking-wide" 
       htmlFor={name}
-      data-oid=".qifiye"
     >
       {label}
     </label>
@@ -15,10 +14,15 @@ export const InputField = ({ label, type, name, value, onChange }) => (
       id={name}
       value={value}
       onChange={onChange}
-      className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
-      required
-      data-oid="v4.qt:a"
+      className={className}
+      placeholder={placeholder}
+      required={required}
     />
+    {infoText && (
+      <p className="text-sm text-logoGray mt-2 font-titillium">
+        {infoText}
+      </p>
+    )}
   </div>
 );
 
@@ -28,14 +32,17 @@ InputField.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
+  className: PropTypes.string, 
+  required: PropTypes.bool,    
+  infoText: PropTypes.string,
 };
 
-export const TextAreaField = ({ label, name, value, onChange }) => (
-  <div data-oid="6487pz-">
-    <label
-      className="block text-black font-bold mb-2"
+export const TextAreaField = ({ label, name, value, onChange, rows = 5, placeholder = "", className, required, infoText  }) => (
+  <div>
+    <label 
+      className="block mb-2 text-m text-customWhite font-titillium tracking-wide" 
       htmlFor={name}
-      data-oid="6h:zifz"
     >
       {label}
     </label>
@@ -44,11 +51,16 @@ export const TextAreaField = ({ label, name, value, onChange }) => (
       id={name}
       value={value}
       onChange={onChange}
-      className="w-full p-3 border rounded focus:ring-2 focus:ring-limeGreen"
-      rows="5"
-      required
-      data-oid="wa3u2zr"
+      className={className}
+      rows={rows}
+      placeholder={placeholder}
+      required={required}
     />
+    {infoText && (
+      <p className="text-sm text-logoGray mt-2 font-titillium">
+        {infoText}
+      </p>
+    )}
   </div>
 );
 
@@ -57,4 +69,8 @@ TextAreaField.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
+  className: PropTypes.string, 
+  required: PropTypes.bool,   
+  infoText: PropTypes.string,
 };

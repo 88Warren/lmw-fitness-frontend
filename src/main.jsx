@@ -5,8 +5,8 @@ import App from "./App.jsx";
 import { register as ServiceWorkerRegistration } from "./serviceWorkerRegistration.js";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode data-oid="bm7-jws">
-    <App data-oid="6n_i0yg" />
+  <StrictMode>
+    <App />
   </StrictMode>,
 );
 

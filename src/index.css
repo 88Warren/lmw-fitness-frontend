@@ -106,6 +106,15 @@
     @apply py-2 px-3 font-titillium bg-brightYellow hover:bg-hotPink text-white rounded transition duration-300;
   }
 
+  .btn-subscribe {
+    @apply py-3 px-3 bg-gradient-to-r from-brightYellow to-hotPink text-customGray rounded-lg hover:from-hotPink hover:to-brightYellow transition-all duration-300 transform hover:scale-105 font-titillium;
+  }
+
+  .btn-cancel {
+    @apply py-2 px-3 bg-customWhite text-customGray rounded-lg hover:bg-logoGray hover:text-customWhite transition duration-300 font-titillium;
+  }
+
+
   .link {
     @apply font-titillium text-hotPink hover:text-limeGreen;
   }

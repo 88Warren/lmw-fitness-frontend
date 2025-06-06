@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { InputField, TextAreaField } from "../../controllers/forms/formFields";
 import { showToast } from "../../utils/toastUtil";
+import { motion } from "framer-motion";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,12 @@ const ContactForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
   const recaptchaRef = useRef();
+
+  const contactInputClassName =
+  "mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white"
+  
+  const contactTextAreaClassName =
+  "mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white resize-y"
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -82,7 +89,6 @@ const ContactForm = () => {
 
         if (retryCount < maxRetries) {
           retryCount++;
-          // console.log(`Retrying... Attempt ${retryCount} of ${maxRetries}`);
           await new Promise((resolve) =>
             setTimeout(resolve, 1000 * retryCount),
           );
@@ -120,107 +126,119 @@ const ContactForm = () => {
 
   const handleCaptchaChange = (value) => {
     setCaptchaValue(value);
-    // console.log("Captcha value:", value);
   };
 
   return (
-    <section id="Contact" className="py-16 px-6 bg-gray-100" data-oid="044uxbj">
-      <div
-        className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 md:p-8"
-        data-oid="5yo_m3m"
-      >
-        <h2
-          className="text-3xl md:text-4xl font-higherJump text-center mb-4 text-black leading-relaxed md:leading-loose"
-          data-oid="4200:ie"
+    <section id="Contact" className="min-h-screen py-20 bg-gradient-to-b from-white to-gray-200">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Header Section - Stacked on top */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
         >
-          Get In Touch{" "}
-          <span className="w" data-oid="pzww4a.">
-            w
-          </span>
-          ith{" "}
-          <span className="m" data-oid="1aa2nmu">
-            m
-          </span>
-          e
-        </h2>
-        <p
-          className="text-lg text-center text-customGray mb-6 md:mb-8"
-          data-oid="y4dv6zg"
+          <h2 className="text-4xl md:text-5xl font-bold text-customGray mb-6 font-higherJump leading-loose tracking-widest">
+            Get In Touch <span className="w">w</span>
+            ith <span className="m">m</span>e
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Have a question or need more info? Drop me a message here:
+          </p>
+        </motion.div>
+
+        {/* Form Section - Below header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg max-w-2xl mx-auto"
         >
-          Have a question or need more info? Drop me a message here:
-        </p>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <InputField
+              label="Name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className={contactInputClassName}
+              placeholder="Your Name"
+              required
+            />
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 md:space-y-6"
-          data-oid=".a_9rnu"
-        >
-          <InputField
-            label="Name:"
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            data-oid="jlk9oie"
-          />
+            <InputField
+              label="Email Address"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={contactInputClassName}
+              placeholder="youremail@example.com"
+              required
+            />
 
-          <InputField
-            label="Email:"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            data-oid="q8zlyxf"
-          />
+            <TextAreaField
+              label="Message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              className={contactTextAreaClassName}
+              placeholder="Your message..."
+              rows={6}
+              required
+            />
 
-          <TextAreaField
-            label="Message:"
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            data-oid="30x.g6u"
-          />
+            <div className="flex justify-center m-6">
+              {!captchaError ? (
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={handleCaptchaChange}
+                  onError={handleCaptchaError}
+                  size="normal"
+                  theme="dark"
+                />
+              ) : (
+                <div className="text-center p-6 bg-gray-50 rounded-xl">
+                  <p className="text-red-500 mb-3">
+                    reCAPTCHA is currently unavailable
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="text-limeGreen hover:text-hotPink transition-colors duration-300 underline"
+                  >
+                    Refresh Page
+                  </button>
+                </div>
+              )}
+            </div>
 
-          <div className="flex justify-center mb-4" data-oid="44ofkev">
-            {!captchaError ? (
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={RECAPTCHA_SITE_KEY}
-                onChange={handleCaptchaChange}
-                onError={handleCaptchaError}
-                size="normal"
-                data-oid="8.kkr_1"
-              />
-            ) : (
-              <div
-                className="text-center p-4 bg-gray-100 rounded-lg"
-                data-oid="nyfhmja"
-              >
-                <p className="text-red-500 mb-2" data-oid="62is9jv">
-                  reCAPTCHA is currently unavailable
-                </p>
-                <button
-                  type="button"
-                  onClick={() => window.location.reload()}
-                  className="text-blue-500 hover:text-blue-700 underline"
-                  data-oid="z5.jenn"
-                >
-                  Refresh Page
-                </button>
-              </div>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-2 md:py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all duration-300"
-            data-oid="2cg5r33"
-          >
-            {isLoading ? "Submitting..." : "Submit"}
-          </button>
-        </form>
-        <ToastContainer data-oid="aou.ycz" />
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              disabled={isLoading}
+              className="btn-full-colour w-full"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Submitting...
+                </span>
+              ) : (
+                "Submit"
+              )}
+            </motion.button>
+          </form>
+        </motion.div>
+        
+        <ToastContainer />
       </div>
     </section>
   );

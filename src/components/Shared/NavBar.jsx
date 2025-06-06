@@ -6,38 +6,36 @@ import {
   FaFacebook,
   FaInstagram,
   FaTiktok,
-  FaRegUser,
 } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
 
 const Navbar = () => {
   const [activeSection, setActiveSection] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [sections, setSections] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoggedIn, user, logout } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
   useEffect(() => {
-    const sectionElements = Array.from(document.querySelectorAll("section"));
-    setSections(sectionElements);
-  }, []);
+    if (location.pathname === "/") {
+      const sectionElements = Array.from(document.querySelectorAll("section[id]")); 
+      setSections(sectionElements);
+    } else {
+      setSections([]); 
+      setActiveSection(""); 
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 25);
-    };
+    if (location.pathname !== "/" || sections.length === 0) {
+      return; 
+    }
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -46,27 +44,12 @@ const Navbar = () => {
           }
         });
       },
-      { threshold: 0.5 },
+      { threshold: 0.5 }, 
     );
 
     sections.forEach((section) => observer.observe(section));
     return () => sections.forEach((section) => observer.unobserve(section));
-  }, [sections, location.pathname]);
-
-  useEffect(() => {
-    if (location.pathname !== "/") {
-      setSections([]);
-      return;
-    }
-    const interval = setInterval(() => {
-      const sectionElements = Array.from(document.querySelectorAll("section"));
-      if (sectionElements.length > 0) {
-        setSections(sectionElements);
-        clearInterval(interval);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [location.pathname]);
+  }, [sections, location.pathname]); 
 
   const scrollToSection = (sectionId) => {
     if (location.pathname !== "/") {
@@ -77,7 +60,7 @@ const Navbar = () => {
         if (section) {
           section.scrollIntoView({ behavior: "smooth" });
         }
-      }, 200);
+      }, 200); 
     } else {
       const section = document.getElementById(sectionId);
       if (section) {
@@ -85,32 +68,26 @@ const Navbar = () => {
       }
     }
 
-    setIsMenuOpen(false);
+    setIsMenuOpen(false); 
   };
 
-  const navLink = (sectionName) => {
+  const inactiveLinkClasses = "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray transition-colors duration-300";
+  const activeLinkClasses = "font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink";
+
+  const getNavLinkClasses = (linkPath, sectionId = null) => {
     const isOnHomePage = location.pathname === "/";
     let isActive = false;
 
-    if (isOnHomePage) {
-      isActive = sectionName === activeSection;
-    } else {
-      if (sectionName === "Home") {
-        isActive = false;
-      } else {
-        isActive = false;
-      }
+    if (sectionId && isOnHomePage) {
+      isActive = sectionId === activeSection;
+    } else if (linkPath) {
+      isActive = location.pathname === linkPath;
     }
-    return isActive
-      ? "font-titillium font-bold py-2 px-4 md:px-6 mr-2 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
-      : "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray";
-  };
 
-  useEffect(() => {
-    if (location.pathname !== "/") {
-      setActiveSection("");
-    }
-  }, [location.pathname]);
+    return isActive
+      ? activeLinkClasses
+      : inactiveLinkClasses;
+  };
 
   const handleLogout = () => {
     logout();
@@ -122,106 +99,112 @@ const Navbar = () => {
     <>
       {/* Navbar */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 h-16 flex items-center transition-all duration-300 ${isScrolled ? "bg-customGray opacity-80 shadow-md" : "bg-transparent"}`}
-        data-oid="3ownl0b"
+        className={`fixed top-0 left-0 right-0 z-50 h-14 flex items-center transition-all duration-300 bg-black/50 shadow-md`}
       >
-        <div
-          className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10"
-          data-oid="ntirh6a"
-        >
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10">
           {/* Logo */}
           <NavLink
             to="/"
             onClick={() => window.scrollTo(0, 0)}
             className="flex items-center"
-            data-oid="kxi_k2c"
           >
-            <h1 className="lmw items-end text-lg md:text-xl" data-oid="zc7r9ow">
-              <span className="l pr-1" data-oid=".u89pvu">
-                L
-              </span>
-              <span className="m pr-1" data-oid="62gui-g">
-                M
-              </span>
-              <span className="w pr-2" data-oid="3fukn92">
-                W
-              </span>
-              <span className="fitness" data-oid="m8lqucd">
-                fitness
-              </span>
+            <h1 className="lmw items-end text-lg md:text-xl">
+              <span className="l pr-1">L</span>
+              <span className="m pr-1">M</span>
+              <span className="w pr-2">W</span>
+              <span className="fitness">fitness</span>
             </h1>
           </NavLink>
 
           {/* Web Menu */}
-          <div
-            className="hidden lg:flex items-center justify-between w-full px-4"
-            data-oid="wbmaait"
-          >
+          <div className="hidden lg:flex items-center justify-between w-full px-4">
             {/* Left: Navigation Links */}
-            <div className="flex items-center space-x-4" data-oid="pm5sm24">
-              {["Home", "About", "Contact"].map((section) => (
-                <button
-                  key={section}
-                  onClick={() => scrollToSection(section)}
-                  className={navLink(section)}
-                  data-oid="e79e3f_"
-                >
-                  {section.replace(/([A-Z])/g, " $1").trim()}
-                </button>
-              ))}
+            <div className="flex items-center space-x-4">
+              {/* Home Link - Always points to / and handles section scrolling */}
+              <button
+                onClick={() => scrollToSection("Home")}
+                className={getNavLinkClasses("/", "Home")} // Use new helper function
+              >
+                Home
+              </button>
+              {/* About Link - Now always calls scrollToSection */}
+              <button
+                onClick={() => scrollToSection("About")}
+                className={getNavLinkClasses("/about", "About")} // Pass /about as path if About is also a standalone page, else null
+              >
+                About
+              </button>
+              {/* Contact Link - Now always calls scrollToSection */}
+              <button
+                onClick={() => scrollToSection("Contact")}
+                className={getNavLinkClasses("/contact", "Contact")} // Pass /contact as path if Contact is also a standalone page, else null
+              >
+                Contact
+              </button>
+
+              {/* Blog Link - Stays as NavLink only */}
               <NavLink
                 to="/blog"
-                className={({ isActive }) =>
-                  isActive
-                    ? "font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
-                    : "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray"
-                }
-                data-oid="1gey9_w"
+                className={getNavLinkClasses("/blog")}
               >
                 Blog
               </NavLink>
             </div>
 
             {/* Center: User Links */}
-            <div className="flex items-center justify-end" data-oid="7:efdno">
+            {/* <div className="flex items-center justify-end">
               {!isLoggedIn ? (
-                <NavLink
-                  to="/login"
-                  className="font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:bg-brightYellow hover:text-customGray transition-colors duration-300"
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-label="Login"
-                  data-oid="jlqtnf:"
-                >
-                  Login
-                </NavLink>
+                <>
+                  <NavLink
+                    to="/login"
+                    className={({ isActive }) =>
+                      isActive
+                        ? `${activeLinkClasses} mr-2`
+                        : `${inactiveLinkClasses} mr-2`
+                    }
+                    onClick={() => setIsMenuOpen(false)}
+                    aria-label="Login"
+                  >
+                    Login
+                  </NavLink>
+                  <NavLink
+                    to="/register"
+                    className={({ isActive }) =>
+                      isActive
+                        ? `${activeLinkClasses} mr-2`
+                        : `${inactiveLinkClasses} mr-2`
+                    }
+                    onClick={() => setIsMenuOpen(false)}
+                    aria-label="Register"
+                  >
+                    Register
+                  </NavLink>
+                </>
               ) : (
                 <>
                   <NavLink
                     to="/profile"
-                    className="font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
+                    className={({ isActive }) =>
+                      isActive ? activeLinkClasses : inactiveLinkClasses
+                    }
                     onClick={() => setIsMenuOpen(false)}
                     aria-label="Profile"
-                    data-oid="_anc1.4"
                   >
                     Profile
                   </NavLink>
                 </>
               )}
-            </div>
+            </div> */}
 
             {/* Right: Social Icons */}
-            <div className="flex items-center space-x-4" data-oid="j25uj9g">
+            <div className="flex items-center space-x-4">
               <NavLink
                 to="https://www.facebook.com/profile.php?id=61573194721199"
                 target="_blank"
                 className="text-limeGreen socials"
                 aria-label="Facebook"
-                data-oid=":ycb2av"
               >
-                <FaFacebook
-                  className="text-xl md:text-2xl"
-                  data-oid="ngjlsvl"
-                />
+                <FaFacebook className="text-xl md:text-2xl" />
               </NavLink>
 
               <NavLink
@@ -229,12 +212,8 @@ const Navbar = () => {
                 target="_blank"
                 className="text-brightYellow socials"
                 aria-label="Instagram"
-                data-oid="0:s5zrn"
               >
-                <FaInstagram
-                  className="text-xl md:text-2xl"
-                  data-oid="bgcd-:b"
-                />
+                <FaInstagram className="text-xl md:text-2xl" />
               </NavLink>
 
               <NavLink
@@ -242,15 +221,13 @@ const Navbar = () => {
                 target="_blank"
                 className="text-hotPink socials"
                 aria-label="TikTok"
-                data-oid="4f5iyqs"
               >
-                <FaTiktok className="text-xl md:text-2xl" data-oid="1y-mc4d" />
+                <FaTiktok className="text-xl md:text-2xl" />
               </NavLink>
               {isLoggedIn && (
                 <button
                   onClick={handleLogout}
-                  className="font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded bg-red-500 hover:bg-red-600 transition-colors duration-300"
-                  data-oid="y-dw:7v"
+                  className="btn-cancel w-2/3 font-bold"
                 >
                   Logout
                 </button>
@@ -262,12 +239,11 @@ const Navbar = () => {
           <button
             className="lg:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            data-oid="dze93g6"
           >
             {isMenuOpen ? (
-              <FaTimes className="text-3xl" data-oid="k6hwt9i" />
+              <FaTimes className="text-3xl" />
             ) : (
-              <FaBars className="text-3xl" data-oid="kkd5777" />
+              <FaBars className="text-3xl" />
             )}
           </button>
         </div>
@@ -278,31 +254,36 @@ const Navbar = () => {
         className={`fixed top-0 left-0 w-3/4 max-w-xs h-full bg-customGray/90 backdrop-blur-md shadow-lg z-40 transform transition-transform duration-300 ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
-        data-oid="cjyy7kn"
       >
-        <div
-          className="flex flex-col items-center mt-24 space-y-4"
-          data-oid="h-rl.v9"
-        >
-          {["Home", "About", "Contact"].map((section) => (
-            <button
-              key={section}
-              onClick={() => scrollToSection(section)}
-              className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
-              data-oid="o7srs3k"
-            >
-              {section.replace(/([A-Z])/g, " $1").trim()}
-            </button>
-          ))}
+        <div className="flex flex-col items-center mt-24 space-y-4">
+          {/* Home Link for Mobile */}
+          <button
+            onClick={() => scrollToSection("Home")}
+            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/", "Home")}`} // Mobile specific class application
+          >
+            Home
+          </button>
+          {/* About Link for Mobile */}
+          <button
+            onClick={() => scrollToSection("About")}
+            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/about", "About")}`} // Mobile specific class application
+          >
+            About
+          </button>
+          {/* Contact Link for Mobile */}
+          <button
+            onClick={() => scrollToSection("Contact")}
+            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/contact", "Contact")}`} // Mobile specific class application
+          >
+            Contact
+          </button>
+
           <NavLink
             to="/blog"
             onClick={() => setIsMenuOpen(false)}
             className={({ isActive }) =>
-              isActive
-                ? "font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink"
-                : "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray"
+              isActive ? `${activeLinkClasses} w-3/4 text-center` : "text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
             }
-            data-oid="a11t-pu"
           >
             Blog
           </NavLink>
@@ -310,37 +291,46 @@ const Navbar = () => {
           {/* Conditional Login/Logout/Register Links for Mobile */}
           {!isLoggedIn ? (
             <>
-              <NavLink
+              {/* <NavLink
                 to="/login"
-                className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+                className={({ isActive }) =>
+                  isActive
+                    ? `${activeLinkClasses} w-3/4 text-center`
+                    : "text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+                }
                 onClick={() => setIsMenuOpen(false)}
-                data-oid="97xrb_-"
               >
                 Login
-              </NavLink>
-              <NavLink
+              </NavLink> */}
+              {/* NEW: Register Link for Mobile */}
+              {/* <NavLink
                 to="/register"
-                className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+                className={({ isActive }) =>
+                  isActive
+                    ? `${activeLinkClasses} w-3/4 text-center`
+                    : "text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+                }
                 onClick={() => setIsMenuOpen(false)}
-                data-oid="p2yo:uq"
               >
                 Register
-              </NavLink>
+              </NavLink> */}
             </>
           ) : (
             <>
-              <NavLink
+              {/* <NavLink
                 to="/profile"
-                className="text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+                className={({ isActive }) =>
+                  isActive
+                    ? `${activeLinkClasses} w-3/4 text-center`
+                    : "text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+                }
                 onClick={() => setIsMenuOpen(false)}
-                data-oid="--7i82r"
               >
                 Profile
-              </NavLink>
+              </NavLink> */}
               <button
                 onClick={handleLogout}
-                className="text-white text-lg font-titillium py-2 w-3/4 text-center rounded bg-red-500 hover:bg-red-600 transition-colors duration-300"
-                data-oid="b0a-.xb"
+                className="btn-cancel text-lg font-titillium py-2 w-3/4 text-center rounded font-bold"
               >
                 Logout
               </button>

@@ -2,15 +2,20 @@ import HeroSection from "../components/home/HeroSection";
 import Testimonials from "../components/home/Testimonials";
 import AboutSection from "../components/home/About";
 import ContactForm from "../components/home/ContactForm";
+import WaveDivider from "../components/Shared/WaveDivider";
 
 const HomePage = () => {
   return (
     <>
-      <HeroSection data-oid="edsd6j3" />
-      <AboutSection data-oid="29d2j98" />
-      <Testimonials data-oid="qrnxf2j" />
+      <HeroSection />
+      {/* <WaveDivider fill="#e5e7eb" flip/> */}
+      <AboutSection />
+      <WaveDivider fill="#111827" />
+      <Testimonials />
+      <WaveDivider fill="#1f2937" flip />
       {/* <Pricing /> */}
-      <ContactForm data-oid="nd1awid" />
+      {/* <WaveDivider fill="#fff" /> */}
+      <ContactForm />
     </>
   );
 };
