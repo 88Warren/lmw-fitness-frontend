@@ -1,14 +1,45 @@
 import { useState } from 'react';
 import { InputField } from "../../../controllers/forms/formFields";
+import { BACKEND_URL } from "../../../utils/config";
+import { showToast } from "../../../utils/toastUtil";
 
 const NewsletterSignup = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    // console.log("Newsletter Signup Email:", newsletterEmail);
-    alert("Thank you for subscribing!"); 
-    setNewsletterEmail("");
+    setIsLoading(true);
+
+    if (!newsletterEmail) {
+      showToast("warn", "Please enter your email address.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/newsletter/subscribe`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast("success", data.message || "Thank you for subscribing! Please check your inbox to confirm.");
+        setNewsletterEmail("");
+      } else {
+        showToast("error", data.error || "Failed to subscribe. Please try again.");
+      }
+    } catch (error) {
+      console.error("Newsletter subscription error:", error);
+      showToast("error", "An error occurred. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -30,14 +61,16 @@ const NewsletterSignup = () => {
               onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder="Your email address"
               required
+              disabled={isLoading}
             />
         </div>
 
         <button
           type="submit"
           className="btn-subscribe w-full"
+          disabled={isLoading}
         >
-          Subscribe Now
+          {isLoading ? "Subscribing..." : "Subscribe Now"}
         </button>
       </form>
     </div>
