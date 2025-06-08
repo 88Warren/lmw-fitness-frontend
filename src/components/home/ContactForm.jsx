@@ -1,24 +1,23 @@
 import { useState, useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { getEnvVar } from "../../utils/config";
+import { BACKEND_URL, RECAPTCHA_SITE_KEY } from "../../utils/config";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { InputField, TextAreaField } from "../../controllers/forms/formFields"; 
-import { showToast } from "../../utils/toastUtil"; 
-
-const RECAPTCHA_KEY = getEnvVar("VITE_RECAPTCHA_SITE_KEY");
-const BACKEND_URL = getEnvVar("VITE_BACKEND_URL");
+import { InputField, TextAreaField } from "../../controllers/forms/formFields";
+import { showToast } from "../../utils/toastUtil";
+import { motion } from "framer-motion";
 
 const ContactForm = () => {
-  const [formData, setFormData] = useState({ 
-    name: "", 
-    email: "", 
-    message: "" 
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
   });
   const [captchaValue, setCaptchaValue] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
-  const recaptchaRef = useRef();
+  const recaptchaRef = useRef();  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,7 +25,10 @@ const ContactForm = () => {
 
   const handleCaptchaError = () => {
     setCaptchaError(true);
-    showToast("warn", "⚠️ reCAPTCHA failed to load. Please try refreshing the page.");
+    showToast(
+      "warn",
+      "reCAPTCHA failed to load. Please try refreshing the page.",
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -37,19 +39,22 @@ const ContactForm = () => {
     let retryCount = 0;
 
     if (!formData.name || !formData.email || !formData.message) {
-      showToast("warn", "⚠️ Please fill out all fields!");
+      showToast("warn", "Please fill out all fields!");
       setIsLoading(false);
       return;
     }
 
     if (!captchaValue && !captchaError) {
-      showToast("warn", "❌ Please complete the reCAPTCHA.");
+      showToast("warn", "Please complete the reCAPTCHA.");
       setIsLoading(false);
       return;
     }
 
     if (!navigator.onLine) {
-      showToast("error", "❌ No internet connection. Please check your connection and try again.");
+      showToast(
+        "error",
+        "No internet connection. Please check your connection and try again.",
+      );
       setIsLoading(false);
       return;
     }
@@ -58,16 +63,16 @@ const ContactForm = () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/contact`, {
           method: "POST",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            Accept: "application/json",
           },
-          body: JSON.stringify({ ...formData, token: captchaValue }), 
+          body: JSON.stringify({ ...formData, token: captchaValue }),
         });
 
         if (!res.ok) {
           const errorText = await res.text();
-          console.error('Error response:', errorText);
+          console.error("Error response:", errorText);
           throw new Error(`HTTP error! status: ${res.status}`);
         }
 
@@ -76,11 +81,12 @@ const ContactForm = () => {
         if (!navigator.onLine) {
           throw new Error("No internet connection");
         }
-        
+
         if (retryCount < maxRetries) {
           retryCount++;
-          // console.log(`Retrying... Attempt ${retryCount} of ${maxRetries}`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          await new Promise((resolve) =>
+            setTimeout(resolve, 1000 * retryCount),
+          );
           return submitWithRetry();
         }
         throw error;
@@ -89,21 +95,24 @@ const ContactForm = () => {
 
     try {
       const res = await submitWithRetry();
-      
+
       if (res.ok) {
         showToast("success", "Message sent successfully!");
-        setFormData({ name: "", email: "", message: "" });
+        setFormData({ name: "", email: "", subject: "", message: "" });
         setCaptchaValue(null);
         recaptchaRef.current.reset();
       } else {
         showToast("error", "Failed to send message. Please try again.");
       }
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
       if (error.message === "No internet connection") {
-        showToast("error", "❌ No internet connection. Please check your connection and try again.");
+        showToast(
+          "error",
+          "No internet connection. Please check your connection and try again.",
+        );
       } else {
-        showToast("error", "❌ An error occurred. Please try again later.");
+        showToast("error", "An error occurred. Please try again later.");
       }
     } finally {
       setIsLoading(false);
@@ -112,54 +121,125 @@ const ContactForm = () => {
 
   const handleCaptchaChange = (value) => {
     setCaptchaValue(value);
-    // console.log("Captcha value:", value);
   };
 
   return (
-    <section id="Contact" className="py-16 px-6 bg-gray-100">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 md:p-8">
-        <h2 className="text-3xl md:text-4xl font-higherJump text-center mb-4 text-black leading-relaxed md:leading-loose">
-          Get In Touch <span className="w">w</span>ith <span className="m">m</span>e
-        </h2>
-        <p className="text-lg text-center text-customGray mb-6 md:mb-8">
-          Have a question or need more info? Drop me a message here:
-        </p>
+    <section id="Contact" className="min-h-screen py-20 bg-gradient-to-b from-white via-customGray/20 to-customGray/70">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Header Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-black/70 mb-6 font-higherJump leading-loose tracking-widest">
+            Get In Touch <span className="w">w</span>
+            ith <span className="m">m</span>e
+          </h2>
+          <p className="text-lg text-customGray max-w-2xl mx-auto">
+            Have a question or need more info? Drop me a message
+          </p>
+        </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-          <InputField label="Name:" type="text" name="name" value={formData.name} onChange={handleChange} />
-          <InputField label="Email:" type="email" name="email" value={formData.email} onChange={handleChange} />
-          <TextAreaField label="Message:" name="message" value={formData.message} onChange={handleChange} />
+        {/* Form Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg max-w-2xl mx-auto"
+        >
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <InputField
+              label="Name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Your Name"
+              required
+            />
 
-          <div className="flex justify-center mb-4">
-            {!captchaError ? (
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={RECAPTCHA_KEY}
-                onChange={handleCaptchaChange}
-                onError={handleCaptchaError}
-                size="normal"
-              />
-            ) : (
-              <div className="text-center p-4 bg-gray-100 rounded-lg">
-                <p className="text-red-500 mb-2">reCAPTCHA is currently unavailable</p>
-                <button
-                  type="button"
-                  onClick={() => window.location.reload()}
-                  className="text-blue-500 hover:text-blue-700 underline"
-                >
-                  Refresh Page
-                </button>
-              </div>
-            )}
-          </div>
+            <InputField
+              label="Email Address"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Your email address"
+              required
+            />
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className='w-full py-2 md:py-3 text-white font-bold rounded-lg bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink hover:from-hotPink hover:via-brightYellow hover:to-limeGreen transition-all duration-300'>
-            {isLoading ? 'Submitting...' : 'Submit'}
-          </button>
-        </form>
+            <InputField 
+              label="Subject"
+              type="text"
+              name="subject"
+              value={formData.subject}
+              onChange={handleChange}
+              placeholder="Subject"
+              required
+            />
+
+            <TextAreaField
+              label="Message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              placeholder="Your message..."
+              rows={6}
+              required
+            />
+
+            <div className="flex justify-center m-6">
+              {!captchaError ? (
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={handleCaptchaChange}
+                  onError={handleCaptchaError}
+                  size="normal"
+                  theme="dark"
+                />
+              ) : (
+                <div className="text-center p-6 bg-gray-50 rounded-xl">
+                  <p className="text-red-500 mb-3">
+                    reCAPTCHA is currently unavailable
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="text-limeGreen hover:text-hotPink transition-colors duration-300 underline"
+                  >
+                    Refresh Page
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              disabled={isLoading}
+              className="btn-full-colour w-full"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Submitting...
+                </span>
+              ) : (
+                "Submit"
+              )}
+            </motion.button>
+          </form>
+        </motion.div>
+        
         <ToastContainer />
       </div>
     </section>

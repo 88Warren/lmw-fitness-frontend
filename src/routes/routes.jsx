@@ -1,15 +1,17 @@
-import { Route, createRoutesFromElements } from 'react-router-dom';
-import Boilerplate from '../layouts/Boilerplate';
-import Home from '../pages/Home';
-import Contact from '../components/home/ContactForm';
-import Blog from '../pages/Blog/Blog';
-import CreateBlog from '../pages/Blog/CreateBlog';
-import Test from '../pages/Test';
-import NotFoundPage from '../pages/errors/NotFoundPage';
+import { Route, createRoutesFromElements } from "react-router-dom";
+import Boilerplate from "../layouts/Boilerplate";
+import Home from "../pages/Home";
+import Contact from "../components/home/ContactForm";
+import BlogPage from "../components/Blog/BlogPage";
+import Login from "../pages/User/Login";
+import Register from "../pages/User/Register";
+import ForgotPassword from "../pages/User/ForgotPassword";
+import ResetPassword from "../pages/User/ResetPassword";
+import Profile from "../pages/User/Profile";
+import NotFoundPage from "../pages/errors/NotFoundPage";
 
 const routes = createRoutesFromElements(
   <Route path="/" element={<Boilerplate />}>
-
     {/* Home page */}
     <Route index element={<Home />} />
 
@@ -17,15 +19,23 @@ const routes = createRoutesFromElements(
     <Route path="/contact" element={<Contact />} />
 
     {/* Blog */}
-    <Route path="/blogs" element={<Blog />} />
-    <Route path="/blogs/new" element={<CreateBlog />} />
+    <Route path="/blog" element={<BlogPage />} />
+    <Route path="/blog/:postId" element={<BlogPage />} />
+    <Route path="/blog/create" element={<BlogPage />} /> 
+    <Route path="/blog/edit" element={<BlogPage />} /> 
 
-    {/* Test */}
-    <Route path="/test" element={<Test />} />
+    {/* Authentication */}
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />      
+    <Route path="/reset-password/:token" element={<ResetPassword />} /> 
+
+    {/* Profile */}
+    <Route path="/profile" element={<Profile />} />
 
     {/* Error */}
     <Route path="*" element={<NotFoundPage />} />
-  </Route>
+  </Route>,
 );
 
 export default routes;
