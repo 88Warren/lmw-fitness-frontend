@@ -3,18 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { InputField } from "../../controllers/forms/formFields";
 import useAuth from "../../hooks/useAuth";
 import { BACKEND_URL } from "../../utils/config";
+import { showToast } from "../../utils/toastUtil";
+import { ToastContainer } from "react-toastify";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);   
   const { register, isLoggedIn } = useAuth();
   const navigate = useNavigate();
-
-  const registerInputClassName =
-    "mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white"
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -24,34 +22,41 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccessMessage(null);
+    setIsSubmitting(true);
 
     if (!email || !password || !confirmPassword) {
-      setError("Please fill in all fields.");
+      showToast("warn", "Please fill in all fields.");
+      setIsSubmitting(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      showToast("warn", "Passwords do not match.");
+      setIsSubmitting(false);
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})/;
+    if (!passwordRegex.test(password)) {
+      showToast(
+        "warn",
+        "Password must be at least 8 characters long, contain at least one capital letter, and one special character (!@#$%^&*)."
+      );
+      setIsSubmitting(false);
       return;
     }
 
     const result = await register(email, password);
 
     if (result.success) {
-      setSuccessMessage(result.message);
+      showToast("success", result.message);
       setTimeout(() => {
         navigate("/profile");
       }, 1500);
     } else {
-      setError(result.error);
+      showToast("error", `${result.error}`);
     }
+    setIsSubmitting(false); 
   };
 
   if (isLoggedIn) {
@@ -65,7 +70,7 @@ const RegisterPage = () => {
   return (
     <div className="min-h-screen flex bg-customWhite">
       {/* Left Side - Image */}
-      <div className="w-1/2 bg-customDarkBackground flex items-center justify-center">
+      <div className="w-1/2 flex items-center justify-center">
         <img
           src={`${BACKEND_URL}/images/LMW_fitness_frogs.jpg`}
           alt="Fitness motivation"
@@ -87,8 +92,7 @@ const RegisterPage = () => {
                 name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={registerInputClassName}
-                placeholder="youareawesome@example.co.uk"
+                placeholder="Your email address"
                 required
               />
             <InputField
@@ -97,7 +101,6 @@ const RegisterPage = () => {
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={registerInputClassName}
               placeholder="••••••••"
               required
             />
@@ -107,24 +110,11 @@ const RegisterPage = () => {
               name="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className={registerInputClassName}
               placeholder="••••••••"
               required
             />
-
-            {error && (
-              <div className="text-hotPink text-sm font-titillium text-center">
-                {error}
-              </div>
-            )}
-            {successMessage && (
-              <div className="text-limeGreen text-sm font-titillium text-center">
-                {successMessage}
-              </div>
-            )}
-
-            <button type="submit" className="btn-full-colour w-full">
-              Register
+            <button type="submit" className="btn-full-colour w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Registering..." : "Register"}
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-logoGray font-titillium">
@@ -138,6 +128,7 @@ const RegisterPage = () => {
           </p>
         </div>
       </div>
+      <ToastContainer /> 
     </div>
   );
 };

@@ -3,17 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { InputField } from "../../controllers/forms/formFields";
 import useAuth from "../../hooks/useAuth";
 import { BACKEND_URL } from "../../utils/config";
+import { showToast } from "../../utils/toastUtil"; 
+import { ToastContainer } from "react-toastify";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false); 
   const { login, isLoggedIn } = useAuth();
-  const navigate = useNavigate();
-
-  const loginInputClassName =
-  "mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white"
+  const navigate = useNavigate();  
 
   // Redirect if already logged in
   useEffect(() => {
@@ -24,24 +22,25 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccessMessage(null);
+    setIsSubmitting(true);
 
     if (!email || !password) {
-      setError("Please enter both email and password.");
+      showToast("warn", "Please enter both email and password.");
+      setIsSubmitting(false);
       return;
     }
 
     const result = await login(email, password);
 
     if (result.success) {
-      setSuccessMessage(result.message);
+      showToast("success", result.message);
       setTimeout(() => {
         navigate("/profile");
       }, 1500);
     } else {
-      setError(result.error);
+      showToast("error", `${result.error}`);
     }
+    setIsSubmitting(false);
   };
 
   if (isLoggedIn) {
@@ -69,8 +68,7 @@ const LoginPage = () => {
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={loginInputClassName}
-              placeholder="youareawesome@example.co.uk"
+              placeholder="Your email address"
               required
             />
             <InputField
@@ -79,7 +77,6 @@ const LoginPage = () => {
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={loginInputClassName}
               placeholder="••••••••"
               required
             />
@@ -93,19 +90,8 @@ const LoginPage = () => {
               </Link>
             </div>
 
-            {error && (
-              <div className="text-hotPink text-sm font-titillium text-center">
-                {error}
-              </div>
-            )}
-            {successMessage && (
-              <div className="text-limeGreen text-sm font-titillium text-center">
-                {successMessage}
-              </div>
-            )}
-
-            <button type="submit" className="btn-full-colour w-full">
-              Login
+            <button type="submit" className="btn-full-colour w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Logging In..." : "Login"}
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-logoGray font-titillium">
@@ -121,13 +107,14 @@ const LoginPage = () => {
       </div>
 
       {/* Right Side - Image */}
-      <div className="w-1/2 bg-customDarkBackground flex items-center justify-center">
+      <div className="w-1/2 flex items-center justify-center">
         <img
           src={`${BACKEND_URL}/images/LMW_fitness_frog.jpg`}
           alt="Fitness motivation"
           className="w-full h-full object-cover"
         />
       </div>
+      <ToastContainer /> 
     </div>
   );
 };

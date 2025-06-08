@@ -24,7 +24,6 @@ const WaveDivider = ({ fill = "#fff", flip = false, opacity = 1, style = {} }) =
     >
       <path
         fill={fill}
-        // d="M0,60 C240,20 480,100 720,60 C960,20 1200,100 1440,60 L1440,120 L0,120 Z"
         d="M0,40 C360,80 720,0 1080,40 C1200,50 1320,60 1440,40 L1440,120 L0,120 Z"
 
       />

@@ -23,12 +23,12 @@ const AllArticlesGrid = ({
         {gridBlogPosts.map((post) => (
           <article
             key={post.ID}
-            className="group bg-customGray/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-logoGray/20 hover:border-brightYellow/50 relative"
+            className="group bg-customGray backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-logoGray hover:border-brightYellow relative"
           >
             {/* Main clickable area - entire card */}
             <Link
               to={`/blog/${post.ID}`} 
-              className="block w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brightYellow/50 rounded-xl"
+              className="block w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brightYellow rounded-xl"
               aria-label={`Read article: ${post.title}`}
             >
               <div className="relative overflow-hidden">
@@ -44,7 +44,7 @@ const AllArticlesGrid = ({
               </div>
 
               <div className="p-6">
-                <h3 className="text-xl font-titillium text-customWhite font-bold mb-3 line-clamp-2 group-hover:text-brightYellow transition-colors duration-300">
+                <h3 className="text-xl font-titillium text-customWhite font-bold mb-3 line-clamp-2 transition-colors duration-300">
                   {post.title}
                 </h3>
                 <p className="text-logoGray font-titillium text-xs mb-4 line-clamp-3 leading-relaxed">
@@ -52,7 +52,7 @@ const AllArticlesGrid = ({
                 </p>
 
                 <div className="flex items-center justify-between">
-                  <div className="text-brightYellow hover:text-hotPink font-titillium font-semibold transition-colors duration-300 inline-flex items-center space-x-1">
+                  <div className="text-customWhite group-hover:text-xl group-hover:text-brightYellow font-titillium font-semibold transition-colors duration-300 inline-flex items-center space-x-1 mt-6">
                     <span>Read More</span>
                     <svg
                       className="w-4 h-4"
@@ -72,7 +72,7 @@ const AllArticlesGrid = ({
               </div>
             </Link>
 
-            {/* Admin controls - positioned absolutely to overlay */}
+            {/* Admin controls */}
             {isAdmin && (
               <div className="absolute bottom-4 right-4 flex space-x-2 z-10">
                 <button
@@ -80,7 +80,7 @@ const AllArticlesGrid = ({
                     e.stopPropagation();
                     handleEditClick(post);
                   }}
-                  className="p-2 bg-blue-500/80 hover:bg-blue-400 text-white rounded-full transition-colors duration-300 backdrop-blur-sm"
+                  className="btn-edit-small"
                   title="Edit post"
                 >
                   <svg
@@ -102,7 +102,7 @@ const AllArticlesGrid = ({
                     e.stopPropagation();
                     handleDelete(post.ID);
                   }}
-                  className="p-2 bg-red-500/80 hover:bg-red-400 text-white rounded-full transition-colors duration-300 backdrop-blur-sm"
+                  className="btn-delete-small"
                   title="Delete post"
                 >
                   <svg

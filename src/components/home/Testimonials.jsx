@@ -31,7 +31,7 @@ const Testimonials = () => {
   }, [testimonials.length]);
 
   return (
-    <section id="Testimonials" className="py-20 px-6 bg-gradient-to-b from-gray-900 to-gray-800">
+    <section id="Testimonials" className="py-20 px-6 bg-customGray">
       <div className="max-w-5xl mx-auto text-center">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -66,21 +66,22 @@ const Testimonials = () => {
                   display: index === currentSlide ? 'block' : 'none'
                 }}
                 transition={{ duration: 0.5 }}
-                className="absolute inset-0 bg-white/10 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl"
+                className="absolute inset-0 bg-logoGray backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl"
               >
                 <div className="relative h-full">
                   <span className="absolute -top-4 -left-4 text-6xl md:text-7xl text-limeGreen opacity-50">&ldquo;</span>
-                  <p className="text-lg md:text-xl text-white leading-relaxed relative z-10">
+                  <p className="text-lg md:text-xl text-customGray leading-relaxed relative z-10">
                     {testimonial.text}
+                    <span className="absolute -bottom-4 -right-4 text-6xl md:text-7xl text-hotPink opacity-50">&rdquo;</span>
                   </p>
-                  <span className="absolute -bottom-4 -right-4 text-6xl md:text-7xl text-hotPink opacity-50">&rdquo;</span>
+                  
                   
                   <div className="absolute bottom-0 right-0 text-right">
                     <p className="text-xl text-white font-higherJump">
                       <span className="m">{testimonial.author[0]}</span>
                       {testimonial.author.slice(1)}
                     </p>
-                    <p className="text-sm text-gray-300 mt-1">{testimonial.program}</p>
+                    <p className="text-sm text-customWhite mt-2">{testimonial.program}</p>
                   </div>
                 </div>
               </motion.div>
@@ -96,7 +97,7 @@ const Testimonials = () => {
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   index === currentSlide
                     ? "bg-limeGreen scale-125"
-                    : "bg-white/50 hover:bg-white/75"
+                    : "bg-white hover:border-2 border-brightYellow"
                 }`}
                 aria-label={`Go to testimonial ${index + 1}`}
               />
@@ -106,19 +107,19 @@ const Testimonials = () => {
           {/* Navigation Arrows */}
           <button
             onClick={() => setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-300"
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-customGray/80 hover:bg-white transition-colors duration-300"
             aria-label="Previous testimonial"
           >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-white hover:text-customGray transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <button
             onClick={() => setCurrentSlide((prev) => (prev + 1) % testimonials.length)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-300"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-customGray/80 hover:bg-white transition-colors duration-300"
             aria-label="Next testimonial"
           >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-white hover:text-customGray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
           </button>

@@ -7,7 +7,7 @@ const NotFoundPage = () => {
   };
 
   return (
-    <section className="text-center flex flex-col justify-center items-center h-96">
+    <section className="text-center flex flex-col justify-center items-center h-lvh">
       <FaExclamationTriangle className="text-brightYellow text-6xl mb-4" />
 
       <h1 className="font-titillium text-6xl font-bold mb-4">404 Not Found</h1>
@@ -15,7 +15,7 @@ const NotFoundPage = () => {
       <Link
         to="/"
         onClick={handleClick}
-        className="text-white bg-limeGreen hover:bg-brightYellow rounded-md px-3 py-2 mt-4"
+        className="btn-full-colour"
       >
         Go Back
       </Link>

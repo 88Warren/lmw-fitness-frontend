@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import useAuth from "../../hooks/useAuth";
 import { useParams, useNavigate } from "react-router-dom";
-import NewsletterSignup from "./Sections/NewsletterSignup";
+import useAuth from "../../hooks/useAuth";
 import { BACKEND_URL } from '../../utils/config';
+import LoadingAndErrorDisplay from "../Shared/Errors/LoadingAndErrorDisplay"
+import NewsletterSignup from "./Sections/NewsletterSignup";
+import { showToast } from '../../utils/toastUtil'; 
 
 const BlogPostDetail = ({
   handleEditClick,
@@ -23,6 +25,9 @@ const BlogPostDetail = ({
         const response = await fetch(`${BACKEND_URL}/api/blog/${postId}`);
         
         if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error(`Blog post with ID '${postId}' not found.`);
+          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
@@ -31,6 +36,7 @@ const BlogPostDetail = ({
       } catch (err) {
         console.error('Error fetching blog post:', err);
         setError('Failed to load blog post. Please try again.');
+        showToast("error", `${err.message || 'Failed to load blog post.'}`);
       } finally {
         setLoading(false);
       }
@@ -41,27 +47,20 @@ const BlogPostDetail = ({
     }
   }, [postId]);
 
-  if (loading) {
-    return (
-      <div className="text-center py-16 text-customWhite font-titillium">
-        Loading article...
-      </div>
-    );
-  }
+  if (loading || error || !post) {
+    let displayMessage = null;
+    if (!post && !loading && !error) {
+        displayMessage = 'Blog post not found.'; 
+    }
 
-  if (error) {
     return (
-      <div className="text-center py-16 text-red-500 font-titillium">
-        {error}
-      </div>
-    );
-  }
-
-  if (!post) {
-    return (
-      <div className="text-center py-16 text-customWhite font-titillium">
-        Blog post not found.
-      </div>
+        <div className="py-16 text-center min-h-screen flex items-center justify-center"> 
+            <LoadingAndErrorDisplay
+                loading={loading}
+                error={error} 
+                message={displayMessage}
+            />
+        </div>
     );
   }
 
@@ -82,12 +81,12 @@ const BlogPostDetail = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-black/50 to-black pt-24 pb-32">
+    <div className="min-h-screen bg-gradient-to-br from-white via-customGray/40 to-customGray rounded-xl pt-24 pb-32">
       <div className="max-w-4xl mx-auto px-4">
         {/* Back Button */}
         <button
           onClick={handleBackToArticles}
-          className="mb-8 inline-flex items-center space-x-2 text-black/80 hover:text-hotPink transition-colors duration-300 font-titillium font-semibold group"
+          className="mb-8 inline-flex items-center space-x-2 text-customGray hover:text-hotPink transition-colors duration-300 font-titillium font-semibold group"
         >
           <svg
             className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
@@ -111,7 +110,7 @@ const BlogPostDetail = ({
             {post.title}
           </h1>
           {post.excerpt && (
-            <p className="text-lg text-logoGray font-titillium mx-4 leading-relaxed tracking-wide">
+            <p className="text-lg text-customGray font-titillium mx-4 leading-relaxed tracking-wide">
               {post.excerpt}
             </p>
           )}
@@ -119,7 +118,7 @@ const BlogPostDetail = ({
 
         {/* Featured Image */}
         {post.image && (
-          <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+          <div className="mb-16 rounded-xl overflow-hidden shadow-lg">
             <img
               src={post.image}
               alt={post.title}
@@ -129,7 +128,7 @@ const BlogPostDetail = ({
         )}
 
         {/* Article Content */}
-        <article className="bg-gradient-to-br from-gray-200 via-gray-400 to-gray-700 backdrop-blur-sm rounded-xl p-8 border border-gray-300 mb-12">
+        <article className="bg-customWhite rounded-xl p-10 border border-logoGray mb-12">
           <div
             className="prose prose-lg max-w-none
               prose-headings:text-gray-800 prose-headings:font-higherJump
@@ -143,13 +142,34 @@ const BlogPostDetail = ({
           />
         </article>
 
-        {/* Admin Actions */}
-        {isAdmin && (
-          <div className="flex justify-end space-x-4 mb-12">
-            <button
-              onClick={handleEdit}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-300 font-titillium font-semibold"
+        <div className="flex justify-between space-x-4 mb-12">
+          {/* Back Button */}
+          <button
+            onClick={handleBackToArticles}
+            className="mb-8 inline-flex items-center space-x-2 text-customWhite hover:text-hotPink transition-colors duration-300 font-titillium font-semibold group"
+          >
+            <svg
+              className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            <span>Back to all articles</span>
+          </button>
+          {/* Admin Actions */}
+          {isAdmin && (
+            <div className="flex space-x-4">
+              <button
+                onClick={handleEdit}
+                className="btn-edit"
+              >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -167,7 +187,7 @@ const BlogPostDetail = ({
             </button>
             <button
               onClick={handleDeletePost}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-300 font-titillium font-semibold"
+              className="btn-delete"
             >
               <svg
                 className="w-4 h-4"
@@ -186,6 +206,7 @@ const BlogPostDetail = ({
             </button>
           </div>
         )}
+        </div>
 
         <div className="w-full md:w-1/2 flex flex-col items-center mx-auto">
           <NewsletterSignup />

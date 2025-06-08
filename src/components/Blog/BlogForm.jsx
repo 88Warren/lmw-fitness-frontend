@@ -8,18 +8,21 @@ const BlogForm = ({
   handleBackToList,
 }) => {
 
-  const blogInputClassName =
-  "mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white"
-
-  const blogFeaturedClassName =
-  "h-10 w-10 m-4 focus:ring-white cursor-pointer"
+const categories = [
+  "Fitness Tips",
+  "Nutrition",
+  "Workouts",
+  "Mindset",
+  "Recovery",
+  "Motivation",
+];
 
   return (
     <div className="max-w-4xl mx-auto">
       {/* Form Header */}
       <div className="bg-customGray rounded-2xl flex p-8">
         <div className="w-full mb-8 ">
-          <h1 className="text-3xl md:text-5xl p-8 font-bold text-center text-customWhite mb-8 font-higherJump tracking-widest">
+          <h1 className="text-3xl md:text-5xl p-8 font-bold text-center text-customWhite mb-8 font-higherJump tracking-widest leading-loose">
             {isEditMode ? (
               <>
                 Edit Artic<span className="l">l</span>e
@@ -39,10 +42,28 @@ const BlogForm = ({
               id="title"
               value={newBlogData.title}
               onChange={handleInputChange}
-              className={blogInputClassName}
               placeholder="Enter an engaging title for your article"
               required={true}
             />
+
+          {/* Category Dropdown */}
+          <InputField
+            label="Category *"
+            type="select"
+            name="category"
+            value={newBlogData.category || ""}
+            onChange={handleInputChange}
+            required={true}
+          >
+            <option value="" disabled>
+              Select a category
+            </option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </InputField>
 
           {/* Featured Toggle Row */}
           <InputField
@@ -52,7 +73,6 @@ const BlogForm = ({
             id="isFeatured"
             checked={newBlogData.isFeatured || false}
             onChange={handleInputChange}
-            className={blogFeaturedClassName}
           />
 
           {/* Image URL */}
@@ -63,7 +83,6 @@ const BlogForm = ({
             id="image"
             value={newBlogData.image}
             onChange={handleInputChange}
-            className={blogInputClassName}
             placeholder="https://example.com/your-image.jpg"
             infoText="Add a compelling image to make your article stand out"
           />
@@ -75,7 +94,6 @@ const BlogForm = ({
             value={newBlogData.excerpt}
             onChange={handleInputChange}
             rows={4}
-            className={blogInputClassName}
             placeholder="Write a compelling summary that will entice readers to click and read more..."
             required={true}
             infoText="This will appear in the article preview cards (recommended: 150-200 characters)"
@@ -89,7 +107,6 @@ const BlogForm = ({
           value={newBlogData.fullContent}
           onChange={handleInputChange}
           rows={15}
-          className={blogInputClassName}
           placeholder="Write your full article content here. You can use HTML tags like <p>, <h2>, <h3>, <strong>, <em>, <ul>, <ol>, <li>, <blockquote>, etc."
           required={true}
           infoText="HTML formatting is supported. Use headings, paragraphs, lists, and other HTML elements to structure your content."

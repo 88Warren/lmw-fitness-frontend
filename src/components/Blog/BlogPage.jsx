@@ -2,9 +2,10 @@ import useBlogData from "../../hooks/useBlogData";
 import BlogList from "./BlogList"; 
 import BlogForm from "./BlogForm";
 import BlogPostDetail from "./BlogPostDetail";
-import LoadingAndErrorDisplay from "./Errors/LoadingAndErrorDisplay";
-import { useNavigate, useParams } from 'react-router-dom'; 
+import LoadingAndErrorDisplay from "../Shared/Errors/LoadingAndErrorDisplay";
+import { useParams } from 'react-router-dom'; 
 import { useLocation } from 'react-router-dom';
+import { ToastContainer } from "react-toastify";
 
 const BlogPage = () => {
   const { postId } = useParams(); 
@@ -80,6 +81,7 @@ const BlogPage = () => {
         <LoadingAndErrorDisplay loading={loading} error={error} message={message} />
         {currentViewContent}
       </div>
+      <ToastContainer />
     </div>
   );
 };

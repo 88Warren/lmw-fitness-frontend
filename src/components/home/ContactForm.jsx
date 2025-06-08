@@ -11,18 +11,13 @@ const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    subject: "",
     message: "",
   });
   const [captchaValue, setCaptchaValue] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
-  const recaptchaRef = useRef();
-
-  const contactInputClassName =
-  "mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white"
-  
-  const contactTextAreaClassName =
-  "mt-1 block w-full px-4 py-3 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-white focus:border-white focus:border-2 sm:text-m font-titillium bg-gray-700 text-white resize-y"
+  const recaptchaRef = useRef();  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,7 +27,7 @@ const ContactForm = () => {
     setCaptchaError(true);
     showToast(
       "warn",
-      "⚠️ reCAPTCHA failed to load. Please try refreshing the page.",
+      "reCAPTCHA failed to load. Please try refreshing the page.",
     );
   };
 
@@ -44,13 +39,13 @@ const ContactForm = () => {
     let retryCount = 0;
 
     if (!formData.name || !formData.email || !formData.message) {
-      showToast("warn", "⚠️ Please fill out all fields!");
+      showToast("warn", "Please fill out all fields!");
       setIsLoading(false);
       return;
     }
 
     if (!captchaValue && !captchaError) {
-      showToast("warn", "❌ Please complete the reCAPTCHA.");
+      showToast("warn", "Please complete the reCAPTCHA.");
       setIsLoading(false);
       return;
     }
@@ -58,7 +53,7 @@ const ContactForm = () => {
     if (!navigator.onLine) {
       showToast(
         "error",
-        "❌ No internet connection. Please check your connection and try again.",
+        "No internet connection. Please check your connection and try again.",
       );
       setIsLoading(false);
       return;
@@ -103,7 +98,7 @@ const ContactForm = () => {
 
       if (res.ok) {
         showToast("success", "Message sent successfully!");
-        setFormData({ name: "", email: "", message: "" });
+        setFormData({ name: "", email: "", subject: "", message: "" });
         setCaptchaValue(null);
         recaptchaRef.current.reset();
       } else {
@@ -114,10 +109,10 @@ const ContactForm = () => {
       if (error.message === "No internet connection") {
         showToast(
           "error",
-          "❌ No internet connection. Please check your connection and try again.",
+          "No internet connection. Please check your connection and try again.",
         );
       } else {
-        showToast("error", "❌ An error occurred. Please try again later.");
+        showToast("error", "An error occurred. Please try again later.");
       }
     } finally {
       setIsLoading(false);
@@ -129,9 +124,9 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="Contact" className="min-h-screen py-20 bg-gradient-to-b from-white to-gray-200">
+    <section id="Contact" className="min-h-screen py-20 bg-gradient-to-b from-white via-customGray/20 to-customGray/70">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Header Section - Stacked on top */}
+        {/* Header Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -139,16 +134,16 @@ const ContactForm = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-customGray mb-6 font-higherJump leading-loose tracking-widest">
+          <h2 className="text-4xl md:text-5xl font-bold text-black/70 mb-6 font-higherJump leading-loose tracking-widest">
             Get In Touch <span className="w">w</span>
             ith <span className="m">m</span>e
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Have a question or need more info? Drop me a message here:
+          <p className="text-lg text-customGray max-w-2xl mx-auto">
+            Have a question or need more info? Drop me a message
           </p>
         </motion.div>
 
-        {/* Form Section - Below header */}
+        {/* Form Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -163,7 +158,6 @@ const ContactForm = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className={contactInputClassName}
               placeholder="Your Name"
               required
             />
@@ -174,8 +168,17 @@ const ContactForm = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={contactInputClassName}
-              placeholder="youremail@example.com"
+              placeholder="Your email address"
+              required
+            />
+
+            <InputField 
+              label="Subject"
+              type="text"
+              name="subject"
+              value={formData.subject}
+              onChange={handleChange}
+              placeholder="Subject"
               required
             />
 
@@ -184,7 +187,6 @@ const ContactForm = () => {
               name="message"
               value={formData.message}
               onChange={handleChange}
-              className={contactTextAreaClassName}
               placeholder="Your message..."
               rows={6}
               required

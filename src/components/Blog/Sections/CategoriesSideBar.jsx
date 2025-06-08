@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import fitnessTipsVideo from "../../../assets/icons/fitness-tips_reencoded.mp4";
 import nutritionVideo from "../../../assets/icons/nutrition_reencoded.mp4";
 import workoutsVideo from "../../../assets/icons/workout_reencoded.mp4";
@@ -6,6 +7,8 @@ import recoveryVideo from "../../../assets/icons/recovery_reencoded.mp4";
 import motivationVideo from "../../../assets/icons/motivation_reencoded.mp4";
 
 const CategoriesSidebar = () => {
+  const navigate = useNavigate();
+
   const categories = [
     { name: "Fitness Tips", videoSrc: fitnessTipsVideo },
     { name: "Nutrition", videoSrc: nutritionVideo },
@@ -15,16 +18,21 @@ const CategoriesSidebar = () => {
     { name: "Motivation", videoSrc: motivationVideo },
   ];
 
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/blog?category=${categoryName.replace(/\s+/g, '')}`); 
+  };
+
   return (
-    <div className="bg-customGray/30 backdrop-blur-sm rounded-xl p-4 border border-logoGray/20">
-      <h3 className="text-lg font-higherJump text-neutral-200 mb-4 text-center leading-loose tracking-wide">
+    <div className="bg-customGray backdrop-blur-sm rounded-xl p-4 border border-logoGray">
+      <h3 className="text-lg font-higherJump text-customWhite mb-4 text-center leading-loose tracking-wide">
         Exp<span className="l">l</span>ore Categories
       </h3>
       <div className="grid grid-cols-2">
         {categories.map((category, index) => (
           <button
             key={index}
-            className="group flex flex-col items-center p-2 rounded-lg hover:bg-customGray/80 transition-all duration-300"
+            onClick={() => handleCategoryClick(category.name)}
+            className="group flex flex-col items-center p-2 rounded-lg transition-all duration-300"
             aria-label={`View ${category.name} articles`}
           >
             <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-transparent group-hover:border-brightYellow transition-all duration-300 mb-3">

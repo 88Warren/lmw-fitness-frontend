@@ -3,8 +3,8 @@ import BlogHero from "./Sections/BlogHero";
 import FeaturedPostsCarousel from "./Sections/FeaturedPostsCarousel";
 import AllArticlesGrid from "./Sections/AllArticlesGrid";
 import BlogSidebar from "./Sections/BlogSidebar";
-import NoPostsMessage from "./Errors/NoPostsMessage";
-import { useNavigate } from "react-router-dom";
+import NoPostsMessage from "../Shared/Errors/NoPostsMessage";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const BlogList = ({
   actualBlogPosts,
@@ -14,18 +14,28 @@ const BlogList = ({
 }) => {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // Add the missing handleReadMore function
+   const categoryFilter = searchParams.get("category");
+
+  const filteredBlogPosts = categoryFilter
+    ? actualBlogPosts.filter(
+        (post) =>
+          post.category &&
+          post.category.replace(/\s+/g, '') === categoryFilter 
+      )
+    : actualBlogPosts;
+
   const handleReadMore = (post) => {
     navigate(`/blog/${post.ID}`);
   };
 
-  const featuredPosts = actualBlogPosts
+  const featuredPosts = filteredBlogPosts 
     .filter((post) => post.isFeatured)
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 3);
 
-  const allSortedPosts = [...actualBlogPosts].sort(
+  const allSortedPosts = [...filteredBlogPosts].sort( 
     (a, b) => new Date(b.date) - new Date(a.date),
   );
 

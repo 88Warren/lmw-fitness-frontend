@@ -71,8 +71,8 @@ const Navbar = () => {
     setIsMenuOpen(false); 
   };
 
-  const inactiveLinkClasses = "font-titillium py-2 px-4 md:px-6 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray transition-colors duration-300";
-  const activeLinkClasses = "font-titillium font-bold py-2 px-4 md:px-6 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink";
+  const inactiveLinkClasses = "font-titillium py-1 px-4 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray transition-colors duration-300";
+  const activeLinkClasses = "font-titillium font-bold py-1 px-4 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink";
 
   const getNavLinkClasses = (linkPath, sectionId = null) => {
     const isOnHomePage = location.pathname === "/";
@@ -99,7 +99,7 @@ const Navbar = () => {
     <>
       {/* Navbar */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 h-14 flex items-center transition-all duration-300 bg-black/50 shadow-md`}
+        className={`fixed top-0 left-0 right-0 z-50 h-14 flex items-center transition-all duration-300 bg-customGray`}
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10">
           {/* Logo */}
@@ -123,26 +123,26 @@ const Navbar = () => {
               {/* Home Link - Always points to / and handles section scrolling */}
               <button
                 onClick={() => scrollToSection("Home")}
-                className={getNavLinkClasses("/", "Home")} // Use new helper function
+                className={getNavLinkClasses("/", "Home")} 
               >
                 Home
               </button>
-              {/* About Link - Now always calls scrollToSection */}
+              {/* About Link */}
               <button
                 onClick={() => scrollToSection("About")}
-                className={getNavLinkClasses("/about", "About")} // Pass /about as path if About is also a standalone page, else null
+                className={getNavLinkClasses("/about", "About")} 
               >
                 About
               </button>
-              {/* Contact Link - Now always calls scrollToSection */}
+              {/* Contact Link */}
               <button
                 onClick={() => scrollToSection("Contact")}
-                className={getNavLinkClasses("/contact", "Contact")} // Pass /contact as path if Contact is also a standalone page, else null
+                className={getNavLinkClasses("/contact", "Contact")} 
               >
                 Contact
               </button>
 
-              {/* Blog Link - Stays as NavLink only */}
+              {/* Blog Link */}
               <NavLink
                 to="/blog"
                 className={getNavLinkClasses("/blog")}
@@ -251,7 +251,7 @@ const Navbar = () => {
 
       {/* Side Navbar (Mobile Menu) */}
       <aside
-        className={`fixed top-0 left-0 w-3/4 max-w-xs h-full bg-customGray/90 backdrop-blur-md shadow-lg z-40 transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 w-3/4 max-w-xs h-full bg-customGray backdrop-blur-md shadow-lg z-40 transform transition-transform duration-300 ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -259,21 +259,21 @@ const Navbar = () => {
           {/* Home Link for Mobile */}
           <button
             onClick={() => scrollToSection("Home")}
-            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/", "Home")}`} // Mobile specific class application
+            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/", "Home")}`}
           >
             Home
           </button>
           {/* About Link for Mobile */}
           <button
             onClick={() => scrollToSection("About")}
-            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/about", "About")}`} // Mobile specific class application
+            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/about", "About")}`} 
           >
             About
           </button>
           {/* Contact Link for Mobile */}
           <button
             onClick={() => scrollToSection("Contact")}
-            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/contact", "Contact")}`} // Mobile specific class application
+            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/contact", "Contact")}`} 
           >
             Contact
           </button>

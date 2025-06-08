@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
 import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa";
 import { useState } from "react";
+import { InputField } from "../../controllers/forms/formFields";
 
 const Footer = () => {
   const handleClick = () => {
     window.scrollTo(0, 0);
   };
 
-  // State and handler for the newsletter form, now in Footer
   const [newsletterEmail, setNewsletterEmail] = useState("");
-
+  
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
     alert("Thank you for subscribing!");
@@ -37,31 +37,31 @@ const Footer = () => {
                 </h1>
                 </Link>
             </div>
-
-            {/* Newsletter Signup - Now placed prominently in the footer */}
-            <div className="md:col-span-2 flex justify-center"> {/* Centered in footer */}
-              <div className="max-w-xs w-full text-white"> {/* White background for contrast */}
-                <p className="text-base md:text-lg text-center font-titillium font-semibold mb-4">
-                  Get fitness tips and updates!
-                </p>
-                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="email"
-                    value={newsletterEmail}
-                    onChange={(e) => setNewsletterEmail(e.target.value)}
-                    placeholder="Your email address"
-                    className="flex-1 px-3 py-1 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-limeGreen placeholder-gray-400 text-base"
-                    required
-                  />
+            {/* Newsletter Signup */}
+            <div className="md:col-span-2 flex justify-center">
+              <div className="w-full max-w-md text-white">
+                <div className="flex flex-col md:flex-row md:items-end gap-2"> 
+                  <div className="flex-grow"> 
+                    <InputField
+                      label="Get fitness tips and updates!"
+                      type="email"
+                      name="newsletterEmail"
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
+                      placeholder="Your email address"
+                      required={true}
+                    />
+                  </div>
                   <button
                     type="submit"
-                    className="btn-subscribe"
+                    className="btn-subscribe h-12 px-6" 
                   >
                     Subscribe
                   </button>
-                </form>
+                </div>
               </div>
             </div>
+
             {/* Links Column */}
             <div className="flex flex-col space-y-4">
               <Link to="/" className="font-titillium text-sm hover:text-limeGreen transition-colors duration-300">Private Policy</Link>
@@ -69,7 +69,7 @@ const Footer = () => {
             </div>
           </div>
 
-          <hr className="my-6 border-white/20" /> {/* Slightly faded border */}
+          <hr className="my-6 border-white/20" /> 
 
           {/* Bottom Section */}
           <div className="flex flex-col md:flex-row justify-between items-center text-xs">

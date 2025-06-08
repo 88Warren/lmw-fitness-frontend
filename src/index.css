@@ -114,16 +114,43 @@
     @apply py-2 px-3 bg-customWhite text-customGray rounded-lg hover:bg-logoGray hover:text-customWhite transition duration-300 font-titillium;
   }
 
+  .btn-edit {
+    @apply inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-400 text-customWhite rounded-lg transition-colors duration-300 font-titillium font-semibold
+  } 
+
+  .btn-edit-small {
+    @apply p-2 bg-blue-600 hover:bg-blue-400 text-customWhite rounded-full transition-colors duration-300 backdrop-blur-sm
+  }
+
+  .btn-delete {
+    @apply inline-flex items-center space-x-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-customWhite rounded-lg transition-colors duration-300 font-titillium font-semibold
+  }
+
+  .btn-delete-small {
+    @apply p-2 bg-red-600 hover:bg-red-400 text-customWhite rounded-full transition-colors duration-300 backdrop-blur-sm
+  }
+
 
   .link {
     @apply font-titillium text-hotPink hover:text-limeGreen;
   }
 
-  .custom-toast {
-    @apply bg-white text-customGray font-titillium p-4 rounded-lg shadow-lg text-lg font-bold w-96 text-center;
-  }
-
   .socials:hover {
     @apply transform scale-125 brightness-150;
+  }
+
+  .Toastify__toast {
+    background-color: transparent !important;
+    padding: 0 !important; 
+    box-shadow: none !important; 
+    overflow: visible !important; 
+  }
+  .Toastify__toast-container {
+    padding: 10px;
+  }
+  .Toastify__toast-body {
+      background-color: transparent !important;
+      padding: 0 !important;
+      margin: 0 !important;
   }
 }

@@ -31,9 +31,9 @@
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 export const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
-if (import.meta.env.DEV) {
-  console.log('Environment Variables (from Vite):', {
-    VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
-    VITE_RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY,
-  });
-}
+// if (import.meta.env.DEV) {
+//   console.log('Environment Variables (from Vite):', {
+//     VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
+//     VITE_RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY,
+//   });
+// }

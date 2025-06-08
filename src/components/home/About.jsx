@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const About = () => {
   return (
-    <section id="About" className="py-20 px-6 bg-gradient-to-b from-gray-200 to-white">
+    <section id="About" className="py-20 px-6 bg-gradient-to-b from-logoGray to-white">
       <div className="max-w-6xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -41,12 +41,12 @@ const About = () => {
           viewport={{ once: true }}
           className="bg-white p-8 rounded-2xl shadow-xl mb-16 transform transition-all duration-300 hover:shadow-2xl"
         >
-          <h3 className="text-3xl font-bold text-black mb-6 text-center">
+          <h3 className="text-3xl font-bold text-customGray mb-6 text-center">
             My Mission
           </h3>
-          <p className="text-lg text-gray-600 leading-relaxed">
+          <p className="text-lg text-customGray leading-relaxed">
             My motto is:
-            <span className="font-bold text-limeGreen">
+            <span className="font-bold text-limeGreen text-justify">
               {" "}
               &lsquo;If not now, then when?&rsquo;{" "}
             </span>
@@ -68,14 +68,15 @@ const About = () => {
             viewport={{ once: true }}
             className="bg-white p-8 rounded-2xl shadow-xl transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
           >
-            <h4 className="text-2xl font-bold text-black mb-4">
+            <h4 className="text-2xl font-bold text-customGray text-center mb-4">
               Expertise & Experience
             </h4>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-lg text-customGray text-justify leading-relaxed mb-4">
               As a qualified personal trainer and an ex-British Army physical
               training instructor, I have years of hands-on coaching
-              experience and I know what works.
+              experience and I know what works.</p>
               <br className="hidden md:block" />
+             <p className="text-lg text-customGray text-justify leading-relaxed"> 
               I&apos;ve tested countless fitness methods and created proven, time-efficient programs to
               deliver real results. And of course, I have the relevant
               certificates and qualifications to back this up.
@@ -89,10 +90,10 @@ const About = () => {
             viewport={{ once: true }}
             className="bg-white p-8 rounded-2xl shadow-xl transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
           >
-            <h4 className="text-2xl font-bold text-black mb-4">
+            <h4 className="text-2xl font-bold text-customGray text-center mb-4">
               Flexible & Accessible
             </h4>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-lg text-customGray text-justify leading-relaxed">
               My 30-Day Fat Loss Program is designed for people with busy
               lifestyles. Can do at home or in the gym – you just need
               commitment and a positive mindset! I offer quality, effective

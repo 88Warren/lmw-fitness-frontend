@@ -8,11 +8,10 @@ const HomePage = () => {
   return (
     <>
       <HeroSection />
-      {/* <WaveDivider fill="#e5e7eb" flip/> */}
       <AboutSection />
-      <WaveDivider fill="#111827" />
+      <WaveDivider fill="#2a3241" />
       <Testimonials />
-      <WaveDivider fill="#1f2937" flip />
+      <WaveDivider fill="#2a3241" flip />
       {/* <Pricing /> */}
       {/* <WaveDivider fill="#fff" /> */}
       <ContactForm />

@@ -5,8 +5,9 @@ import Contact from "../components/home/ContactForm";
 import BlogPage from "../components/Blog/BlogPage";
 import Login from "../pages/User/Login";
 import Register from "../pages/User/Register";
-import Profile from "../pages/User/profile";
-import Test from "../pages/Test";
+import ForgotPassword from "../pages/User/ForgotPassword";
+import ResetPassword from "../pages/User/ResetPassword";
+import Profile from "../pages/User/Profile";
 import NotFoundPage from "../pages/errors/NotFoundPage";
 
 const routes = createRoutesFromElements(
@@ -26,12 +27,11 @@ const routes = createRoutesFromElements(
     {/* Authentication */}
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />      
+    <Route path="/reset-password/:token" element={<ResetPassword />} /> 
 
     {/* Profile */}
     <Route path="/profile" element={<Profile />} />
-
-    {/* Test */}
-    <Route path="/test" element={<Test />} />
 
     {/* Error */}
     <Route path="*" element={<NotFoundPage />} />

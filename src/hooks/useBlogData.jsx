@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BACKEND_URL } from '../utils/config';
 import { useNavigate } from 'react-router-dom';
 import useAuth from './useAuth'; 
+import { showToast } from '../utils/toastUtil';
 
 const useBlogData = () => {
   const { user, token } = useAuth(); 
@@ -24,6 +25,7 @@ const useBlogData = () => {
     const fetchBlogPosts = async () => {
       setLoading(true);
       setError(null);
+      setMessage(''); 
       try {
         const response = await fetch(`${BACKEND_URL}/api/blog`);
         
@@ -36,6 +38,7 @@ const useBlogData = () => {
       } catch (err) {
         console.error('Error fetching blog posts:', err);
         setError('Failed to load blog posts.');
+        showToast("error", "Failed to load blog posts.");
       } finally {
         setLoading(false);
       }
@@ -59,12 +62,12 @@ const useBlogData = () => {
     setMessage('');
 
     if (!token) { 
-    setError('You must be logged in to perform this action.');
+    showToast('error', 'You must be logged in to perform this action.');
     setLoading(false);
     return;
   }
 
-    console.log("Submitting newBlogData:", newBlogData);
+    // console.log("Submitting newBlogData:", newBlogData);
 
 try {
     let response;
@@ -106,15 +109,17 @@ try {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      setMessage(successMessage);
+      showToast('success', successMessage);
 
-      // Refresh the blog posts
       const refreshResponse = await fetch(`${BACKEND_URL}/api/blog`);
-      if (!refreshResponse.ok) {
-        throw new Error(`Failed to refresh blog posts after submission. Status: ${refreshResponse.status}`);
+        if (!refreshResponse.ok) {
+          const refreshErrorData = await refreshResponse.json();
+          console.error("Failed to refresh blog posts after submission:", refreshErrorData);
+          showToast('warn', 'Blog post saved, but failed to refresh list.');
+        } else {
+          const refreshData = await refreshResponse.json();
+          setActualBlogPosts(refreshData);
       }
-      const refreshData = await refreshResponse.json();
-      setActualBlogPosts(refreshData);
 
       setViewMode('list');
       setNewBlogData({
@@ -129,6 +134,7 @@ try {
     } catch (err) {
       console.error('Error submitting blog post:', err);
       setError('Failed to save blog post. Please try again.');
+      showToast('error', `${err.message || 'Failed to save blog post.'}`);
     } finally {
       setLoading(false);
     }
@@ -168,13 +174,13 @@ try {
     setError(null);
     setMessage('');
 
-    if (!token) { // <--- Add check for token
-    setError('You must be logged in to perform this action.');
+    if (!token) { 
+    showToast('error', 'You must be logged in to perform this action.');
     setLoading(false);
     return;
   }
 
-    console.log(`Attempting to delete post with ID: ${postIdToDelete}`);
+    // console.log(`Attempting to delete post with ID: ${postIdToDelete}`);
 
     try {
       const response = await fetch(`${BACKEND_URL}/api/blog/${postIdToDelete}`, {
@@ -191,7 +197,7 @@ try {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      setMessage('Blog post deleted successfully!');
+      showToast('success', 'Blog post deleted successfully!');
       setActualBlogPosts(prevPosts => 
         prevPosts.filter(post => post.ID !== postIdToDelete)
       );
@@ -202,22 +208,23 @@ try {
     } catch (err) {
       console.error('Error deleting blog post:', err);
       setError('Failed to delete blog post.');
+      showToast('error', `${err.message || 'Failed to delete blog post.'}`);
     } finally {
       setLoading(false);
     }
   };
 
   const handleBackToList = () => {
-    setViewMode('list'); // Set view mode to list
-    setNewBlogData({ // Reset form data
+    setViewMode('list'); 
+    setNewBlogData({ 
       title: '',
       excerpt: '',
       fullContent: '',
       image: '',
       isFeatured: false,
     });
-    setEditingPost(null); // Clear any editing post
-    navigate('/blog'); // Navigate to the blog list page
+    setEditingPost(null); 
+    navigate('/blog'); 
   };
 
   return {

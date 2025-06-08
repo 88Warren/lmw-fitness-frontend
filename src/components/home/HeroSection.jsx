@@ -15,7 +15,7 @@ const HeroSection = () => {
   return (
     <section
       id="Home"
-      className="min-h-screen flex items-center px-4 md:px-0 bg-gradient-to-br from-white via-black/50 to-black"
+      className="min-h-screen flex items-center px-4 md:px-0 bg-gradient-to-br from-white via-customGray/80 to-customGray"
     >
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-6 items-center py-16">
         {/* Left: Headline, CTA, Newsletter */}
@@ -25,10 +25,10 @@ const HeroSection = () => {
           className="max-w-2xl mx-auto px-0 md:px-8"
         >
           <div className="text-center p-8">
-            <h1 className="font-higherJump text-black/80 mb-10 text-4xl md:text-6xl font-extrabold leading-loose tracking-wide">
+            <h1 className="font-higherJump text-black/70 mb-10 text-4xl md:text-5xl font-extrabold leading-loose tracking-wide">
               Get <span className="text-brightYellow">Fit</span> On Your Schedu<span className="l">l</span>e
             </h1>
-            <p className="font-titillium text-neutral-600 font-bold text-lg md:text-xl mt-4 tracking-wide leading-relaxed">
+            <p className="font-titillium text-logoGray font-bold text-lg md:text-xl mt-4 tracking-wide leading-relaxed">
               Tailored online personal training designed for you
             </p>
             <HashLink to="/#Contact" className="btn-primary mt-6 inline-block md:w-3/4 md:mt-10">
