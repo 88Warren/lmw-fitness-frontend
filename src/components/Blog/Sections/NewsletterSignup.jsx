@@ -1,6 +1,54 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const NewsletterSignup = () => {
+  useEffect(() => {
+    // This effect will run after the component mounts (and re-renders)
+
+    // Remove any existing Brevo script to prevent multiple loads if component re-mounts
+    const existingScript = document.getElementById('brevo-form-script');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    // Create a new script element
+    const script = document.createElement('script');
+    script.src = 'https://sibforms.com/forms/end-form/build/main.js';
+    script.async = true; // Asynchronous loading
+    script.defer = true; // Defer execution until HTML parsed
+    script.id = 'brevo-form-script'; // Give it an ID to easily find/remove it later
+
+    // Append the script to the body or to the div containing the form
+    // Appending to the body is generally safer for third-party scripts.
+    document.body.appendChild(script);
+
+    // Also re-initialize the Brevo global variables if they are not defined
+    // This ensures `main.js` has access to them when it runs.
+    window.REQUIRED_CODE_ERROR_MESSAGE = window.REQUIRED_CODE_ERROR_MESSAGE || 'Please choose a country code';
+    window.LOCALE = window.LOCALE || 'en';
+    window.EMAIL_INVALID_MESSAGE = window.EMAIL_INVALID_MESSAGE || "The information provided is invalid. Please review the field format and try again.";
+    window.SMS_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE || "The information provided is invalid. Please review the field format and try again.";
+    window.REQUIRED_ERROR_MESSAGE = window.REQUIRED_ERROR_MESSAGE || "This field cannot be left blank. ";
+    window.GENERIC_INVALID_MESSAGE = window.GENERIC_INVALID_MESSAGE || "The information provided is invalid. Please review the field format and try again.";
+    window.translation = window.translation || {
+      common: {
+        selectedList: '{quantity} list selected',
+        selectedLists: '{quantity} lists selected',
+        selectedOption: '{quantity} selected',
+        selectedOptions: '{quantity} selected',
+      }
+    };
+    window.AUTOHIDE = typeof window.AUTOHIDE === 'boolean' ? window.AUTOHIDE : Boolean(0);
+
+
+    // Cleanup function: remove the script when the component unmounts
+    return () => {
+      const scriptToRemove = document.getElementById('brevo-form-script');
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
+    };
+  }, []); // Empty dependency array ensures this runs only once after initial mount
+
   return (
     <div className="bg-customGray backdrop-blur-sm rounded-xl p-6 border border-logoGray">
       {/* Begin Brevo Form - This part is what Brevo provides for embedding */}
