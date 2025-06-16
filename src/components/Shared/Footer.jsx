@@ -1,53 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa";
-import { useState } from "react";
-import { InputField } from "../../controllers/forms/formFields";
-import { BACKEND_URL } from "../../utils/config";
-import { showToast } from "../../utils/toastUtil";
+import NewsletterSignup from "../Blog/Sections/NewsletterSignup";
 
 const Footer = () => {
-  const navigate = useNavigate();
   const handleClick = () => {
     window.scrollTo(0, 0);
-  };
-
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const handleNewsletterSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    if (!newsletterEmail) {
-      showToast("warn", "Please enter your email address.");
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/newsletter/subscribe`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: newsletterEmail }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok || response.status === 200) {
-        showToast("success", data.message || "Thank you for subscribing! Please check your inbox to confirm.");
-        setNewsletterEmail("");
-        navigate('/newsletter/check-inbox');
-      } else {
-        showToast("error", data.error || "Failed to subscribe. Please try again.");
-      }
-    } catch (error) {
-      console.error("Newsletter subscription error:", error);
-      showToast("error", "An error occurred. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (
@@ -74,51 +31,27 @@ const Footer = () => {
 
             {/* Newsletter Signup */}
             <div className="md:col-span-2 flex justify-center">
-              <form onSubmit={handleNewsletterSubmit} className="space-y-4 w-2/5 max-w-md">
-                <InputField
-                  label="Get fitness tips and updates!"
-                  type="email"
-                  name="newsletterEmail"
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  placeholder="Your email address"
-                  required
-                  disabled={isLoading}
-                />
-              <button
-                type="submit"
-                className="btn-subscribe w-full h-12 px-6" 
-                disabled={isLoading}
-              >
-                {isLoading ? "Subscribing..." : "Subscribe Now"}
-              </button>
-            </form>
-          </div>
+              <div className="w-2/5 max-w-md">
+                <NewsletterSignup />
+              </div>
+            </div>
 
-          {/* Links Column */}
-          {/* <div className="flex flex-col space-y-4">
-            <Link to="/" className="font-titillium text-sm hover:text-limeGreen transition-colors duration-300">Private Policy</Link>
-            <Link to="/" className="font-titillium text-sm hover:text-brightYellow transition-colors duration-300">Terms of Service</Link>
-          </div> */}
-        </div>
-
-        <hr className="my-6 border-white/20" /> 
-
-        {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-xs">
-          <span>© 2025 LMW Fitness</span>
-
-            {/* Social Icons */}
-            <div className="hidden md:flex space-x-4 justify-center items-center">
-              <a href="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" rel="noopener noreferrer" className="text-limeGreen socials" aria-label="Facebook">
-              <FaFacebook className="text-xl" />
-              </a>
-              <a href="https://www.instagram.com/lmw__fitness/" target="_blank" rel="noopener noreferrer" className="text-brightYellow socials" aria-label="Instagram">
-              <FaInstagram className="text-xl" />
-              </a>
-              <a href="https://www.tiktok.com/en/" target="_blank" rel="noopener noreferrer" className="text-hotPink socials" aria-label="TikTok">
-              <FaTiktok className="text-xl" />
-              </a>
+            {/* Links Column */}
+            <div className="flex flex-col items-center md:items-end space-y-4">
+              <div className="flex space-x-4">
+                <a href="https://www.facebook.com/lmwfitness" target="_blank" rel="noopener noreferrer" className="text-white hover:text-limeGreen transition-colors">
+                  <FaFacebook size={24} />
+                </a>
+                <a href="https://www.instagram.com/lmwfitness" target="_blank" rel="noopener noreferrer" className="text-white hover:text-limeGreen transition-colors">
+                  <FaInstagram size={24} />
+                </a>
+                <a href="https://www.tiktok.com/@lmwfitness" target="_blank" rel="noopener noreferrer" className="text-white hover:text-limeGreen transition-colors">
+                  <FaTiktok size={24} />
+                </a>
+              </div>
+              <div className="text-sm text-logoGray">
+                © {new Date().getFullYear()} LMW Fitness. All rights reserved.
+              </div>
             </div>
           </div>
         </div>
