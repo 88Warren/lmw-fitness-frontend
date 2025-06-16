@@ -10,7 +10,7 @@ const Footer = () => {
   return (
     <>
       <div>
-        <hr className="h-1 border-0 bg-limeGreen"></hr>
+        <hr className="h-0.5 border-0 bg-limeGreen"></hr>
       </div>
 
       <footer className="bg-customGray p-6 lg:py-8 text-white">
@@ -29,29 +29,32 @@ const Footer = () => {
               </Link>
             </div>
 
-            {/* Newsletter Signup */}
-            <div className="md:col-span-2 flex justify-center">
-              <div className="w-2/5 max-w-md">
-                <NewsletterSignup />
-              </div>
+            {/* Links Column */}
+            {/* <div className="flex flex-col space-y-4">
+              <Link to="/" className="font-titillium text-sm hover:text-limeGreen transition-colors duration-300">Private Policy</Link>
+              <Link to="/" className="font-titillium text-sm hover:text-brightYellow transition-colors duration-300">Terms of Service</Link>
+            </div> */}
+          </div>
+
+            {/* Bottom Section */}
+            <div className="p-4">
+              <hr className="h-0.25 border-0 bg-logoGray"></hr>
             </div>
 
-            {/* Links Column */}
-            <div className="flex flex-col items-center md:items-end space-y-4">
-              <div className="flex space-x-4">
-                <a href="https://www.facebook.com/lmwfitness" target="_blank" rel="noopener noreferrer" className="text-white hover:text-limeGreen transition-colors">
-                  <FaFacebook size={24} />
-                </a>
-                <a href="https://www.instagram.com/lmwfitness" target="_blank" rel="noopener noreferrer" className="text-white hover:text-limeGreen transition-colors">
-                  <FaInstagram size={24} />
-                </a>
-                <a href="https://www.tiktok.com/@lmwfitness" target="_blank" rel="noopener noreferrer" className="text-white hover:text-limeGreen transition-colors">
-                  <FaTiktok size={24} />
-                </a>
-              </div>
-              <div className="text-sm text-logoGray">
-                © {new Date().getFullYear()} LMW Fitness. All rights reserved.
-              </div>
+            <div className="flex flex-col md:flex-row justify-between items-center text-xs">
+            <span>© {new Date().getFullYear()} LMW Fitness</span>
+
+            {/* Social Icons */}
+            <div className="hidden md:flex space-x-4 justify-center items-center">
+              <a href="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" rel="noopener noreferrer" className="text-limeGreen socials" aria-label="Facebook">
+              <FaFacebook className="text-xl" />
+              </a>
+              <a href="https://www.instagram.com/lmw__fitness/" target="_blank" rel="noopener noreferrer" className="text-brightYellow socials" aria-label="Instagram">
+              <FaInstagram className="text-xl" />
+              </a>
+              <a href="https://www.tiktok.com/en/" target="_blank" rel="noopener noreferrer" className="text-hotPink socials" aria-label="TikTok">
+              <FaTiktok className="text-xl" />
+              </a>
             </div>
           </div>
         </div>
