@@ -69,66 +69,50 @@ const NewsletterSignup = () => {
             </div>
           </div>
           <div></div>
-          <div id="sib-container" className="sib-container--small sib-container--vertical" style={{ textAlign:'center', backgroundColor:'rgba(42,50,65,1)', maxWidth:'200px', borderRadius:'5px', borderWidth:'1px', borderColor:'#cecece', borderStyle:'solid', direction:'ltr' }}>
-      <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFANpMare-Ev862onF69vZutC9mqNsrJ1AryjNg35g8XaykKGd0xQbnu6BcC9sQ3DC5tL94SzVz5nRGr4kvBRIrv0GmlAwGxLM2HMsrBsEmft--AVIhksDnCL4Z9r-mjGBVzlNz23efSTMndwvvw77f-hJ5vX_LCPGSLU1q57e3-0EKAkjuWPqxQnZVQBlvfKREe64TITnv_G2" data-type="subscription">
-        <div style={{ padding: '16px 0' }}>
-          <div className="sib-form-block" style={{ fontSize:'32px', textAlign:'center', fontWeight:'700', fontFamily:'"Titillium Web", webFonts', color:'#f3f4f6', backgroundColor:'transparent', textAlign:'center' }}>
-            <p>Stay Updated</p>
-          </div>
-        </div>
-        <div style={{ padding: '16px 0' }}>
-          <div className="sib-form-block" style={{ fontSize:'16px', textAlign:'center', fontFamily:'"Titillium Web", webFonts', color:'#f3f4f6', backgroundColor:'transparent', textAlign:'center' }}>
-            <div className="sib-text-form-block">
-              <p>Get the latest fitness tips and exclusive content delivered to your inbox.</p>
-            </div>
-          </div>
-        </div>
-        <div style={{ padding: '16px 0' }}>
-          <div className="sib-input sib-form-block">
-            <div className="form__entry entry_block">
-              <div className="form__label-row ">
-
-                <div className="entry__field">
-                  <input className="input " type="text" id="EMAIL" name="EMAIL" autoComplete="off" placeholder="Your email address" data-required="true" required />
+          <div id="sib-container" className="sib-container--medium sib-container--vertical" style={{ textAlign:'center', backgroundColor:'rgba(42,50,65,1)', maxWidth:'350px', borderRadius:'7px', borderWidth:'1px', borderColor:'#cecece', borderStyle:'solid', direction:'ltr' }}>
+            <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFAIWCsK6dmKethzit7GFp1Rs7KwlwKPdCqE96r68cyjuwMBK0MxnRoTHKJTZG1sI_cGZWhfn1R1n7X9vZ3-Ex1p6CR4CRiI_7PT1sgi-8cOQE2cY6n9RRFG9e-3uUdbuvdU78aMKDpt5EPWzMS5lLnWJmXRigoewuyg1fAemOmx9JN08cUGgJT4aQXhCUswmwlsyB5Jq-JHRf" data-type="subscription">
+              <div style={{ padding: '16px 0' }}>
+                <div className="sib-form-block" style={{ fontSize:'32px', textAlign:'center', fontWeight:'700', fontFamily:'"Titillium Web", webFonts', color:'#f3f4f6', backgroundColor:'transparent' }}>
+                  <p>Stay Updated</p>
                 </div>
               </div>
-
-              <label className="entry__error entry__error--primary" style={{ fontSize:'16px', textAlign:'left', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'3px', borderColor:'#ff4949' }}>
-              </label>
-            </div>
-          </div>
-        </div>
-        <div style={{ padding: '16px 0' }}>
-          <div className="sib-form-block" style={{ textAlign: 'center' }}>
-            <button className="sib-form-block__button sib-form-block__button-with-loader" style={{ fontSize:'16px', textAlign:'center', fontWeight:'700', fontFamily:'"Titillium Web", webFonts', color:'#FFFFFF', backgroundColor:'#ffcf00', borderRadius:'5px', borderWidth:'0px' }} form="sib-form" type="submit">
-              <svg className="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512" style={{}}>
-                <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z" />
-              </svg>
-              SUBSCRIBE NOW
-            </button>
-          </div>
-        </div>
-        <div style={{ padding: '16px 0' }}>
-          <div className="sib-captcha sib-form-block">
-            <div className="form__entry entry_block">
-              <div className="form__label-row ">
-                <div className="g-recaptcha sib-visible-recaptcha" id="sib-captcha" data-sitekey="6Ldn3-0qAAAAAMWv4iekZdMl4Xrfj2Av2zEL7onD" data-callback="handleCaptchaResponse" style={{direction:'ltr'}}></div>
+              <div style={{ padding: '16px 0' }}>
+                <div className="sib-form-block" style={{ fontSize:'16px', textAlign:'center', fontFamily:'"Titillium Web", webFonts', color:'#f3f4f6', backgroundColor:'transparent' }}>
+                  <div className="sib-text-form-block">
+                    <p>Get the latest fitness tips and exclusive content delivered to your inbox.</p>
+                  </div>
+                </div>
               </div>
-              <label className="entry__error entry__error--primary" style={{ fontSize:'16px', textAlign:'left', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'3px', borderColor:'#ff4949'}}>
-              </label>
-            </div>
+              <div style={{ padding: '16px 0' }}>
+                <div className="sib-input sib-form-block">
+                  <div className="form__entry entry_block">
+                    <div className="form__label-row">
+                      <div className="entry__field">
+                        <input className="input" type="text" id="EMAIL" name="EMAIL" autoComplete="off" placeholder="Your email address" data-required="true" required />
+                      </div>
+                    </div>
+                    <label className="entry__error entry__error--primary" style={{ fontSize:'16px', textAlign:'left', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'3px', borderColor:'#ff4949' }}>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '16px 0' }}>
+                <div className="sib-form-block" style={{ textAlign: 'center' }}>
+                  <button className="sib-form-block__button sib-form-block__button-with-loader" style={{ fontSize:'16px', textAlign:'center', fontWeight:'700', fontFamily:'"Titillium Web", webFonts', color:'#FFFFFF', backgroundColor:'#ffcf00', borderRadius:'5px', borderWidth:'0px' }} form="sib-form" type="submit">
+                    <svg className="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512" style={{}}>
+                      <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z" />
+                    </svg>
+                    SUBSCRIBE NOW
+                  </button>
+                </div>
+              </div>
+              <input type="text" name="email_address_check" value="" className="input--hidden" />
+              <input type="hidden" name="locale" value="en" />
+            </form>
           </div>
         </div>
-
-        <input type="text" name="email_address_check" value="" className="input--hidden" />
-        <input type="hidden" name="locale" value="en" />
-      </form>
-    </div>
-  </div>
-</div>
-</>
-// // </div>
+      </div>
+    </>
   );
 };
-
 export default NewsletterSignup;
