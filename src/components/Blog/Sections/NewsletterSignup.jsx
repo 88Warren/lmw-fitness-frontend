@@ -1,6 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const NewsletterSignup = () => {
+  const formRef = useRef(null);
+
   useEffect(() => {
     // Load Brevo form styles
     const style = document.createElement('style');
@@ -48,6 +50,16 @@ const NewsletterSignup = () => {
     const script = document.createElement('script');
     script.src = 'https://sibforms.com/forms/end-form/build/main.js';
     script.defer = true;
+    script.async = true;
+    
+    // Add script load handler
+    script.onload = () => {
+      // Initialize form after script is loaded
+      if (window.sib) {
+        window.sib.form.init();
+      }
+    };
+
     document.body.appendChild(script);
 
     return () => {
@@ -81,7 +93,13 @@ const NewsletterSignup = () => {
             </div>
           </div>
           <div id="sib-container" className="sib-container--large sib-container--vertical" style={{ textAlign: 'center', backgroundColor: 'transparent', maxWidth: '540px', borderRadius: '3px', borderWidth: '0px' }}>
-            <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFAHSy0wIMSASQbj14cTg63rvIzDADIyTxUbVBFHc7BRPhcrxSrdWef5nBS4ZfbqCuFPbrkmI23jq7hipJMbT3CoAZ70-ZOQr55d43fcZ7Nr-WdD-OzKU3T5nOyRx2AaOqG5ts4Hb5jUgwgz3o8hpt-shTrNLrbhd_ILfcCqDUurW0CtGD4imq2ohCJdnEbZPu1IBl1yNPEtSH" data-type="subscription">
+            <form 
+              ref={formRef}
+              id="sib-form" 
+              method="POST" 
+              action="https://f9f46221.sibforms.com/serve/MUIFAHSy0wIMSASQbj14cTg63rvIzDADIyTxUbVBFHc7BRPhcrxSrdWef5nBS4ZfbqCuFPbrkmI23jq7hipJMbT3CoAZ70-ZOQr55d43fcZ7Nr-WdD-OzKU3T5nOyRx2AaOqG5ts4Hb5jUgwgz3o8hpt-shTrNLrbhd_ILfcCqDUurW0CtGD4imq2ohCJdnEbZPu1IBl1yNPEtSH" 
+              data-type="subscription"
+            >
               <div style={{ padding: '8px 0' }}>
                 <div className="sib-form-block" style={{ fontSize: '24px', textAlign: 'center', fontFamily: 'higherJump, sans-serif', color: '#ffffff', backgroundColor: 'transparent' }}>
                   <p>Stay Updated</p>
