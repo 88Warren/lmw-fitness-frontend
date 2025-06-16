@@ -1,28 +1,21 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 const NewsletterSignup = () => {
   useEffect(() => {
-    // This effect will run after the component mounts (and re-renders)
+    const brevoScriptId = 'brevo-form-main-script'; 
+    const existingBrevoScript = document.getElementById(brevoScriptId);
 
-    // Remove any existing Brevo script to prevent multiple loads if component re-mounts
-    const existingScript = document.getElementById('brevo-form-script');
-    if (existingScript) {
-      existingScript.remove();
+    if (existingBrevoScript) {
+      existingBrevoScript.remove();
     }
 
-    // Create a new script element
     const script = document.createElement('script');
-    script.src = 'https://sibforms.com/forms/end-form/build/main.js';
-    script.async = true; // Asynchronous loading
-    script.defer = true; // Defer execution until HTML parsed
-    script.id = 'brevo-form-script'; // Give it an ID to easily find/remove it later
-
-    // Append the script to the body or to the div containing the form
-    // Appending to the body is generally safer for third-party scripts.
+    script.src = 'https://sibforms.com/forms/end-form/build/main.js'; 
+    script.async = true; 
+    script.defer = true; 
+    script.id = brevoScriptId; 
     document.body.appendChild(script);
 
-    // Also re-initialize the Brevo global variables if they are not defined
-    // This ensures `main.js` has access to them when it runs.
     window.REQUIRED_CODE_ERROR_MESSAGE = window.REQUIRED_CODE_ERROR_MESSAGE || 'Please choose a country code';
     window.LOCALE = window.LOCALE || 'en';
     window.EMAIL_INVALID_MESSAGE = window.EMAIL_INVALID_MESSAGE || "The information provided is invalid. Please review the field format and try again.";
@@ -39,22 +32,20 @@ const NewsletterSignup = () => {
     };
     window.AUTOHIDE = typeof window.AUTOHIDE === 'boolean' ? window.AUTOHIDE : Boolean(0);
 
-
-    // Cleanup function: remove the script when the component unmounts
     return () => {
-      const scriptToRemove = document.getElementById('brevo-form-script');
+      const scriptToRemove = document.getElementById(brevoScriptId);
       if (scriptToRemove) {
         scriptToRemove.remove();
       }
     };
-  }, []); // Empty dependency array ensures this runs only once after initial mount
+  }, []); 
 
   return (
     <div className="bg-customGray backdrop-blur-sm rounded-xl p-6 border border-logoGray">
-      {/* Begin Brevo Form - This part is what Brevo provides for embedding */}
+      {/* Begin Brevo Form*/}
       <div className="sib-form" style={{ textAlign: 'center', backgroundColor: 'transparent' }}>
         <div id="sib-form-container" className="sib-form-container">
-          {/* Error and Success Message Panels (optional, but good to include for user feedback) */}
+          {/* Error and Success Message Panels */}
           <div id="error-message" className="sib-form-message-panel" style={{ fontSize:'16px', textAlign:'left', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'3px', borderColor:'#ff4949', maxWidth:'540px' }}>
             <div className="sib-form-message-panel__text sib-form-message-panel__text--center">
               <svg viewBox="0 0 512 512" className="sib-icon sib-notification__icon">
@@ -77,54 +68,64 @@ const NewsletterSignup = () => {
             </div>
           </div>
           <div></div>
-          <div id="sib-container" className="sib-container--large sib-container--vertical" style={{ textAlign:'center', backgroundColor:'transparent', maxWidth:'540px', borderRadius:'3px', borderWidth:'0px', borderColor:'#C0CCD9', borderStyle:'solid', direction:'ltr' }}>
-            <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFAGEZaQ6zw17jsUaRTsgqjcfLxZB6cLzlvJzzPeZYqqfILCeDTY1ND1kehNSnm65UDgQsjgBs6IvUSZBkJQYW6SHnziDD4M8i0jQvQ2s3-8fARJwNkbpl7jtbOgInghOqvQUPclOwMmO56Y6o2xh07niJ-PEOuFIZWIGyFXqNEOMZzISQueVC4-B9IlOA34eO-LO41z9hnLnY" data-type="subscription">
-              <div style={{ padding: '8px 0' }}>
-                <div className="sib-form-block" style={{ fontSize:'32px', textAlign:'left', fontWeight:'700', fontFamily:'Helvetica, sans-serif', color:'#3C4858', backgroundColor:'transparent', textAlign:'left' }}>
-                  <p>Newsletter</p>
-                </div>
-              </div>
-              <div style={{ padding: '8px 0' }}>
-                <div className="sib-form-block" style={{ fontSize:'16px', textAlign:'left', fontFamily:'Helvetica, sans-serif', color:'#3C4858', backgroundColor:'transparent', textAlign:'left' }}>
-                  <div className="sib-text-form-block">
-                    <p>Subscribe to our newsletter and stay updated.</p>
-                  </div>
-                </div>
-              </div>
-              <div style={{ padding: '8px 0' }}>
-                <div className="sib-input sib-form-block">
-                  <div className="form__entry entry_block">
-                    <div className="form__label-row ">
-                      <label className="entry__label" style={{ fontWeight: 700, textAlign:'left', fontSize:'16px', fontFamily:'Helvetica, sans-serif', color:'#3c4858' }} htmlFor="EMAIL" data-required="*">Enter your email address to subscribe</label>
-                      <div className="entry__field">
-                        <input className="input " type="text" id="EMAIL" name="EMAIL" autoComplete="off" placeholder="EMAIL" data-required="true" required />
-                      </div>
-                    </div>
-                    <label className="entry__error entry__error--primary" style={{ fontSize:'16px', textAlign:'left', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'3px', borderColor:'#ff4949' }}></label>
-                    <label className="entry__specification" style={{ fontSize:'12px', textAlign:'left', fontFamily:'Helvetica, sans-serif', color:'#8390A4', textAlign:'left' }}>
-                      Provide your email address to subscribe. For e.g abc@xyz.com
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div style={{ padding: '8px 0' }}>
-                <div className="sib-form-block" style={{ textAlign: 'left' }}>
-                  <button className="sib-form-block__button sib-form-block__button-with-loader" style={{ fontSize:'16px', textAlign:'left', fontWeight:'700', fontFamily:'Helvetica, sans-serif', color:'#FFFFFF', backgroundColor:'#3E4857', borderRadius:'3px', borderWidth:'0px' }} form="sib-form" type="submit">
-                    <svg className="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512" style={{}}>
-                      <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z" />
-                    </svg>
-                    SUBSCRIBE
-                  </button>
-                </div>
-              </div>
-              <input type="text" name="email_address_check" value="" className="input--hidden" />
-              <input type="hidden" name="locale" value="en" />
-            </form>
+          <div id="sib-container" className="sib-container--small sib-container--vertical" style={{ textAlign:'center', backgroundColor:'rgba(42,50,65,1)', maxWidth:'200px', borderRadius:'5px', borderWidth:'1px', borderColor:'#cecece', borderStyle:'solid', direction:'ltr' }}>
+      <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFANpMare-Ev862onF69vZutC9mqNsrJ1AryjNg35g8XaykKGd0xQbnu6BcC9sQ3DC5tL94SzVz5nRGr4kvBRIrv0GmlAwGxLM2HMsrBsEmft--AVIhksDnCL4Z9r-mjGBVzlNz23efSTMndwvvw77f-hJ5vX_LCPGSLU1q57e3-0EKAkjuWPqxQnZVQBlvfKREe64TITnv_G2" data-type="subscription">
+        <div style={{ padding: '16px 0' }}>
+          <div className="sib-form-block" style={{ fontSize:'32px', textAlign:'center', fontWeight:'700', fontFamily:'"Titillium Web", webFonts', color:'#f3f4f6', backgroundColor:'transparent', textAlign:'center' }}>
+            <p>Stay Updated</p>
           </div>
         </div>
-      </div>
-      {/* End Brevo Form */}
+        <div style={{ padding: '16px 0' }}>
+          <div className="sib-form-block" style={{ fontSize:'16px', textAlign:'center', fontFamily:'"Titillium Web", webFonts', color:'#f3f4f6', backgroundColor:'transparent', textAlign:'center' }}>
+            <div className="sib-text-form-block">
+              <p>Get the latest fitness tips and exclusive content delivered to your inbox.</p>
+            </div>
+          </div>
+        </div>
+        <div style={{ padding: '16px 0' }}>
+          <div className="sib-input sib-form-block">
+            <div className="form__entry entry_block">
+              <div className="form__label-row ">
+
+                <div className="entry__field">
+                  <input className="input " type="text" id="EMAIL" name="EMAIL" autoComplete="off" placeholder="Your email address" data-required="true" required />
+                </div>
+              </div>
+
+              <label className="entry__error entry__error--primary" style={{ fontSize:'16px', textAlign:'left', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'3px', borderColor:'#ff4949' }}>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div style={{ padding: '16px 0' }}>
+          <div className="sib-form-block" style={{ textAlign: 'center' }}>
+            <button className="sib-form-block__button sib-form-block__button-with-loader" style={{ fontSize:'16px', textAlign:'center', fontWeight:'700', fontFamily:'"Titillium Web", webFonts', color:'#FFFFFF', backgroundColor:'#ffcf00', borderRadius:'5px', borderWidth:'0px' }} form="sib-form" type="submit">
+              <svg className="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512" style={{}}>
+                <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z" />
+              </svg>
+              SUBSCRIBE NOW
+            </button>
+          </div>
+        </div>
+        <div style={{ padding: '16px 0' }}>
+          <div className="sib-captcha sib-form-block">
+            <div className="form__entry entry_block">
+              <div className="form__label-row ">
+                <div className="g-recaptcha sib-visible-recaptcha" id="sib-captcha" data-sitekey="6Ldn3-0qAAAAAMWv4iekZdMl4Xrfj2Av2zEL7onD" data-callback="handleCaptchaResponse" style={{direction:'ltr'}}></div>
+              </div>
+              <label className="entry__error entry__error--primary" style={{ fontSize:'16px', textAlign:'left', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'3px', borderColor:'#ff4949'}}>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <input type="text" name="email_address_check" value="" className="input--hidden" />
+        <input type="hidden" name="locale" value="en" />
+      </form>
     </div>
+  </div>
+</div>
+</div>
   );
 };
 
