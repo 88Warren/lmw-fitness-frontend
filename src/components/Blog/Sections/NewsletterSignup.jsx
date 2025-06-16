@@ -2,20 +2,25 @@ import { useEffect } from 'react';
 
 const NewsletterSignup = () => {
   useEffect(() => {
-    const brevoScriptId = 'brevo-form-main-script';
+    // Unique ID for the Brevo main script to prevent conflicts
+    const brevoScriptId = 'brevo-form-main-script'; 
     const existingBrevoScript = document.getElementById(brevoScriptId);
 
+    // If the script already exists (e.g., component re-mounted), remove it to avoid duplicates
     if (existingBrevoScript) {
       existingBrevoScript.remove();
     }
 
+    // Create and append the Brevo main.js script
     const script = document.createElement('script');
-    script.src = 'https://sibforms.com/forms/end-form/build/main.js';
-    script.async = true;
-    script.defer = true;
-    script.id = brevoScriptId;
-    document.body.appendChild(script);
+    script.src = 'https://sibforms.com/forms/end-form/build/main.js'; 
+    script.async = true; // Load asynchronously
+    script.defer = true; // Defer execution until HTML parsing is complete
+    script.id = brevoScriptId; // Assign the unique ID
+    document.body.appendChild(script); // Append to body to ensure all DOM is ready
 
+    // Global variables required by Brevo's main.js for messages and locale.
+    // Use `||` to ensure they are set only if they don't already exist.
     window.REQUIRED_CODE_ERROR_MESSAGE = window.REQUIRED_CODE_ERROR_MESSAGE || 'Please choose a country code';
     window.LOCALE = window.LOCALE || 'en';
     window.EMAIL_INVALID_MESSAGE = window.EMAIL_INVALID_MESSAGE || "The information provided is invalid. Please review the field format and try again.";
@@ -32,65 +37,86 @@ const NewsletterSignup = () => {
     };
     window.AUTOHIDE = typeof window.AUTOHIDE === 'boolean' ? window.AUTOHIDE : Boolean(0);
 
+    // Cleanup function: remove the dynamically added script when the component unmounts
     return () => {
       const scriptToRemove = document.getElementById(brevoScriptId);
       if (scriptToRemove) {
         scriptToRemove.remove();
       }
     };
-  }, []);
+  }, []); // Empty dependency array ensures this effect runs only once after initial mount
 
   return (
-    <div className="bg-customGray backdrop-blur-sm rounded-xl p-6 border border-logoGray">
-      <h3 className="text-lg font-higherJump text-customWhite mb-6 text-center leading-loose tracking-wide">
+    // Outer container with your custom Tailwind styling for the form card
+    <div className="bg-customGray backdrop-blur-sm rounded-xl py-6 border border-logoGray">
+      {/* Title for the newsletter section */}
+      <h3 className="text-lg font-higherJump text-customWhite mb-2 text-center leading-loose tracking-wide">
         Stay Updated
       </h3>
-      
-      {/* Error and Success Message Panels */}
-      <div id="error-message" className="sib-form-message-panel hidden" style={{ fontSize:'14px', textAlign:'center', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'5px', padding:'8px', marginBottom:'12px' }}>
-        <span className="sib-form-message-panel__inner-text">
-          Your subscription could not be saved. Please try again.
-        </span>
-      </div>
-      
-      <div id="success-message" className="sib-form-message-panel hidden" style={{ fontSize:'14px', textAlign:'center', fontFamily:'Helvetica, sans-serif', color:'#085229', backgroundColor:'#e7faf0', borderRadius:'5px', padding:'8px', marginBottom:'12px' }}>
-        <span className="sib-form-message-panel__inner-text">
-          Your subscription has been successful.
-        </span>
-      </div>
 
-      <p className="text-sm text-customWhite font-titillium text-center mb-6 leading-tight">
-        Get the latest fitness tips and exclusive content delivered to your inbox.
-      </p>
+      {/* Main Brevo form container as expected by Brevo's main.js */}
+      <div className="sib-form" style={{ textAlign: 'center', backgroundColor: 'transparent' }}>
+        
+        <div id="sib-form-container" className="sib-form-container">
+          {/* Error Message Panel */}
+          <div id="error-message" className="sib-form-message-panel hidden" style={{ fontSize:'14px', textAlign:'center', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'5px', padding:'8px', marginBottom:'12px' }}>
+            <span className="sib-form-message-panel__inner-text">
+              Your subscription could not be saved. Please try again.
+            </span>
+          </div>
+          {/* Success Message Panel */}
+          <div id="success-message" className="sib-form-message-panel hidden" style={{ fontSize:'14px', textAlign:'center', fontFamily:'Helvetica, sans-serif', color:'#085229', backgroundColor:'#e7faf0', borderRadius:'5px', padding:'8px', marginBottom:'12px' }}>
+            <span className="sib-form-message-panel__inner-text">
+              Your subscription has been successful.
+            </span>
+          </div>
 
-      <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFAIWCsK6dmKethzit7GFp1Rs7KwlwKPdCqE96r68cyjuwMBK0MxnRoTHKJTZG1sI_cGZWhfn1R1n7X9vZ3-Ex1p6CR4CRiI_7PT1sgi-8cOQE2cY6n9RRFG9e-3uUdbuvdU78aMKDpt5EPWzMS5lLnWJmXRigoewuyg1fAemOmx9JN08cUGgJT4aQXhCUswmwlsyB5Jq-JHRf" data-type="subscription">
-        <div className="mb-6 flex justify-center">
-          <input
-            className="w-full p-3 rounded-lg border border-logoGray bg-white text-customGray font-titillium text-center placeholder:text-center"
-            type="text"
-            id="EMAIL"
-            name="EMAIL"
-            autoComplete="off"
-            placeholder="Your email address"
-            data-required="true"
-            required
-          />
+          <div id="sib-container" className="sib-container--medium sib-container--vertical" style={{ textAlign:'center', backgroundColor:'rgba(42,50,65,1)', borderRadius:'7px', borderWidth:'0px', borderStyle:'none', direction:'ltr' }}>
+            {/* Introductory paragraph for the form */}
+            <p className="text-sm text-customWhite font-titillium text-center mb-4 leading-tight">
+              Get the latest fitness tips and exclusive content delivered to your inbox.
+            </p>
+
+            {/* The actual HTML form */}
+            <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFAIWCsK6dmKethzit7GFp1Rs7KwlwKPdCqE96r68cyjuwMBK0MxnRoTHKJTZG1sI_cGZWhfn1R1n7X9vZ3-Ex1p6CR4CRiI_7PT1sgi-8cOQE2cY6n9RRFG9e-3uUdbuvdU78aMKDpt5EPWzMS5lLnWJmXRigoewuyg1fAemOmx9JN08cUGgJT4aQXhCUswmwlsyB5Jq-JHRf" data-type="subscription">
+              <div className="mb-6 flex justify-center">
+                {/* Email input field with your Tailwind styling applied */}
+                <input
+                  className="w-full p-3 rounded-lg border border-logoGray bg-white text-customGray font-titillium input" // Added 'input' class for custom focus styling
+                  type="text"
+                  id="EMAIL"
+                  name="EMAIL"
+                  autoComplete="off"
+                  placeholder="Your email address"
+                  data-required="true"
+                  required
+                />
+              </div>
+              {/* Error label for input validation */}
+              <label className="entry__error entry__error--primary text-red-600 text-sm mt-1 block text-center"></label>
+              
+              <div className="flex justify-center">
+                {/* Submit button with your custom Tailwind styling */}
+                <button
+                  className="btn-subscribe w-full flex justify-center items-center"
+                  form="sib-form"
+                  type="submit"
+                >
+                  {/* SVG icon for the button (retained from Brevo's original code) */}
+                  <svg className="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512">
+                    <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z" />
+                  </svg>
+                  SUBSCRIBE
+                </button>
+              </div>
+              {/* Hidden fields required by Brevo */}
+              <input type="text" name="email_address_check" value="" className="hidden" />
+              <input type="hidden" name="locale" value="en" />
+              {/* reCAPTCHA Div has been removed */}
+            </form>
+          </div>
         </div>
-        <label className="entry__error entry__error--primary text-red-600 text-sm mt-1 block text-center"></label>
-        
-        <div className="flex justify-center">
-          <button
-            className="btn-subscribe w-full flex justify-center items-center"
-            form="sib-form"
-            type="submit"
-          >
-            SUBSCRIBE
-          </button>
-        </div>
-        
-        <input type="text" name="email_address_check" value="" className="hidden" />
-        <input type="hidden" name="locale" value="en" />
-      </form>
+      </div>
     </div>
   );
 };

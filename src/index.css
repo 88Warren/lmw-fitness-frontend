@@ -154,6 +154,24 @@
     margin: 0 !important;
   }
 
+  .sib-form {
+    padding: 10px !important;
+  }
+
+  .sib-form .input,
+  .sib-form .input__affix {
+    background-color: white !important; 
+    border: 1px solid var(--color-logoGray) !important; 
+    box-shadow: none !important; 
+    color: var(--color-customGray) !important;
+  }
+
+  .sib-form .input:focus {
+    outline: none !important;
+    border-color: var(--color-logoGray) !important; 
+    box-shadow: none !important; 
+  }
+
   .sib-container input:-ms-input-placeholder {
     text-align: center;
     font-family: "Titillium Web", webFonts;
