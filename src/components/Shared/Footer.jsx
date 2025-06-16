@@ -37,6 +37,7 @@ const Footer = () => {
       if (response.ok || response.status === 200) {
         showToast("success", data.message || "Thank you for subscribing! Please check your inbox to confirm.");
         setNewsletterEmail("");
+        window.location.href = '/newsletter/check-inbox';
       } else {
         showToast("error", data.error || "Failed to subscribe. Please try again.");
       }
