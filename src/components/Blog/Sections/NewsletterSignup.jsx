@@ -41,7 +41,8 @@ const NewsletterSignup = () => {
   }, []); 
 
   return (
-    <div className="bg-customGray backdrop-blur-sm rounded-xl p-6 border border-logoGray">
+    <>
+    {/* <div className="bg-customGray backdrop-blur-sm rounded-xl p-6 border border-logoGray"> */}
       {/* Begin Brevo Form*/}
       <div className="sib-form" style={{ textAlign: 'center', backgroundColor: 'transparent' }}>
         <div id="sib-form-container" className="sib-form-container">
@@ -125,7 +126,8 @@ const NewsletterSignup = () => {
     </div>
   </div>
 </div>
-</div>
+</>
+// // </div>
   );
 };
 
