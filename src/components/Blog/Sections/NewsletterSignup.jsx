@@ -28,7 +28,7 @@ const NewsletterSignup = () => {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok || response.status === 200) {
         showToast("success", data.message || "Thank you for subscribing! Please check your inbox to confirm.");
         setNewsletterEmail("");
       } else {

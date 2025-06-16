@@ -7,6 +7,8 @@ import Login from "../pages/User/Login";
 import Register from "../pages/User/Register";
 import ForgotPassword from "../pages/User/ForgotPassword";
 import ResetPassword from "../pages/User/ResetPassword";
+import NewsletterConfirmed from "../pages/User/NewsletterConfirmed";
+import NewsletterInboxCheck from "../pages/User/NewsletterInboxCheck";
 import Profile from "../pages/User/Profile";
 import NotFoundPage from "../pages/errors/NotFoundPage";
 
@@ -29,6 +31,10 @@ const routes = createRoutesFromElements(
     <Route path="/register" element={<Register />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />      
     <Route path="/reset-password/:token" element={<ResetPassword />} /> 
+
+    {/* Newsletter */}
+    <Route path="/newsletter/confirm" element={<NewsletterConfirmed />} />
+    <Route path="/newsletter/check-inbox" element={<NewsletterInboxCheck />} />
 
     {/* Profile */}
     <Route path="/profile" element={<Profile />} />

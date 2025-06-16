@@ -32,8 +32,15 @@ export default defineConfig(({ mode }) => {
         },
       },
       port: 5052,
-      host: '0.0.0.0',
+      // host: '0.0.0.0',
+      host: true,
       strictPort: true,
+      allowedHosts: [
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0',
+        '.ngrok-free.app',
+      ]
     },
     build: {
       outDir: "dist",

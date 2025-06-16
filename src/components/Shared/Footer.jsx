@@ -34,9 +34,10 @@ const Footer = () => {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok || response.status === 200) {
         showToast("success", data.message || "Thank you for subscribing! Please check your inbox to confirm.");
         setNewsletterEmail("");
+        window.location.href = `${window.location.origin}/newsletter/check-inbox`;
       } else {
         showToast("error", data.error || "Failed to subscribe. Please try again.");
       }
@@ -94,10 +95,10 @@ const Footer = () => {
           </div>
 
           {/* Links Column */}
-          <div className="flex flex-col space-y-4">
+          {/* <div className="flex flex-col space-y-4">
             <Link to="/" className="font-titillium text-sm hover:text-limeGreen transition-colors duration-300">Private Policy</Link>
             <Link to="/" className="font-titillium text-sm hover:text-brightYellow transition-colors duration-300">Terms of Service</Link>
-          </div>
+          </div> */}
         </div>
 
         <hr className="my-6 border-white/20" /> 

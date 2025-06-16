@@ -9,16 +9,16 @@ const Testimonials = () => {
       author: "Michelle",
       program: "30-Day Fat Loss Program"
     },
-    {
-      text: "Laura's personalized approach to fitness has completely transformed my workout routine. Her attention to detail and understanding of my goals has made all the difference. The results I've seen in just a few weeks are incredible!",
-      author: "Sarah",
-      program: "Personal Training"
-    },
-    {
-      text: "Working with Laura has been life-changing. Her expertise in nutrition and exercise has helped me achieve goals I never thought possible. The support and motivation she provides is unmatched!",
-      author: "James",
-      program: "Nutrition & Fitness Plan"
-    }
+    // {
+    //   text: "Laura's personalized approach to fitness has completely transformed my workout routine. Her attention to detail and understanding of my goals has made all the difference. The results I've seen in just a few weeks are incredible!",
+    //   author: "Sarah",
+    //   program: "Personal Training"
+    // },
+    // {
+    //   text: "Working with Laura has been life-changing. Her expertise in nutrition and exercise has helped me achieve goals I never thought possible. The support and motivation she provides is unmatched!",
+    //   author: "James",
+    //   program: "Nutrition & Fitness Plan"
+    // }
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
