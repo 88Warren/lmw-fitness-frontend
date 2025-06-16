@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { InputField } from "../../../controllers/forms/formFields";
 import { BACKEND_URL } from "../../../utils/config";
 import { showToast } from "../../../utils/toastUtil";
@@ -7,7 +6,6 @@ import { showToast } from "../../../utils/toastUtil";
 const NewsletterSignup = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +31,7 @@ const NewsletterSignup = () => {
       if (response.ok || response.status === 200) {
         showToast("success", data.message || "Thank you for subscribing! Please check your inbox to confirm.");
         setNewsletterEmail("");
-        navigate('/newsletter/check-inbox');
+        window.location.href = '/newsletter/check-inbox';
       } else {
         showToast("error", data.error || "Failed to subscribe. Please try again.");
       }
