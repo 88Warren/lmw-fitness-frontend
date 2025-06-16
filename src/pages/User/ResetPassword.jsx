@@ -59,7 +59,7 @@ const ResetPassword = () => {
       return;
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})/; 
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$^&*])(?=.{8,})/; 
     if (!passwordRegex.test(password)) {
       showToast(
         "warn",
@@ -68,12 +68,6 @@ const ResetPassword = () => {
       setIsSubmitting(false);
       return;
     }
-
-    // if (password.length < 8) { 
-    //     showToast("warn", "Password must be at least 8 characters long.");
-    //     setIsSubmitting(false);
-    //     return;
-    // }
 
     try {
       const response = await fetch(`${BACKEND_URL}/api/reset-password`, {

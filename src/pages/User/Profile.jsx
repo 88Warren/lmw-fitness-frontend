@@ -7,9 +7,9 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("ProfilePage useEffect: isLoggedIn =", isLoggedIn);
+    // console.log("ProfilePage useEffect: isLoggedIn =", isLoggedIn);
     if (!isLoggedIn) {
-      console.log("ProfilePage: Not logged in, redirecting to /login");
+      // console.log("ProfilePage: Not logged in, redirecting to /login");
       navigate("/login");
     }
   }, [isLoggedIn, navigate]);
