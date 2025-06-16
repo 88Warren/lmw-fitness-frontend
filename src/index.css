@@ -149,8 +149,28 @@
     padding: 10px;
   }
   .Toastify__toast-body {
-      background-color: transparent !important;
-      padding: 0 !important;
-      margin: 0 !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .sib-container input:-ms-input-placeholder {
+    text-align: center;
+    font-family: "Titillium Web", webFonts;
+    color: #cecece;
+  }
+  .sib-container input::placeholder {
+    text-align: center;
+    font-family: "Titillium Web", webFonts;
+    color: #cecece;
+  }
+  .sib-container textarea::placeholder {
+    text-align: center;
+    font-family: "Titillium Web", webFonts;
+    color: #cecece;
+  }
+  .sib-container a {
+    text-decoration: underline;
+    color: #2BB2FC;
   }
 }
