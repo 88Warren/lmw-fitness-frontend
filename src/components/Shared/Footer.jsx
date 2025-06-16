@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa";
 import { useState } from "react";
 import { InputField } from "../../controllers/forms/formFields";
@@ -6,6 +6,7 @@ import { BACKEND_URL } from "../../utils/config";
 import { showToast } from "../../utils/toastUtil";
 
 const Footer = () => {
+  const navigate = useNavigate();
   const handleClick = () => {
     window.scrollTo(0, 0);
   };
@@ -37,7 +38,7 @@ const Footer = () => {
       if (response.ok || response.status === 200) {
         showToast("success", data.message || "Thank you for subscribing! Please check your inbox to confirm.");
         setNewsletterEmail("");
-        window.location.href = '/newsletter/check-inbox';
+        navigate('/newsletter/check-inbox');
       } else {
         showToast("error", data.error || "Failed to subscribe. Please try again.");
       }

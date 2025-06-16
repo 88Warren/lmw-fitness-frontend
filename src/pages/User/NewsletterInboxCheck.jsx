@@ -1,24 +1,25 @@
 import { Link } from "react-router-dom";
   
 const NewsletterInboxCheck = () => {
-
-const handleClick = () => {
+  const handleClick = () => {
     window.scrollTo(0, 0);
-};
+  };
 
   return (
-    <section className="text-center flex flex-col justify-center items-center h-lvh">
-        <h1 className="font-titillium text-6xl font-bold mb-4">Thanks for signing up!</h1>
-        <p className="font-titillium text-xl mb-5">Please check your inbox to confirm your subscription</p>
-    <Link
-        to="/"
-        onClick={handleClick}
-        className="btn-full-colour"
-      >
-        Back to home page
-      </Link>
+    <section className="min-h-screen flex flex-col justify-center items-center py-20 bg-gradient-to-b from-white via-customGray/20 to-customGray/70">
+      <div className="max-w-lg bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg text-center">
+        <h1 className="font-titillium text-4xl md:text-5xl font-bold mb-4 text-customWhite">Thanks for signing up!</h1>
+        <p className="font-titillium text-xl mb-8 text-logoGray">Please check your inbox to confirm your subscription</p>
+        <Link
+          to="/"
+          onClick={handleClick}
+          className="btn-full-colour inline-block"
+        >
+          Back to home page
+        </Link>
+      </div>
     </section>
-  )
-}
+  );
+};
 
-export default NewsletterInboxCheck
+export default NewsletterInboxCheck;
