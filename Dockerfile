@@ -16,8 +16,8 @@ ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
 ENV VITE_RECAPTCHA_SITE_KEY=$VITE_RECAPTCHA_SITE_KEY
 
 # Print environment variables for debugging
-RUN echo "VITE_BACKEND_URL: $VITE_BACKEND_URL"
-RUN echo "VITE_RECAPTCHA_SITE_KEY: $VITE_RECAPTCHA_SITE_KEY"
+# RUN echo "VITE_BACKEND_URL: $VITE_BACKEND_URL"
+# RUN echo "VITE_RECAPTCHA_SITE_KEY: $VITE_RECAPTCHA_SITE_KEY"
 
 COPY . .
 RUN npm run build
@@ -33,5 +33,4 @@ RUN ls -la /lmw-entrypoint.sh
 RUN cat /lmw-entrypoint.sh
 
 EXPOSE 5052
-# CMD ["nginx", "-g", "daemon off;"]
 ENTRYPOINT ["/lmw-entrypoint.sh"]
