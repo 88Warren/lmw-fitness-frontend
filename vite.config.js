@@ -49,12 +49,6 @@ export default defineConfig(({ mode }) => {
       assetsInlineLimit: 0,
       assetsDir: 'assets',
     },
-  //  define: {
-  //     "process.env.NODE_ENV": JSON.stringify(mode),
-  //     // Make environment variables available in client code
-  //     "import.meta.env.VITE_BACKEND_URL": JSON.stringify(process.env.VITE_BACKEND_URL),
-  //     "import.meta.env.VITE_RECAPTCHA_SITE_KEY": JSON.stringify(process.env.VITE_RECAPTCHA_SITE_KEY),
-  //   },
     base: "/", 
   };
 });
