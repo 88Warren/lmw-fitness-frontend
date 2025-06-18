@@ -40,7 +40,7 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-higherJump text-white mb-12">
+          <h2 className="text-4xl md:text-5xl font-higherJump text-white mb-12 leading-loose">
             <span className="w">W</span>
             hat <span className="m">M</span>y c
             <span className="l">l</span>
@@ -55,7 +55,7 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className="relative"
         >
-          <div className="relative h-[400px] md:h-[300px] rounded-2xl overflow-hidden">
+          <div className="relative h-[600px] md:h-[300px] rounded-2xl overflow-hidden">
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
@@ -105,7 +105,7 @@ const Testimonials = () => {
           </div>
 
           {/* Navigation Arrows */}
-          <button
+          {/* <button
             onClick={() => setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-customGray/80 hover:bg-white transition-colors duration-300"
             aria-label="Previous testimonial"
@@ -122,7 +122,7 @@ const Testimonials = () => {
             <svg className="w-4 h-4 text-white hover:text-customGray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </button> */}
         </motion.div>
 
         <motion.div 

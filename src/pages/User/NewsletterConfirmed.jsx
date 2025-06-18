@@ -9,19 +9,19 @@ const NewsletterConfirmed = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-20 bg-gradient-to-b from-white via-customGray/20 to-customGray/70">
+    <div className="min-h-screen w-2xl sm:w-1xl flex items-center justify-center py-20 bg-gradient-to-b from-white via-customGray/20 to-customGray/70">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         className="max-w-lg bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg text-center"
       >
-        <h2 className="text-3xl md:text-4xl font-bold text-customWhite mb-8 font-higherJump leading-loose tracking-widest">
-          Subscription Confirmed!
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-customWhite mb-8 font-higherJump leading-loose tracking-widest">
+          Subscription Confir<span className="m">m</span>ed
         </h2>
         <p className="text-lg text-logoGray font-titillium mb-6">
           Thank you for confirming your subscription to the LMW Fitness newsletter.
-          You're all set to receive our latest tips and updates!
+          You're all set to receive our latest tips and updates.
         </p>
         <Link
           to="/"

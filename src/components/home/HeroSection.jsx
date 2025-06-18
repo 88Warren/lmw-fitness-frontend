@@ -24,7 +24,7 @@ const HeroSection = () => {
           animate="visible"
           className="max-w-2xl mx-auto px-0 md:px-8"
         >
-          <div className="text-center p-8">
+          <div className="text-center p-2 md:p-4">
             <h1 className="font-higherJump text-black/70 mb-10 text-4xl md:text-5xl font-extrabold leading-loose tracking-wide">
               Get <span className="text-brightYellow">Fit</span> On Your Schedu<span className="l">l</span>e
             </h1>
