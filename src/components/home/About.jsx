@@ -12,7 +12,7 @@ const About = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-higherJump text-black/80 mb-8 leading-relaxed md:leading-loose">
+          <h2 className="text-4xl md:text-5xl font-higherJump text-black/80 mb-8 leading-loose">
             <span className="w">W</span>
             elco
             <span className="m">M</span>e to

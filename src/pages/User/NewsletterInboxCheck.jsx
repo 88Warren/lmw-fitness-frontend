@@ -6,9 +6,9 @@ const NewsletterInboxCheck = () => {
   };
 
   return (
-    <section className="min-h-screen flex flex-col justify-center items-center py-20 bg-gradient-to-b from-white via-customGray/20 to-customGray/70">
+    <section className="min-h-screen flex flex-col justify-center items-center py-20 px-8 bg-gradient-to-b from-white via-customGray/20 to-customGray/70">
       <div className="max-w-lg bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg text-center">
-        <h1 className="font-titillium text-4xl md:text-5xl font-bold mb-4 text-customWhite">Thanks for signing up!</h1>
+        <h1 className="font-higherJump text-4xl md:text-5xl font-bold mb-4 text-customWhite leading-loose">Thanks for signing up!</h1>
         <p className="font-titillium text-xl mb-8 text-logoGray">Please check your inbox to confirm your subscription</p>
         <Link
           to="/"

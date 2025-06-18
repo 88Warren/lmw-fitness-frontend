@@ -64,7 +64,7 @@ const NewsletterSignup = () => {
             </span>
           </div>
 
-          <div id="sib-container" className="sib-container--medium sib-container--vertical" style={{ textAlign:'center', backgroundColor:'rgba(42,50,65,1)', borderRadius:'7px', borderWidth:'0px', borderStyle:'none', direction:'ltr' }}>
+          <div id="sib-container" className="sib-container--medium sib-container--vertical" style={{ textAlign:'center', backgroundColor:'rgba(42,50,65,1)', borderRadius:'7px', borderWidth:'0px', borderStyle:'none', direction:'ltr', marginBottom:'0px' }}>
             {/* Introductory paragraph for the form */}
             <p className="text-sm text-customWhite font-titillium text-center mb-4 leading-tight">
               Get the latest fitness tips and exclusive content delivered to your inbox.
@@ -72,10 +72,10 @@ const NewsletterSignup = () => {
 
             {/* The actual HTML form */}
             <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFAIWCsK6dmKethzit7GFp1Rs7KwlwKPdCqE96r68cyjuwMBK0MxnRoTHKJTZG1sI_cGZWhfn1R1n7X9vZ3-Ex1p6CR4CRiI_7PT1sgi-8cOQE2cY6n9RRFG9e-3uUdbuvdU78aMKDpt5EPWzMS5lLnWJmXRigoewuyg1fAemOmx9JN08cUGgJT4aQXhCUswmwlsyB5Jq-JHRf" data-type="subscription">
-              <div className="mb-6 flex justify-center">
+              <div className="flex justify-center mb-6 mx-2 md:mx-0">
                 {/* Email input field */}
                 <input
-                  className="w-full p-3 rounded-lg border border-logoGray bg-white text-customGray font-titillium input" // Added 'input' class for custom focus styling
+                  className="w-full p-3 rounded-lg border border-logoGray bg-white text-customGray font-titillium input" 
                   type="text"
                   id="EMAIL"
                   name="EMAIL"
@@ -88,7 +88,7 @@ const NewsletterSignup = () => {
               {/* Error label for input validation */}
               <label className="entry__error entry__error--primary text-red-600 text-sm mt-1 block text-center"></label>
               
-              <div className="flex justify-center">
+              <div className="flex justify-center mx-2 md:mx-0">
                 {/* Submit button */}
                 <button
                   className="btn-subscribe w-full flex justify-center items-center"
