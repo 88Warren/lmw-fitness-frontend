@@ -58,7 +58,7 @@ const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
             variants={textVariants}
             className="font-titillium text-customWhite text-m max-w-2xl mx-auto leading-relaxed"
           >
-            Unlock your potential and "Live More With" our insights on fitness, movement and well-being.
+            Unlock your potential and "Live More With" for my insights on fitness, movement and wellbeing.
           </motion.p>
 
           {isAdmin && (

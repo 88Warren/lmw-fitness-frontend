@@ -25,7 +25,9 @@ const About = () => {
           <p className="text-lg text-customGray max-w-3xl mx-auto mb-8">
             Hi, I&apos;m Laura, and I&apos;m passionate about helping you achieve your
             health and fitness goals. Whether you want to feel stronger, move
-            better or regain confidence, I&apos;m here to support you every step of
+            better or regain confidence, 
+            <br />
+            I&apos;m here to support you every step of
             the way.
             <br />
             I&apos;m really excited that you&apos;re visiting my site, as I have loads of
@@ -95,12 +97,11 @@ const About = () => {
             </h4>
             <p className="text-lg text-customGray text-justify leading-relaxed">
               My 30-Day Fat Loss Program is designed for people with busy
-              lifestyles. Can do at home or in the gym – you just need
+              lifestyles. Work out at home or in the gym – you just need
               commitment and a positive mindset! I offer quality, effective
               fat loss programmes for beginners and the more advanced. They
               are available online and you will be sent a daily video, every
-              day, for 30 days to enable you to exercise in the comfort of
-              your own home.
+              day, for 30 days, to enable you to exercise wherever you choose.
             </p>
           </motion.div>
         </div>
@@ -117,7 +118,7 @@ const About = () => {
             Start Your Journey Today!
           </h3>
           <p className="text-lg mb-8 text-center">
-            If you want to be challenged, lose weight & tone up in a tailored,
+            If you want to be challenged, lose weight & tone up in a tailored & 
             focused session, LMW Fitness is for you.
             <br className="hidden md:block" />
             Join others who have transformed their health with LMW

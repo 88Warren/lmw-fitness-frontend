@@ -1,0 +1,131 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { loadStripe } from '@stripe/stripe-js';
+import { useCart } from '../../context/CartContext';
+import { STRIPE_PUBLISHABLE_KEY, BACKEND_URL } from '../../utils/config';
+import { showToast } from '../../utils/toastUtil';
+import LoadingAndErrorDisplay from '../../components/Shared/Errors/LoadingAndErrorDisplay';
+import { Link } from 'react-router-dom';
+import { DISCOUNT_AMOUNT } from '../../utils/config';
+
+const stripePromise = loadStripe(`${STRIPE_PUBLISHABLE_KEY}`);
+
+const Cart = () => {
+  const { cart, removeItemFromCart, cartTotalPrice, clearCart, isDiscountApplied, baseTotalPrice } = useCart();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleCheckout = async () => {
+    if (cart.length === 0) {
+      showToast("warn", 'Your cart is empty! Add items before checking out.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const stripe = await stripePromise;
+
+      const checkoutItems = cart.map(item => ({
+        priceId: item.priceId,
+        quantity: item.quantity,
+      }));
+
+      const response = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: checkoutItems,
+          isDiscountApplied: isDiscountApplied 
+        }),
+      });
+
+      const session = await response.json();
+
+      if (!response.ok) {
+        throw new Error(session.error || "Failed to create checkout session.");
+      }
+
+      if (session.error) {
+        throw new Error(session.error);
+      }
+
+      // clearCart();
+
+      window.location.href = session.url;
+
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setError(err.message || "An unexpected error occurred during checkout.");
+      showToast("error", err.message || "Checkout failed. Please try again.");
+    } finally {
+      if (!error) { 
+         setLoading(false); 
+      }
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      className="min-h-screen bg-gradient-to-b from-white via-white to-logoGray py-16 px-6 flex justify-center items-center"
+    >
+      <div className="max-w-3xl w-full bg-white p-8 rounded-xl shadow-lg text-gray-700">
+        <h2 className="text-3xl md:text-4xl font-higherJump text-black/80 mb-8 text-center leading-loose">Shopping Cart</h2>
+        <LoadingAndErrorDisplay loading={loading} error={error} />
+        {!loading && !error && cart.length === 0 ? ( 
+          <p className="text-center text-xl text-customGray">Your cart is empty <br/> <br/> 
+          Start adding items from 
+          <Link to="/#Pricing" className="text-customGray font-extrabold italic  hover:text-limeGreen"> our pricing plans</Link></p>
+        ) : (
+           !loading && cart.length > 0 && (
+          <>
+            <ul className="space-y-4 mb-6">
+              {cart.map((item) => (
+                <li key={item.priceId} className="flex justify-between items-center bg-gray-50 p-4 rounded-md shadow-sm">
+                  <div className="flex-grow">
+                    <span className="font-bold text-lg">{item.name}</span>
+                    <span className="text-gray-600 ml-2"> (£{item.price} x {item.quantity})</span>
+                  </div>
+                  <button
+                    onClick={() => removeItemFromCart(item.priceId)}
+                    className="ml-4 px-3 py-1 bg-hotPink text-white rounded-md hover:bg-red-700 transition-colors duration-200"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {/* Display discount information */}
+            {isDiscountApplied && (
+              <div className="text-right text-lg text-limeGreen mt-4">
+                <p>Subtotal: £{baseTotalPrice.toFixed(2)}</p>
+                <p>Discount Applied: -£{DISCOUNT_AMOUNT.toFixed(2)}</p>
+              </div>
+            )} 
+
+            <div className="text-right text-2xl font-bold text-black mt-8 pt-4 border-t border-gray-200">
+              Total: £{cartTotalPrice.toFixed(2)}
+            </div>
+            <button
+              className="btn-primary w-full py-3 mt-6"
+              onClick={handleCheckout}
+              disabled={loading}
+            >
+              {loading ? 'Processing...' : 'Proceed to Checkout'}
+            </button>
+          </>
+           )
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+export default Cart;

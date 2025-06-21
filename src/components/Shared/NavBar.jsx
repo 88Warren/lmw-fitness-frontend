@@ -7,7 +7,9 @@ import {
   FaInstagram,
   FaTiktok,
 } from "react-icons/fa";
+import { FiShoppingCart } from "react-icons/fi";
 import useAuth from "../../hooks/useAuth";
+import { useCart } from '../../context/CartContext'; 
 
 const Navbar = () => {
   const [activeSection, setActiveSection] = useState("");
@@ -16,6 +18,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
+  const { cartItemCount } = useCart();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -98,17 +101,33 @@ const Navbar = () => {
   return (
     <>
       {/* Navbar */}
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 h-14 flex items-center transition-all duration-300 bg-customGray`}
-      >
+      <nav className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center transition-all duration-300 bg-customGray"      >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10">
+        
+        {/* Mobile Menu */}
+        <div className="lg:hidden flex justify-between items-center w-full">
+          {/* Hamburger menu icon  */}
+          <button
+            className="lg:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
+            {isMenuOpen ? (
+              <FaTimes className="text-3xl" />
+            ) : (
+              <FaBars className="text-3xl" />
+            )}
+          </button>
+
           {/* Logo */}
           <NavLink
             to="/"
-            onClick={() => window.scrollTo(0, 0)}
-            className="flex items-center"
+            onClick={() => {
+              window.scrollTo(0, 0);
+              setIsMenuOpen(false);
+            }}
+            className="flex items-center justify-center absolute left-7/12 transform -translate-x-1/2"
           >
-            <h1 className="lmw items-end text-lg md:text-xl">
+            <h1 className="lmw text-lg md:text-xl">
               <span className="l pr-1">L</span>
               <span className="m pr-1">M</span>
               <span className="w pr-2">W</span>
@@ -116,11 +135,22 @@ const Navbar = () => {
             </h1>
           </NavLink>
 
+          {/* Cart Icon */}
+            <NavLink to="/cart" className="relative text-white hover:text-brightYellow transition-colors pl-4"> 
+              <FiShoppingCart className="h-7 w-7" aria-label="Shopping Cart" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-hotPink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </NavLink>
+          </div>
+
           {/* Web Menu */}
           <div className="hidden lg:flex items-center justify-between w-full px-4">
             {/* Left: Navigation Links */}
             <div className="flex items-center space-x-4">
-              {/* Home Link - Always points to / and handles section scrolling */}
+              {/* Home Link */}
               <button
                 onClick={() => scrollToSection("Home")}
                 className={getNavLinkClasses("/", "Home")} 
@@ -134,6 +164,15 @@ const Navbar = () => {
               >
                 About
               </button>
+
+              {/* Pricing Link */}
+              <button
+                onClick={() => scrollToSection("Pricing")}
+                className={getNavLinkClasses("/pricing", "Pricing")} 
+              >
+                Pricing
+              </button>
+
               {/* Contact Link */}
               <button
                 onClick={() => scrollToSection("Contact")}
@@ -233,19 +272,17 @@ const Navbar = () => {
                 </button>
               )}
             </div>
-          </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-          >
-            {isMenuOpen ? (
-              <FaTimes className="text-3xl" />
-            ) : (
-              <FaBars className="text-3xl" />
-            )}
-          </button>
+            {/* Cart Icon for Desktop */}
+            <NavLink to="/cart" className="relative text-white hover:text-brightYellow transition-colors pl-4">
+              <FiShoppingCart className="h-7 w-7" aria-label="Shopping Cart" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-hotPink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </NavLink>
+          </div>
         </div>
       </nav>
 
@@ -270,6 +307,15 @@ const Navbar = () => {
           >
             About
           </button>
+
+          {/* Pricing Link for Mobile */}
+          <button
+            onClick={() => scrollToSection("Pricing")}
+            className={`text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses("/about", "About")}`} 
+          >
+            Pricing
+          </button>
+
           {/* Contact Link for Mobile */}
           <button
             onClick={() => scrollToSection("Contact")}
