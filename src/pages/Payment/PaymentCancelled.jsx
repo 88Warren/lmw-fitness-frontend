@@ -7,7 +7,7 @@ const PaymentCancelled = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-white via-white to-hotPink p-6"
+      className="flex flex-col items-center justify-center min-h-screen bg-customGray/30 p-6"
     >
       <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-lg w-full">
         <svg

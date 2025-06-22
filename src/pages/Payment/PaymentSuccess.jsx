@@ -18,25 +18,13 @@ const PaymentSuccess = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-white via-white to-limeGreen p-6"
+      className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white"
     >
-      <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-lg w-full">
-        <svg
-          className="w-24 h-24 text-limeGreen mx-auto mb-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
-        </svg>
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Payment Successful!</h2>
-        <p className="text-lg text-gray-600 mb-6">
+      <div className="bg-customGray p-8 rounded-lg text-center max-w-lg w-full border-brightYellow border-2">
+        <h2 className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest">
+          Pay<span className="m">m</span>ent Successfu<span className="l">l</span>
+        </h2>
+        <p className="text-lg text-customWhite mb-6">
           Thank you for your purchase. Your order has been placed successfully.
         </p>
         {sessionId && (
@@ -46,7 +34,7 @@ const PaymentSuccess = () => {
         )}
         <Link
           to="/"
-          className="btn-primary inline-block px-8 py-3 rounded-md text-lg transition duration-300 ease-in-out"
+          className="btn-full-colour w-full inline-block px-8 py-3 rounded-md transition duration-300 ease-in-out"
         >
           Back to Home
         </Link>

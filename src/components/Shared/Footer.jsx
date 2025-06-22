@@ -10,10 +10,10 @@ const Footer = () => {
   return (
     <>
       <div>
-        <hr className="h-0.5 border-0 bg-limeGreen"></hr>
+        <hr className="h-0.5 border-0 bg-brightYellow"></hr>
       </div>
 
-      <footer className="bg-customGray p-6 lg:py-8 text-white">
+      <footer className="bg-logoGray p-6 lg:py-8 text-black">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
 
@@ -24,7 +24,7 @@ const Footer = () => {
                     <span className="l">L</span>
                     <span className="m">M</span>
                     <span className="w">W</span>
-                    <span className='fitness'>fitness</span>
+                    <span className="fitness dark:text-white">fitness</span>
                 </h1>
               </Link>
             </div>
@@ -38,7 +38,7 @@ const Footer = () => {
 
             {/* Bottom Section */}
             <div className="p-4">
-              <hr className="h-0.25 border-0 bg-logoGray"></hr>
+              <hr className="h-0.25 border-0 bg-black"></hr>
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-center text-xs">

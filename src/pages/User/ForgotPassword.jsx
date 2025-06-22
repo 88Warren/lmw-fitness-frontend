@@ -47,30 +47,30 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-20 bg-gradient-to-b from-white via-customGray/20 to-customGray/70">
-      <div className="max-w-lg bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg">
+    <div className="min-h-screen flex items-center justify-center py-20 bg-gradient-to-b from-customGray/30 to-white">
+      <div className="max-w-lg bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2">
         <h2 className="text-3xl md:text-4xl font-bold text-customWhite mb-8 font-higherJump text-center leading-loose tracking-widest">
           Forgot Pass<span className="w">w</span>ord
         </h2>
         
 
         {requestSent ? (
-          <div className="text-center text-logoGray font-titillium">
+          <div className="text-center text-customWhite font-titillium">
             <p className="mb-4 leading-relaxed">
               If an account with that email exists, we've sent you an email with instructions to reset your password. 
               <br /> 
               Please check your inbox (and spam folder).
             </p>
-            <Link
+            <button
               to="/login"
-              className="text-brightYellow hover:text-hotPink font-titillium font-medium"
+              className="btn-full-colour w-full"
             >
               Back to Login
-            </Link>
+            </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">   
-          <p className="text-md text-center text-logoGray font-titillium mb-8">
+          <p className="text-md text-center text-customWhite font-titillium mb-8">
             Enter your email address and we'll send you a link to reset your password.
           </p>
             <InputField

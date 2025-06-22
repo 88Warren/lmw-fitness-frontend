@@ -55,7 +55,7 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className="relative"
         >
-          <div className="relative h-[600px] md:h-[300px] rounded-2xl overflow-hidden">
+          <div className="relative h-[600px] md:h-[300px] rounded-2xl overflow-hidden dark:text-white">
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
@@ -70,18 +70,18 @@ const Testimonials = () => {
               >
                 <div className="relative h-full">
                   <span className="absolute -top-4 -left-4 text-6xl md:text-7xl text-limeGreen opacity-50">&ldquo;</span>
-                  <p className="text-lg md:text-xl text-customGray leading-relaxed relative z-10">
+                  <p className="text-lg md:text-xl text-customGray leading-relaxed relative z-10 dark:text-white">
                     {testimonial.text}
                     <span className="absolute -bottom-4 -right-4 text-6xl md:text-7xl text-hotPink opacity-50">&rdquo;</span>
                   </p>
                   
                   
                   <div className="absolute bottom-0 right-0 text-right">
-                    <p className="text-xl text-customGray font-higherJump">
+                    <p className="text-xl text-customGray font-higherJump dark:text-white">
                       <span className="m pr-1">{testimonial.author[0]}</span>
                       {testimonial.author.slice(1)}
                     </p>
-                    <p className="text-sm text-customWhite mt-2">{testimonial.program}</p>
+                    <p className="text-sm text-customWhite mt-2 dark:text-white">{testimonial.program}</p>
                   </div>
                 </div>
               </motion.div>
@@ -133,8 +133,8 @@ const Testimonials = () => {
           className="text-center mt-12"
         >
           <HashLink 
-            to="/#Contact"
-            className="btn-primary mt-8 md:mt-10 w-full sm:w-auto"
+            to="/#Packages"
+            className="btn-primary text-black mt-8 md:mt-10 w-full sm:w-auto dark:bg-yellow-400 dark:text-white"
           >
             Start Your Journey Today
           </HashLink>

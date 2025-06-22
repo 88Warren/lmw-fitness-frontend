@@ -60,8 +60,8 @@ const Pricing = () => {
     <>
       {/* Pricing Section */}
       <section
-        id="Pricing"
-        className="py-16 px-6 bg-gradient-to-b from-white via-white to-logoGray"
+        id="Packages"
+        className="py-16 px-6 bg-white"
       >
         <div className="max-w-6xl mx-auto text-center">
           <motion.h2
@@ -92,7 +92,7 @@ const Pricing = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
-              className="p-8 bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 flex flex-col"
+              className="p-8 bg-white border border-brightYellow rounded-xl flex flex-col"
             >
               <h3 className="text-2xl font-bold text-black mb-4 min-h-[60px] flex items-center justify-center text-center">
                 Beginner 30-day programme
@@ -100,7 +100,7 @@ const Pricing = () => {
               <p className="text-xl font-bold text-limeGreen mb-6">
                 £50 <span className="text-base font-normal">One-off fee</span>
               </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
+              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow dark:text-white">
                 <li>
                   <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
                   Starting fitness test
@@ -127,8 +127,8 @@ const Pricing = () => {
                 </li>
               </ul>
               <button 
-                className="btn-primary w-full py-3 mt-auto"
-                onClick={() => addItemToCart({ name: 'Basic 30-day programme', priceId: `${BEGINNER_PRICE_ID}`, price: 50 })}
+                className="btn-subscribe w-full py-3 mt-auto dark:bg-yellow-400 dark:text-white"
+                onClick={() => addItemToCart({ name: 'Beginner 30-day programme', priceId: `${BEGINNER_PRICE_ID}`, price: 50 })}
                 >
                   Add to Cart
                 </button>
@@ -140,7 +140,7 @@ const Pricing = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
-              className="p-8 bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 relative overflow-hidden flex flex-col"
+              className="p-8 bg-white border border-brightYellow rounded-xl relative overflow-hidden flex flex-col"
             >
               <div className="absolute top-0 right-0 bg-hotPink text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
                 Most Popular
@@ -151,7 +151,7 @@ const Pricing = () => {
               <p className="text-xl font-bold text-limeGreen mb-6">
                 £65 <span className="text-base font-normal">One-off fee</span>
               </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
+              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow dark:text-white">
                 <li>
                   <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
                   Starting fitness test
@@ -178,7 +178,7 @@ const Pricing = () => {
                 </li>
               </ul>
               <button 
-                className="btn-primary w-full py-3 mt-auto"
+                className="btn-subscribe w-full py-3 mt-auto dark:bg-yellow-400 dark:text-white"
                 onClick={() => addItemToCart({ name: 'Advanced 30-day programme', priceId: `${ADVANCED_PRICE_ID}`, price: 65 })}
               >
                 Add to Cart
@@ -191,7 +191,7 @@ const Pricing = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
-              className="p-8 bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 flex flex-col"
+              className="p-8 bg-white border border-brightYellow rounded-xl flex flex-col"
             >
               <h3 className="text-2xl font-bold text-black mb-4 min-h-[60px] flex items-center justify-center text-center">
                 Tailored <br /> Coaching
@@ -199,7 +199,7 @@ const Pricing = () => {
               <p className="text-xl font-bold text-limeGreen mb-6">
                 £250 <span className="text-base font-normal">per month</span>
               </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
+              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow dark:text-white">
                 <li>
                   <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
                   Weekly Check-ins
@@ -226,7 +226,7 @@ const Pricing = () => {
                 </li>
               </ul>
               <button 
-                className="btn-primary w-full py-3 mt-auto"
+                className="btn-subscribe w-full py-3 mt-auto dark:bg-yellow-400 dark:text-white"
                 onClick={() => addItemToCart({ name: 'Tailored Coaching Plan', priceId: `${TAILORED_COACHING_PRICE_ID}`, price: 250 })}
               >
                 Add to Cart
@@ -249,12 +249,12 @@ const Pricing = () => {
             {/* Flex container for cards */}
             <div className="flex flex-col md:flex-row justify-center gap-10">
               {/* Blog Section */}
-              <div className="bg-white md:w-1/2 p-8 rounded-xl text-gray-700 shadow-lg flex flex-col justify-between">
+              <div className="bg-white md:w-1/2 p-8 rounded-xl text-gray-700 shadow-lg flex flex-col justify-between dark:text-white dark:border-3 dark:border-white">
                 <div>
-                  <h4 className="text-xl font-bold text-gray-700 mb-4">
+                  <h4 className="text-xl font-bold text-gray-700 mb-4 dark:text-white">
                     Fortnightly Fitness & Nutrition Blog (Free)
                   </h4>
-                  <p className="text-lg text-gray-700 mb-6">
+                  <p className="text-lg text-gray-700 mb-6 dark:text-white">
                     Get expert tips straight to your inbox:
                   </p>
                   <ul className="text-lg space-y-3 mb-8">
@@ -309,7 +309,7 @@ const Pricing = () => {
                         {/* Container for the email input */}
                           <div className="flex justify-center mb-4"> 
                             <input
-                              className="flex-1 p-3 rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-limeGreen focus:border-transparent"
+                              className="flex-1 p-3 rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-limeGreen focus:border-transparent dark:focus:ring-limeGreen"
                               type="text"
                               id="EMAIL"
                               name="EMAIL"
@@ -325,14 +325,14 @@ const Pricing = () => {
                           {/* Container for the button */}
                           <div className="flex justify-center">
                             <button
-                              className="btn-primary w-full py-3 flex justify-center items-center"
+                              className="btn-primary w-full py-3 flex justify-center items-center dark:bg-yellow-400 dark:text-white"
                               form="sib-form"
                               type="submit"
                             >
                               <svg className="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512">
                                 <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z" />
                               </svg>
-                              SUBSCRIBE
+                              Subscribe
                             </button>
                           </div>
                           {/* Hidden fields required by Brevo */}
@@ -346,12 +346,12 @@ const Pricing = () => {
               </div>
 
               {/* Standalone Package */}
-              <div className="bg-white md:w-1/2 p-8 rounded-xl text-customGray shadow-lg flex flex-col justify-between">
+              <div className="bg-white md:w-1/2 p-8 rounded-xl text-customGray shadow-lg flex flex-col justify-between dark:border-3 dark:border-white dark:text-white">
                 <div>
-                  <h4 className="text-xl font-bold text-customGray mb-4">
+                  <h4 className="text-xl font-bold text-customGray mb-4 dark:text-white">
                     Ultimate Habit & Mindset Package (£25)
                   </h4>
-                  <p className="text-lg text-customGray mb-6">
+                  <p className="text-lg text-customGray mb-6 dark:text-white">
                     Get instant access to:
                   </p>
                   <ul className="text-lg space-y-3 mb-8">
@@ -380,7 +380,7 @@ const Pricing = () => {
                 </div>
                 <div className="flex justify-center mt-auto">
                   <button 
-                    className="btn-primary w-full py-3"
+                    className="btn-primary w-full py-3 dark:bg-yellow-400 dark:text-white"
                     onClick={() => addItemToCart({ name: 'Ultimate Habit & Mindset Package', priceId: `${ULTIMATE_MINDSET_PACKAGE_PRICE_ID}`, price: 25 })} 
                   >
                     Add to Cart

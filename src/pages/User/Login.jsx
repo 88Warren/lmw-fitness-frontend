@@ -90,7 +90,7 @@ const LoginPage = () => {
               </Link>
             </div>
 
-            <button type="submit" className="btn-full-colour w-full" disabled={isSubmitting}>
+            <button type="submit" className="btn-full-colour w-full dark:bg-yellow-400" disabled={isSubmitting}>
               {isSubmitting ? "Logging In..." : "Login"}
             </button>
           </form>

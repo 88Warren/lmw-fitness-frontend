@@ -1,4 +1,6 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 @font-face {
   font-family: "higherJump";
   font-display: swap;
@@ -19,6 +21,10 @@
     --color-logoGray: #cecece;
     --color-customWhite: #f3f4f6;
 
+     /* Dark mode specific colors */
+    --color-dark-customGray: #cecece; 
+    --color-dark-logoGray: #4b5563; 
+    --color-dark-white: #fff; 
 
     --font-higherJump: higherJump, sans-serif;
     --font-westerners: westerners, cursive;
@@ -95,7 +101,7 @@
     background: linear-gradient(to right, #21fc0d, #ffcf00, #ff11ff);
   }
   .btn-full-colour {
-    @apply mt-6 px-6 py-3 bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-customGray font-bold rounded-lg transition-all;
+    @apply mt-6 px-6 py-3 bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-black font-bold rounded-lg transition-all;
   }
 
   .btn-full-colour:hover {
@@ -129,7 +135,6 @@
   .btn-delete-small {
     @apply p-2 bg-red-600 hover:bg-red-400 text-customWhite rounded-full transition-colors duration-300 backdrop-blur-sm
   }
-
 
   .link {
     @apply font-titillium text-hotPink hover:text-limeGreen;

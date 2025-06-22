@@ -11,7 +11,7 @@ const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    subject: "",
+    subject: "Website Enquiry",
     message: "",
   });
   const [captchaValue, setCaptchaValue] = useState(null);
@@ -98,7 +98,7 @@ const ContactForm = () => {
 
       if (res.ok) {
         showToast("success", "Message sent successfully!");
-        setFormData({ name: "", email: "", subject: "", message: "" });
+        setFormData({ name: "", email: "", subject: "Website Enquiry", message: "" });
         setCaptchaValue(null);
         recaptchaRef.current.reset();
       } else {
@@ -124,7 +124,7 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="Contact" className="min-h-screen py-20 bg-gradient-to-b from-white via-customGray/20 to-customGray/70">
+    <section id="Contact" className="min-h-screen py-20 bg-black">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header Section */}
         <motion.div 
@@ -134,11 +134,11 @@ const ContactForm = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-black/70 mb-6 font-higherJump leading-loose tracking-widest">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 font-higherJump leading-loose tracking-widest text-white">
             Get In Touch <span className="w">w</span>
             ith <span className="m">m</span>e
           </h2>
-          <p className="text-lg text-customGray max-w-2xl mx-auto">
+          <p className="text-lg max-w-2xl mx-auto text-white">
             Have a question or need more info? Drop me a message
           </p>
         </motion.div>
@@ -169,16 +169,6 @@ const ContactForm = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Your email address"
-              required
-            />
-
-            <InputField 
-              label="Subject"
-              type="text"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-              placeholder="Subject"
               required
             />
 
@@ -223,7 +213,7 @@ const ContactForm = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              className="btn-full-colour w-full"
+              className="btn-full-colour w-full dark:bg-yellow-400 dark:text-white"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
