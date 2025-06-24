@@ -23,7 +23,7 @@ COPY . .
 RUN npm run build
 
 # Step 2 build the webserver
-FROM nginx:stable-alpine3.22
+FROM nginx:stable-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 COPY entrypoint.sh /lmw-entrypoint.sh
