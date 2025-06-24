@@ -24,7 +24,7 @@ RUN npm run build
 
 # Step 2 build the webserver
 ARG CACHE_BREAKER
-FROM nginx:1.27.0-alpine
+FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 COPY entrypoint.sh /lmw-entrypoint.sh
