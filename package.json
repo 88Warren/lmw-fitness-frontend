@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.13.5",
-    "@stripe/stripe-js": "^7.3.1",
+    "@stripe/stripe-js": "^7.4.0",
     "@tailwindcss/vite": "^4.0.7",
     "axios": "^1.9.0",
     "framer-motion": "^12.16.0",

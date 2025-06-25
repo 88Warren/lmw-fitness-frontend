@@ -13,6 +13,7 @@ const stripePromise = loadStripe(`${STRIPE_PUBLISHABLE_KEY}`);
 
 const Cart = () => {
   const { cart, removeItemFromCart, cartTotalPrice, clearCart, isDiscountApplied, baseTotalPrice } = useCart();
+  const [customerEmail, setCustomerEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -40,7 +41,8 @@ const Cart = () => {
         },
         body: JSON.stringify({
           items: checkoutItems,
-          isDiscountApplied: isDiscountApplied 
+          isDiscountApplied: isDiscountApplied,
+          CustomerEmail: customerEmail
         }),
       });
 
@@ -139,6 +141,18 @@ const Cart = () => {
 
             <div className="text-right text-2xl text-white mt-8 pt-4 border-t border-gray-200">
               <span className="text-white">Total:</span> £{cartTotalPrice.toFixed(2)}
+            </div>
+            <div className="mt-6">
+              <label htmlFor="email" className="block text-white font-medium mb-1">Email address</label>
+              <input
+                id="email"
+                type="email"
+                className="w-full p-3 rounded-md border border-gray-300"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+              />
             </div>
             <button
               className="btn-full-colour w-full py-3 mt-6"

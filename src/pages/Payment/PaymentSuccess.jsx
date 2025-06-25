@@ -1,17 +1,20 @@
 import { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useCart } from '../../context/CartContext';
 
 const PaymentSuccess = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const sessionId = queryParams.get('session_id');
+  const { clearCart } = useCart(); 
 
   useEffect(() => {
     if (sessionId) {
       console.log('Payment successful! Session ID:', sessionId);
+      clearCart();
     }
-  }, [sessionId]);
+  }, [sessionId, clearCart]);
 
   return (
     <motion.div
@@ -28,7 +31,7 @@ const PaymentSuccess = () => {
           Thank you for your purchase. Your order has been placed successfully.
         </p>
         {sessionId && (
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-gray-500 mb-6 break-all">
             Order Reference: <span className="font-semibold">{sessionId}</span>
           </p>
         )}
