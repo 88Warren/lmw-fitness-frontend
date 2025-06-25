@@ -1,5 +1,5 @@
 # Step 1 build the production react app
-FROM node:23-alpine3.21 AS builder
+FROM node:23-alpine3.22 AS builder
 
 ENV GOOS=linux
 ENV GOARCH=amd64
@@ -23,7 +23,8 @@ COPY . .
 RUN npm run build
 
 # Step 2 build the webserver
-FROM nginx:stable-alpine
+ARG CACHE_BREAKER
+FROM nginx:1.28.0-alpine3.21
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 COPY entrypoint.sh /lmw-entrypoint.sh
