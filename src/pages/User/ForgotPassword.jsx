@@ -57,7 +57,7 @@ const ForgotPassword = () => {
         {requestSent ? (
           <div className="text-center text-customWhite font-titillium">
             <p className="mb-4 leading-relaxed">
-              If an account with that email exists, we've sent you an email with instructions to reset your password. 
+              If an account with that email exists, we&apos;ve sent you an email with instructions to reset your password. 
               <br /> 
               Please check your inbox (and spam folder).
             </p>
@@ -71,7 +71,7 @@ const ForgotPassword = () => {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">   
           <p className="text-md text-center text-customWhite font-titillium mb-8">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we will send you a link to reset your password.
           </p>
             <InputField
               label="Email Address"

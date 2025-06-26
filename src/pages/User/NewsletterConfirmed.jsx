@@ -21,7 +21,7 @@ const NewsletterConfirmed = () => {
         </h2>
         <p className="text-md md:text-lg text-customWhite font-titillium mb-4 md:mb-6">
           Thank you for confirming your subscription to the LMW Fitness newsletter.
-          You're all set to receive our latest tips and updates.
+          You are all set to receive our latest tips and updates.
         </p>
         <Link
           to="/"

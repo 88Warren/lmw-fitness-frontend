@@ -1,18 +1,15 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { loadStripe } from '@stripe/stripe-js';
 import { useCart } from '../../context/CartContext';
-import { STRIPE_PUBLISHABLE_KEY, BACKEND_URL } from '../../utils/config';
+import { BACKEND_URL } from '../../utils/config';
 import { showToast } from '../../utils/toastUtil';
 import LoadingAndErrorDisplay from '../../components/Shared/Errors/LoadingAndErrorDisplay';
 import { Link } from 'react-router-dom';
 import { DISCOUNT_AMOUNT } from '../../utils/config';
 import { HashLink } from 'react-router-hash-link';
 
-const stripePromise = loadStripe(`${STRIPE_PUBLISHABLE_KEY}`);
-
 const Cart = () => {
-  const { cart, removeItemFromCart, cartTotalPrice, clearCart, isDiscountApplied, baseTotalPrice } = useCart();
+  const { cart, removeItemFromCart, cartTotalPrice, isDiscountApplied, baseTotalPrice } = useCart();
   const [customerEmail, setCustomerEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -27,8 +24,6 @@ const Cart = () => {
     setError(null);
 
     try {
-      const stripe = await stripePromise;
-
       const checkoutItems = cart.map(item => ({
         priceId: item.priceId,
         quantity: item.quantity,

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import PropTypes from 'prop-types';
 
 const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
   const containerVariants = {
@@ -58,7 +59,7 @@ const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
             variants={textVariants}
             className="font-titillium text-customWhite text-m max-w-2xl mx-auto leading-relaxed"
           >
-            Unlock your potential and "Live More With" for my insights on fitness, movement and wellbeing.
+            Unlock your potential and &quot;Live More With&quot; for my insights on fitness, movement and wellbeing.
           </motion.p>
 
           {isAdmin && (
@@ -91,3 +92,8 @@ const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
 };
 
 export default BlogHero;
+
+BlogHero.propTypes = {
+  isAdmin: PropTypes.bool.isRequired,
+  handleCreateNewBlogClick: PropTypes.func.isRequired,
+};

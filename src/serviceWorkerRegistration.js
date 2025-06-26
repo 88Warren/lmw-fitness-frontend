@@ -6,7 +6,7 @@ export function register() {
     window.addEventListener('load', () => {
       navigator.serviceWorker
         .register(`${import.meta.env.BASE_URL}service-worker.js`)
-        .then(_registration => {
+        .then(() => {
           console.log('ServiceWorker registration successful');
         })
         .catch(err => {

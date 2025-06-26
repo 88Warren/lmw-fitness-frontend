@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa";
-import NewsletterSignup from "../Blog/Sections/NewsletterSignup";
 
 const Footer = () => {
   const handleClick = () => {

@@ -1,6 +1,7 @@
-import { createContext, useState, useContext, useEffect, useCallback} from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 import { showToast } from "../utils/toastUtil"; 
 import { ULTIMATE_MINDSET_PACKAGE_PRICE_ID, DISCOUNT_AMOUNT } from '../utils/config';
+import PropTypes from 'prop-types';
 
 const CartContext = createContext();
 
@@ -72,4 +73,8 @@ export const CartProvider = ({ children }) => {
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+};
+
+CartProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

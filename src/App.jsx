@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect } from "react";
 import { createBrowserRouter, RouterProvider, useLocation } from "react-router-dom";
 import routes from "./routes/routes.jsx";

@@ -35,6 +35,7 @@ WaveDivider.propTypes = {
   fill: PropTypes.string,
   flip: PropTypes.bool,
   style: PropTypes.object,
+  opacity: PropTypes.number,
 };
 
 export default WaveDivider;

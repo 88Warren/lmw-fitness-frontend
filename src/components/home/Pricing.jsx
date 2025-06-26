@@ -1,6 +1,5 @@
-import { useEffect , useState } from 'react';
+import { useEffect } from 'react';
 import { motion } from "framer-motion";
-import { showToast } from "../../utils/toastUtil"; 
 import { useCart } from '../../context/CartContext'; 
 import { BEGINNER_PRICE_ID, ADVANCED_PRICE_ID, TAILORED_COACHING_PRICE_ID, ULTIMATE_MINDSET_PACKAGE_PRICE_ID } from '../../utils/config';
 
@@ -80,7 +79,7 @@ const Pricing = () => {
             viewport={{ once: true }}
             className="text-lg text-customGray max-w-3xl mx-auto mb-12"
           >
-            Whether you're looking for a focused fitness package or a tailored
+            Whether you are looking for a focused fitness package or a tailored
             coaching program,
             <br className="hidden md:block" /> I have the perfect solution to
             support your fitness journey.

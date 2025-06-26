@@ -5,6 +5,7 @@ import { BACKEND_URL } from '../../utils/config';
 import LoadingAndErrorDisplay from "../Shared/Errors/LoadingAndErrorDisplay"
 import NewsletterSignup from "./Sections/NewsletterSignup";
 import { showToast } from '../../utils/toastUtil'; 
+import PropTypes from 'prop-types';
 
 const BlogPostDetail = ({
   handleEditClick,
@@ -217,3 +218,8 @@ const BlogPostDetail = ({
 };
 
 export default BlogPostDetail;
+
+BlogPostDetail.propTypes = {
+  handleEditClick: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+};
