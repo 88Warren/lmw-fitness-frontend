@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 const Testimonials = () => {
   const testimonials = [
     {
-      text: "I've tried all sorts of training plans over the years, but with Laura's plan, I can see massive changes in my body shape and my mental state, feeling more positive and knowing that for once I've found a plan that is working. Laura is energetic, fun & committed and has lots of experience with diets and exercise. I highly recommend her to anyone wanting to improve their Fitness & lose weight. Thank you Laura, for all your help. This is one plan I will be sticking to!",
+      text: "I've tried all sorts of training plans over the years, but with Laura's plan, I can see massive changes in my body shape and my mental state, feeling more positive and knowing that for once I've found a plan that is working. Laura is energetic, fun & committed and has lots of experience with diets and exercise. I highly recommend her to anyone wanting to improve their fitness & lose weight. Thank you Laura, for all your help. This is one plan I will be sticking to!",
       author: "Michelle",
       program: "30-Day Fat Loss Program"
     },
@@ -55,7 +55,7 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className="relative"
         >
-          <div className="relative h-[600px] md:h-[300px] rounded-2xl overflow-hidden">
+          <div className="relative h-[600px] md:h-[300px] rounded-2xl overflow-hidden dark:text-white">
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
@@ -66,22 +66,22 @@ const Testimonials = () => {
                   display: index === currentSlide ? 'block' : 'none'
                 }}
                 transition={{ duration: 0.5 }}
-                className="absolute inset-0 bg-logoGray backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl"
+                className="absolute inset-0 bg-customWhite backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl"
               >
                 <div className="relative h-full">
                   <span className="absolute -top-4 -left-4 text-6xl md:text-7xl text-limeGreen opacity-50">&ldquo;</span>
-                  <p className="text-lg md:text-xl text-customGray leading-relaxed relative z-10">
+                  <p className="text-lg md:text-xl text-customGray leading-relaxed relative z-10 dark:text-white">
                     {testimonial.text}
                     <span className="absolute -bottom-4 -right-4 text-6xl md:text-7xl text-hotPink opacity-50">&rdquo;</span>
                   </p>
                   
                   
                   <div className="absolute bottom-0 right-0 text-right">
-                    <p className="text-xl text-white font-higherJump">
-                      <span className="m">{testimonial.author[0]}</span>
+                    <p className="text-xl text-customGray font-higherJump dark:text-white">
+                      <span className="m pr-1">{testimonial.author[0]}</span>
                       {testimonial.author.slice(1)}
                     </p>
-                    <p className="text-sm text-customWhite mt-2">{testimonial.program}</p>
+                    <p className="text-sm text-customWhite mt-2 dark:text-white">{testimonial.program}</p>
                   </div>
                 </div>
               </motion.div>
@@ -133,8 +133,8 @@ const Testimonials = () => {
           className="text-center mt-12"
         >
           <HashLink 
-            to="/#Contact"
-            className="btn-primary mt-8 md:mt-10 w-full sm:w-auto"
+            to="/#Packages"
+            className="btn-primary text-black mt-8 md:mt-10 w-full sm:w-auto dark:bg-yellow-400 dark:text-white"
           >
             Start Your Journey Today
           </HashLink>

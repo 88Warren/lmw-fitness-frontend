@@ -5,7 +5,7 @@ import useAuth from './useAuth';
 import { showToast } from '../utils/toastUtil';
 
 const useBlogData = () => {
-  const { user, token } = useAuth(); 
+  const { token } = useAuth(); 
   const [actualBlogPosts, setActualBlogPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

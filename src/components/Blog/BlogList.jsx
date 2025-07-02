@@ -5,6 +5,7 @@ import AllArticlesGrid from "./Sections/AllArticlesGrid";
 import BlogSidebar from "./Sections/BlogSidebar";
 import NoPostsMessage from "../Shared/Errors/NoPostsMessage";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import PropTypes from 'prop-types';
 
 const BlogList = ({
   actualBlogPosts,
@@ -81,3 +82,21 @@ const BlogList = ({
 };
 
 export default BlogList;
+
+BlogList.propTypes = {
+  actualBlogPosts: PropTypes.arrayOf(
+    PropTypes.shape({
+      ID: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      category: PropTypes.string,
+      isFeatured: PropTypes.bool,
+      date: PropTypes.string.isRequired,
+      excerpt: PropTypes.string,
+      image: PropTypes.string,
+      fullContent: PropTypes.string,
+    })
+  ).isRequired,
+  handleEditClick: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+  handleCreateNewBlogClick: PropTypes.func.isRequired,
+};

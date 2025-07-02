@@ -1,4 +1,6 @@
+import React from "react";
 import { InputField, TextAreaField } from "../../controllers/forms/formFields";
+import PropTypes from 'prop-types';
 
 const BlogForm = ({
   isEditMode,
@@ -150,3 +152,18 @@ const categories = [
 };
 
 export default BlogForm;
+
+BlogForm.propTypes = {
+  isEditMode: PropTypes.bool.isRequired,
+  newBlogData: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    category: PropTypes.string,
+    isFeatured: PropTypes.bool,
+    image: PropTypes.string,
+    excerpt: PropTypes.string,
+    fullContent: PropTypes.string,
+  }).isRequired,
+  handleInputChange: PropTypes.func.isRequired,
+  handleFormSubmit: PropTypes.func.isRequired,
+  handleBackToList: PropTypes.func.isRequired,
+};

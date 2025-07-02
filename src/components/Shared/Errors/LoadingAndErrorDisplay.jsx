@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 const LoadingAndErrorDisplay = ({ loading, error, message }) => {
   if (loading) {
     return (
@@ -66,3 +68,9 @@ const LoadingAndErrorDisplay = ({ loading, error, message }) => {
 };
 
 export default LoadingAndErrorDisplay;
+
+LoadingAndErrorDisplay.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.string,
+  message: PropTypes.string,
+};

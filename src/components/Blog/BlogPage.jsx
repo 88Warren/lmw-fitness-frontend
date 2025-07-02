@@ -12,7 +12,6 @@ const BlogPage = () => {
   const location = useLocation(); 
 
   const {
-    viewMode,
     editingPost, 
     actualBlogPosts,
     newBlogData,

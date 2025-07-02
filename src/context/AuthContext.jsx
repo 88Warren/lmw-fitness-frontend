@@ -3,6 +3,7 @@ import { BACKEND_URL } from "../utils/config";
 import axios from "axios";
 import { showToast } from '../utils/toastUtil';
 import LoadingAndErrorDisplay from '../components/Shared/Errors/LoadingAndErrorDisplay'; 
+import PropTypes from 'prop-types';
 
 export const AuthContext = createContext(null);
 
@@ -142,4 +143,8 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

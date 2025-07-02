@@ -1,6 +1,11 @@
 import { Route, createRoutesFromElements } from "react-router-dom";
 import Boilerplate from "../layouts/Boilerplate";
 import Home from "../pages/Home";
+import About from "../components/home/About";
+import Pricing from "../components/home/Pricing";
+import PaymentSuccess from "../pages/payment/PaymentSuccess";
+import PaymentCancelled from "../pages/payment/PaymentCancelled";
+import Cart from "../pages/payment/Cart"; 
 import Contact from "../components/home/ContactForm";
 import BlogPage from "../components/Blog/BlogPage";
 import Login from "../pages/User/Login";
@@ -17,7 +22,14 @@ const routes = createRoutesFromElements(
     {/* Home page */}
     <Route index element={<Home />} />
 
+    {/* Pricing and payments */}
+    <Route path="/pricing" element={<Pricing />} />
+    <Route path="/payment-success" element={<PaymentSuccess />} />
+    <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+    <Route path="/cart" element={<Cart />} /> 
+
     {/* Contact */}
+    <Route path="/about" element={<About />} />
     <Route path="/contact" element={<Contact />} />
 
     {/* Blog */}

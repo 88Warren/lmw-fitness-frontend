@@ -7,7 +7,6 @@ export const InputField = ({
   value,
   onChange,
   placeholder,
-  className,
   required,
   infoText,
   children, 
@@ -103,10 +102,10 @@ InputField.propTypes = {
   className: PropTypes.string,
   required: PropTypes.bool,
   infoText: PropTypes.string,
-  children: PropTypes.node,      
+  children: PropTypes.node,    
 };
 
-export const TextAreaField = ({ label, name, value, onChange, rows = 5, placeholder = "", className, required, infoText  }) => (
+export const TextAreaField = ({ label, name, value, onChange, rows = 5, placeholder = "", required, infoText  }) => (
   <div>
     <label 
       className="block mb-2 text-m text-customWhite font-titillium tracking-wide" 
@@ -141,4 +140,5 @@ TextAreaField.propTypes = {
   className: PropTypes.string, 
   required: PropTypes.bool,   
   infoText: PropTypes.string,
+  rows: PropTypes.number,
 };

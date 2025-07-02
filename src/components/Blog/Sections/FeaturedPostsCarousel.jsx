@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { BACKEND_URL } from "../../../utils/config";
+import PropTypes from 'prop-types';
 
 const FeaturedPostsCarousel = ({ featuredPosts, handleReadMore }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -77,3 +78,19 @@ const FeaturedPostsCarousel = ({ featuredPosts, handleReadMore }) => {
 };
 
 export default FeaturedPostsCarousel;
+
+FeaturedPostsCarousel.propTypes = {
+  featuredPosts: PropTypes.arrayOf(
+    PropTypes.shape({
+      ID: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      category: PropTypes.string,
+      isFeatured: PropTypes.bool,
+      date: PropTypes.string.isRequired,
+      excerpt: PropTypes.string,
+      image: PropTypes.string,
+      fullContent: PropTypes.string,
+    })
+  ).isRequired,
+  handleReadMore: PropTypes.func.isRequired,
+};

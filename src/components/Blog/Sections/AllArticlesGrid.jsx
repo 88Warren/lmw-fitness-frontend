@@ -1,5 +1,6 @@
 import { BACKEND_URL } from "../../../utils/config";
 import { Link } from "react-router-dom";
+import PropTypes from 'prop-types';
 
 const AllArticlesGrid = ({
   gridBlogPosts,
@@ -129,3 +130,20 @@ const AllArticlesGrid = ({
 };
 
 export default AllArticlesGrid;
+
+AllArticlesGrid.propTypes = {
+  gridBlogPosts: PropTypes.arrayOf(
+    PropTypes.shape({
+      ID: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      category: PropTypes.string,
+      isFeatured: PropTypes.bool,
+      image: PropTypes.string,
+      excerpt: PropTypes.string,
+      fullContent: PropTypes.string,
+    })
+  ).isRequired,
+  handleEditClick: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+  isAdmin: PropTypes.bool.isRequired,
+};

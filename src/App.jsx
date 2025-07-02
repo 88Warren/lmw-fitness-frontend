@@ -1,7 +1,9 @@
+import React from "react";
 import { useEffect } from "react";
 import { createBrowserRouter, RouterProvider, useLocation } from "react-router-dom";
 import routes from "./routes/routes.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { CartProvider } from './context/CartContext'; 
 
 const ScrollToTop = () => {
   const location = useLocation();
@@ -17,10 +19,12 @@ const router = createBrowserRouter(routes);
 
 const App = () => {
   return (
-    <AuthProvider data-oid="jv3pc16">
-      <RouterProvider router={router} data-oid="ob:fe3u">
-        <ScrollToTop data-oid="syg9-0q" />
-      </RouterProvider>
+    <AuthProvider>
+      <CartProvider> 
+        <RouterProvider router={router}>
+          <ScrollToTop />
+        </RouterProvider>
+      </CartProvider>
     </AuthProvider>
   );
 };
