@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { showToast } from "../utils/toastUtil"; 
 import { ULTIMATE_MINDSET_PACKAGE_PRICE_ID, DISCOUNT_AMOUNT } from '../utils/config';
 import PropTypes from 'prop-types';
@@ -28,7 +28,7 @@ export const CartProvider = ({ children }) => {
     }
   }, [cart]);
 
-  const addItemToCart = (item) => {
+  const addItemToCart = useCallback((item) => {
     setCart((prevCart) => {
       const existingItemIndex = prevCart.findIndex(i => i.priceId === item.priceId);
       if (existingItemIndex > -1) {
@@ -38,20 +38,19 @@ export const CartProvider = ({ children }) => {
       showToast("success", `${item.name} added to cart!`);
       return [...prevCart, { ...item, quantity: 1 }]; 
     });
-  };
+  }, []);
 
-  const removeItemFromCart = (priceId) => {
+  const removeItemFromCart = useCallback((priceId) => {
     setCart((prevCart) => {
       const updatedCart = prevCart.filter(item => item.priceId !== priceId);
       showToast("warn", "Item removed from cart."); 
       return updatedCart;
     });
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-    localStorage.removeItem('cart'); 
-  };
+  }, []);
 
     const cartItemCount = cart.length; 
     const baseTotalPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);

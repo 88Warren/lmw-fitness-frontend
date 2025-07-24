@@ -126,7 +126,7 @@ const About = () => {
           </p>
           <div className="text-center">
             <HashLink 
-              to="/#Packages"
+              to="/#Pricing"
               className="btn-primary px-6 md:px-8 py-3 text-lg border border-customGray/30 dark:bg-yellow-400 dark:text-white"
             >
               Get Started Today

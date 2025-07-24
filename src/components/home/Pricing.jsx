@@ -59,7 +59,7 @@ const Pricing = () => {
     <>
       {/* Pricing Section */}
       <section
-        id="Packages"
+        id="Pricing"
         className="py-16 px-6 bg-white"
       >
         <div className="max-w-6xl mx-auto text-center">

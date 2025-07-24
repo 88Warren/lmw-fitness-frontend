@@ -75,7 +75,7 @@ const Cart = () => {
     >
       <div className="max-w-3xl mx-auto w-full mb-6"> 
         <HashLink
-          to="/#Pricing" 
+          to="/pricing" 
           aria-label="Back to pricing plans"
           className="inline-flex items-center space-x-2 text-white hover:text-brightYellow transition-colors duration-300 font-titillium font-semibold group"
         >
@@ -102,7 +102,7 @@ const Cart = () => {
         
         {!loading && !error && cart.length === 0 ? ( 
           <p className="text-center text-xl text-customWhite">Your cart is empty <br/> <br/> 
-            <Link to="/#Packages" className="btn-full-colour w-full">
+            <Link to="/pricing" className="btn-full-colour w-full">
               Start adding items
             </Link>
           </p>

@@ -1,36 +1,46 @@
 import { Route, createRoutesFromElements } from "react-router-dom";
 import Boilerplate from "../layouts/Boilerplate";
+
 import Home from "../pages/Home";
 import About from "../components/home/About";
+import Testimonials from "../components/home/Testimonials";
 import Pricing from "../components/home/Pricing";
+import Contact from "../components/home/ContactForm";
+
+import NewsletterConfirmed from "../pages/User/NewsletterConfirmed";
+import NewsletterInboxCheck from "../pages/User/NewsletterInboxCheck";
 import PaymentSuccess from "../pages/Payment/PaymentSuccess";
 import PaymentCancelled from "../pages/Payment/PaymentCancelled";
 import Cart from "../pages/Payment/Cart"; 
-import Contact from "../components/home/ContactForm";
+
 import BlogPage from "../components/Blog/BlogPage";
+
 import Login from "../pages/User/Login";
 import Register from "../pages/User/Register";
 import ForgotPassword from "../pages/User/ForgotPassword";
 import ResetPassword from "../pages/User/ResetPassword";
-import NewsletterConfirmed from "../pages/User/NewsletterConfirmed";
-import NewsletterInboxCheck from "../pages/User/NewsletterInboxCheck";
+
 import Profile from "../pages/User/Profile";
+
 import NotFoundPage from "../pages/errors/NotFoundPage";
 
 const routes = createRoutesFromElements(
   <Route path="/" element={<Boilerplate />}>
     {/* Home page */}
     <Route index element={<Home />} />
-
-    {/* Pricing and payments */}
+    <Route path="/about" element={<About />} />
+    <Route path="/testimonials" element={<Testimonials />} />
     <Route path="/pricing" element={<Pricing />} />
+    <Route path="/contact" element={<Contact />} />
+
+    {/* Brevo */}
+    {/* Newsletter */}
+    <Route path="/newsletter/confirm" element={<NewsletterConfirmed />} />
+    <Route path="/newsletter/check-inbox" element={<NewsletterInboxCheck />} />
+    {/* Pricing and payments */}
     <Route path="/payment-success" element={<PaymentSuccess />} />
     <Route path="/payment-cancelled" element={<PaymentCancelled />} />
     <Route path="/cart" element={<Cart />} /> 
-
-    {/* Contact */}
-    <Route path="/about" element={<About />} />
-    <Route path="/contact" element={<Contact />} />
 
     {/* Blog */}
     <Route path="/blog" element={<BlogPage />} />
@@ -43,10 +53,6 @@ const routes = createRoutesFromElements(
     <Route path="/register" element={<Register />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />      
     <Route path="/reset-password/:token" element={<ResetPassword />} /> 
-
-    {/* Newsletter */}
-    <Route path="/newsletter/confirm" element={<NewsletterConfirmed />} />
-    <Route path="/newsletter/check-inbox" element={<NewsletterInboxCheck />} />
 
     {/* Profile */}
     <Route path="/profile" element={<Profile />} />

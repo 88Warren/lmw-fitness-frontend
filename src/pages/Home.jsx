@@ -38,7 +38,7 @@ return (
       <WaveDivider fill={theme === 'dark' ? dividerFillDark2 : dividerFillLight} />
       <Testimonials id="Testimonials" />
       <WaveDivider fill={theme === 'dark' ? dividerFillDark2 : dividerFillLight} flip />
-      <Pricing id="Packages" />
+      <Pricing id="Pricing" />
       <WaveDivider fill={theme === 'dark' ? dividerFillDark : dividerFillLight2} />
       <ContactForm id="Contact" />
     </>

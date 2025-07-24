@@ -209,9 +209,9 @@ useEffect(() => {
 
               {/* Pricing Link */}
               <NavLink
-                to="/packages" 
-                className={({ isActive }) => getNavLinkClasses(isActive, "Packages")}
-                onClick={(e) => handleNavLinkClick(e, "Packages", "packages")}
+                to="/pricing" 
+                className={({ isActive }) => getNavLinkClasses(isActive, "Pricing")}
+                onClick={(e) => handleNavLinkClick(e, "Pricing", "pricing")}
               >
                 Packages
               </NavLink>
@@ -367,11 +367,11 @@ useEffect(() => {
           </NavLink>
           {/* Pricing Link for Mobile */}
           <NavLink
-            to="/packages"
+            to="/pricing"
             className={({ isActive }) =>
-              `text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses(isActive, "Packages")}`
+              `text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses(isActive, "Pricing")}`
             }
-            onClick={(e) => handleNavLinkClick(e, "Packages", "packages")}
+            onClick={(e) => handleNavLinkClick(e, "Pricing", "pricing")}
           >
             Packages
           </NavLink>

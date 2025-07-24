@@ -133,7 +133,7 @@ const Testimonials = () => {
           className="text-center mt-12"
         >
           <HashLink 
-            to="/#Packages"
+            to="/#Pricing"
             className="btn-primary text-black mt-8 md:mt-10 w-full sm:w-auto dark:bg-yellow-400 dark:text-white"
           >
             Start Your Journey Today
