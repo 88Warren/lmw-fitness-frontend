@@ -9,10 +9,10 @@ const Footer = () => {
   return (
     <>
       <div>
-        <hr className="h-0.5 border-0 bg-brightYellow"></hr>
+        <hr className="h-0.5 border-0 bg-limeGreen"></hr>
       </div>
 
-      <footer className="bg-logoGray p-6 lg:py-8 text-black">
+      <footer className="bg-customGray p-6 lg:py-8 text-black">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
 
@@ -23,7 +23,7 @@ const Footer = () => {
                     <span className="l">L</span>
                     <span className="m">M</span>
                     <span className="w">W</span>
-                    <span className="fitness dark:text-white">fitness</span>
+                    <span className="fitness">fitness</span>
                 </h1>
               </Link>
             </div>
@@ -40,11 +40,11 @@ const Footer = () => {
               <hr className="h-0.25 border-0 bg-black"></hr>
             </div>
 
-            <div className="flex flex-col md:flex-row justify-between items-center text-xs">
-            <span>© {new Date().getFullYear()} LMW Fitness</span>
+            <div className="flex flex-col sm:flex-row justify-between items-center text-xs">
+              <span className="mb-2 sm:mb-0">© {new Date().getFullYear()} LMW Fitness</span>
 
             {/* Social Icons */}
-            <div className="hidden md:flex space-x-4 justify-center items-center">
+            <div className="flex space-x-4">
               <a href="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" rel="noopener noreferrer" className="text-limeGreen socials" aria-label="Facebook">
               <FaFacebook className="text-xl" />
               </a>

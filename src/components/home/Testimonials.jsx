@@ -1,6 +1,6 @@
 import { HashLink } from "react-router-hash-link";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const Testimonials = () => {
   const testimonials = [
@@ -22,13 +22,65 @@ const Testimonials = () => {
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const textRefs = useRef({});
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [testimonials.length]);
+    if (!expanded) {
+      const interval = setInterval(() => {
+        setExpanded(false); 
+        setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+      }, 7000); 
+      return () => clearInterval(interval);
+    }
+  }, [testimonials.length, expanded]);
+
+  useEffect(() => {
+    setExpanded(false);
+    }, [currentSlide]);
+
+    useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile(); 
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => { 
+      const checkOverflow = () => {
+        if (!isMobile) {
+          setIsOverflowing(false);
+          return;
+        }
+
+        const el = textRefs.current[currentSlide]; 
+        if (el) { 
+          const originalClass = el.className;
+          el.className = el.className.replace('line-clamp-5', '');
+          
+          const containerHeight = 128; 
+          const isCurrentlyOverflowing = el.scrollHeight > containerHeight;
+          
+          setIsOverflowing(isCurrentlyOverflowing);
+          
+          el.className = originalClass;
+        } else {
+          setIsOverflowing(false); 
+        }
+      };
+
+    const timeoutId = setTimeout(checkOverflow, 50); 
+    window.addEventListener("resize", checkOverflow);
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", checkOverflow);
+    };
+  }, [currentSlide, expanded, testimonials.length, isMobile]);
 
   return (
     <section id="Testimonials" className="py-20 px-6 bg-customGray">
@@ -55,7 +107,7 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className="relative"
         >
-          <div className="relative h-[600px] md:h-[300px] rounded-2xl overflow-hidden dark:text-white">
+          <div className="relative w-full h-[450px] md:h-[300px] rounded-2xl overflow-hidden">
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
@@ -68,20 +120,43 @@ const Testimonials = () => {
                 transition={{ duration: 0.5 }}
                 className="absolute inset-0 bg-customWhite backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl"
               >
-                <div className="relative h-full">
+                <div className="flex flex-col justify-between h-full relative">
                   <span className="absolute -top-4 -left-4 text-6xl md:text-7xl text-limeGreen opacity-50">&ldquo;</span>
-                  <p className="text-lg md:text-xl text-customGray leading-relaxed relative z-10 dark:text-white">
-                    {testimonial.text}
+                  <div 
+                    className={`relative z-10 transition-all duration-300 ${
+                      expanded
+                        ? "md:max-h-none md:overflow-visible max-h-48 overflow-y-auto overflow-x-hidden pr-2"
+                        : "md:max-h-none md:overflow-visible max-h-32 overflow-hidden"
+                    }`}
+                  >
+                    <p
+                      ref={(el) => {
+                        textRefs.current[index] = el;
+                      }}
+                     className={`text-md md:text-lg text-customGray leading-relaxed ${
+                        expanded ? "" : "md:line-clamp-none line-clamp-5"
+                      }`}
+                      >
+                      {testimonial.text}
+                    </p>
                     <span className="absolute -bottom-4 -right-4 text-6xl md:text-7xl text-hotPink opacity-50">&rdquo;</span>
-                  </p>
+                  </div>
+
+                  {index === currentSlide && isOverflowing && isMobile && (
+                    <button
+                      onClick={() => setExpanded((prev) => !prev)}
+                      className="mt-4 text-brightYellow underline text-sm"
+                    >
+                      {expanded ? "Show Less" : "Read More"}
+                    </button>
+                  )}
                   
-                  
-                  <div className="absolute bottom-0 right-0 text-right">
-                    <p className="text-xl text-customGray font-higherJump dark:text-white">
+                  <div className="text-right mt-8">
+                    <p className="text-sm md:text-lg text-customGray font-higherJump">
                       <span className="m pr-1">{testimonial.author[0]}</span>
                       {testimonial.author.slice(1)}
                     </p>
-                    <p className="text-sm text-customWhite mt-2 dark:text-white">{testimonial.program}</p>
+                    <p className="text-sm text-customWhite mt-2">{testimonial.program}</p>
                   </div>
                 </div>
               </motion.div>
@@ -134,7 +209,7 @@ const Testimonials = () => {
         >
           <HashLink 
             to="/#Pricing"
-            className="btn-primary text-black mt-8 md:mt-10 w-full sm:w-auto dark:bg-yellow-400 dark:text-white"
+            className="btn-primary text-black mt-8 md:mt-10 w-full sm:w-auto"
           >
             Start Your Journey Today
           </HashLink>

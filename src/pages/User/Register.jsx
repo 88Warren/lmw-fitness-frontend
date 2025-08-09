@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { InputField } from "../../controllers/forms/formFields";
 import useAuth from "../../hooks/useAuth";
@@ -11,14 +11,18 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);   
-  const { register, isLoggedIn } = useAuth();
+  const { register, isLoggedIn, loadingAuth, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/profile");
+    if (!loadingAuth && isLoggedIn) {
+      if (user && user.mustChangePassword) {
+        navigate("/change-password-first-login");
+      } else {
+        navigate("/profile");
+      }
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate, loadingAuth, user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,18 +55,22 @@ const RegisterPage = () => {
     if (result.success) {
       showToast("success", result.message);
       setTimeout(() => {
-        navigate("/profile");
+        if (result.user && result.user.mustChangePassword) {
+          navigate("/change-password-first-login");
+        } else {
+          navigate("/profile");
+        }
       }, 1500);
     } else {
       showToast("error", `${result.error}`);
     }
-    setIsSubmitting(false); 
+    setIsSubmitting(false);
   };
 
-  if (isLoggedIn) {
+  if (loadingAuth || isLoggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-customWhite p-4">
-        <p className="text-xl font-titillium text-customGray">Redirecting...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
+        <p className="text-xl font-titillium text-brightYellow">Redirecting...</p>
       </div>
     );
   }

@@ -15,10 +15,14 @@ import Cart from "../pages/Payment/Cart";
 
 import BlogPage from "../components/Blog/BlogPage";
 
+import BeginnerWorkoutPage from "../pages/Workouts/Beginner";
+import AdvancedWorkoutPage from "../pages/Workouts/Advanced";
+
 import Login from "../pages/User/Login";
 import Register from "../pages/User/Register";
 import ForgotPassword from "../pages/User/ForgotPassword";
 import ResetPassword from "../pages/User/ResetPassword";
+import ChangePasswordFirstLoginPage from "../pages/User/ChangePasswordFirstLogin";
 
 import Profile from "../pages/User/Profile";
 
@@ -48,11 +52,17 @@ const routes = createRoutesFromElements(
     <Route path="/blog/create" element={<BlogPage />} /> 
     <Route path="/blog/edit" element={<BlogPage />} /> 
 
+    <Route path="/workouts/beginner-program" element={<BeginnerWorkoutPage />} />
+    <Route path="/workouts/beginner-program/day/:dayNumber" element={<BeginnerWorkoutPage />} />
+    <Route path="/workouts/advanced-program" element={<AdvancedWorkoutPage />} />
+    <Route path="/workouts/advanced-program/day/:dayNumber" element={<AdvancedWorkoutPage />} />
+
     {/* Authentication */}
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />      
     <Route path="/reset-password/:token" element={<ResetPassword />} /> 
+    <Route path="/change-password-first-login" element={<ChangePasswordFirstLoginPage />} />
 
     {/* Profile */}
     <Route path="/profile" element={<Profile />} />

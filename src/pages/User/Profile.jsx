@@ -1,27 +1,27 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import useAuth from "../../hooks/useAuth"; 
+import React, { useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom'; 
+import useAuth from "../../hooks/useAuth";
 
 const ProfilePage = () => {
-  const { user, isLoggedIn, logout } = useAuth();
+  const { user, isLoggedIn, loadingAuth } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // console.log("ProfilePage useEffect: isLoggedIn =", isLoggedIn);
-    if (!isLoggedIn) {
-      // console.log("ProfilePage: Not logged in, redirecting to /login");
+    if (!loadingAuth && !isLoggedIn) {
       navigate("/login");
+    } else if (user && user.mustChangePassword) {
+      navigate("/change-password-first-login");
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate, loadingAuth]);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+useEffect(() => {
+  // Handle mustChangePassword redirect separately
+  if (!loadingAuth && isLoggedIn && user?.mustChangePassword) {
+    navigate("/change-password-first-login");
+  }
+}, [loadingAuth, isLoggedIn, user, navigate]);
 
-  // console.log("ProfilePage Render: isLoggedIn =", isLoggedIn, "user =", user);
-
-  if (!isLoggedIn || !user) {
+  if (loadingAuth || !isLoggedIn || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
         <p className="text-xl font-titillium text-brightYellow">
@@ -46,13 +46,30 @@ const ProfilePage = () => {
             <span className="font-bold text-brightYellow">Role:</span>{" "}
             {user.role}
           </p>
+          {/* Link to programs/workouts */}
+          <div className="mt-6">
+            <h3 className="text-xl font-bold text-limeGreen mb-3">Your Programs</h3>
+            {user.role === 'admin' ? (
+              <div className="space-y-2">
+                <Link to="/workouts/beginner-program" className="block btn-primary bg-limeGreen hover:bg-green-600">
+                  30-Day Beginner Programme
+                </Link>
+                <Link to="/workouts/advanced-program" className="block btn-primary bg-hotPink hover:bg-pink-600">
+                  30-Day Advanced Programme
+                </Link>
+              </div>
+            ) : user.role === 'member' ? (
+              <div className="space-y-2">
+                <Link to="/workouts/beginner-program" className="block btn-primary bg-limeGreen hover:bg-green-600">
+                  30-Day Beginner Programme
+                </Link>
+                {/* Add more programs here dynamically from backend */}
+              </div>
+            ) : (
+              <p className="text-logoGray">No programs purchased yet.</p>
+            )}
+          </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="btn-primary w-full mt-8 bg-red-500 hover:bg-red-600"
-        >
-          Logout
-        </button>
       </div>
     </div>
   );

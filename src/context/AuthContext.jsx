@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useCallback } from "react";
+import { createContext, useState, useEffect, useCallback, useContext } from "react";
 import { BACKEND_URL } from "../utils/config";
 import axios from "axios";
 import { showToast } from '../utils/toastUtil';
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       const { token, user } = response.data;
       storeAuthData(token, user);
       showToast("success", "Login successful!");
-      return { success: true, message: "Login successful!" };
+      return { success: true, message: "Login successful!", user: user };
     } catch (error) {
       console.error(
         "Login failed:",
@@ -92,6 +92,7 @@ export const AuthProvider = ({ children }) => {
       return {
         success: true,
         message: "Registration successful! You are now logged in.",
+        user: user,
       };
     } catch (error) {
       console.error(
@@ -111,6 +112,38 @@ export const AuthProvider = ({ children }) => {
     return { success: true, message: "Logged out successfully." };
   };
 
+  const changePassword = async (oldPassword, newPassword, confirmNewPassword) => {
+    try {
+      if (!token) {
+        showToast("error", "Not authenticated. Please log in.");
+        return { success: false, error: "Not authenticated." };
+      }
+
+      const response = await axios.put(`${BACKEND_URL}/api/change-password-first-login`, { 
+        oldPassword,
+        newPassword,
+        confirmNewPassword,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const updatedUser = { ...user, mustChangePassword: false };
+      storeAuthData(token, updatedUser); 
+      showToast("success", response.data.message);
+      return { success: true, message: response.data.message };
+    } catch (error) {
+      console.error(
+        "Change password failed:",
+        error.response?.data?.error || error.message,
+      );
+      const errorMessage = error.response?.data?.error || "Failed to change password.";
+      showToast("error", `${errorMessage}`);
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const authContextValue = {
     user,
     token,
@@ -120,6 +153,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    changePassword,
   };
 
   if (loading) {

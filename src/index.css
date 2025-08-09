@@ -1,6 +1,4 @@
 @import "tailwindcss";
-
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 @font-face {
   font-family: "higherJump";
   font-display: swap;
@@ -20,11 +18,6 @@
     --color-customGray: #2a3241;
     --color-logoGray: #cecece;
     --color-customWhite: #f3f4f6;
-
-     /* Dark mode specific colors */
-    --color-dark-customGray: #cecece; 
-    --color-dark-logoGray: #4b5563; 
-    --color-dark-white: #fff; 
 
     --font-higherJump: higherJump, sans-serif;
     --font-westerners: westerners, cursive;

@@ -99,7 +99,7 @@ const Pricing = () => {
               <p className="text-xl font-bold text-limeGreen mb-6">
                 £50 <span className="text-base font-normal">One-off fee</span>
               </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow dark:text-white">
+              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
                 <li>
                   <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
                   Starting fitness test
@@ -126,7 +126,7 @@ const Pricing = () => {
                 </li>
               </ul>
               <button 
-                className="btn-subscribe w-full py-3 mt-auto dark:bg-yellow-400 dark:text-white"
+                className="btn-subscribe w-full py-3 mt-auto"
                 onClick={() => addItemToCart({ name: 'Beginner 30-day programme', priceId: `${BEGINNER_PRICE_ID}`, price: 50 })}
                 >
                   Add to Cart
@@ -150,7 +150,7 @@ const Pricing = () => {
               <p className="text-xl font-bold text-limeGreen mb-6">
                 £65 <span className="text-base font-normal">One-off fee</span>
               </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow dark:text-white">
+              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
                 <li>
                   <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
                   Starting fitness test
@@ -177,7 +177,7 @@ const Pricing = () => {
                 </li>
               </ul>
               <button 
-                className="btn-subscribe w-full py-3 mt-auto dark:bg-yellow-400 dark:text-white"
+                className="btn-subscribe w-full py-3 mt-auto"
                 onClick={() => addItemToCart({ name: 'Advanced 30-day programme', priceId: `${ADVANCED_PRICE_ID}`, price: 65 })}
               >
                 Add to Cart
@@ -198,7 +198,7 @@ const Pricing = () => {
               <p className="text-xl font-bold text-limeGreen mb-6">
                 £250 <span className="text-base font-normal">per month</span>
               </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow dark:text-white">
+              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
                 <li>
                   <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
                   Weekly Check-ins
@@ -225,7 +225,7 @@ const Pricing = () => {
                 </li>
               </ul>
               <button 
-                className="btn-subscribe w-full py-3 mt-auto dark:bg-yellow-400 dark:text-white"
+                className="btn-subscribe w-full py-3 mt-auto"
                 onClick={() => addItemToCart({ name: 'Tailored Coaching Plan', priceId: `${TAILORED_COACHING_PRICE_ID}`, price: 250 })}
               >
                 Add to Cart
@@ -248,12 +248,12 @@ const Pricing = () => {
             {/* Flex container for cards */}
             <div className="flex flex-col md:flex-row justify-center gap-10">
               {/* Blog Section */}
-              <div className="bg-white md:w-1/2 p-8 rounded-xl text-gray-700 shadow-lg flex flex-col justify-between dark:text-white dark:border-3 dark:border-white">
+              <div className="bg-white md:w-1/2 p-8 rounded-xl text-gray-700 shadow-lg flex flex-col justify-between">
                 <div>
-                  <h4 className="text-xl font-bold text-gray-700 mb-4 dark:text-white">
+                  <h4 className="text-xl font-bold text-gray-700 mb-4">
                     Fortnightly Fitness & Nutrition Blog (Free)
                   </h4>
-                  <p className="text-lg text-gray-700 mb-6 dark:text-white">
+                  <p className="text-lg text-gray-700 mb-6">
                     Get expert tips straight to your inbox:
                   </p>
                   <ul className="text-lg space-y-3 mb-8">
@@ -308,7 +308,7 @@ const Pricing = () => {
                         {/* Container for the email input */}
                           <div className="flex justify-center mb-4"> 
                             <input
-                              className="flex-1 p-3 rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-limeGreen focus:border-transparent dark:focus:ring-limeGreen"
+                              className="flex-1 p-3 rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-limeGreen focus:border-transparent"
                               type="text"
                               id="EMAIL"
                               name="EMAIL"
@@ -324,7 +324,7 @@ const Pricing = () => {
                           {/* Container for the button */}
                           <div className="flex justify-center">
                             <button
-                              className="btn-primary w-full py-3 flex justify-center items-center dark:bg-yellow-400 dark:text-white"
+                              className="btn-primary w-full py-3 flex justify-center items-center"
                               form="sib-form"
                               type="submit"
                             >
@@ -345,12 +345,12 @@ const Pricing = () => {
               </div>
 
               {/* Standalone Package */}
-              <div className="bg-white md:w-1/2 p-8 rounded-xl text-customGray shadow-lg flex flex-col justify-between dark:border-3 dark:border-white dark:text-white">
+              <div className="bg-white md:w-1/2 p-8 rounded-xl text-customGray shadow-lg flex flex-col justify-between">
                 <div>
-                  <h4 className="text-xl font-bold text-customGray mb-4 dark:text-white">
+                  <h4 className="text-xl font-bold text-customGray mb-4">
                     Ultimate Habit & Mindset Package (£25)
                   </h4>
-                  <p className="text-lg text-customGray mb-6 dark:text-white">
+                  <p className="text-lg text-customGray mb-6">
                     Get instant access to:
                   </p>
                   <ul className="text-lg space-y-3 mb-8">
@@ -379,7 +379,7 @@ const Pricing = () => {
                 </div>
                 <div className="flex justify-center mt-auto">
                   <button 
-                    className="btn-primary w-full py-3 dark:bg-yellow-400 dark:text-white"
+                    className="btn-primary w-full py-3"
                     onClick={() => addItemToCart({ name: 'Ultimate Habit & Mindset Package', priceId: `${ULTIMATE_MINDSET_PACKAGE_PRICE_ID}`, price: 25 })} 
                   >
                     Add to Cart

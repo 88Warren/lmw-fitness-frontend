@@ -91,7 +91,7 @@ const NewsletterSignup = () => {
               <div className="flex justify-center mx-2 md:mx-0">
                 {/* Submit button */}
                 <button
-                  className="btn-subscribe w-full flex justify-center items-center dark:bg-yellow-400 dark:text-white"
+                  className="btn-subscribe w-full flex justify-center items-center"
                   form="sib-form"
                   type="submit"
                 >

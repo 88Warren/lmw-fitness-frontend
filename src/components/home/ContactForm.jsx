@@ -124,7 +124,7 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="Contact" className="min-h-screen py-20 bg-black">
+    <section id="Contact" className="min-h-screen py-20 bg-logoGray">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header Section */}
         <motion.div 
@@ -213,7 +213,7 @@ const ContactForm = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              className="btn-full-colour w-full dark:bg-yellow-400 dark:text-white"
+              className="btn-full-colour w-full"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">

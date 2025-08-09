@@ -10,15 +10,18 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false); 
-  const { login, isLoggedIn } = useAuth();
+  const { login, isLoggedIn, loadingAuth, user } = useAuth();
   const navigate = useNavigate();  
 
-  // Redirect if already logged in
   useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/profile");
+    if (!loadingAuth && isLoggedIn) {
+      if (user && user.mustChangePassword) {
+        navigate("/change-password-first-login");
+      } else {
+        navigate("/profile");
+      }
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate, loadingAuth, user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +38,11 @@ const LoginPage = () => {
     if (result.success) {
       showToast("success", result.message);
       setTimeout(() => {
-        navigate("/profile");
+        if (result.user && result.user.mustChangePassword) {
+          navigate("/change-password-first-login");
+        } else {
+          navigate("/profile");
+        }
       }, 1500);
     } else {
       showToast("error", `${result.error}`);
@@ -43,10 +50,10 @@ const LoginPage = () => {
     setIsSubmitting(false);
   };
 
-  if (isLoggedIn) {
+  if (loadingAuth || isLoggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-        <p className="text-xl font-titillium text-gray-700">Redirecting...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
+        <p className="text-xl font-titillium text-brightYellow">Redirecting...</p>
       </div>
     );
   }
@@ -90,7 +97,7 @@ const LoginPage = () => {
               </Link>
             </div>
 
-            <button type="submit" className="btn-full-colour w-full dark:bg-yellow-400" disabled={isSubmitting}>
+            <button type="submit" className="btn-full-colour w-full" disabled={isSubmitting}>
               {isSubmitting ? "Logging In..." : "Login"}
             </button>
           </form>

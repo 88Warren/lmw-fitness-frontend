@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const About = () => {
   return (
-    <section id="About" className="py-20 px-6 bg-white dark:bg-black">
+    <section id="About" className="py-20 px-6 bg-white">
       <div className="max-w-6xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -12,7 +12,7 @@ const About = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-higherJump text-black mb-8 leading-loose dark:text-white">
+          <h2 className="text-4xl md:text-5xl font-higherJump text-black mb-8 leading-loose">
             <span className="w">W</span>
             elco
             <span className="m">M</span>e to
@@ -22,7 +22,7 @@ const About = () => {
             ore <span className="w">W</span>
             ith fitness!
           </h2>
-          <p className="text-lg text-customGray max-w-3xl mx-auto mb-8 dark:text-white">
+          <p className="text-lg text-customGray max-w-3xl mx-auto mb-8">
             Hi, I&apos;m Laura, and I&apos;m passionate about helping you achieve your
             health and fitness goals. Whether you want to feel stronger, move
             better or regain confidence, 
@@ -41,12 +41,12 @@ const About = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="p-8 bg-white border border-brightYellow rounded-xl mb-16 dark:border-2 dark:border-white"
+          className="p-8 bg-white border border-brightYellow rounded-xl mb-16"
         >
-          <h3 className="text-3xl font-bold text-customGray mb-6 text-center dark:text-white">
+          <h3 className="text-3xl font-bold text-customGray mb-6 text-center">
             My Mission
           </h3>
-          <p className="text-lg text-customGray leading-relaxed dark:text-white">
+          <p className="text-lg text-customGray leading-relaxed">
             My motto is:
             <span className="font-bold text-limeGreen text-justify">
               {" "}
@@ -68,17 +68,17 @@ const About = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
             viewport={{ once: true }}
-            className="p-8 bg-white border border-brightYellow rounded-xl dark:border-2 dark:border-white"
+            className="p-8 bg-white border border-brightYellow rounded-xl"
           >
-            <h4 className="text-2xl font-bold text-customGray text-center mb-4 dark:text-white">
+            <h4 className="text-2xl font-bold text-customGray text-center mb-4">
               Expertise & Experience
             </h4>
-            <p className="text-lg text-customGray text-justify leading-relaxed mb-4 dark:text-white">
+            <p className="text-lg text-customGray text-justify leading-relaxed mb-4">
               As a qualified personal trainer and an ex-British Army physical
               training instructor, I have years of hands-on coaching
               experience and I know what works.</p>
               <br className="hidden md:block" />
-             <p className="text-lg text-customGray text-justify leading-relaxed dark:text-white"> 
+             <p className="text-lg text-customGray text-justify leading-relaxed"> 
               I&apos;ve tested countless fitness methods and created proven, time-efficient programs to
               deliver real results. And of course, I have the relevant
               certificates and qualifications to back this up.
@@ -90,12 +90,12 @@ const About = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
             viewport={{ once: true }}
-            className="p-8 bg-white border border-brightYellow rounded-xl dark:border-2 dark:border-white" 
+            className="p-8 bg-white border border-brightYellow rounded-xl" 
           >
-            <h4 className="text-2xl font-bold text-customGray text-center mb-4 dark:text-white">
+            <h4 className="text-2xl font-bold text-customGray text-center mb-4">
               Flexible & Accessible
             </h4>
-            <p className="text-lg text-customGray text-justify leading-relaxed dark:text-white">
+            <p className="text-lg text-customGray text-justify leading-relaxed">
               My 30-Day Fat Loss Program is designed for people with busy
               lifestyles. Work out at home or in the gym – you just need
               commitment and a positive mindset! I offer quality, effective
@@ -112,7 +112,7 @@ const About = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-white p-12 rounded-2xl shadow-2xl transform transition-all duration-300 hover:shadow-3xl dark:border-white dark:border-2"
+          className="bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-white p-12 rounded-2xl shadow-2xl transform transition-all duration-300 hover:shadow-3xl"
         >
           <h3 className="text-3xl font-bold mb-6 text-center">
             Start Your Journey Today!
@@ -127,7 +127,7 @@ const About = () => {
           <div className="text-center">
             <HashLink 
               to="/#Pricing"
-              className="btn-primary px-6 md:px-8 py-3 text-lg border border-customGray/30 dark:bg-yellow-400 dark:text-white"
+              className="btn-primary px-6 md:px-8 py-3 text-lg border border-customGray/30"
             >
               Get Started Today
             </HashLink>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   FaBars,
@@ -82,7 +82,7 @@ useEffect(() => {
   };
 
   const inactiveLinkClasses = "font-titillium py-1 px-4 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray transition-colors duration-300";
-  const activeLinkClasses = "font-titillium font-bold py-1 px-4 text-lg md:text-xl text-white rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink dark:text-white dark:bg-gradient-to-r dark:from-limeGreen dark:via-brightYellow dark:to-hotPink transition-colors duration-300";
+  const activeLinkClasses = "font-titillium font-bold py-1 px-4 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink transition-colors duration-300";
 
   const getNavLinkClasses = (isNavLinkActive, sectionId = null) => {
     const isOnHomePage = location.pathname === "/";
@@ -112,15 +112,15 @@ useEffect(() => {
     <>
       {/* Navbar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 h-14 flex items-center transition-all duration-300 ${
-        isScrolled ? 'bg-customGray bg-opacity-80' : ''
+        isScrolled ? 'bg-brightYellow opacity-90 text-black' : ''
       }`}>
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10">
         
         {/* Mobile Menu */}
-        <div className="lg:hidden flex justify-between items-center w-full">
+        <div className="xl:hidden flex justify-between items-center w-full">
           {/* Hamburger menu icon  */}
           <button
-            className="lg:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
+            className="xl:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
             onClick={() => setIsMenuOpen((prev) => !prev)}
           >
             {isMenuOpen ? (
@@ -143,7 +143,7 @@ useEffect(() => {
               <span className="l pr-1">L</span>
               <span className="m pr-1">M</span>
               <span className="w pr-2">W</span>
-              <span className="fitness dark:text-white">fitness</span>
+              <span className="fitness">fitness</span>
             </h1>
           </NavLink>
 
@@ -159,7 +159,7 @@ useEffect(() => {
           </div>
 
           {/* Web Menu */}
-          <div className="hidden lg:flex items-center justify-between w-full px-4">
+          <div className="hidden xl:flex items-center justify-between w-full px-4">
             {/* Left: Navigation Links */}
             <div className="flex items-center space-x-4">
               {/* Logo */}
@@ -175,7 +175,7 @@ useEffect(() => {
                   <span className="l pr-1">L</span>
                   <span className="m pr-1">M</span>
                   <span className="w pr-2">W</span>
-                  <span className="fitness pt-12 dark:text-white">fitness</span>
+                  <span className="fitness pt-12">fitness</span>
                 </h1>
               </NavLink>
 
@@ -231,16 +231,16 @@ useEffect(() => {
               </NavLink>
             </div>
 
-            {/* Center: User Links */}
-            {/* <div className="flex items-center justify-end">
+            {/* Right: User Links & Socials */}
+            <div className="flex items-center space-x-4">
               {!isLoggedIn ? (
                 <>
                   <NavLink
                     to="/login"
                     className={({ isActive }) =>
                       isActive
-                        ? `${activeLinkClasses} mr-2`
-                        : `${inactiveLinkClasses} mr-2`
+                        ? `${activeLinkClasses}`
+                        : `${inactiveLinkClasses}`
                     }
                     onClick={() => setIsMenuOpen(false)}
                     aria-label="Login"
@@ -272,38 +272,42 @@ useEffect(() => {
                   >
                     Profile
                   </NavLink>
+                  <button
+                    onClick={handleLogout}
+                    className="btn-cancel font-bold"
+                  >
+                    Logout
+                  </button>
                 </>
               )}
-            </div> */}
 
-            {/* Right: Social Icons */}
-            <div className="flex items-center space-x-4">
-              <NavLink
-                to="https://www.facebook.com/profile.php?id=61573194721199"
-                target="_blank"
-                className="text-limeGreen socials"
-                aria-label="Facebook"
-              >
-                <FaFacebook className="text-xl md:text-2xl" />
-              </NavLink>
+            {/* Social Icons */}
+            <NavLink
+              to="https://www.facebook.com/profile.php?id=61573194721199"
+              target="_blank"
+              className="text-limeGreen socials"
+              aria-label="Facebook"
+            >
+              <FaFacebook className="text-xl md:text-2xl" />
+            </NavLink>
 
-              <NavLink
-                to="https://www.instagram.com/lmw__fitness/"
-                target="_blank"
-                className="text-brightYellow socials"
-                aria-label="Instagram"
-              >
-                <FaInstagram className="text-xl md:text-2xl" />
-              </NavLink>
+            <NavLink
+              to="https://www.instagram.com/lmw__fitness/"
+              target="_blank"
+              className="text-brightYellow socials"
+              aria-label="Instagram"
+            >
+              <FaInstagram className="text-xl md:text-2xl" />
+            </NavLink>
 
-              <NavLink
-                to="https://www.tiktok.com/en/"
-                target="_blank"
-                className="text-hotPink socials"
-                aria-label="TikTok"
-              >
-                <FaTiktok className="text-xl md:text-2xl" />
-              </NavLink>
+            <NavLink
+              to="https://www.tiktok.com/en/"
+              target="_blank"
+              className="text-hotPink socials"
+              aria-label="TikTok"
+            >
+              <FaTiktok className="text-xl md:text-2xl" />
+            </NavLink>
 
               {/* Cart Icon for Desktop */}
               <NavLink to="/cart" className="relative text-white hover:text-brightYellow transition-colors pl-4">
@@ -314,15 +318,6 @@ useEffect(() => {
                   </span>
                 )}
               </NavLink>
-
-              {isLoggedIn && (
-                <button
-                  onClick={handleLogout}
-                  className="btn-cancel w-2/3 font-bold"
-                >
-                  Logout
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -399,7 +394,7 @@ useEffect(() => {
           {/* Conditional Login/Logout/Register Links for Mobile */}
           {!isLoggedIn ? (
             <>
-              {/* <NavLink
+              <NavLink
                 to="/login"
                 className={({ isActive }) =>
                   isActive
@@ -409,9 +404,8 @@ useEffect(() => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Login
-              </NavLink> */}
-              {/* NEW: Register Link for Mobile */}
-              {/* <NavLink
+              </NavLink>
+              <NavLink
                 to="/register"
                 className={({ isActive }) =>
                   isActive
@@ -421,11 +415,11 @@ useEffect(() => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Register
-              </NavLink> */}
+              </NavLink>
             </>
           ) : (
             <>
-              {/* <NavLink
+              <NavLink
                 to="/profile"
                 className={({ isActive }) =>
                   isActive
@@ -435,7 +429,7 @@ useEffect(() => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Profile
-              </NavLink> */}
+              </NavLink>
               <button
                 onClick={handleLogout}
                 className="btn-cancel text-lg font-titillium py-2 w-3/4 text-center rounded font-bold"
