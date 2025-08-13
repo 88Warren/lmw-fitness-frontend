@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { InputField } from "../../controllers/forms/formFields";
 import useAuth from '../../hooks/useAuth';
 import { showToast } from '../../utils/toastUtil';
 import { ToastContainer } from 'react-toastify';
+import { BACKEND_URL } from '../../utils/config';
+import axios from 'axios';
 
 const ChangePasswordFirstLoginPage = () => {
   console.log("ChangePasswordFirstLoginPage rendering"); // Debug log
-  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, isLoggedIn, loading, changePassword, logout } = useAuth();
+  const { user, isLoggedIn, loading, logout, token } = useAuth();
   const navigate = useNavigate();
 
-  console.log("User state:", { user, isLoggedIn, loading }); // Debug log
+  console.log("User state:", { user, isLoggedIn, loading, token }); // Debug log
 
   useEffect(() => {
-    if (!loading && !isLoggedIn) {
-      navigate("/login");
-    }
     if (!loading && isLoggedIn && user && !user.mustChangePassword) {
       navigate("/profile");
     }
@@ -31,7 +28,7 @@ const ChangePasswordFirstLoginPage = () => {
     console.log("Form submitted, setting isSubmitting to true"); // Debug log
     setIsSubmitting(true);
 
-    if (!oldPassword || !newPassword || !confirmNewPassword) {
+    if (!newPassword || !confirmNewPassword) {
       console.log("Validation failed: missing fields"); // Debug log
       showToast("warn", "Please fill in all fields.");
       setIsSubmitting(false);
@@ -71,19 +68,44 @@ const ChangePasswordFirstLoginPage = () => {
       return;
     }
 
-    console.log("About to call changePassword function"); // Debug log
-    const result = await changePassword(oldPassword, newPassword, confirmNewPassword);
-    console.log("changePassword result:", result); // Debug log
+    try {
+      console.log("About to call set-first-time-password endpoint"); // Debug log
+      console.log("Token from context:", token); // Debug log
+      
+      if (!token) {
+        showToast("error", "Authentication token not found. Please log in again.");
+        setIsSubmitting(false);
+        return;
+      }
 
-    if (result.success) {
-      showToast("success", result.message);
-      console.log("Result:", result);
-      setTimeout(() => {
-        window.location.href = "/profile"; 
-      }, 1500);
-    } else {
-      showToast("error", `${result.error}`);
+      const response = await axios.post(
+        `${BACKEND_URL}/api/set-first-time-password`,
+        {
+          newPassword,
+          confirmNewPassword
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log("API response:", response.data); // Debug log
+      
+      if (response.data.message) {
+        showToast("success", response.data.message);
+        setTimeout(() => {
+          window.location.href = "/profile"; 
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Error setting password:", error);
+      const errorMessage = error.response?.data?.error || "Failed to set password. Please try again.";
+      showToast("error", errorMessage);
     }
+    
     setIsSubmitting(false);
   };
 
@@ -101,25 +123,12 @@ const ChangePasswordFirstLoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full border border-limeGreen text-white">
         <h2 className="text-3xl font-bold text-center text-brightYellow mb-6 font-higherJump">
-          Change Your Password
+          Set Your Password
         </h2>
         <p className="text-center text-logoGray mb-6">
-          Please set a new secure password to continue.
+          Welcome! Please set a secure password to access your workout program.
         </p>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="oldPassword" className="block text-logoGray text-sm font-titillium mb-2">Current Password</label>
-            <input
-              label="Current Password"
-              type="password"
-              name="oldPassword"
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-              placeholder="Your current password"
-              required
-              className="w-full px-4 py-2 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-limeGreen"
-            />
-          </div>
           <div>
             <label htmlFor="newPassword" className="block text-logoGray text-sm font-titillium mb-2">New Password</label>
             <input
@@ -155,7 +164,7 @@ const ChangePasswordFirstLoginPage = () => {
             disabled={isSubmitting}
             onClick={() => console.log("Button clicked!")} // Debug click handler
           >
-            {isSubmitting ? "Changing Password..." : "Change Password"}
+            {isSubmitting ? "Setting Password..." : "Set Password"}
           </button>
         </form>
         <button

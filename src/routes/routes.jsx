@@ -15,15 +15,16 @@ import Cart from "../pages/Payment/Cart";
 
 import BlogPage from "../components/Blog/BlogPage";
 
-import BeginnerWorkoutPage from "../pages/Workouts/Beginner";
-import AdvancedWorkoutPage from "../pages/Workouts/Advanced";
-
 import Login from "../pages/User/Login";
 import Register from "../pages/User/Register";
 import ForgotPassword from "../pages/User/ForgotPassword";
 import ResetPassword from "../pages/User/ResetPassword";
-import ChangePasswordFirstLoginPage from "../pages/User/ChangePasswordFirstLogin";
+import WorkoutAuthPage from '../pages/Workouts/WorkoutAuthPage';
 
+import ProtectedRoute from "../components/Shared/ProtectedRoute";
+
+import WorkoutPage from "../pages/Workouts/WorkoutPage";
+import ChangePasswordFirstLoginPage from "../pages/User/ChangePasswordFirstLogin";
 import Profile from "../pages/User/Profile";
 
 import NotFoundPage from "../pages/errors/NotFoundPage";
@@ -41,6 +42,7 @@ const routes = createRoutesFromElements(
     {/* Newsletter */}
     <Route path="/newsletter/confirm" element={<NewsletterConfirmed />} />
     <Route path="/newsletter/check-inbox" element={<NewsletterInboxCheck />} />
+
     {/* Pricing and payments */}
     <Route path="/payment-success" element={<PaymentSuccess />} />
     <Route path="/payment-cancelled" element={<PaymentCancelled />} />
@@ -49,24 +51,23 @@ const routes = createRoutesFromElements(
     {/* Blog */}
     <Route path="/blog" element={<BlogPage />} />
     <Route path="/blog/:postId" element={<BlogPage />} />
-    <Route path="/blog/create" element={<BlogPage />} /> 
-    <Route path="/blog/edit" element={<BlogPage />} /> 
 
-    <Route path="/workouts/beginner-program" element={<BeginnerWorkoutPage />} />
-    <Route path="/workouts/beginner-program/day/:dayNumber" element={<BeginnerWorkoutPage />} />
-    <Route path="/workouts/advanced-program" element={<AdvancedWorkoutPage />} />
-    <Route path="/workouts/advanced-program/day/:dayNumber" element={<AdvancedWorkoutPage />} />
-
-    {/* Authentication */}
+    {/* Authentication Routes (unprotected) */}
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />      
     <Route path="/reset-password/:token" element={<ResetPassword />} /> 
-    <Route path="/change-password-first-login" element={<ChangePasswordFirstLoginPage />} />
+    <Route path="/workout-auth" element={<WorkoutAuthPage />} />
 
-    {/* Profile */}
-    <Route path="/profile" element={<Profile />} />
-
+    {/* Protected Routes */}
+    <Route element={<ProtectedRoute />}>
+      <Route path="/change-password-first-login" element={<ChangePasswordFirstLoginPage />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/workouts/:programName/:dayNumber" element={<WorkoutPage />} />
+      <Route path="/blog/create" element={<BlogPage />} /> 
+      <Route path="/blog/edit" element={<BlogPage />} /> 
+    </Route>
+    
     {/* Error */}
     <Route path="*" element={<NotFoundPage />} />
   </Route>,

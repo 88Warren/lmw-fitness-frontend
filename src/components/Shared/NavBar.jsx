@@ -18,7 +18,7 @@ const Navbar = () => {
   const [sections, setSections] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, isAdmin, logout } = useAuth();
   const { cartItemCount } = useCart();
 
   useEffect(() => {
@@ -247,18 +247,20 @@ useEffect(() => {
                   >
                     Login
                   </NavLink>
-                  <NavLink
-                    to="/register"
-                    className={({ isActive }) =>
-                      isActive
-                        ? `${activeLinkClasses} mr-2`
-                        : `${inactiveLinkClasses} mr-2`
-                    }
-                    onClick={() => setIsMenuOpen(false)}
-                    aria-label="Register"
-                  >
-                    Register
-                  </NavLink>
+                  {isAdmin && (
+                    <NavLink
+                      to="/register"
+                      className={({ isActive }) =>
+                        isActive
+                          ? `${activeLinkClasses} mr-2`
+                          : `${inactiveLinkClasses} mr-2`
+                      }
+                      onClick={() => setIsMenuOpen(false)}
+                      aria-label="Register"
+                    >
+                      Register
+                    </NavLink>
+                  )}
                 </>
               ) : (
                 <>
@@ -405,17 +407,19 @@ useEffect(() => {
               >
                 Login
               </NavLink>
-              <NavLink
-                to="/register"
-                className={({ isActive }) =>
-                  isActive
-                    ? `${activeLinkClasses} w-3/4 text-center`
-                    : "text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
-                }
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Register
-              </NavLink>
+              {isAdmin && (
+                <NavLink
+                  to="/register"
+                  className={({ isActive }) =>
+                    isActive
+                      ? `${activeLinkClasses} w-3/4 text-center`
+                      : "text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+                  }
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Register
+                </NavLink>
+              )}
             </>
           ) : (
             <>

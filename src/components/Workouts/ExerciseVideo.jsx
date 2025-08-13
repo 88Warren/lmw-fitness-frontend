@@ -2,46 +2,45 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const ExerciseVideo = ({ exercise }) => {
-  // Replace these with your actual video IDs
-  const getVideoUrl = (videoId) => {
-    if (!videoId) return null;
+  const videoId = exercise?.exercise?.videoId;
+  const exerciseName = exercise?.exercise?.name;
+  const exerciseTips = exercise?.exercise?.tips;
+  const exerciseInstructions = exercise?.exercise?.instructions;
+  const duration = exercise?.duration;
+  const restDuration = exercise?.restDuration;
+
+
+  const getVideoUrl = (id) => {
+    if (!id) return null;
     
-    // If it's a YouTube video ID
-    if (videoId.length === 11) {
-      return `https://www.youtube.com/embed/${videoId}?autoplay=0&modestbranding=1&rel=0&controls=1`;
+    if (id.length === 11) {
+      return `https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=1&rel=0&controls=1`;
     }
     
-    // If it's a direct video URL
-    if (videoId.startsWith('http')) {
-      return videoId;
-    }
-    
-    // Default placeholder
     return null;
   };
 
-  const videoUrl = getVideoUrl(exercise?.video_id);
+  const videoUrl = getVideoUrl(videoId);
 
   return (
     <div className="bg-gray-700 rounded-lg p-4">
       <div className="mb-4">
         <h3 className="text-xl font-bold text-brightYellow mb-2">
-          {exercise?.name}
+          {exerciseName}
         </h3>
         <div className="text-logoGray text-sm space-y-1">
-          <p><strong>Duration:</strong> {exercise?.duration}</p>
-          <p><strong>Rest:</strong> {exercise?.rest}</p>
+          <p><strong>Duration:</strong> {duration}</p>
+          <p><strong>Rest:</strong> {restDuration}</p>
         </div>
       </div>
 
       {/* Video Display */}
-      <div className="relative bg-black rounded-lg aspect-video overflow-hidden mb-4">
+      <div className="relative bg-black rounded-lg border-0 aspect-video overflow-hidden mb-4">
         {videoUrl ? (
           <iframe
             className="w-full h-full"
             src={videoUrl}
-            title={exercise?.name}
-            frameBorder="0"
+            title={exerciseName}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
@@ -50,15 +49,15 @@ const ExerciseVideo = ({ exercise }) => {
             <div className="text-center">
               <div className="text-6xl mb-4">🎥</div>
               <p className="text-logoGray text-lg mb-2">
-                {exercise?.name} Demo
+                {exerciseName} Demo
               </p>
               <p className="text-logoGray text-sm">
-                {exercise?.video_id ? 
-                  `Video ID: ${exercise.video_id}` : 
+                {videoId ? 
+                  `Video ID: ${videoId}` : 
                   'Video placeholder - Add your exercise demo'
                 }
               </p>
-              {exercise?.tips && (
+               {exerciseTips && (
                 <div className="mt-4 p-3 bg-gray-800 rounded-lg">
                   <p className="text-sm text-logoGray">
                     💡 <span className="text-brightYellow font-semibold">Form Tip:</span> {exercise.tips}
@@ -71,7 +70,7 @@ const ExerciseVideo = ({ exercise }) => {
       </div>
 
       {/* Exercise Instructions */}
-      {exercise?.instructions && (
+      {exerciseInstructions && (
         <div className="bg-gray-600 rounded-lg p-3 mb-4">
           <h4 className="text-limeGreen font-bold mb-2">Instructions:</h4>
           <p className="text-logoGray text-sm">{exercise.instructions}</p>
@@ -79,7 +78,7 @@ const ExerciseVideo = ({ exercise }) => {
       )}
 
       {/* Form Tips */}
-      {exercise?.tips && !videoUrl && (
+      {exerciseTips && !videoUrl && (
         <div className="bg-gray-600 rounded-lg p-3">
           <h4 className="text-limeGreen font-bold mb-2">Form Tips:</h4>
           <p className="text-logoGray text-sm">{exercise.tips}</p>
@@ -91,12 +90,14 @@ const ExerciseVideo = ({ exercise }) => {
 
 ExerciseVideo.propTypes = {
   exercise: PropTypes.shape({
-    name: PropTypes.string,
     duration: PropTypes.string,
-    rest: PropTypes.string,
-    video_id: PropTypes.string,
-    tips: PropTypes.string,
-    instructions: PropTypes.string,
+    restDuration: PropTypes.string,
+    exercise: PropTypes.shape({
+      name: PropTypes.string,
+      videoId: PropTypes.string,
+      tips: PropTypes.string,
+      instructions: PropTypes.string,
+    }),
   }),
 };
 

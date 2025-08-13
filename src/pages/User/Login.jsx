@@ -101,7 +101,7 @@ const LoginPage = () => {
               {isSubmitting ? "Logging In..." : "Login"}
             </button>
           </form>
-          <p className="mt-6 text-center text-sm text-logoGray font-titillium">
+          {/* <p className="mt-6 text-center text-sm text-logoGray font-titillium">
             Don&apos;t have an account?{" "}
             <Link
               to="/register"
@@ -109,7 +109,7 @@ const LoginPage = () => {
             >
               Register here
             </Link>
-          </p>
+          </p> */}
         </div>
       </div>
 

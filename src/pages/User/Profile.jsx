@@ -51,10 +51,10 @@ useEffect(() => {
             <h3 className="text-xl font-bold text-limeGreen mb-3">Your Programs</h3>
             {user.role === 'admin' ? (
               <div className="space-y-2">
-                <Link to="/workouts/beginner-program" className="block btn-primary bg-limeGreen hover:bg-green-600">
+                <Link to="/workouts/beginner-program/1" className="block btn-primary bg-limeGreen hover:bg-green-600">
                   30-Day Beginner Programme
                 </Link>
-                <Link to="/workouts/advanced-program" className="block btn-primary bg-hotPink hover:bg-pink-600">
+                <Link to="/workouts/advanced-program/1" className="block btn-primary bg-hotPink hover:bg-pink-600">
                   30-Day Advanced Programme
                 </Link>
               </div>
@@ -63,7 +63,9 @@ useEffect(() => {
                 <Link to="/workouts/beginner-program" className="block btn-primary bg-limeGreen hover:bg-green-600">
                   30-Day Beginner Programme
                 </Link>
-                {/* Add more programs here dynamically from backend */}
+                <Link to="/workouts/advanced-program/1" className="block btn-primary bg-hotPink hover:bg-pink-600">
+                  30-Day Advanced Programme
+                </Link>
               </div>
             ) : (
               <p className="text-logoGray">No programs purchased yet.</p>

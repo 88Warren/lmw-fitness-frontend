@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useCallback, useContext } from "react";
+import { createContext, useState, useEffect, useCallback} from "react";
 import { BACKEND_URL } from "../utils/config";
 import axios from "axios";
 import { showToast } from '../utils/toastUtil';
@@ -154,6 +154,8 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     changePassword,
+    storeAuthData, 
+    clearAuthData, 
   };
 
   if (loading) {
