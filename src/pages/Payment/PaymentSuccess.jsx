@@ -84,6 +84,8 @@ const fetchAuthLink = async (retryCount = 0) => {
     setIsLoading(false);
   }
 };
+    console.log('Session ID:', sessionId);
+    console.log('Auth link received:', authLink);
 
     fetchAuthLink();
   }, [sessionId, clearCart]);

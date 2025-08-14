@@ -60,7 +60,7 @@ const ExerciseVideo = ({ exercise }) => {
                {exerciseTips && (
                 <div className="mt-4 p-3 bg-gray-800 rounded-lg">
                   <p className="text-sm text-logoGray">
-                    💡 <span className="text-brightYellow font-semibold">Form Tip:</span> {exercise.tips}
+                    💡 <span className="text-brightYellow font-semibold">Form Tip:</span> {exerciseTips}
                   </p>
                 </div>
               )}
@@ -73,7 +73,7 @@ const ExerciseVideo = ({ exercise }) => {
       {exerciseInstructions && (
         <div className="bg-gray-600 rounded-lg p-3 mb-4">
           <h4 className="text-limeGreen font-bold mb-2">Instructions:</h4>
-          <p className="text-logoGray text-sm">{exercise.instructions}</p>
+          <p className="text-logoGray text-sm">{exerciseInstructions}</p>
         </div>
       )}
 
@@ -81,7 +81,7 @@ const ExerciseVideo = ({ exercise }) => {
       {exerciseTips && !videoUrl && (
         <div className="bg-gray-600 rounded-lg p-3">
           <h4 className="text-limeGreen font-bold mb-2">Form Tips:</h4>
-          <p className="text-logoGray text-sm">{exercise.tips}</p>
+          <p className="text-logoGray text-sm">{exerciseTips}</p>
         </div>
       )}
     </div>

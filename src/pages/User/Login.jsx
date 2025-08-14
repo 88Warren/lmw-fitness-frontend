@@ -35,6 +35,10 @@ const LoginPage = () => {
 
     const result = await login(email, password);
 
+    console.log('Login result:', result);
+    console.log('User from login:', result.user);
+    console.log('Purchased programs:', result.user?.purchasedPrograms);
+
     if (result.success) {
       showToast("success", result.message);
       setTimeout(() => {

@@ -15,14 +15,23 @@ const WorkoutAuthPage = () => {
     useEffect(() => {
         const verifyToken = async () => {
         if (!token) {
+            console.log('No token found in URL');
             setMessage('Error: No token found in the URL.');
-            setTimeout(() => navigate('/login'), 3000); 
+            setTimeout(() => navigate('/login'), 9000); 
             return;
         }
+
+        console.log('Token from URL:', token);
+
             try {
                 const response = await axios.post(`${BACKEND_URL}/api/verify-workout-token`, { token });
+
+                console.log('Response from verify-token:', response.data);
                 
                 const { jwt, user } = response.data; 
+
+                console.log('JWT received:', jwt);
+                console.log('User data received:', user);
 
                 if (jwt && user) {
                     storeAuthData(jwt, user); 
@@ -37,13 +46,13 @@ const WorkoutAuthPage = () => {
                     }, 1500); 
                 } else {
                     setMessage('Token verified, but authentication failed. Please log in.');
-                    setTimeout(() => navigate('/login'), 3000);
+                    setTimeout(() => navigate('/login'), 9000);
                 }
 
             } catch (error) {
                 console.error('Token verification error:', error);
                 setMessage('Error: Token verification failed. This link may be invalid or expired.');
-                setTimeout(() => navigate('/login'), 3000);
+                setTimeout(() => navigate('/login'), 9000);
             }
         };
 

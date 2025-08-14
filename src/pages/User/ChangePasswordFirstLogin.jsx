@@ -11,7 +11,7 @@ const ChangePasswordFirstLoginPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, isLoggedIn, loading, logout, token } = useAuth();
+  const { user, isLoggedIn, loading, logout, token, updateUser } = useAuth();
   const navigate = useNavigate();
 
   console.log("User state:", { user, isLoggedIn, loading, token }); // Debug log
@@ -95,18 +95,28 @@ const ChangePasswordFirstLoginPage = () => {
       console.log("API response:", response.data); // Debug log
       
       if (response.data.message) {
-        showToast("success", response.data.message);
-        setTimeout(() => {
-          window.location.href = "/profile"; 
-        }, 1500);
-      }
+      showToast("success", response.data.message);
+
+      logout(); 
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500); 
+      
+      // const updatedUser = { ...user, mustChangePassword: false };
+      // const updatedUser = response.data.user; 
+      // updateUser(updatedUser);
+      
+      // navigate("/profile");
+    }
+
     } catch (error) {
       console.error("Error setting password:", error);
       const errorMessage = error.response?.data?.error || "Failed to set password. Please try again.";
       showToast("error", errorMessage);
+    }  finally {    
+        setIsSubmitting(false);
     }
-    
-    setIsSubmitting(false);
   };
 
   if (loading || !isLoggedIn || (user && !user.mustChangePassword)) {
@@ -167,12 +177,12 @@ const ChangePasswordFirstLoginPage = () => {
             {isSubmitting ? "Setting Password..." : "Set Password"}
           </button>
         </form>
-        <button
+        {/* <button
           onClick={logout}
           className="btn-cancel w-full mt-4"
         >
           Logout
-        </button>
+        </button> */}
       </div>
       <ToastContainer />
     </div>

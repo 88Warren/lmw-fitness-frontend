@@ -127,7 +127,7 @@ const Pricing = () => {
               </ul>
               <button 
                 className="btn-subscribe w-full py-3 mt-auto"
-                onClick={() => addItemToCart({ name: 'Beginner 30-day programme', priceId: `${BEGINNER_PRICE_ID}`, price: 50 })}
+                onClick={() => addItemToCart({ name: 'beginner-programme', priceId: `${BEGINNER_PRICE_ID}`, price: 50 })}
                 >
                   Add to Cart
                 </button>
@@ -178,7 +178,7 @@ const Pricing = () => {
               </ul>
               <button 
                 className="btn-subscribe w-full py-3 mt-auto"
-                onClick={() => addItemToCart({ name: 'Advanced 30-day programme', priceId: `${ADVANCED_PRICE_ID}`, price: 65 })}
+                onClick={() => addItemToCart({ name: 'advanced-programme', priceId: `${ADVANCED_PRICE_ID}`, price: 65 })}
               >
                 Add to Cart
               </button>

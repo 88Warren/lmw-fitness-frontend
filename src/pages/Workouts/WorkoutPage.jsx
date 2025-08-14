@@ -49,10 +49,12 @@ const WorkoutPage = () => {
   useEffect(() => {
     // Auth and redirect logic remains the same
     if (!loadingAuth && !isLoggedIn) {
+      console.log("WorkoutPage: Not logged in, redirecting to login.");
       navigate("/login");
       return;
     }
     if (!loadingAuth && isLoggedIn && user?.mustChangePassword) {
+      console.log("WorkoutPage: Must change password, redirecting.");
       navigate("/change-password-first-login");
       return;
     }
@@ -61,7 +63,19 @@ const WorkoutPage = () => {
       setLoadingWorkout(true);
       setError(null);
       try {
-        if (!user || (user.role !== 'member' && user.role !== 'admin')) {
+        console.log("WorkoutPage: Attempting to fetch workout...");
+        console.log("WorkoutPage: User from context:", user);
+        console.log("WorkoutPage: Program Name from URL params:", programName);
+        console.log("WorkoutPage: Day Number from URL params:", dayNum);
+
+        if (!user || (user.role !== 'user' && user.role !== 'admin')) {
+          setError("You are not authorised to view this program.");
+          setLoadingWorkout(false);
+          return;
+        }
+
+        if (user.role === 'user' && !user.purchasedPrograms.includes(programName)) {
+          console.log("WorkoutPage: User has an account but does not have the program in purchasedPrograms.");
           setError("You are not authorised to view this program.");
           setLoadingWorkout(false);
           return;
@@ -69,6 +83,7 @@ const WorkoutPage = () => {
 
         const authToken = localStorage.getItem('jwtToken');
         if (!authToken) {
+            console.log("WorkoutPage: Authentication token not found.");
             throw new Error("Authentication token not found.");
         }
 
@@ -84,10 +99,12 @@ const WorkoutPage = () => {
 
          if (!response.ok) {
           const errorData = await response.json();
+          console.error("WorkoutPage: Backend response error:", errorData);
           throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error}`);
         }
 
         const data = await response.json();
+        console.log("WorkoutPage: Successfully fetched workout data:", data);
 
         if (data.workoutBlocks && data.workoutBlocks.length > 0) {
           setWorkoutData(data);
