@@ -270,15 +270,13 @@ const WorkoutPage = () => {
   // Show preview if not started
   if (showPreview) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white p-6 md:p-10 font-titillium">
-        <div className="max-w-4xl mx-auto">
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white">
           <WorkoutPreview
             workoutData={workoutData}
             onStartWorkout={handleStartWorkout}
             onSkipPreview={() => setShowPreview(false)}
             onGoBackToProfile={handleGoBackToProfile} 
           />
-        </div>
       </div>
     );
   }

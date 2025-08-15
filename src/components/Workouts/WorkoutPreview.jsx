@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProfile }) => {
@@ -35,10 +36,10 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProfile }) => {
 
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 border border-limeGreen">
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-brightYellow mb-2 font-higherJump">
-          Today&apos;s Workout Preview
+    <div className="bg-customGray p-8 mt-10 rounded-lg text-center max-w-max w-full border-brightYellow border-2">
+      <div>
+        <h2 className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest">
+          Today&apos;s <span className="w">W</span>orkout Previe<span className="w">w</span>
         </h2>
         <p className="text-logoGray">
           {workoutData.title} • {totalExercises} exercises

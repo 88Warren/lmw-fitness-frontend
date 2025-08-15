@@ -13,6 +13,7 @@ const PaymentSuccess = () => {
   const [authLink, setAuthLink] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [purchasedProductNames, setPurchasedProductNames] = useState([]);
 
   useEffect(() => {
     if (!sessionId) {
@@ -32,9 +33,8 @@ const fetchAuthLink = async (retryCount = 0) => {
 
     const response = await axios.post(`${BACKEND_URL}/api/get-workout-link`, { sessionId });
     
-    // Check if the response is a 202 status and handle it as a processing state
     if (response.status === 202) {
-      if (retryCount < 5) { // Increased retry count for robustness
+      if (retryCount < 5) { 
         console.log(`Workout link still being prepared, retrying in 3 seconds... (Attempt ${retryCount + 1})`);
         showToast('info', response.data.message || 'Your workout link is being prepared...');
         setTimeout(() => fetchAuthLink(retryCount + 1), 3000);
@@ -46,23 +46,23 @@ const fetchAuthLink = async (retryCount = 0) => {
       return; 
     }
 
-    const { workoutLink } = response.data;
+  const { workoutLink, productNames } = response.data; 
     if (workoutLink) {
       setAuthLink(workoutLink);
+      if (productNames && Array.isArray(productNames)) {
+        setPurchasedProductNames(productNames);
+      }
       showToast('success', 'Your secure workout link is ready!');
     } else {
-      // This is a safety net for an unexpected response
       throw new Error('Invalid workout link received from server');
     }
   } catch (error) {
     console.error('Failed to get workout link:', error);
     
-    // Handle specific server errors
     if (error.response) {
       if (error.response.status === 404) {
         showToast('error', 'Workout link not ready yet. Please check your email in a few minutes.');
       } else if (error.response.status === 202) {
-        // Handle 202 status from catch block (in case axios doesn't catch it)
         if (retryCount < 5) {
           console.log(`Workout link still being prepared, retrying in 3 seconds... (Attempt ${retryCount + 1})`);
           showToast('info', error.response.data.message || 'Your workout link is being prepared...');
@@ -76,7 +76,6 @@ const fetchAuthLink = async (retryCount = 0) => {
         showToast('error', 'Failed to retrieve your workout link. Please check your email or contact support.');
       }
     } else {
-      // Handle network or other errors
       showToast('error', 'An unexpected error occurred. Please check your email.');
     }
     setErrorMessage(error.message);
@@ -89,6 +88,20 @@ const fetchAuthLink = async (retryCount = 0) => {
 
     fetchAuthLink();
   }, [sessionId, clearCart]);
+
+  const getAccessMessage = () => {
+    const hasBeginner = purchasedProductNames.includes('beginner-programme');
+    const hasAdvanced = purchasedProductNames.includes('advanced-programme');
+
+    if (hasBeginner && hasAdvanced) {
+      return 'Click below to access your **Beginner and Advanced Programme** and create your profile';
+    } else if (hasBeginner) {
+      return 'Click below to access your **Beginner Programme** and create your profile';
+    } else if (hasAdvanced) {
+      return 'Click below to access your **Advanced Programme** and create your profile';
+    }
+    return 'Click below to access your workout and create your profile'; 
+  };
 
   return (
     <motion.div
@@ -131,7 +144,7 @@ const fetchAuthLink = async (retryCount = 0) => {
           </div>
         ) : authLink ? (
           <div className="mb-6">
-            <p className="text-lg text-customWhite mb-4">Click below to access your workout:</p>
+            <p className="text-lg text-customWhite mb-4" dangerouslySetInnerHTML={{ __html: getAccessMessage() }}></p>
             <a
               href={authLink}
               className="btn-full-colour inline-block px-8 py-3 rounded-md transition duration-300 ease-in-out"
@@ -151,13 +164,6 @@ const fetchAuthLink = async (retryCount = 0) => {
             </p>
           </div>
         )}
-        
-        <Link
-          to="/"
-          className="btn-full-colour w-full inline-block px-8 py-3 rounded-md transition duration-300 ease-in-out mt-4"
-        >
-          Back to Home
-        </Link>
       </div>
     </motion.div>
   );

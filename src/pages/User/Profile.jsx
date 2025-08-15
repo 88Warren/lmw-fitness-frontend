@@ -1,39 +1,39 @@
 import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom'; 
+import { motion } from 'framer-motion';
 import useAuth from "../../hooks/useAuth";
 
 const ProfilePage = () => {
   const { user, isLoggedIn, loadingAuth } = useAuth();
   const navigate = useNavigate();
 
-  console.log('=== PROFILE PAGE DEBUG ===');
-  console.log('User from useAuth:', user);
-  console.log('User type:', typeof user);
-  console.log('User keys:', user ? Object.keys(user) : 'null');
-  console.log('Purchased programs:', user?.purchasedPrograms);
-  console.log('Purchased programs type:', typeof user?.purchasedPrograms);
-  console.log('Purchased programs length:', user?.purchasedPrograms?.length);
-  console.log('Auth loading state:', loadingAuth);
-  console.log('Is logged in:', isLoggedIn);
-  console.log('User role:', user?.role);
-  console.log('User email:', user?.email);
-  console.log('Must change password:', user?.mustChangePassword);
-  console.log('=============================');
+  // console.log('=== PROFILE PAGE DEBUG ===');
+  // console.log('User from useAuth:', user);
+  // console.log('User type:', typeof user);
+  // console.log('User keys:', user ? Object.keys(user) : 'null');
+  // console.log('Purchased programs:', user?.purchasedPrograms);
+  // console.log('Purchased programs type:', typeof user?.purchasedPrograms);
+  // console.log('Purchased programs length:', user?.purchasedPrograms?.length);
+  // console.log('Auth loading state:', loadingAuth);
+  // console.log('Is logged in:', isLoggedIn);
+  // console.log('User role:', user?.role);
+  // console.log('User email:', user?.email);
+  // console.log('Must change password:', user?.mustChangePassword);
+  // console.log('=============================');
 
   useEffect(() => {
     if (!loadingAuth && !isLoggedIn) {
-      console.log('Not logged in, redirecting to login');
+      // console.log('Not logged in, redirecting to login');
       navigate("/login");
     } else if (user && user.mustChangePassword) {
-      console.log('Must change password, redirecting');
+      // console.log('Must change password, redirecting');
       navigate("/change-password-first-login");
     }
   }, [isLoggedIn, navigate, loadingAuth]);
 
 useEffect(() => {
-  // Handle mustChangePassword redirect separately
   if (!loadingAuth && isLoggedIn && user?.mustChangePassword) {
-    console.log('Must change password redirect triggered');
+    // console.log('Must change password redirect triggered');
     navigate("/change-password-first-login");
   }
 }, [loadingAuth, isLoggedIn, user, navigate]);
@@ -48,50 +48,45 @@ useEffect(() => {
     );
   }
 
-  const handleProgramClick = (programName, dayNumber) => {
-    console.log(`Program clicked: ${programName}, Day: ${dayNumber}`);
-    console.log('Current user state:', user);
-    console.log('Current purchased programs:', user.purchasedPrograms);
-    console.log('Checking if user has access to:', programName);
+  // const handleProgramClick = (programName, dayNumber) => {
+  //   console.log(`Program clicked: ${programName}, Day: ${dayNumber}`);
+  //   console.log('Current user state:', user);
+  //   console.log('Current purchased programs:', user.purchasedPrograms);
+  //   console.log('Checking if user has access to:', programName);
     
-    if (user.role === 'admin') {
-      console.log('User is admin, allowing access');
-    } else if (user.purchasedPrograms && user.purchasedPrograms.includes(programName)) {
-      console.log('User has purchased program, allowing access');
-    } else {
-      console.log('User does NOT have access to this program');
-      console.log('Available programs:', user.purchasedPrograms);
-    }
-  };
+  //   if (user.role === 'admin') {
+  //     console.log('User is admin, allowing access');
+  //   } else if (user.purchasedPrograms && user.purchasedPrograms.includes(programName)) {
+  //     console.log('User has purchased program, allowing access');
+  //   } else {
+  //     console.log('User does NOT have access to this program');
+  //     console.log('Available programs:', user.purchasedPrograms);
+  //   }
+  // };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full border border-limeGreen text-white">
-        <h2 className="text-3xl font-bold text-center text-brightYellow mb-6 font-higherJump">
-          User Profile
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white"
+    >
+      <div className="bg-customGray p-8 rounded-lg text-center max-w-lg w-full border-brightYellow border-2">
+        <h2 className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest">
+          User Profi<span className="l">l</span>e
         </h2>
         <div className="space-y-4 text-center">
-          <p className="text-lg font-titillium text-logoGray">
-            <span className="font-bold text-limeGreen">Email:</span>{" "}
-            {user.email}
-          </p>
-          <p className="text-lg font-titillium text-logoGray">
-            <span className="font-bold text-brightYellow">Role:</span>{" "}
-            {user.role}
-          </p>
-
           {/* Debug info */}
-          <div className="bg-gray-700 p-4 rounded text-left text-xs">
+          {/* <div className="bg-gray-700 p-4 rounded text-left text-xs">
             <h4 className="text-red-400 font-bold mb-2">DEBUG INFO:</h4>
             <p className="text-yellow-300">Purchased Programs: {JSON.stringify(user.purchasedPrograms)}</p>
             <p className="text-yellow-300">Array Length: {user.purchasedPrograms?.length || 'N/A'}</p>
             <p className="text-yellow-300">Type: {typeof user.purchasedPrograms}</p>
             <p className="text-yellow-300">Is Array: {Array.isArray(user.purchasedPrograms)}</p>
-          </div>
+          </div> */}
 
           {/* Link to programs/workouts */}
           <div className="mt-6">
-            <h3 className="text-xl font-bold text-limeGreen mb-3">Your Programs</h3>
             {user.role === 'admin' ? (
               <div className="space-y-2">
                 <Link 
@@ -142,7 +137,7 @@ useEffect(() => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

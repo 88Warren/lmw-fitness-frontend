@@ -2,9 +2,11 @@ import { useEffect } from 'react';
 import { motion } from "framer-motion";
 import { useCart } from '../../context/CartContext'; 
 import { BEGINNER_PRICE_ID, ADVANCED_PRICE_ID, TAILORED_COACHING_PRICE_ID, ULTIMATE_MINDSET_PACKAGE_PRICE_ID } from '../../utils/config';
+import { useNavigate } from 'react-router-dom'; 
 
 const Pricing = () => {
-  const { addItemToCart } = useCart();
+  const { addItemToCart, cartItems } = useCart();
+  const navigate = useNavigate();
 
   const cardVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -16,7 +18,7 @@ const Pricing = () => {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.7, delay: 0.3 } },
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const brevoScriptId = 'brevo-form-main-script';
     const existingBrevoScript = document.getElementById(brevoScriptId);
 
@@ -54,6 +56,13 @@ const Pricing = () => {
       }
     };
   }, []);
+
+  const isItemInCart = (priceId) => {
+    if (!cartItems) {
+      return false;
+    }
+    return cartItems.some(item => item.priceId === priceId);
+  };
 
   return (
     <>
@@ -125,12 +134,21 @@ const Pricing = () => {
                   Finishing fitness test
                 </li>
               </ul>
-              <button 
-                className="btn-subscribe w-full py-3 mt-auto"
-                onClick={() => addItemToCart({ name: 'beginner-programme', priceId: `${BEGINNER_PRICE_ID}`, price: 50 })}
-                >
-                  Add to Cart
-                </button>
+              {isItemInCart(BEGINNER_PRICE_ID) ? (
+                  <button 
+                      className="bg-white w-full py-3 mt-auto font-bold border border-brightYellow hover:bg-brightYellow"
+                      onClick={() => navigate('/cart')}
+                  >
+                      View Basket
+                  </button>
+              ) : (
+                  <button 
+                      className="btn-subscribe w-full py-3 mt-auto"
+                      onClick={() => addItemToCart({ name: 'Beginner 30-day programme', priceId: `${BEGINNER_PRICE_ID}`, price: 50 })}
+                  >
+                      Add to Cart
+                  </button>
+              )}
             </motion.div>
 
             {/* Advanced Training Programs */}
@@ -176,12 +194,21 @@ const Pricing = () => {
                   Finishing fitness test
                 </li>
               </ul>
+              {isItemInCart(ADVANCED_PRICE_ID) ? (
               <button 
-                className="btn-subscribe w-full py-3 mt-auto"
-                onClick={() => addItemToCart({ name: 'advanced-programme', priceId: `${ADVANCED_PRICE_ID}`, price: 65 })}
+                className="bg-white w-full py-3 mt-auto font-bold border border-brightYellow hover:bg-brightYellow"
+                onClick={() => navigate('/cart')}
+            >
+                View Basket
+            </button>
+            ) : (
+              <button 
+                  className="btn-subscribe w-full py-3 mt-auto"
+                  onClick={() => addItemToCart({ name: 'Advanced 30-day programme', priceId: `${ADVANCED_PRICE_ID}`, price: 65 })}
               >
-                Add to Cart
+                  Add to Cart
               </button>
+          )}
             </motion.div>
 
             {/* Tailored Coaching Plan */}
@@ -224,12 +251,21 @@ const Pricing = () => {
                   Message Support & Progress Adjustments
                 </li>
               </ul>
-              <button 
-                className="btn-subscribe w-full py-3 mt-auto"
-                onClick={() => addItemToCart({ name: 'Tailored Coaching Plan', priceId: `${TAILORED_COACHING_PRICE_ID}`, price: 250 })}
-              >
-                Add to Cart
-              </button>
+              {isItemInCart(TAILORED_COACHING_PRICE_ID) ? (
+                <button 
+                    className="bg-white w-full py-3 mt-auto font-bold border border-brightYellow hover:bg-brightYellow"
+                    onClick={() => navigate('/cart')}
+                >
+                    View Basket
+                </button>
+                ) : (
+                <button 
+                  className="btn-subscribe w-full py-3 mt-auto"
+                  onClick={() => addItemToCart({ name: 'Tailored Coaching Plan', priceId: `${TAILORED_COACHING_PRICE_ID}`, price: 250 })}
+                  >
+                     Add to Cart
+                  </button>
+                )}
             </motion.div>
           </div>
 
@@ -378,12 +414,21 @@ const Pricing = () => {
                   </ul>
                 </div>
                 <div className="flex justify-center mt-auto">
-                  <button 
-                    className="btn-primary w-full py-3"
-                    onClick={() => addItemToCart({ name: 'Ultimate Habit & Mindset Package', priceId: `${ULTIMATE_MINDSET_PACKAGE_PRICE_ID}`, price: 25 })} 
-                  >
-                    Add to Cart
-                  </button>
+                  {isItemInCart(ULTIMATE_MINDSET_PACKAGE_PRICE_ID) ? (
+                      <button 
+                        className="bg-white w-full py-3 mt-auto font-bold border border-brightYellow hover:bg-brightYellow"
+                        onClick={() => navigate('/cart')}
+                    >
+                        View Basket
+                    </button>
+                ) : (
+                    <button 
+                      className="btn-subscribe w-full py-3 mt-auto"
+                      onClick={() => addItemToCart({ name: 'Ultimate Habit & Mindset Package', priceId: `${ULTIMATE_MINDSET_PACKAGE_PRICE_ID}`, price: 25 })}
+                      >
+                        Add to Cart
+                    </button>
+                )}
                 </div>
               </div>
             </div>

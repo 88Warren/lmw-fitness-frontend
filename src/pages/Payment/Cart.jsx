@@ -4,27 +4,36 @@ import { useCart } from '../../context/CartContext';
 import { BACKEND_URL } from '../../utils/config';
 import { showToast } from '../../utils/toastUtil';
 import LoadingAndErrorDisplay from '../../components/Shared/Errors/LoadingAndErrorDisplay';
+import { InputField } from "../../controllers/forms/formFields";
 import { Link } from 'react-router-dom';
 import { DISCOUNT_AMOUNT } from '../../utils/config';
 import { HashLink } from 'react-router-hash-link';
 
 const Cart = () => {
-  const { cart, removeItemFromCart, cartTotalPrice, isDiscountApplied, baseTotalPrice } = useCart();
+  const { cartItems, removeItemFromCart, cartTotalPrice, isDiscountApplied, baseTotalPrice } = useCart();
   const [customerEmail, setCustomerEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [emailError, setEmailError] = useState(false);
 
   const handleCheckout = async () => {
-    if (cart.length === 0) {
+    if (cartItems.length === 0) {
       showToast("warn", 'Your cart is empty! Add items before checking out.');
       return;
     }
 
+    if (!customerEmail) {
+      setEmailError(true);
+      showToast("error", 'Please enter your email address to proceed with checkout.');
+      return;
+    }
+
+    setEmailError(false);
     setLoading(true);
     setError(null);
 
     try {
-      const checkoutItems = cart.map(item => ({
+      const checkoutItems = cartItems.map(item => ({
         priceId: item.priceId,
         quantity: item.quantity,
       }));
@@ -50,8 +59,6 @@ const Cart = () => {
       if (session.error) {
         throw new Error(session.error);
       }
-
-      // clearCart();
 
       window.location.href = session.url;
 
@@ -100,20 +107,24 @@ const Cart = () => {
         <h2 className="text-3xl md:text-4xl font-higherJump text-customWhite mb-8 text-center leading-loose">Shopping Cart</h2>
         <LoadingAndErrorDisplay loading={loading} error={error} />
         
-        {!loading && !error && cart.length === 0 ? ( 
+        {!loading && !error && cartItems.length === 0 ? ( 
           <p className="text-center text-xl text-customWhite">Your cart is empty <br/> <br/> 
             <Link to="/pricing" className="btn-full-colour w-full">
               Start adding items
             </Link>
           </p>
         ) : (
-           !loading && cart.length > 0 && (
+           !loading && cartItems.length > 0 && (
           <>
             <ul className="space-y-4 mb-6">
-              {cart.map((item) => (
+              {cartItems.map((item) => (
                 <li key={item.priceId} className="flex justify-between items-center bg-white text-black p-4 rounded-md shadow-sm">
                   <div className="flex-grow">
-                    <span className="font-bold text-lg">{item.name}</span>
+                    <span className="font-bold text-lg">
+                      {item.name === 'beginner-programme' ? 'Beginner Programme' :
+                        item.name === 'advanced-programme' ? 'Advanced Programme' :
+                        item.name}
+                    </span>
                     <span className="text-black ml-2"> (£{item.price} x {item.quantity})</span>
                   </div>
                   <button
@@ -138,16 +149,24 @@ const Cart = () => {
               <span className="text-white">Total:</span> £{cartTotalPrice.toFixed(2)}
             </div>
             <div className="mt-6">
-              <label htmlFor="email" className="block text-white font-medium mb-1">Email address</label>
-              <input
+              <InputField
                 id="email"
                 type="email"
-                className="w-full p-3 rounded-md border border-gray-300"
                 value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
+                onChange={(e) => {
+                  setCustomerEmail(e.target.value);
+                  if (emailError) {
+                    setEmailError(false);
+                  }
+                }}
                 placeholder="Enter your email"
                 required
+                autoComplete="on"
               />
+              {/* Add a conditional error message below the input */}
+              {emailError && (
+                <p className="text-red-500 text-sm mt-1">Please enter a valid email address.</p>
+              )}
             </div>
             <button
               className="btn-full-colour w-full py-3 mt-6"

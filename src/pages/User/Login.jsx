@@ -92,7 +92,7 @@ const LoginPage = () => {
               required
             />
 
-            <div className="text-right mt-2">
+            <div className="text-right">
               <Link
                 to="/forgot-password"
                 className="text-sm text-logoGray hover:text-brightYellow font-titillium"

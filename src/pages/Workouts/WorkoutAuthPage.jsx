@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { BACKEND_URL } from "../../utils/config";
 import useAuth from '../../hooks/useAuth';  
 import axios from 'axios';
@@ -15,23 +16,21 @@ const WorkoutAuthPage = () => {
     useEffect(() => {
         const verifyToken = async () => {
         if (!token) {
-            console.log('No token found in URL');
+            // console.log('No token found in URL');
             setMessage('Error: No token found in the URL.');
             setTimeout(() => navigate('/login'), 9000); 
             return;
         }
 
-        console.log('Token from URL:', token);
+        // console.log('Token from URL:', token);
 
             try {
                 const response = await axios.post(`${BACKEND_URL}/api/verify-workout-token`, { token });
-
-                console.log('Response from verify-token:', response.data);
+                // console.log('Response from verify-token:', response.data);
                 
                 const { jwt, user } = response.data; 
-
-                console.log('JWT received:', jwt);
-                console.log('User data received:', user);
+                // console.log('JWT received:', jwt);
+                // console.log('User data received:', user);
 
                 if (jwt && user) {
                     storeAuthData(jwt, user); 
@@ -43,29 +42,32 @@ const WorkoutAuthPage = () => {
                         } else {
                             navigate("/profile"); 
                         }
-                    }, 1500); 
+                    }, 1000); 
                 } else {
                     setMessage('Token verified, but authentication failed. Please log in.');
-                    setTimeout(() => navigate('/login'), 9000);
+                    setTimeout(() => navigate('/login'), 1000);
                 }
-
             } catch (error) {
                 console.error('Token verification error:', error);
                 setMessage('Error: Token verification failed. This link may be invalid or expired.');
-                setTimeout(() => navigate('/login'), 9000);
+                setTimeout(() => navigate('/login'), 1000);
             }
         };
-
         verifyToken();
     }, [token, navigate, login, storeAuthData]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-            <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full border border-limeGreen text-white">
-                <h1 className="text-3xl font-bold text-center text-brightYellow mb-6 font-higherJump">
-                    Workout Link Authentication
-                </h1>
-                <p className="text-center text-logoGray mb-6">
+        <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white"
+        >
+            <div className="bg-customGray p-8 rounded-lg text-center max-w-lg w-full border-brightYellow border-2">
+                <h2 className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest">
+                    <span className="w">W</span>orkout <span className="l">l</span>ink
+                </h2>
+                <p className="text-lg text-customWhite mb-6">
                     {message}
                 </p>
                {message.includes("Success!") && (
@@ -74,7 +76,7 @@ const WorkoutAuthPage = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </motion.div>
     );
 };
 
