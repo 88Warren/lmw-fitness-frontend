@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BACKEND_URL } from "../../utils/config";
@@ -11,26 +11,31 @@ const WorkoutAuthPage = () => {
     const [message, setMessage] = useState('Verifying your workout token...');
     const queryParams = new URLSearchParams(location.search);
     const token = queryParams.get('token');
-    const { login, storeAuthData } = useAuth();
+    const { storeAuthData } = useAuth();
+    const verificationAttempted = useRef(false);
 
     useEffect(() => {
-        const verifyToken = async () => {
         if (!token) {
-            // console.log('No token found in URL');
             setMessage('Error: No token found in the URL.');
             setTimeout(() => navigate('/login'), 9000); 
             return;
         }
 
+        // 3. Check the ref before proceeding
+        if (verificationAttempted.current) {
+            return;
+        }
+
+        // 4. Mark the ref as true for subsequent renders
+        verificationAttempted.current = true;
+
         // console.log('Token from URL:', token);
 
+            const verifyToken = async () => {
             try {
                 const response = await axios.post(`${BACKEND_URL}/api/verify-workout-token`, { token });
-                // console.log('Response from verify-token:', response.data);
                 
                 const { jwt, user } = response.data; 
-                // console.log('JWT received:', jwt);
-                // console.log('User data received:', user);
 
                 if (jwt && user) {
                     storeAuthData(jwt, user); 
@@ -53,8 +58,10 @@ const WorkoutAuthPage = () => {
                 setTimeout(() => navigate('/login'), 1000);
             }
         };
+
         verifyToken();
-    }, [token, navigate, login, storeAuthData]);
+        
+    }, [token, navigate, storeAuthData]);
 
     return (
         <motion.div
