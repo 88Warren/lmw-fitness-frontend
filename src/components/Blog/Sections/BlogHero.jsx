@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import PropTypes from 'prop-types';
+import DynamicHeading from "../../Shared/DynamicHeading";
 
 const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
   const containerVariants = {
@@ -48,13 +49,11 @@ const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
           animate="visible"
           variants={containerVariants}
         >
-          <motion.h1
-            variants={textVariants}
+          <DynamicHeading
+            text="LMW Fitness blog"
             className="font-higherJump text-black/80 mb-6 text-4xl font-extrabold leading-loose tracking-wide"
-          >
-            <span className="l">L</span><span className="m">M</span><span className="w">W</span> Fitness B<span className="l">l</span>og
-          </motion.h1>
-          
+          />
+
           <motion.p
             variants={textVariants}
             className="font-titillium text-customWhite text-m max-w-2xl mx-auto leading-relaxed"

@@ -1,6 +1,7 @@
 import { HashLink } from "react-router-hash-link";
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import DynamicHeading from "../Shared/DynamicHeading";
 
 const Testimonials = () => {
   const testimonials = [
@@ -92,12 +93,10 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-higherJump text-white mb-12 leading-loose">
-            <span className="w">W</span>
-            hat <span className="m">M</span>y c
-            <span className="l">l</span>
-            ients say...
-          </h2>
+          <DynamicHeading
+            text="What my clients say..."
+            className="text-4xl md:text-5xl font-higherJump text-white mb-12 leading-loose"
+          />
         </motion.div>
 
         <motion.div 

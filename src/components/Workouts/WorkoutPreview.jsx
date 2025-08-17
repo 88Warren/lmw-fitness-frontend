@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+import DynamicHeading from '../Shared/DynamicHeading';
 
-const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProfile }) => {
+const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const allExercises = workoutData?.workoutBlocks?.flatMap(block => block.exercises) || [];
@@ -25,133 +25,94 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProfile }) => {
     }
   }, [isPlaying, totalExercises]);
 
-  const startPreview = () => {
-    setIsPlaying(true);
-    setCurrentExerciseIndex(0);
+  const handleExerciseClick = (index) => {
+    setCurrentExerciseIndex(index);
+    setIsPlaying(false); 
   };
 
-  const stopPreview = () => {
-    setIsPlaying(false);
-  };
-
-
-  return (
-    <div className="bg-customGray p-8 mt-10 rounded-lg text-center max-w-max w-full border-brightYellow border-2">
-      <div>
-        <h2 className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest">
-          Today&apos;s <span className="w">W</span>orkout Previe<span className="w">w</span>
-        </h2>
-        <p className="text-logoGray">
+return (
+    <div className="bg-customGray p-4 rounded-lg text-center max-w-7xl w-full h-full lg:max-h-[90vh] flex flex-col border-brightYellow border-2 mt-10">
+      {/* Title section */}
+      <div className="flex flex-col items-center mb-4">
+        <DynamicHeading 
+          text="Workout Preview"
+          className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite leading-loose tracking-widest"
+        />
+        <p className="text-logoGray text-sm md:text-base">
           {workoutData.title} • {totalExercises} exercises
         </p>
       </div>
 
-      {/* Exercise Preview */}
-      <div className="mb-6">
-        <div className="bg-gray-700 rounded-lg p-4 text-center">
-          <h3 className="text-xl font-bold text-limeGreen mb-2">
-            {currentExercise?.exercise?.name || 'Loading...'}
-          </h3>
-          
-          {/* Video Placeholder - Replace with your actual video */}
-          <div className="rounded-lg aspect-video mb-4 overflow-hidden">
-          {currentExercise?.exercise?.videoId ? (
-              <iframe
-                  className="w-full h-full"
-                  // FIX: Remove autoplay and mute. Add `rel=0` to hide related videos.
-                  src={`https://www.youtube.com/embed/${currentExercise.exercise.videoId}?controls=1&modestbranding=1&rel=0`}
-                  title="YouTube video player"
-                  frameBorder="0"
-                  allow="accelerometer; gyroscope; picture-in-picture"
-                  allowFullScreen
-              ></iframe>
-              ) : (
-                  <div className="w-full h-full bg-black flex items-center justify-center">
-                      <p className="text-logoGray">Video not available</p>
-                  </div>
-              )}
-          </div>
+      {/* All buttons together in a single flex container at the top */}
+      <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+        <button
+          onClick={onStartWorkout}
+          className="btn-full-colour bg-brightYellow hover:bg-yellow-600 text-gray-900 px-6 py-2 rounded-lg text-base md:text-lg font-bold shadow-lg"
+        >
+          Start Workout
+        </button>
+        <button
+          onClick={onGoBackToProgram}
+          className="btn-cancel px-6 py-2 rounded-lg text-base md:text-lg font-bold"
+        >
+          Back to Program
+        </button>
+      </div>
 
-          <div className="text-logoGray text-sm">
-            {/* FIX: Access duration and rest from the correct properties */}
-            <p><strong>Duration:</strong> {currentExercise?.duration}</p>
-            <p><strong>Rest:</strong> {currentExercise?.rest_duration}</p>
-            {currentExercise?.tips && (
-              <p className="mt-2 italic">💡 {currentExercise.tips}</p>
+      {/* Main content container for the two-column layout */}
+      <div className="flex flex-grow flex-col lg:flex-row lg:items-start justify-center gap-6 overflow-hidden">
+      
+        {/* Left-hand side: Video and Exercise Name only */}
+        <div className="w-full lg:w-1/2 flex flex-col items-center">
+          <div className="w-full sm:w-3/4 md:w-2/3 lg:w-full max-w-md aspect-video rounded-lg mb-4 overflow-hidden">
+            {currentExercise?.exercise?.videoId ? (
+              <iframe
+                key={currentExercise.exercise.videoId} 
+                className="w-full h-full border-0"
+                src={`https://www.youtube.com/embed/${currentExercise.exercise.videoId}?controls=1&modestbranding=1&rel=0&autoplay=1&mute=1`}
+                title="YouTube video player"
+                allow="accelerometer; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            ) : (
+              <div className="w-full h-full bg-black flex items-center justify-center">
+                <p className="text-logoGray text-sm">Video not available</p>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Progress Indicator */}
-        <div className="flex justify-center space-x-2 mt-4">
-          {allExercises.map((_, index) => (
-            <div
-              key={index}
-              className={`w-3 h-3 rounded-full ${
-                index === currentExerciseIndex 
-                  ? 'bg-limeGreen' 
-                  : index < currentExerciseIndex 
-                    ? 'bg-brightYellow' 
-                    : 'bg-gray-600'
-              }`}
-            />
-          ))}
+        {/* Right-hand side: Exercise List with Duration and Rest */}
+        <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start mb-8">
+          <div className="space-y-1 overflow-y-auto w-full text-left max-h-[40vh] lg:max-h-[calc(90vh - 200px)]"> 
+            {allExercises.map((exercise, index) => (
+              <div
+                key={index}
+                onClick={() => handleExerciseClick(index)}
+                className={`p-2 rounded-md text-sm transition-colors duration-200  cursor-pointer mr-2 ${
+                  index === currentExerciseIndex
+                    ? 'bg-limeGreen text-gray-900'
+                    : 'text-logoGray'
+                }`}
+              >
+                <div className="flex justify-between items-center font-bold">
+                  <span>{exercise.exercise.name}</span>
+                  <span className="text-xs md:text-sm">
+                    {exercise.duration} | {exercise.rest}
+                  </span>
+                </div>
+                {exercise.tips && (
+                  <p className="mt-1 italic text-xs">💡 {exercise.tips}</p>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      
-      {/* Exercise List - Now iterates over the `allExercises` array */}
-      <div className="mb-6">
-        <h3 className="text-lg font-bold text-brightYellow mb-3">Full Workout:</h3>
-        <div className="space-y-2 max-h-40 overflow-y-auto">
-          {allExercises.map((exercise, index) => (
-            <div
-              key={index}
-              className={`p-2 rounded-lg text-sm ${
-                index === currentExerciseIndex
-                  ? 'bg-limeGreen text-gray-900'
-                  : 'bg-gray-700 text-logoGray'
-              }`}
-            >
-              <span className="font-bold">{index + 1}.</span> {exercise.exercise.name} - {exercise.duration}
-            </div>
-          ))}
-        </div>
-      </div>
-      
-       {/* Controls */}
-      <div className="flex justify-center space-x-4">
-        <button
-          onClick={onGoBackToProfile} // New button
-          className="btn-cancel px-6 py-2 rounded-lg"
-        >
-          Back to Profile
-        </button>
-        {!isPlaying ? (
-          <button
-            onClick={startPreview}
-            className="btn-primary bg-limeGreen hover:bg-green-600 text-white px-6 py-2 rounded-lg"
-          >
-            Play Preview
-          </button>
-        ) : (
-          <button
-            onClick={stopPreview}
-            className="btn-primary bg-hotPink hover:bg-pink-600 text-white px-6 py-2 rounded-lg"
-          >
-            Stop Preview
-          </button>
-        )}
-        
-        <button
-          onClick={onStartWorkout}
-          className="btn-primary bg-brightYellow hover:bg-yellow-600 text-gray-900 px-6 py-2 rounded-lg"
-        >
-          Start Workout
-        </button>
       </div>
     </div>
   );
 };
+
 
 WorkoutPreview.propTypes = {
   workoutData: PropTypes.shape({
@@ -165,7 +126,7 @@ WorkoutPreview.propTypes = {
                 video_id: PropTypes.string,
              }),
             duration: PropTypes.string,
-            rest_duration: PropTypes.string,
+            rest: PropTypes.string,
             tips: PropTypes.string,
           })
         ),
@@ -173,7 +134,7 @@ WorkoutPreview.propTypes = {
     ),
   }).isRequired,
   onStartWorkout: PropTypes.func.isRequired,
-  onSkipPreview: PropTypes.func.isRequired,
+  onGoBackToProgram: PropTypes.func.isRequired,
 };
 
 export default WorkoutPreview;

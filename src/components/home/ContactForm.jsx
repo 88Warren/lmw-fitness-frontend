@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { InputField, TextAreaField } from "../../controllers/forms/formFields";
 import { showToast } from "../../utils/toastUtil";
 import { motion } from "framer-motion";
+import DynamicHeading from "../Shared/DynamicHeading";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -134,10 +135,10 @@ const ContactForm = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 font-higherJump leading-loose tracking-widest text-white">
-            Get In Touch <span className="w">w</span>
-            ith <span className="m">m</span>e
-          </h2>
+          <DynamicHeading
+            text="Get in touch with me"
+            className="text-4xl md:text-5xl font-bold mb-6 font-higherJump leading-loose tracking-widest text-white"
+          />
           <p className="text-lg max-w-2xl mx-auto text-white">
             Have a question or need more info? Drop me a message
           </p>

@@ -24,6 +24,7 @@ import WorkoutAuthPage from '../pages/Workouts/WorkoutAuthPage';
 import ProtectedRoute from "../components/Shared/ProtectedRoute";
 
 import WorkoutPage from "../pages/Workouts/WorkoutPage";
+import ProgramDayListPage from "../pages/Workouts/ProgramDayListPage";
 import ChangePasswordFirstLoginPage from "../pages/User/ChangePasswordFirstLogin";
 import Profile from "../pages/User/Profile";
 
@@ -63,6 +64,7 @@ const routes = createRoutesFromElements(
     <Route element={<ProtectedRoute />}>
       <Route path="/change-password-first-login" element={<ChangePasswordFirstLoginPage />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/workouts/:programName/list" element={<ProgramDayListPage />} />
       <Route path="/workouts/:programName/:dayNumber" element={<WorkoutPage />} />
       <Route path="/blog/create" element={<BlogPage />} /> 
       <Route path="/blog/edit" element={<BlogPage />} /> 

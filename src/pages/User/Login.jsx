@@ -5,6 +5,7 @@ import useAuth from "../../hooks/useAuth";
 import { BACKEND_URL } from "../../utils/config";
 import { showToast } from "../../utils/toastUtil"; 
 import { ToastContainer } from "react-toastify";
+import DynamicHeading from "../../components/Shared/DynamicHeading";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -63,14 +64,14 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex flex-col md:flex-row h-full md:min-h-screen">
       {/* Left Side - Login Card */}
-      <div className="w-1/2 bg-customGray flex items-center justify-center p-8">
+      <div className="w-full md:w-1/2 bg-customGray flex items-start md:items-center justify-center p-14 md:p-8 pt-30 md:pt-8">
         <div className="w-full max-w-md">
-          <h2 className="text-3xl font-bold text-center text-customWhite mb-8 font-higherJump tracking-widest">
-            <span className="l">L</span>
-            ogin
-          </h2>
+          <DynamicHeading
+            text="Login"
+            className="text-3xl font-bold text-center text-customWhite mb-8 font-higherJump tracking-widest"
+          />
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <InputField
@@ -118,7 +119,7 @@ const LoginPage = () => {
       </div>
 
       {/* Right Side - Image */}
-      <div className="w-1/2 flex items-center justify-center">
+      <div className="hidden md:flex w-1/2 items-center justify-center">
         <img
           src={`${BACKEND_URL}/images/LMW_fitness_frog.jpg`}
           alt="Fitness motivation"

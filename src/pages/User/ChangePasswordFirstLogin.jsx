@@ -7,6 +7,7 @@ import { showToast } from '../../utils/toastUtil';
 import { ToastContainer } from 'react-toastify';
 import { BACKEND_URL } from '../../utils/config';
 import axios from 'axios';
+import DynamicHeading from '../../components/Shared/DynamicHeading';
 
 const ChangePasswordFirstLoginPage = () => {
   // console.log("ChangePasswordFirstLoginPage rendering");
@@ -136,9 +137,10 @@ const ChangePasswordFirstLoginPage = () => {
       className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white"
     >
       <div className="bg-customGray p-8 mt-10 rounded-lg max-w-lg w-full border-brightYellow border-2">
-        <h2 className="font-higherJump text-3xl md:text-4xl text-center font-bold text-customWhite mb-8 leading-loose tracking-widest">
-            Set Your Pass<span className="w">w</span>ord
-        </h2>
+        <DynamicHeading
+          text="Set your password"
+          className="font-higherJump text-3xl md:text-4xl text-center font-bold text-customWhite mb-8 leading-loose tracking-widest"
+        />
           <form onSubmit={handleSubmit} className="space-y-6">
               <InputField
                 label="New Password"

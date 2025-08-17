@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import DynamicHeading from '../../components/Shared/DynamicHeading';
 
 const PaymentCancelled = () => {
   return (
@@ -24,9 +25,10 @@ const PaymentCancelled = () => {
             d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
           ></path>
         </svg>
-        <h2 className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest">
-          Pay<span className="m">m</span>ent Cance<span className="l">l</span><span className="l">l</span>ed
-        </h2>
+        <DynamicHeading
+          text="Payment Cancelled"
+          className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest"
+        />
         <p className="text-lg text-customWhite mb-6">
           Your payment was cancelled. <br/>
           You can try again or return to the home page.

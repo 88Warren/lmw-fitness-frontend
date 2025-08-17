@@ -1,31 +1,34 @@
-// src/pages/WorkoutPage.js
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, Link, useParams, useSearchParams } from 'react-router-dom';
 import useAuth from "../../hooks/useAuth";
 import { showToast } from "../../utils/toastUtil";
 import WorkoutTimer from "../../components/Workouts/WorkoutTimer";
 import WorkoutPreview from "../../components/Workouts/WorkoutPreview";
 import ExerciseVideo from "../../components/Workouts/ExerciseVideo";
 import { BACKEND_URL } from "../../utils/config";
+import DynamicHeading from '../../components/Shared/DynamicHeading';
+import { HashLink } from 'react-router-hash-link';
 
 const WorkoutPage = () => {
-  const { isLoggedIn, loadingAuth, user } = useAuth();
+  const { isLoggedIn, loadingAuth, user, updateUser } = useAuth();
   const navigate = useNavigate();
   const { programName, dayNumber } = useParams();
+  const [searchParams] = useSearchParams();
   const [workoutData, setWorkoutData] = useState(null);
   const [loadingWorkout, setLoadingWorkout] = useState(true);
   const [error, setError] = useState(null);
-
-  // Workout state
-  const [showPreview, setShowPreview] = useState(true);
+  const [showPreview, setShowPreview] = useState(false);
+  const isPreviewMode = searchParams.get('mode') === 'preview';
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [isRestPeriod, setIsRestPeriod] = useState(false);
   const [workoutComplete, setWorkoutComplete] = useState(false);
   const dayNum = dayNumber ? parseInt(dayNumber, 10) : 1;
+  const [isFirstLoad, setIsFirstLoad] = useState(true); 
+  const [showModificationModal, setShowModificationModal] = useState(false);
+  const [currentModification, setCurrentModification] = useState(null);
 
   useEffect(() => {
-    // Only save progress if the workout has started (i.e., not on the preview page)
     if (!showPreview && !workoutComplete) {
       const progressData = {
         programName,
@@ -36,18 +39,58 @@ const WorkoutPage = () => {
       };
       localStorage.setItem('workoutProgress', JSON.stringify(progressData));
     }
-    // Clean up local storage if the workout is complete
-    if (workoutComplete) {
-        localStorage.removeItem('workoutProgress');
-    }
+    // if (workoutComplete) {
+    //     localStorage.removeItem('workoutProgress');
+    // }
   }, [currentBlockIndex, currentExerciseIndex, isRestPeriod, showPreview, workoutComplete, programName, dayNum]);
 
-  const handleGoBackToProfile = () => {
-    navigate('/profile');
+  useEffect(() => {
+    const handleCompletion = async () => {
+      if (workoutComplete) {
+        localStorage.removeItem('workoutProgress');
+        showToast("success", "Workout completed! Great job!");
+  
+        try {
+          const authToken = localStorage.getItem('jwtToken');
+          const response = await fetch(`${BACKEND_URL}/api/workouts/complete-day`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ programName, dayNumber: dayNum })
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
+          }
+
+          console.log("Workout completion recorded successfully");
+          
+          try {
+            await updateUser(); 
+          } catch (userUpdateError) {
+            console.error("Failed to update user data after workout completion:", userUpdateError);
+          }
+        } catch (error) {
+          console.error("Failed to update user completion status:", error);
+        }
+      }
+    };
+
+    handleCompletion();
+  }, [workoutComplete, programName, dayNum, updateUser]);
+
+  const handleGoBackToProgram = () => {
+    navigate(`/workouts/${programName}/list`);
   };
 
+  const handleShowModificationModal = useCallback((modificationData) => {
+    setCurrentModification(modificationData);
+    setShowModificationModal(true);
+  }, []);
+
   useEffect(() => {
-    // Auth and redirect logic remains the same
     if (!loadingAuth && !isLoggedIn) {
       console.log("WorkoutPage: Not logged in, redirecting to login.");
       navigate("/login");
@@ -67,7 +110,8 @@ const WorkoutPage = () => {
         console.log("WorkoutPage: User from context:", user);
         console.log("WorkoutPage: Program Name from URL params:", programName);
         console.log("WorkoutPage: Day Number from URL params:", dayNum);
-
+        console.log("WorkoutPage: Is Preview Mode:", isPreviewMode);
+        
         if (!user || (user.role !== 'user' && user.role !== 'admin')) {
           setError("You are not authorised to view this program.");
           setLoadingWorkout(false);
@@ -89,7 +133,6 @@ const WorkoutPage = () => {
 
          const savedProgress = localStorage.getItem('workoutProgress');
 
-        // Use programName from URL params to build the fetch URL
         const response = await fetch(`${BACKEND_URL}/api/workouts/${programName}/day/${dayNum}`, {
           headers: {
             'Authorization': `Bearer ${authToken}`, 
@@ -108,7 +151,10 @@ const WorkoutPage = () => {
 
         if (data.workoutBlocks && data.workoutBlocks.length > 0) {
           setWorkoutData(data);
-          if (savedProgress) {
+          
+          if (isPreviewMode) {
+            setShowPreview(true);
+          } else if (savedProgress) {
             const progress = JSON.parse(savedProgress);
             if (
               progress.programName === programName &&
@@ -120,9 +166,16 @@ const WorkoutPage = () => {
               setShowPreview(false);
             } else {
               localStorage.removeItem('workoutProgress');
+              if (isFirstLoad) {
+                setShowPreview(true);
+              }
+            }
+          } else {
+            if (isFirstLoad) {
+              setShowPreview(true);
             }
           }
-
+          setIsFirstLoad(false);
         } else {
           setError("Workout data is missing blocks.");
         }
@@ -140,60 +193,62 @@ const WorkoutPage = () => {
     }
   }, [isLoggedIn, loadingAuth, navigate, user, dayNum, programName, showToast]);
 
-  // Helper functions to manage the workout flow
   const handleStartWorkout = useCallback(() => {
+    if (isPreviewMode) {
+      navigate(`/workouts/${programName}/${dayNumber}`); 
+      return;
+    }
     setShowPreview(false);
     setCurrentBlockIndex(0);
     setCurrentExerciseIndex(0);
     setIsRestPeriod(false);
     setWorkoutComplete(false);
-  }, []);
+  }, [isPreviewMode, navigate, programName, dayNumber]);
 
   const handleExerciseComplete = useCallback(() => {
-    if (!workoutData) return; 
-
-    const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
-    const nextExerciseExistsInBlock = currentExerciseIndex < currentBlock.exercises.length - 1;
-
-    if (isRestPeriod) {
-      setIsRestPeriod(false); 
-      if (nextExerciseExistsInBlock) {
-        setCurrentExerciseIndex(currentExerciseIndex + 1); 
+      if (!workoutData) return;
+      const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
+      if (isRestPeriod) {
+          setIsRestPeriod(false);
+          const nextExerciseExistsInBlock = currentExerciseIndex < currentBlock.exercises.length - 1;
+          if (nextExerciseExistsInBlock) {
+              setCurrentExerciseIndex(currentExerciseIndex + 1);
+          } else {
+              const nextBlockExists = currentBlockIndex < workoutData.workoutBlocks.length - 1;
+              if (nextBlockExists) {
+                  setCurrentBlockIndex(currentBlockIndex + 1);
+                  setCurrentExerciseIndex(0);
+              } else {
+                  setWorkoutComplete(true);
+                  // showToast("success", "Workout completed! Great job!");
+              }
+          }
       } else {
-        const nextBlockExists = currentBlockIndex < workoutData.workoutBlocks.length - 1;
-        if (nextBlockExists) {
-          setCurrentBlockIndex(currentBlockIndex + 1); 
-          setCurrentExerciseIndex(0);
-        } else {
-          setWorkoutComplete(true);
-          showToast("success", "Workout completed! Great job!");
-        }
+          const nextExerciseExistsInBlock = currentExerciseIndex < currentBlock.exercises.length - 1;
+          const nextBlockExists = currentBlockIndex < workoutData.workoutBlocks.length - 1;
+          if (nextExerciseExistsInBlock || nextBlockExists) {
+              setIsRestPeriod(true);
+          } else {
+              setWorkoutComplete(true);
+              // showToast("success", "Workout completed! Great job!");
+          }
       }
-    } else {
-      if (nextExerciseExistsInBlock || currentBlockIndex < workoutData.workoutBlocks.length - 1) {
-        setIsRestPeriod(true); 
-      } else {
-        setWorkoutComplete(true);
-        showToast("success", "Workout completed! Great job!");
-      }
-    }
   }, [currentBlockIndex, currentExerciseIndex, isRestPeriod, workoutData, showToast]);
 
   const handleGoBack = useCallback(() => {
-    if (isRestPeriod) {
-      setIsRestPeriod(false);
-    } else {
-      const prevBlockExists = currentBlockIndex > 0;
-      if (currentExerciseIndex > 0) {
-        setCurrentExerciseIndex(currentExerciseIndex - 1);
-        setIsRestPeriod(true); 
-      } else if (prevBlockExists) {
-        const prevBlock = workoutData.workoutBlocks[currentBlockIndex - 1];
-        setCurrentBlockIndex(currentBlockIndex - 1);
-        setCurrentExerciseIndex(prevBlock.exercises.length - 1);
-        setIsRestPeriod(true); 
+      if (isRestPeriod) {
+          setIsRestPeriod(false);
+      } else {
+          if (currentExerciseIndex > 0) {
+              setCurrentExerciseIndex(currentExerciseIndex - 1);
+          } else if (currentBlockIndex > 0) {
+              const prevBlock = workoutData.workoutBlocks[currentBlockIndex - 1];
+              setCurrentBlockIndex(currentBlockIndex - 1);
+              setCurrentExerciseIndex(prevBlock.exercises.length - 1);
+          } else {
+              setShowPreview(true);
+          }
       }
-    }
   }, [currentBlockIndex, currentExerciseIndex, isRestPeriod, workoutData]);
 
   const getCurrentExercise = useCallback(() => {
@@ -201,22 +256,60 @@ const WorkoutPage = () => {
       return null;
     }
     const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
+    const currentWorkoutExercise = currentBlock?.exercises[currentExerciseIndex];
+
+    console.log("DEBUG getCurrentExercise:", {
+      currentWorkoutExercise,
+      isRestPeriod,
+      currentBlockIndex,
+      currentExerciseIndex
+    });
+
+    if (!currentWorkoutExercise) {
+        return null;
+    }
+    
     if (isRestPeriod) {
       return {
         name: "Rest",
-        rest: currentBlock.exercises[currentExerciseIndex]?.restDuration || "30 seconds",
+        // rest: currentBlock.exercises[currentExerciseIndex]?.rest || "30 seconds",
+        rest: currentWorkoutExercise?.rest || "30 seconds",
         exercise: { name: "Rest" } 
       };
     }
-    const currentExercise = currentBlock.exercises[currentExerciseIndex];
-    if (currentExercise.Reps === "Max Time") {
-      return {
-        ...currentExercise,
-        isStopwatch: true
-      };
-    }
-    return currentExercise;
-  }, [workoutData, currentBlockIndex, currentExerciseIndex]);
+
+    let exerciseData;
+
+    if (currentWorkoutExercise.duration === "Max Time") {
+    exerciseData = {
+      exercise: {
+        name: currentWorkoutExercise.exercise.name,
+        ...currentWorkoutExercise.exercise
+      },
+      duration: currentWorkoutExercise.duration,
+      rest: currentWorkoutExercise.rest,
+      instructions: currentWorkoutExercise.exercise.instructions || currentWorkoutExercise.instructions || "",
+      tips: currentWorkoutExercise.exercise.tips || currentWorkoutExercise.tips || "",
+      modification: currentWorkoutExercise.exercise.modification || currentWorkoutExercise.modification,
+      isStopwatch: true
+    };
+  } else {
+    exerciseData = {
+      exercise: {
+        name: currentWorkoutExercise.exercise.name,
+        ...currentWorkoutExercise.exercise
+      },
+      duration: currentWorkoutExercise.duration,
+      rest: currentWorkoutExercise.rest,
+      instructions: currentWorkoutExercise.exercise.instructions || currentWorkoutExercise.instructions || "",
+      tips: currentWorkoutExercise.exercise.tips || currentWorkoutExercise.tips || "",
+      modification: currentWorkoutExercise.exercise.modification || currentWorkoutExercise.modification
+    };
+  }
+  
+  console.log("DEBUG exerciseData result:", exerciseData);
+  return exerciseData;
+  }, [workoutData, currentBlockIndex, currentExerciseIndex, isRestPeriod]);
 
   const getNextExercise = useCallback(() => {
     if (!workoutData || !workoutData.workoutBlocks || workoutData.workoutBlocks.length === 0) {
@@ -267,15 +360,13 @@ const WorkoutPage = () => {
     );
   }
 
-  // Show preview if not started
-  if (showPreview) {
+   if (showPreview || isPreviewMode) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white">
+      <div className="flex flex-col items-center justify-center max-h-fit lg:max-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white">
           <WorkoutPreview
             workoutData={workoutData}
             onStartWorkout={handleStartWorkout}
-            onSkipPreview={() => setShowPreview(false)}
-            onGoBackToProfile={handleGoBackToProfile} 
+            onGoBackToProgram={handleGoBackToProgram} 
           />
       </div>
     );
@@ -283,26 +374,30 @@ const WorkoutPage = () => {
 
   if (workoutComplete) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white p-6 md:p-10 font-titillium">
-        <div className="max-w-4xl mx-auto bg-gray-800 rounded-lg shadow-xl p-6 border border-limeGreen text-center">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+        <div className="bg-customGray p-4 rounded-lg text-center max-w-4xl w-full h-full lg:max-h-[90vh] flex flex-col border-brightYellow border-2r">
           <div className="text-6xl mb-6">🎉</div>
-          <h1 className="text-4xl font-bold text-brightYellow mb-4 font-higherJump">
-            Workout Complete!
-          </h1>
-          <p className="text-lg text-logoGray mb-8">
-            Great job completing today&apos;s workout! You&apos;re one step closer to your fitness goals.
+          <DynamicHeading
+            text="Workout Complete"
+            className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
+          />
+          <p className="text-lg text-logoGray my-6">
+            Great job completing today&apos;s workout! <br/> You are another step closer to your fitness goals.
           </p>
           
           <div className="space-y-4">
-            <Link to="/profile" className="btn-primary bg-limeGreen hover:bg-green-600 text-white px-8 py-3 rounded-lg">
-              Back to Profile
-            </Link>
+            <button
+              onClick={handleGoBackToProgram}
+              className="btn-full-colour mr-2 md:mr-4"
+            >
+              Back to Program
+            </button>
             <button
               onClick={() => {
                 setShowPreview(true);
                 setWorkoutComplete(false);
               }}
-              className="btn-primary bg-brightYellow hover:bg-yellow-600 text-gray-900 px-8 py-3 rounded-lg ml-4"
+              className="btn-cancel mt-2 px-6 py-3 md:mt-6"
             >
               Restart Workout
             </button>
@@ -312,12 +407,9 @@ const WorkoutPage = () => {
     );
   }
 
-  // Determine if the current exercise is a stopwatch
   const currentExerciseData = getCurrentExercise();
   const isStopwatchMode = currentExerciseData?.isStopwatch;
   const isFirstExercise = currentBlockIndex === 0 && currentExerciseIndex === 0 && !isRestPeriod;
-
-  // Progress Calculation
   const totalExercisesInWorkout = workoutData.workoutBlocks.reduce(
     (total, block) => total + block.exercises.length,
     0
@@ -333,80 +425,110 @@ const WorkoutPage = () => {
 
   // Show active workout
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6 md:p-10 font-titillium">
-      <div className="max-w-4xl mx-auto">
-        {/* Workout Header */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-limeGreen">
-          <h1 className="text-3xl font-bold text-brightYellow text-center mb-2 font-higherJump">
-            {workoutData.title}
-          </h1>
-          <div className="text-center text-logoGray">
-            <p>
-              {workoutData.workoutBlocks[currentBlockIndex].blockType}:{" "}
-              {workoutData.workoutBlocks[currentBlockIndex].blockNotes}
-            </p>
-            <p className="text-sm mt-1">
-              Exercise {currentExerciseIndex + 1} of{" "}
-              {workoutData.workoutBlocks[currentBlockIndex].exercises.length}
-            </p>
-          </div>
-        </div>
+        <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+            <div className="bg-customGray p-4 rounded-lg text-center max-w-7xl w-full h-full lg:max-h-[110vh] flex flex-col border-brightYellow border-2 mt-20 lg:mt-14">
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            {isRestPeriod ? (
-                // Display a simple placeholder during rest periods
-                <div className="bg-gray-700 rounded-lg p-4 h-full flex flex-col items-center justify-center text-center">
-                    <div className="text-6xl text-limeGreen mb-4">🧘</div>
-                    <h3 className="text-2xl font-bold text-brightYellow mb-2">Rest Period</h3>
-                    <p className="text-logoGray">Get ready for the next exercise!</p>
-                    {getNextExercise() && (
-                        <p className="text-logoGray mt-2 text-sm">Next up: <span className="font-semibold text-white">{getNextExercise().exercise.name}</span></p>
+                {/* Workout Title and Buttons at the top */}
+                <div className="flex flex-col mb-4">
+                  <HashLink
+                    to={`/workouts/${programName}/list`}
+                    aria-label="Back to program"
+                    className="inline-flex space-x-2 text-brightYellow hover:text-white text-xs md:text-sm mb-2 transition-colors duration-300 font-titillium font-semibold group"
+                  >
+                    <svg
+                      className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                      />
+                    </svg>
+                    <span>Back to Program</span>
+                  </HashLink>
+                    <DynamicHeading
+                        text={workoutData.title}
+                        className="font-higherJump text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
+                    />
+                    {workoutData.description && (
+                        <p className="text-logoGray text-xs md:text-base mt-2 px-2 md:px-4">
+                            {workoutData.description}
+                        </p>
                     )}
                 </div>
-            ) : (
-                // Display the video component for exercises
-                <ExerciseVideo
-                    exercise={getCurrentExercise()}
-                    isActive={!isRestPeriod}
-                />
-            )}
-          </div>
 
-          {/* Timer */}
-          <div>
-            <WorkoutTimer
-              currentExercise={getCurrentExercise()}
-              nextExercise={getNextExercise()}
-              onExerciseComplete={handleExerciseComplete}
-              onGoBack={handleGoBack} 
-              canGoBack={!isFirstExercise} 
-              isRest={isRestPeriod}
-              isStopwatch={isStopwatchMode} 
-            />
-          </div>
-        </div>
+                {/* Main content grid for video and timer */}
+                <div className="flex-grow flex flex-col lg:flex-row-reverse lg:items-start justify-center gap-6 overflow-hidden mt-2 md:mt-4">
+                  {/* Right Column: Timer, Instructions, and Progress */}
+                    <div className="w-full lg:w-1/2 flex flex-col">
+                        <WorkoutTimer
+                            key={`${currentBlockIndex}-${currentExerciseIndex}`}
+                            currentBlockType={workoutData.workoutBlocks[currentBlockIndex].blockType}
+                            currentExerciseNumber={currentExerciseIndex + 1}
+                            totalExercisesInBlock={workoutData.workoutBlocks[currentBlockIndex].exercises.length}
+                            currentExercise={currentExerciseData} 
+                            nextExercise={getNextExercise()}
+                            onExerciseComplete={handleExerciseComplete}
+                            onGoBack={handleGoBack}
+                            canGoBack={!isFirstExercise}
+                            isRest={isRestPeriod}
+                            isStopwatch={isStopwatchMode}
+                            exerciseInstructions={currentExerciseData?.instructions} 
+                            exerciseTips={currentExerciseData?.tips} 
+                            progressPercentage={progressPercentage}
+                            onShowModificationModal={handleShowModificationModal} 
+                            currentModification={currentModification} 
+                            setShowModificationModal={setShowModificationModal} 
+                        />
 
-         {/* Progress Bar */}
-        <div className="mt-6 bg-gray-800 rounded-lg p-4">
-          <div className="flex justify-between text-sm text-logoGray mb-2">
-            <span>Progress</span>
-            <span>
-              {Math.round(progressPercentage)}%
-            </span>
-          </div>
-          <div className="w-full bg-gray-600 rounded-full h-3">
-            <div
-              className="bg-gradient-to-r from-limeGreen to-brightYellow h-3 rounded-full transition-all duration-500"
-              style={{
-                width: `${progressPercentage}%`,
-              }}
-            ></div>
-          </div>
+                      {showModificationModal && currentModification && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 p-4">
+                            <div className="bg-customGray p-6 rounded-lg max-w-xl w-full text-center">
+                                <h3 className="text-2xl font-bold text-customWhite mb-4">
+                                    Modification: {currentModification.name}
+                                </h3>
+                                <ExerciseVideo exercise={{ exercise: currentModification }} isActive={true} />
+                                <p className="text-logoGray my-4">{currentModification.description}</p>
+                                <button
+                                    onClick={() => setShowModificationModal(false)}
+                                    className="btn-primary mt-4"
+                                >
+                                    Back to Workout
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    </div>
+
+
+                    {/* Left Column: Video */}
+                    <div className="w-full lg:w-1/2">
+                        {isRestPeriod ? (
+                            <div className="bg-gray-700 rounded-lg p-10 h-fit flex flex-col items-center justify-center text-center">
+                                <div className="text-8xl mb-4">🧘</div>
+                                <h3 className="text-xl font-bold text-brightYellow mb-2">Rest Period</h3>
+                                <p className="text-logoGray text-md">Get ready for the next exercise</p>
+                                {getNextExercise() && (
+                                    <p className="text-logoGray mt-2 text-md">Next up: <span className="font-semibold text-white">{getNextExercise().exercise.name}</span></p>
+                                )}
+                            </div>
+                        ) : (
+                            <ExerciseVideo
+                                exercise={getCurrentExercise()}
+                                isActive={!isRestPeriod}
+                            />
+                        )}
+                    </div>
+
+
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default WorkoutPage;

@@ -1,5 +1,6 @@
 import { HashLink } from "react-router-hash-link";
 import { motion } from "framer-motion";
+import DynamicHeading from "../Shared/DynamicHeading";
 
 const About = () => {
   return (
@@ -12,16 +13,10 @@ const About = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-higherJump text-black mb-8 leading-loose">
-            <span className="w">W</span>
-            elco
-            <span className="m">M</span>e to
-            <br className="hidden md:block" />
-            <span className="l">L</span>
-            ive <span className="m">M</span>
-            ore <span className="w">W</span>
-            ith fitness!
-          </h2>
+          <DynamicHeading
+            text="Welcome to LMW Fitness"
+            className="text-4xl md:text-5xl font-higherJump text-black mb-8 leading-loose"
+          />
           <p className="text-lg text-customGray max-w-3xl mx-auto mb-8">
             Hi, I&apos;m Laura, and I&apos;m passionate about helping you achieve your
             health and fitness goals. Whether you want to feel stronger, move

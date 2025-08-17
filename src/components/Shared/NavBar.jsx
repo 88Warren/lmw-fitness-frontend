@@ -161,7 +161,7 @@ useEffect(() => {
           {/* Web Menu */}
           <div className="hidden xl:flex items-center justify-between w-full px-4">
             {/* Left: Navigation Links */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center">
               {/* Logo */}
               <NavLink
                 to="/"
@@ -175,7 +175,7 @@ useEffect(() => {
                   <span className="l pr-1">L</span>
                   <span className="m pr-1">M</span>
                   <span className="w pr-2">W</span>
-                  <span className="fitness pt-12">fitness</span>
+                  <span className="fitness mr-10">fitness</span>
                 </h1>
               </NavLink>
 

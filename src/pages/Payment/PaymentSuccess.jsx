@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import axios from 'axios';
 import { BACKEND_URL } from '../../utils/config';
 import { showToast } from '../../utils/toastUtil';
+import DynamicHeading from '../../components/Shared/DynamicHeading';
 
 const PaymentSuccess = () => {
   const location = useLocation();
@@ -111,9 +112,10 @@ const fetchAuthLink = async (retryCount = 0) => {
       className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white"
     >
       <div className="bg-customGray p-8 rounded-lg text-center max-w-lg w-full border-brightYellow border-2">
-        <h2 className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest">
-          Pay<span className="m">m</span>ent Successfu<span className="l">l</span>
-        </h2>
+        <DynamicHeading
+          text="Payment Successful"
+          className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest"
+        />
         <p className="text-lg text-customWhite mb-6">
           Thank you for your purchase. Your order has been placed successfully.
         </p>

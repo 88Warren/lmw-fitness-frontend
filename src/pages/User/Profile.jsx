@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom'; 
 import { motion } from 'framer-motion';
 import useAuth from "../../hooks/useAuth";
+import DynamicHeading from '../../components/Shared/DynamicHeading';
 
 const ProfilePage = () => {
   const { user, isLoggedIn, loadingAuth } = useAuth();
@@ -72,9 +73,10 @@ useEffect(() => {
       className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white"
     >
       <div className="bg-customGray p-8 rounded-lg text-center max-w-lg w-full border-brightYellow border-2">
-        <h2 className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest">
-          User Profi<span className="l">l</span>e
-        </h2>
+        <DynamicHeading 
+          text="User Profile" 
+          className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest" 
+        />
         <div className="space-y-4 text-center">
           {/* Debug info */}
           {/* <div className="bg-gray-700 p-4 rounded text-left text-xs">
@@ -90,14 +92,14 @@ useEffect(() => {
             {user.role === 'admin' ? (
               <div className="space-y-2">
                 <Link 
-                  to="/workouts/beginner-program/1" 
+                  to="/workouts/beginner-program" 
                   className="block btn-primary bg-limeGreen hover:bg-green-600"
                   onClick={() => handleProgramClick('beginner-program', 1)}
                 >
                   30-Day Beginner Programme
                 </Link>
                 <Link 
-                  to="/workouts/advanced-program/1" 
+                  to="/workouts/advanced-program" 
                   className="block btn-primary bg-hotPink hover:bg-pink-600"
                   onClick={() => handleProgramClick('advanced-program', 1)}
                 >
@@ -108,7 +110,7 @@ useEffect(() => {
               <div className="space-y-2">
               {user.purchasedPrograms.includes('beginner-program') && (
                 <Link 
-                  to="/workouts/beginner-program/1" 
+                  to="/workouts/beginner-program/list" 
                   className="block btn-primary bg-limeGreen hover:bg-green-600"
                   onClick={() => handleProgramClick('beginner-program', 1)}
                 >
@@ -117,7 +119,7 @@ useEffect(() => {
               )}
                 {user.purchasedPrograms.includes('advanced-program') && (
                 <Link 
-                  to="/workouts/advanced-program/1" 
+                  to="/workouts/advanced-program/list" 
                   className="block btn-primary bg-hotPink hover:bg-pink-600"
                   onClick={() => handleProgramClick('advanced-program', 1)}
                 >

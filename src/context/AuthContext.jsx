@@ -15,12 +15,45 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [initialLoadError, setInitialLoadError] = useState(null);
 
-  const updateUser = useCallback((updatedUserData) => {
-    console.log("AuthContext: Updating user data:", updatedUserData);
-    localStorage.setItem("user", JSON.stringify(updatedUserData));
-    setUser(updatedUserData);
-    setIsAdmin(updatedUserData.role === "admin");
+  const fetchUserProfile = useCallback(async (authToken) => {
+    try {
+      console.log("AuthContext: Fetching fresh user profile from backend");
+      const response = await axios.get(`${BACKEND_URL}/api/profile`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      console.log("AuthContext: Fresh profile data received:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("AuthContext: Failed to fetch user profile:", error);
+      throw error;
+    }
   }, []);
+
+  const updateUser = useCallback(async (updatedUserData) => {
+    if (!updatedUserData) {
+      try {
+        if (!token) {
+          console.warn("AuthContext: Cannot fetch user data - no token available");
+          return;
+        }
+        console.log("AuthContext: Fetching fresh user data from backend");
+        const freshUserData = await fetchUserProfile(token);
+        console.log("AuthContext: Fresh user data received:", freshUserData);
+        localStorage.setItem("user", JSON.stringify(freshUserData));
+        setUser(freshUserData);
+        setIsAdmin(freshUserData.role === "admin");
+      } catch (error) {
+        console.error("AuthContext: Failed to fetch fresh user data:", error);
+      }
+    } else {
+      console.log("AuthContext: Updating user data:", updatedUserData);
+      localStorage.setItem("user", JSON.stringify(updatedUserData));
+      setUser(updatedUserData);
+      setIsAdmin(updatedUserData.role === "admin");
+    }
+  }, [token, fetchUserProfile]);
 
   const storeAuthData = useCallback((newToken, userData) => {
     console.log("AuthContext: Storing auth data:", { token: newToken, user: userData });
@@ -42,22 +75,6 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(false);
     setIsAdmin(false);
     delete axios.defaults.headers.common["Authorization"];
-  }, []);
-
-  const fetchUserProfile = useCallback(async (authToken) => {
-    try {
-      console.log("AuthContext: Fetching fresh user profile from backend");
-      const response = await axios.get(`${BACKEND_URL}/api/profile`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      console.log("AuthContext: Fresh profile data received:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("AuthContext: Failed to fetch user profile:", error);
-      throw error;
-    }
   }, []);
 
   useEffect(() => {
@@ -85,7 +102,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem("user", JSON.stringify(freshUserData));
           } catch (profileError) {
             console.warn("AuthContext: Failed to fetch fresh profile, using stored data:", profileError);
-            // If profile fetch fails, use stored data as fallback
             setUser(userData);
 
             if (profileError.response?.status === 401 || profileError.response?.status === 403) {

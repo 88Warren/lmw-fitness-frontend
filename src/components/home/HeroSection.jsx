@@ -1,6 +1,7 @@
 import { HashLink } from "react-router-hash-link";
 import { motion } from "framer-motion";
 import { BACKEND_URL } from "../../utils/config";
+import DynamicHeading from "../Shared/DynamicHeading";
 
 const placeholderImages = [
   `${BACKEND_URL}/images/LMW_fitness_1.jpg`,
@@ -27,9 +28,10 @@ const HeroSection = () => {
           className="max-w-2xl mx-auto px-0 md:px-8"
         >
           <div className="text-center p-2 md:p-4">
-            <h1 className="font-higherJump mb-2 text-4xl md:text-5xl font-extrabold leading-loose tracking-wide text-white">
-              Get Fit On Your Schedu<span className="l">l</span>e
-            </h1>
+            <DynamicHeading
+              text="Get fit on your schedule"
+              className="font-higherJump mb-2 text-4xl md:text-5xl font-extrabold leading-loose tracking-wide text-white"
+            />
             {/* <p className="font-titillium text-logoGray font-bold text-lg md:text-xl mt-4 tracking-wide leading-relaxed">
               Tailored online personal training designed for you
             </p> */}

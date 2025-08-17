@@ -22,7 +22,6 @@
     --font-higherJump: higherJump, sans-serif;
     --font-westerners: westerners, cursive;
     --font-titillium: titillium, sans-serif;
-
   }
 
   @layer base {
@@ -30,7 +29,6 @@
       scroll-behavior: smooth;
     }
   }
-
 
 @layer components {
 
@@ -63,7 +61,7 @@
   }
 
  .fitness{
-  @apply font-westerners text-2xl text-logoGray pr-10;
+  @apply font-westerners text-2xl text-logoGray;
   }
 
   .title-section {
@@ -110,7 +108,7 @@
   }
 
   .btn-cancel {
-    @apply py-2 px-3 bg-customWhite text-customGray rounded-lg hover:bg-logoGray hover:text-customWhite transition duration-300 font-titillium;
+    @apply py-2 px-3 font-titillium bg-customWhite hover:bg-logoGray text-customGray rounded-lg transition duration-300;
   }
 
   .btn-edit {
