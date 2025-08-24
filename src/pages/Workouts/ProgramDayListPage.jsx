@@ -24,13 +24,13 @@ const ProgramDayListPage = () => {
   const currentProgram = programDetails[programName];
   const lastCompletedDay = user?.completedDays?.[programName] || 0; 
 
-  console.log("ProgramDayListPage Debug:", {
-    user,
-    programName,
-    completedDays: user?.completedDays,
-    lastCompletedDay,
-    purchasedPrograms: user?.purchasedPrograms
-  });
+  // console.log("ProgramDayListPage Debug:", {
+  //   user,
+  //   programName,
+  //   completedDays: user?.completedDays,
+  //   lastCompletedDay,
+  //   purchasedPrograms: user?.purchasedPrograms
+  // });
 
   useEffect(() => {
     if (loadingAuth) return;
@@ -64,20 +64,20 @@ const ProgramDayListPage = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white"
+      className="flex flex-col items-center justify-center min-h-screen py-30 bg-gradient-to-b from-customGray/30 to-white"
     >
-      <div className="bg-customGray p-8 rounded-lg text-center max-w-4xl w-full border-brightYellow border-2">
+      <div className="bg-customGray p-4 md:p-8 rounded-lg text-center max-w-md sm:max-w-2xl md:max-w-3xl lg:max-w-5xl w-full border-brightYellow border-2">
         <DynamicHeading 
           text={currentProgram.title} 
           className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest" 
         />
 
-        {/* Debug info - remove in production */}
+        {/* Debug info - remove in production
         <div className="text-xs text-gray-400 mb-4">
           Debug: Last completed day: {lastCompletedDay}, User role: {user.role}
-        </div>
+        </div> */}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto p-4 custom-scrollbar">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 overflow-y-auto px-2 md:px-4 custom-scrollbar">
           {daysArray.map((day) => {
             const isDayLocked = day > lastCompletedDay + 1 && user.role !== 'admin'; 
             const isDayCompleted = day <= lastCompletedDay;
@@ -90,9 +90,9 @@ const ProgramDayListPage = () => {
             const dayStatusText = isDayLocked ? "Locked" : (isDayCompleted ? "Completed" : "Ready");
 
             return (
-              <div key={day} className={`p-4 rounded-lg border-2 ${isDayLocked ? 'border-gray-700' : 'border-brightYellow'} flex flex-col items-center justify-center`}>
+              <div key={day} className={`p-2 md:p-4 rounded-lg border-2 ${isDayLocked ? 'border-gray-700' : 'border-brightYellow'} flex flex-col items-center justify-center`}>
                 <div className="flex items-center space-x-2">
-                  <h3 className="text-xl font-bold text-customWhite mb-2">Day {day}</h3>
+                  <h3 className=" text-lg md:text-xl font-bold text-customWhite mb-2">Day {day}</h3>
                   {isDayCompleted && (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -109,7 +109,18 @@ const ProgramDayListPage = () => {
                   )}
                 </div>
                 <p className={`text-sm mb-4 ${isDayLocked ? 'text-gray-400' : 'text-logoGray'}`}>Status: {dayStatusText}</p>
-                <div className="flex flex-col space-y-2 w-full">
+                <div className="flex flex-col w-full">
+                  <button
+                    onClick={() => {
+                      if (!isDayLocked) {
+                        navigate(`/workouts/${programName}/${day}?mode=preview`); 
+                      }
+                    }}
+                    className={`${buttonClass.replace('btn-primary', 'btn-secondary').replace('bg-limeGreen', 'bg-logoGray text-black').replace('hover:bg-green-600', 'hover:bg-hotPink')} w-full`} // Style differently for preview
+                    disabled={isDayLocked}
+                  >
+                    Preview Exercises
+                  </button>
                   <button
                     onClick={() => {
                       if (!isDayLocked) {
@@ -120,17 +131,6 @@ const ProgramDayListPage = () => {
                     disabled={isDayLocked}
                   >
                     Start Workout
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (!isDayLocked) {
-                        navigate(`/workouts/${programName}/${day}?mode=preview`); 
-                      }
-                    }}
-                    className={`${buttonClass.replace('btn-primary', 'btn-secondary').replace('bg-limeGreen', 'bg-blue-600').replace('hover:bg-green-600', 'hover:bg-blue-700')} w-full`} // Style differently for preview
-                    disabled={isDayLocked}
-                  >
-                    Preview Exercises
                   </button>
                 </div>
               </div>

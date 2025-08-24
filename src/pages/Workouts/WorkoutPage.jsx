@@ -23,6 +23,7 @@ const WorkoutPage = () => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [isRestPeriod, setIsRestPeriod] = useState(false);
   const [workoutComplete, setWorkoutComplete] = useState(false);
+  const [hasStartedWorkout, setHasStartedWorkout] = useState(false); 
   const dayNum = dayNumber ? parseInt(dayNumber, 10) : 1;
   const [isFirstLoad, setIsFirstLoad] = useState(true); 
   const [showModificationModal, setShowModificationModal] = useState(false);
@@ -35,13 +36,11 @@ const WorkoutPage = () => {
         dayNumber: dayNum,
         blockIndex: currentBlockIndex,
         exerciseIndex: currentExerciseIndex,
-        isRestPeriod
+        isRestPeriod,
+        hasStartedWorkout
       };
       localStorage.setItem('workoutProgress', JSON.stringify(progressData));
     }
-    // if (workoutComplete) {
-    //     localStorage.removeItem('workoutProgress');
-    // }
   }, [currentBlockIndex, currentExerciseIndex, isRestPeriod, showPreview, workoutComplete, programName, dayNum]);
 
   useEffect(() => {
@@ -77,7 +76,6 @@ const WorkoutPage = () => {
         }
       }
     };
-
     handleCompletion();
   }, [workoutComplete, programName, dayNum, updateUser]);
 
@@ -131,7 +129,7 @@ const WorkoutPage = () => {
             throw new Error("Authentication token not found.");
         }
 
-         const savedProgress = localStorage.getItem('workoutProgress');
+        const savedProgress = localStorage.getItem('workoutProgress');
 
         const response = await fetch(`${BACKEND_URL}/api/workouts/${programName}/day/${dayNum}`, {
           headers: {
@@ -163,6 +161,7 @@ const WorkoutPage = () => {
               setCurrentBlockIndex(progress.blockIndex);
               setCurrentExerciseIndex(progress.exerciseIndex);
               setIsRestPeriod(progress.isRestPeriod);
+              setHasStartedWorkout(progress.hasStartedWorkout || false);
               setShowPreview(false);
             } else {
               localStorage.removeItem('workoutProgress');
@@ -203,10 +202,14 @@ const WorkoutPage = () => {
     setCurrentExerciseIndex(0);
     setIsRestPeriod(false);
     setWorkoutComplete(false);
+    setHasStartedWorkout(false); 
   }, [isPreviewMode, navigate, programName, dayNumber]);
 
   const handleExerciseComplete = useCallback(() => {
       if (!workoutData) return;
+      if (!hasStartedWorkout) {
+        setHasStartedWorkout(true);
+      }
       const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
       if (isRestPeriod) {
           setIsRestPeriod(false);
@@ -233,7 +236,7 @@ const WorkoutPage = () => {
               // showToast("success", "Workout completed! Great job!");
           }
       }
-  }, [currentBlockIndex, currentExerciseIndex, isRestPeriod, workoutData, showToast]);
+  }, [currentBlockIndex, currentExerciseIndex, isRestPeriod, workoutData, showToast, hasStartedWorkout]);
 
   const handleGoBack = useCallback(() => {
       if (isRestPeriod) {
@@ -247,6 +250,7 @@ const WorkoutPage = () => {
               setCurrentExerciseIndex(prevBlock.exercises.length - 1);
           } else {
               setShowPreview(true);
+              setHasStartedWorkout(false);
           }
       }
   }, [currentBlockIndex, currentExerciseIndex, isRestPeriod, workoutData]);
@@ -375,7 +379,7 @@ const WorkoutPage = () => {
   if (workoutComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-        <div className="bg-customGray p-4 rounded-lg text-center max-w-4xl w-full h-full lg:max-h-[90vh] flex flex-col border-brightYellow border-2r">
+        <div className="bg-customGray p-4 rounded-lg text-center max-w-5xl w-full h-full lg:max-h-[90vh] flex flex-col border-brightYellow border-2r">
           <div className="text-6xl mb-6">🎉</div>
           <DynamicHeading
             text="Workout Complete"
@@ -396,6 +400,7 @@ const WorkoutPage = () => {
               onClick={() => {
                 setShowPreview(true);
                 setWorkoutComplete(false);
+                setHasStartedWorkout(false);
               }}
               className="btn-cancel mt-2 px-6 py-3 md:mt-6"
             >
@@ -423,10 +428,12 @@ const WorkoutPage = () => {
 
   const progressPercentage = (exercisesCompleted / totalExercisesInWorkout) * 100;
 
+  const shouldAutoStart = hasStartedWorkout || !isFirstExercise;
+
   // Show active workout
   return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-            <div className="bg-customGray p-4 rounded-lg text-center max-w-7xl w-full h-full lg:max-h-[110vh] flex flex-col border-brightYellow border-2 mt-20 lg:mt-14">
+            <div className="bg-customGray p-4 rounded-lg text-center max-w-5xl w-full h-full lg:max-h-[110vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
 
                 {/* Workout Title and Buttons at the top */}
                 <div className="flex flex-col mb-4">
@@ -466,7 +473,7 @@ const WorkoutPage = () => {
                   {/* Right Column: Timer, Instructions, and Progress */}
                     <div className="w-full lg:w-1/2 flex flex-col">
                         <WorkoutTimer
-                            key={`${currentBlockIndex}-${currentExerciseIndex}`}
+                            key={`${currentBlockIndex}-${currentExerciseIndex}-${hasStartedWorkout}`}
                             currentBlockType={workoutData.workoutBlocks[currentBlockIndex].blockType}
                             currentExerciseNumber={currentExerciseIndex + 1}
                             totalExercisesInBlock={workoutData.workoutBlocks[currentBlockIndex].exercises.length}
@@ -482,7 +489,8 @@ const WorkoutPage = () => {
                             progressPercentage={progressPercentage}
                             onShowModificationModal={handleShowModificationModal} 
                             currentModification={currentModification} 
-                            setShowModificationModal={setShowModificationModal} 
+                            setShowModificationModal={setShowModificationModal}
+                            shouldAutoStart={shouldAutoStart}
                         />
 
                       {showModificationModal && currentModification && (
@@ -520,6 +528,7 @@ const WorkoutPage = () => {
                             <ExerciseVideo
                                 exercise={getCurrentExercise()}
                                 isActive={!isRestPeriod}
+                                shouldAutoStart={shouldAutoStart}
                             />
                         )}
                     </div>

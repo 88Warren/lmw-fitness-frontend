@@ -18,6 +18,7 @@ const WorkoutTimer = ({
   onShowModificationModal, 
   currentModification, 
   setShowModificationModal,
+  shouldAutoStart = false,
 }) => {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -50,7 +51,8 @@ const WorkoutTimer = ({
       restValue: currentExercise?.rest,
       durationValue: currentExercise?.duration,
       exerciseName: currentExercise?.exercise?.name,
-      modification: currentExercise?.modification
+      modification: currentExercise?.modification,
+      shouldAutoStart
     });
     clearInterval(intervalRef.current);
     
@@ -68,10 +70,10 @@ const WorkoutTimer = ({
         const exerciseDuration = parseDurationToSeconds(currentExercise.duration);
         console.log("Exercise duration parsed:", exerciseDuration);
         setTime(exerciseDuration);
-        setIsActive(true);
+        setIsActive(shouldAutoStart);
         setIsPaused(false);
     }
-  }, [currentExercise, isRest, isStopwatch]);
+  }, [currentExercise, isRest, isStopwatch, shouldAutoStart]);
 
   // Timer interval effect
   useEffect(() => {
@@ -330,6 +332,7 @@ WorkoutTimer.propTypes = {
   onShowModificationModal: PropTypes.func.isRequired, 
   currentModification: PropTypes.object, 
   setShowModificationModal: PropTypes.func.isRequired, 
+  shouldAutoStart: PropTypes.bool, 
 };
 
 export default WorkoutTimer;

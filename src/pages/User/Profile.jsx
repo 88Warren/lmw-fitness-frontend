@@ -92,14 +92,14 @@ useEffect(() => {
             {user.role === 'admin' ? (
               <div className="space-y-2">
                 <Link 
-                  to="/workouts/beginner-program" 
+                  to="/workouts/beginner-program/list" 
                   className="block btn-primary bg-limeGreen hover:bg-green-600"
                   onClick={() => handleProgramClick('beginner-program', 1)}
                 >
                   30-Day Beginner Programme
                 </Link>
                 <Link 
-                  to="/workouts/advanced-program" 
+                  to="/workouts/advanced-program/list" 
                   className="block btn-primary bg-hotPink hover:bg-pink-600"
                   onClick={() => handleProgramClick('advanced-program', 1)}
                 >
