@@ -69,8 +69,15 @@ const ProgramDayListPage = () => {
       <div className="bg-customGray p-4 md:p-8 rounded-lg text-center max-w-md sm:max-w-2xl md:max-w-3xl lg:max-w-5xl w-full border-brightYellow border-2">
         <DynamicHeading 
           text={currentProgram.title} 
-          className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest" 
+          className="font-higherJump text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest" 
         />
+
+        <button
+          onClick={() => navigate('/profile')}
+          className="btn-full-colour mb-6"
+        >
+          Back to Profile
+        </button>
 
         {/* Debug info - remove in production
         <div className="text-xs text-gray-400 mb-4">
@@ -84,7 +91,7 @@ const ProgramDayListPage = () => {
             const buttonClass = isDayLocked 
               ? "btn-disabled cursor-not-allowed bg-gray-600 text-gray-400" 
               : isDayCompleted
-                ? "btn-secondary bg-purple-700 hover:bg-purple-800"
+                ? "btn-secondary bg-purple-700 hover:bg-purple-800 mb-2"
                 : "btn-primary bg-limeGreen hover:bg-green-600"; 
 
             const dayStatusText = isDayLocked ? "Locked" : (isDayCompleted ? "Completed" : "Ready");
@@ -141,7 +148,7 @@ const ProgramDayListPage = () => {
           onClick={() => navigate('/profile')}
           className="btn-full-colour mt-8"
         >
-          Back to Programs
+          Back to Profile
         </button>
       </div>
     </motion.div>

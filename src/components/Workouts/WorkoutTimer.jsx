@@ -19,27 +19,54 @@ const WorkoutTimer = ({
   currentModification, 
   setShowModificationModal,
   shouldAutoStart = false,
+  showModified,
+  setShowModified, // Make sure this is being received
 }) => {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef(null);
 
+  // Add debug logging to check if setShowModified is received
+  useEffect(() => {
+    console.log("WorkoutTimer props check:", {
+      setShowModified: typeof setShowModified,
+      showModified,
+      hasModification: !!currentExercise?.modification
+    });
+  }, [setShowModified, showModified, currentExercise]);
+
   // Helper to parse duration strings into seconds
   const parseDurationToSeconds = (duration) => {
+    console.log("Parsing duration:", duration, "type:", typeof duration);
+    
     if (typeof duration === 'number') return duration;
     if (typeof duration === 'string') {
       if (duration.trim() === "") {
+        console.log("Empty duration string, returning 0");
         return 0; 
       }
-      const match = duration.match(/(\d+)\s*(seconds?|secs?|s|minutes?|mins?|m)/i);
+      
+      // More comprehensive regex to handle various formats
+      const match = duration.match(/(\d+)\s*(seconds?|secs?|sec|s|minutes?|mins?|min|m)/i);
+      console.log("Regex match result:", match);
+      
       if (match) {
         const value = parseInt(match[1], 10);
         const unit = match[2].toLowerCase();
-        if (unit.includes('min')) return value * 60;
+        console.log("Parsed value:", value, "unit:", unit);
+        
+        if (unit.includes('min') || unit === 'm') {
+          console.log("Converting minutes to seconds:", value * 60);
+          return value * 60;
+        }
+        console.log("Returning seconds:", value);
         return value;
+      } else {
+        console.log("No regex match for duration:", duration);
       }
     }
+    console.log("Fallback: returning 0 for duration:", duration);
     return 0; 
   };
 
@@ -140,22 +167,57 @@ const WorkoutTimer = ({
     return totalSeconds > 0 ? ((totalSeconds - time) / totalSeconds) * 100 : 0;
   };
 
+  const activeExercise = showModified && currentExercise?.modification 
+    ? currentExercise.modification 
+    : currentExercise?.exercise;
+
+  // Handle the modification button clicks with better error handling
+  const handleOriginalClick = () => {
+    console.log("Original button clicked, setShowModified:", typeof setShowModified);
+    if (typeof setShowModified === 'function') {
+      // Pause the timer when switching exercises and reset to original duration
+      clearInterval(intervalRef.current);
+      setIsActive(false);
+      setIsPaused(false);
+      // Reset time to the original duration
+      const exerciseDuration = parseDurationToSeconds(currentExercise.duration);
+      setTime(exerciseDuration);
+      setShowModified(false);
+    } else {
+      console.error("setShowModified is not a function:", setShowModified);
+    }
+  };
+
+  const handleModifiedClick = () => {
+    console.log("Modified button clicked, setShowModified:", typeof setShowModified);
+    if (typeof setShowModified === 'function') {
+      // Pause the timer when switching exercises and reset to original duration
+      clearInterval(intervalRef.current);
+      setIsActive(false);
+      setIsPaused(false);
+      // Reset time to the original duration
+      const exerciseDuration = parseDurationToSeconds(currentExercise.duration);
+      setTime(exerciseDuration);
+      setShowModified(true);
+    } else {
+      console.error("setShowModified is not a function:", setShowModified);
+    }
+  };
+
     return (
         <div className="bg-gray-700 rounded-lg p-2 flex flex-col h-full justify-between">
-            {/* New: Workout Block and Exercise Number at the top */}
-            <div className="flex flex-col items-center mb-2">
-                <p className="text-logoGray text-sm md:text-base">
-                    {currentBlockType} - Exercise {currentExerciseNumber} of {totalExercisesInBlock}
-                </p>
-            </div>
-            
 
             {/* Timer Section */}
             <div>
                 <div className="mb-2">
-                    <h3 className="text-xl font-bold text-brightYellow mb-2">
-                        {isStopwatch ? currentExercise?.exercise?.name : isRest ? 'Rest Time' : currentExercise?.exercise?.name}
+                  <div className="flex flex-col items-center mb-2">
+                    <h3 className="text-3xl font-bold text-logoGray">
+                        {isStopwatch ? activeExercise?.name : isRest ? 'Rest Time' : activeExercise?.name}
                     </h3>
+                    <p className="text-logoGray text-xs">
+                      (No. {currentExerciseNumber} of {totalExercisesInBlock})
+                    </p>
+                  </div>
                     {isRest && nextExercise?.exercise?.name && (
                         <p className="text-logoGray text-sm">
                             Next: {nextExercise.exercise.name}
@@ -163,9 +225,35 @@ const WorkoutTimer = ({
                     )}
                 </div>
 
+                {/* Modification Toggle Buttons */}
+                {currentExercise?.modification && (
+                  <div className="flex justify-center mt-2 space-x-2">
+                    <button
+                      onClick={handleOriginalClick}
+                      className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
+                        !showModified
+                          ? "bg-limeGreen text-black hover:bg-green-400"
+                          : "bg-gray-600 text-logoGray hover:bg-gray-500"
+                      }`}
+                    >
+                      Original
+                    </button>
+                    <button
+                      onClick={handleModifiedClick}
+                      className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
+                        showModified
+                          ? "bg-limeGreen text-black hover:bg-green-400"
+                          : "bg-gray-600 text-logoGray hover:bg-gray-500"
+                      }`}
+                    >
+                      Modified
+                    </button>
+                  </div>
+                )}
+
                 {/* Timer Display */}
                 <div className="mb-2">
-                    <div className="text-5xl font-bold text-limeGreen">
+                    <div className="text-7xl text-limeGreen">
                         {formatTime(time)}
                     </div>
                 </div>
@@ -181,7 +269,7 @@ const WorkoutTimer = ({
                               setIsPaused(false);
                               onGoBack();
                           }}
-                            className="btn-cancel mt-3 px-2 py-1"
+                            className="btn-cancel mt-3 px-6 py-2"
                         >
                             Back
                         </button>
@@ -190,8 +278,8 @@ const WorkoutTimer = ({
                     {(!isActive || isPaused) ? (
                         <button
                             onClick={resumeTimer}
-                            className={`btn-full-colour mt-3 px-2 py-1 ${
-                                isStopwatch && isActive ? 'bg-hotPink hover:bg-pink-600 text-white' : 'bg-limeGreen hover:bg-green-600 text-white'
+                            className={`btn-start mt-3 px-6 py-2 ${
+                                isStopwatch && isActive ? 'bg-hotPink hover:bg-pink-600 text-white' : 'bg-limeGreen hover:bg-green-600 text-black'
                             }`}
                         >
                             {isPaused ? "Resume" : "Start"}
@@ -199,7 +287,7 @@ const WorkoutTimer = ({
                     ) : (
                         <button
                             onClick={pauseTimer}
-                            className="btn-primary mt-3 px-2 py-1"
+                            className="btn-pause mt-3 px-6 py-2"
                         >
                             Pause
                         </button>
@@ -208,7 +296,7 @@ const WorkoutTimer = ({
                     {isStopwatch && isActive && (
                         <button
                             onClick={stopAndReset}
-                            className="btn-cancel mt-3 px-2 py-1"
+                            className="btn-skip mt-3 px-6 py-2"
                         >
                             Reset
                         </button>
@@ -219,7 +307,7 @@ const WorkoutTimer = ({
                             clearInterval(intervalRef.current);
                             onExerciseComplete();
                           }}
-                          className="btn-full-colour mt-3 px-2 py-1"
+                          className="btn-primary mt-3 px-6 py-2"
                         >
                           Next
                         </button>
@@ -228,7 +316,7 @@ const WorkoutTimer = ({
                     {!isStopwatch && isRest && time > 0 && (
                         <button
                             onClick={skipRest}
-                            className="btn-primary mt-3 px-2 py-1"
+                            className="btn-skip mt-3 px-6 py-2"
                         >
                             Skip
                         </button>
@@ -240,7 +328,7 @@ const WorkoutTimer = ({
                                 clearInterval(intervalRef.current);
                                 onExerciseComplete();
                             }}
-                            className="btn-primary mt-3 px-2 py-1"
+                            className="btn-primary mt-3 px-6 py-2"
                         >
                             Next
                         </button>
@@ -249,41 +337,26 @@ const WorkoutTimer = ({
             </div>
 
             {/* Instructions, Tips, and Progress Bar Section */}
-            <div className="mt-2 flex flex-col justify-end">
+            <div className="mt-4 flex flex-col justify-end">
                 {exerciseInstructions && (
-                    <div className="bg-gray-600 rounded-lg p-2 m-2 text-left">
-                        <p><span className="text-limeGreen text-xs font-bold mb-2">Instructions: </span>
-                        <span className="text-logoGray text-xs">{exerciseInstructions}</span></p>
+                    <div className="bg-gray-600 rounded-lg p-2 m-3 text-left">
+                        <p><span className="text-limeGreen text-sm font-bold mb-2">Instructions: </span>
+                        <span className="text-logoGray text-sm">{exerciseInstructions}</span></p>
                     </div>
                 )}
 
                 {exerciseTips && (
-                    <div className="bg-gray-600 rounded-lg p-2 m-2 text-left">
-                        <p><span className="text-limeGreen font-bold text-xs mb-2">Form Tips: </span>
-                        <span className="text-logoGray text-xs">{exerciseTips}</span></p>
+                    <div className="bg-gray-600 rounded-lg p-2 m-3 text-left">
+                        <p><span className="text-limeGreen font-bold text-sm mb-2">Form Tips: </span>
+                        <span className="text-logoGray text-sm">{exerciseTips}</span></p>
                     </div>
                 )}
-
-                {currentExercise && currentExercise.modification && (
-                  <div className="bg-gray-600 rounded-lg p-2 m-2 text-left">
-                      <p className="text-limeGreen font-bold text-xs mb-2">Modification(s):</p>
-                      <button
-                          onClick={() => {
-                              onShowModificationModal(currentExercise.modification);
-                              setShowModificationModal(true);
-                          }}
-                          className="btn-primary mt-1 px-2 py-1"
-                      >
-                          {currentExercise.modification.name}
-                      </button>
-                  </div>
-              )}
             </div>
 
-            {/* Overall Progress Bar - MODIFIED FOR INLINE LAYOUT */}
+            {/* Overall Progress Bar */}
             <div className="m-2 bg-gray-800 rounded-lg p-2 flex items-center space-x-2">
-                <span className="text-xs text-logoGray whitespace-nowrap">Progress</span>
-                <div className="flex-grow bg-gray-600 rounded-full h-2">
+                <span className="text-sm text-logoGray whitespace-nowrap">Progress</span>
+                <div className="flex-grow bg-gray-600 rounded-full h-3">
                     <div
                         className="bg-gradient-to-r from-limeGreen to-brightYellow h-full rounded-full transition-all duration-500"
                         style={{
@@ -291,7 +364,7 @@ const WorkoutTimer = ({
                         }}
                     ></div>
                 </div>
-                <span className="text-xs text-logoGray whitespace-nowrap">
+                <span className="text-sm text-logoGray whitespace-nowrap">
                     {Math.round(progressPercentage)}%
                 </span>
             </div>
@@ -307,6 +380,13 @@ WorkoutTimer.propTypes = {
       name: PropTypes.string,
       tips: PropTypes.string,
       instructions: PropTypes.string,
+      modification: PropTypes.shape({
+        name: PropTypes.string,
+        videoId: PropTypes.string,
+        description: PropTypes.string,
+        instructions: PropTypes.string,
+        tips: PropTypes.string,
+      }),
     }),
     modification: PropTypes.shape({
       name: PropTypes.string,
@@ -332,7 +412,9 @@ WorkoutTimer.propTypes = {
   onShowModificationModal: PropTypes.func.isRequired, 
   currentModification: PropTypes.object, 
   setShowModificationModal: PropTypes.func.isRequired, 
-  shouldAutoStart: PropTypes.bool, 
+  shouldAutoStart: PropTypes.bool,
+  showModified: PropTypes.bool,
+  setShowModified: PropTypes.func.isRequired,
 };
 
 export default WorkoutTimer;

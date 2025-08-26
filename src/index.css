@@ -111,6 +111,18 @@
     @apply py-2 px-3 font-titillium bg-customWhite hover:bg-logoGray text-customGray rounded-lg transition duration-300;
   }
 
+  .btn-start {
+    @apply py-3 px-3 font-titillium bg-limeGreen hover:bg-limeGreen/70 text-customGray rounded-lg transition duration-300;
+  }
+
+  .btn-pause {
+    @apply py-2 px-3 font-titillium bg-hotPink hover:bg-hotPink/70 text-customGray rounded-lg transition duration-300;
+  }
+
+  .btn-skip {
+    @apply py-2 px-3 font-titillium bg-red-600 hover:bg-red-600/70 text-customGray rounded-lg transition duration-300;
+  }
+
   .btn-edit {
     @apply inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-400 text-customWhite rounded-lg transition-colors duration-300 font-titillium font-semibold
   } 

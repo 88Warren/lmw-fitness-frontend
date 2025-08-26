@@ -28,6 +28,7 @@ const WorkoutPage = () => {
   const [isFirstLoad, setIsFirstLoad] = useState(true); 
   const [showModificationModal, setShowModificationModal] = useState(false);
   const [currentModification, setCurrentModification] = useState(null);
+  const [showModified, setShowModified] = useState(false);
 
   useEffect(() => {
     if (!showPreview && !workoutComplete) {
@@ -282,38 +283,40 @@ const WorkoutPage = () => {
       };
     }
 
-    let exerciseData;
+    // let exerciseData;
 
-    if (currentWorkoutExercise.duration === "Max Time") {
-    exerciseData = {
-      exercise: {
-        name: currentWorkoutExercise.exercise.name,
-        ...currentWorkoutExercise.exercise
-      },
-      duration: currentWorkoutExercise.duration,
-      rest: currentWorkoutExercise.rest,
-      instructions: currentWorkoutExercise.exercise.instructions || currentWorkoutExercise.instructions || "",
-      tips: currentWorkoutExercise.exercise.tips || currentWorkoutExercise.tips || "",
-      modification: currentWorkoutExercise.exercise.modification || currentWorkoutExercise.modification,
-      isStopwatch: true
-    };
-  } else {
-    exerciseData = {
-      exercise: {
-        name: currentWorkoutExercise.exercise.name,
-        ...currentWorkoutExercise.exercise
-      },
-      duration: currentWorkoutExercise.duration,
-      rest: currentWorkoutExercise.rest,
-      instructions: currentWorkoutExercise.exercise.instructions || currentWorkoutExercise.instructions || "",
-      tips: currentWorkoutExercise.exercise.tips || currentWorkoutExercise.tips || "",
-      modification: currentWorkoutExercise.exercise.modification || currentWorkoutExercise.modification
-    };
-  }
-  
+    const baseExercise = currentWorkoutExercise.exercise;
+    const modifiedExercise = baseExercise?.modification;
+
+    // const activeExercise = showModified && modifiedExercise ? modifiedExercise : baseExercise;
+
+      const exerciseData = {
+    exercise: {
+      name: baseExercise.name,
+      videoId: baseExercise.videoId,
+      instructions: baseExercise.instructions,
+      tips: baseExercise.tips,
+      // Put the modification inside the exercise object
+      modification: modifiedExercise ? {
+        name: modifiedExercise.name,
+        videoId: modifiedExercise.videoId,
+        instructions: modifiedExercise.instructions,
+        tips: modifiedExercise.tips,
+        description: modifiedExercise.description
+      } : null
+    },
+    duration: currentWorkoutExercise.duration,
+    rest: currentWorkoutExercise.rest,
+    // Also keep instructions and tips at the top level for the timer
+    instructions: (showModified && modifiedExercise ? modifiedExercise.instructions : baseExercise.instructions) || currentWorkoutExercise.instructions || "",
+    tips: (showModified && modifiedExercise ? modifiedExercise.tips : baseExercise.tips) || currentWorkoutExercise.tips || "",
+    modification: modifiedExercise, // Keep this for the timer component
+    isStopwatch: currentWorkoutExercise.duration === "Max Time"
+  };
+
   console.log("DEBUG exerciseData result:", exerciseData);
   return exerciseData;
-  }, [workoutData, currentBlockIndex, currentExerciseIndex, isRestPeriod]);
+}, [workoutData, currentBlockIndex, currentExerciseIndex, isRestPeriod, showModified]);
 
   const getNextExercise = useCallback(() => {
     if (!workoutData || !workoutData.workoutBlocks || workoutData.workoutBlocks.length === 0) {
@@ -455,7 +458,7 @@ const WorkoutPage = () => {
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"
                       />
                     </svg>
-                    <span>Back to Program</span>
+                    <span>Back to Overview</span>
                   </HashLink>
                     <DynamicHeading
                         text={workoutData.title}
@@ -491,6 +494,8 @@ const WorkoutPage = () => {
                             currentModification={currentModification} 
                             setShowModificationModal={setShowModificationModal}
                             shouldAutoStart={shouldAutoStart}
+                            setShowModified={setShowModified}
+                            showModified={showModified} 
                         />
 
                       {showModificationModal && currentModification && (
@@ -526,9 +531,10 @@ const WorkoutPage = () => {
                             </div>
                         ) : (
                             <ExerciseVideo
-                                exercise={getCurrentExercise()}
+                                exercise={currentExerciseData}
                                 isActive={!isRestPeriod}
                                 shouldAutoStart={shouldAutoStart}
+                                showModified={showModified}
                             />
                         )}
                     </div>
