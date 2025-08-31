@@ -211,39 +211,34 @@ const WorkoutTimer = ({
             <div>
                 <div className="mb-2">
                   <div className="flex flex-col items-center mb-2">
-                    <h3 className="text-3xl font-bold text-logoGray">
+                    <h3 className="text-3xl font-bold text-customWhite">
                         {isStopwatch ? activeExercise?.name : isRest ? 'Rest Time' : activeExercise?.name}
                     </h3>
                     <p className="text-logoGray text-xs">
                       (No. {currentExerciseNumber} of {totalExercisesInBlock})
                     </p>
                   </div>
-                    {isRest && nextExercise?.exercise?.name && (
-                        <p className="text-logoGray text-sm">
-                            Next: {nextExercise.exercise.name}
-                        </p>
-                    )}
                 </div>
 
                 {/* Modification Toggle Buttons */}
                 {currentExercise?.modification && (
-                  <div className="flex justify-center mt-2 space-x-2">
+                  <div className="flex justify-center mb-2 space-x-2">
                     <button
                       onClick={handleOriginalClick}
-                      className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
+                      className={`${
                         !showModified
-                          ? "bg-limeGreen text-black hover:bg-green-400"
-                          : "bg-gray-600 text-logoGray hover:bg-gray-500"
+                          ? "btn-primary px-1 py-1 mt-2"
+                          : "btn-cancel mt-2"
                       }`}
                     >
                       Original
                     </button>
                     <button
                       onClick={handleModifiedClick}
-                      className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
+                      className={`${
                         showModified
-                          ? "bg-limeGreen text-black hover:bg-green-400"
-                          : "bg-gray-600 text-logoGray hover:bg-gray-500"
+                          ? "btn-primary mt-2"
+                          : "btn-cancel px-1 py-1 mt-2"
                       }`}
                     >
                       Modified
@@ -253,7 +248,7 @@ const WorkoutTimer = ({
 
                 {/* Timer Display */}
                 <div className="mb-2">
-                    <div className="text-7xl text-limeGreen">
+                    <div className="text-7xl text-limeGreen p-4">
                         {formatTime(time)}
                     </div>
                 </div>
@@ -269,7 +264,7 @@ const WorkoutTimer = ({
                               setIsPaused(false);
                               onGoBack();
                           }}
-                            className="btn-cancel mt-3 px-6 py-2"
+                            className="btn-cancel"
                         >
                             Back
                         </button>
@@ -278,8 +273,8 @@ const WorkoutTimer = ({
                     {(!isActive || isPaused) ? (
                         <button
                             onClick={resumeTimer}
-                            className={`btn-start mt-3 px-6 py-2 ${
-                                isStopwatch && isActive ? 'bg-hotPink hover:bg-pink-600 text-white' : 'bg-limeGreen hover:bg-green-600 text-black'
+                            className={`btn-full-colour ${
+                                isStopwatch && isActive ? 'btn-subscribe' : 'bg-limeGreen hover:bg-green-600 text-black'
                             }`}
                         >
                             {isPaused ? "Resume" : "Start"}
@@ -287,7 +282,7 @@ const WorkoutTimer = ({
                     ) : (
                         <button
                             onClick={pauseTimer}
-                            className="btn-pause mt-3 px-6 py-2"
+                            className="btn-subscribe"
                         >
                             Pause
                         </button>
@@ -296,7 +291,7 @@ const WorkoutTimer = ({
                     {isStopwatch && isActive && (
                         <button
                             onClick={stopAndReset}
-                            className="btn-skip mt-3 px-6 py-2"
+                            className="btn-skip"
                         >
                             Reset
                         </button>
@@ -307,7 +302,7 @@ const WorkoutTimer = ({
                             clearInterval(intervalRef.current);
                             onExerciseComplete();
                           }}
-                          className="btn-primary mt-3 px-6 py-2"
+                          className="btn-cancel"
                         >
                           Next
                         </button>
@@ -316,7 +311,7 @@ const WorkoutTimer = ({
                     {!isStopwatch && isRest && time > 0 && (
                         <button
                             onClick={skipRest}
-                            className="btn-skip mt-3 px-6 py-2"
+                            className="btn-skip"
                         >
                             Skip
                         </button>
@@ -328,7 +323,7 @@ const WorkoutTimer = ({
                                 clearInterval(intervalRef.current);
                                 onExerciseComplete();
                             }}
-                            className="btn-primary mt-3 px-6 py-2"
+                            className="btn-cancel"
                         >
                             Next
                         </button>
@@ -358,7 +353,7 @@ const WorkoutTimer = ({
                 <span className="text-sm text-logoGray whitespace-nowrap">Progress</span>
                 <div className="flex-grow bg-gray-600 rounded-full h-3">
                     <div
-                        className="bg-gradient-to-r from-limeGreen to-brightYellow h-full rounded-full transition-all duration-500"
+                        className="bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink h-full rounded-full transition-all duration-500"
                         style={{
                             width: `${progressPercentage}%`,
                         }}

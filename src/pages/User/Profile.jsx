@@ -93,14 +93,14 @@ useEffect(() => {
               <div className="space-y-2">
                 <Link 
                   to="/workouts/beginner-program/list" 
-                  className="block btn-primary bg-limeGreen hover:bg-green-600"
+                  className="block btn-full-colour"
                   onClick={() => handleProgramClick('beginner-program', 1)}
                 >
                   30-Day Beginner Programme
                 </Link>
                 <Link 
                   to="/workouts/advanced-program/list" 
-                  className="block btn-primary bg-hotPink hover:bg-pink-600"
+                  className="block btn-full-colour"
                   onClick={() => handleProgramClick('advanced-program', 1)}
                 >
                   30-Day Advanced Programme
@@ -111,7 +111,7 @@ useEffect(() => {
               {user.purchasedPrograms.includes('beginner-program') && (
                 <Link 
                   to="/workouts/beginner-program/list" 
-                  className="block btn-primary bg-limeGreen hover:bg-green-600"
+                  className="block btn-full-colour"
                   onClick={() => handleProgramClick('beginner-program', 1)}
                 >
                   30-Day Beginner Programme
@@ -120,7 +120,7 @@ useEffect(() => {
                 {user.purchasedPrograms.includes('advanced-program') && (
                 <Link 
                   to="/workouts/advanced-program/list" 
-                  className="block btn-primary bg-hotPink hover:bg-pink-600"
+                  className="block btn-full-colour"
                   onClick={() => handleProgramClick('advanced-program', 1)}
                 >
                   30-Day Advanced Programme
@@ -130,10 +130,10 @@ useEffect(() => {
             ) : (
               <div>
                 <p className="text-logoGray">No programs purchased yet.</p>
-                <div className="text-xs text-red-400 mt-2">
+                {/* <div className="text-xs text-red-400 mt-2">
                   <p>Debug: purchasedPrograms = {JSON.stringify(user.purchasedPrograms)}</p>
                   <p>Length: {user.purchasedPrograms?.length}</p>
-                </div>
+                </div> */}
               </div>
             )}
           </div>

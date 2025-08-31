@@ -208,7 +208,7 @@ const Testimonials = () => {
         >
           <HashLink 
             to="/#Pricing"
-            className="btn-primary text-black mt-8 md:mt-10 w-full sm:w-auto"
+            className="btn-primary w-full sm:w-auto"
           >
             Start Your Journey Today
           </HashLink>

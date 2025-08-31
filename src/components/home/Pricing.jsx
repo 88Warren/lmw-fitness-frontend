@@ -360,7 +360,7 @@ const Pricing = () => {
                           {/* Container for the button */}
                           <div className="flex justify-center">
                             <button
-                              className="btn-primary w-full py-3 flex justify-center items-center"
+                              className="btn-primary w-full flex justify-center items-center"
                               form="sib-form"
                               type="submit"
                             >

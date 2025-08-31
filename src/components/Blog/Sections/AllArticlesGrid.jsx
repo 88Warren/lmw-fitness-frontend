@@ -103,7 +103,7 @@ const AllArticlesGrid = ({
                     e.stopPropagation();
                     handleDelete(post.ID);
                   }}
-                  className="btn-delete-small"
+                  className="btn-skip-small"
                   title="Delete post"
                 >
                   <svg

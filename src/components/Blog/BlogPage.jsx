@@ -3,13 +3,13 @@ import BlogList from "./BlogList";
 import BlogForm from "./BlogForm";
 import BlogPostDetail from "./BlogPostDetail";
 import LoadingAndErrorDisplay from "../Shared/Errors/LoadingAndErrorDisplay";
-import { useParams } from 'react-router-dom'; 
-import { useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer } from "react-toastify";
 
 const BlogPage = () => {
   const { postId } = useParams(); 
   const location = useLocation(); 
+  const navigate = useNavigate(); 
 
   const {
     editingPost, 
@@ -28,10 +28,12 @@ const BlogPage = () => {
 
   const navigateToCreateForm = () => {
     handleCreateNewBlogClick(); 
+    navigate('/blog/create');
   };
 
   const navigateToEditForm = (postToEdit) => {
     handleEditClick(postToEdit);
+    navigate('/blog/edit'); 
   };
 
   let currentViewContent;
@@ -46,7 +48,7 @@ const BlogPage = () => {
         handleBackToList={handleBackToList}
       />
     );
-  } else if (location.pathname === '/blog/edit' && editingPost) { 
+  } else if (location.pathname === '/blog/edit') { 
     currentViewContent = (
       <BlogForm
         isEditMode={true}

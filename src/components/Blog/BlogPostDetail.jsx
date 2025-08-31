@@ -188,7 +188,7 @@ const BlogPostDetail = ({
             </button>
             <button
               onClick={handleDeletePost}
-              className="btn-delete"
+              className="btn-skip inline-flex items-center space-x-2"
             >
               <svg
                 className="w-4 h-4"

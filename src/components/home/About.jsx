@@ -122,7 +122,7 @@ const About = () => {
           <div className="text-center">
             <HashLink 
               to="/#Pricing"
-              className="btn-primary px-6 md:px-8 py-3 text-lg border border-customGray/30"
+              className="btn-primary border border-customGray/30"
             >
               Get Started Today
             </HashLink>

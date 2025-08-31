@@ -81,8 +81,8 @@ useEffect(() => {
     setIsMenuOpen(false); 
   };
 
-  const inactiveLinkClasses = "font-titillium py-1 px-4 text-lg md:text-xl text-white rounded hover:bg-brightYellow hover:text-customGray transition-colors duration-300";
-  const activeLinkClasses = "font-titillium font-bold py-1 px-4 text-lg md:text-xl text-customGray rounded bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink transition-colors duration-300";
+  const inactiveLinkClasses = "btn-cancel mt-0 bg-transparent text-customWhite hover:bg-brightYellow hover:text-black";
+  const activeLinkClasses = "btn-full-colour mt-0";
 
   const getNavLinkClasses = (isNavLinkActive, sectionId = null) => {
     const isOnHomePage = location.pathname === "/";
@@ -111,8 +111,8 @@ useEffect(() => {
   return (
     <>
       {/* Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 h-14 flex items-center transition-all duration-300 ${
-        isScrolled ? 'bg-brightYellow opacity-90 text-black' : ''
+      <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center transition-all duration-300 ${
+        isScrolled ? 'bg-customGray opacity-90 text-black' : ''
       }`}>
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10">
         
@@ -171,7 +171,7 @@ useEffect(() => {
                 }}
                 className="flex items-center justify-end"
               >
-                <h1 className="lmw text-lg md:text-xl mt-6">
+                <h1 className="lmw text-lg md:text-xl">
                   <span className="l pr-1">L</span>
                   <span className="m pr-1">M</span>
                   <span className="w pr-2">W</span>
@@ -276,7 +276,7 @@ useEffect(() => {
                   </NavLink>
                   <button
                     onClick={handleLogout}
-                    className="btn-cancel font-bold"
+                    className="btn-cancel mt-0"
                   >
                     Logout
                   </button>

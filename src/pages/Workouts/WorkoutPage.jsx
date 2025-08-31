@@ -290,7 +290,7 @@ const WorkoutPage = () => {
 
     // const activeExercise = showModified && modifiedExercise ? modifiedExercise : baseExercise;
 
-      const exerciseData = {
+  const exerciseData = {
     exercise: {
       name: baseExercise.name,
       videoId: baseExercise.videoId,
@@ -367,17 +367,17 @@ const WorkoutPage = () => {
     );
   }
 
-   if (showPreview || isPreviewMode) {
-    return (
-      <div className="flex flex-col items-center justify-center max-h-fit lg:max-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white">
-          <WorkoutPreview
-            workoutData={workoutData}
-            onStartWorkout={handleStartWorkout}
-            onGoBackToProgram={handleGoBackToProgram} 
-          />
-      </div>
-    );
-  }
+if (showPreview || isPreviewMode) {
+  return (
+    <div className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-customGray/30 to-white">
+      <WorkoutPreview
+        workoutData={workoutData}
+        onStartWorkout={handleStartWorkout}
+        onGoBackToProgram={handleGoBackToProgram} 
+      />
+    </div>
+  );
+}
 
   if (workoutComplete) {
     return (
@@ -439,36 +439,39 @@ const WorkoutPage = () => {
             <div className="bg-customGray p-4 rounded-lg text-center max-w-5xl w-full h-full lg:max-h-[110vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
 
                 {/* Workout Title and Buttons at the top */}
-                <div className="flex flex-col mb-4">
-                  <HashLink
-                    to={`/workouts/${programName}/list`}
-                    aria-label="Back to program"
-                    className="inline-flex space-x-2 text-brightYellow hover:text-white text-xs md:text-sm mb-2 transition-colors duration-300 font-titillium font-semibold group"
-                  >
-                    <svg
-                      className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                      />
-                    </svg>
-                    <span>Back to Overview</span>
-                  </HashLink>
+                <div className="flex flex-col">
                     <DynamicHeading
                         text={workoutData.title}
-                        className="font-higherJump text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
+                        className="font-higherJump m-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
                     />
-                    {workoutData.description && (
-                        <p className="text-logoGray text-xs md:text-base mt-2 px-2 md:px-4">
-                            {workoutData.description}
-                        </p>
-                    )}
+
+                    {/* Buttons*/}
+                    <div className="flex flex-col md:flex-row justify-center items-center md:m-4">
+                      <button
+                        onClick={handleGoBackToProgram} // <-- corrected
+                        className="btn-cancel mt-0"
+                      >
+                        Back to Overview
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row gap-4 w-full max-w-5xl p-4 md:p-0 md:mb-4">
+                      {workoutData.description && (
+                        <div className="w-full md:w-1/2 bg-gray-800 rounded-lg p-3 text-center">
+                          <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                              <span className="text-limeGreen font-bold">Description:</span> {workoutData.description}
+                          </p>
+                        </div>
+                      )}
+
+                      {workoutData.workoutBlocks[currentBlockIndex]?.blockNotes && (
+                        <div className="w-full md:w-1/2 bg-gray-800 rounded-lg p-3 text-center">
+                          <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                            <span className="text-limeGreen font-bold">Notes:</span> {workoutData.workoutBlocks[currentBlockIndex].blockNotes}
+                          </p>
+                        </div>
+                      )}
+                  </div>
                 </div>
 
                 {/* Main content grid for video and timer */}
@@ -508,7 +511,7 @@ const WorkoutPage = () => {
                                 <p className="text-logoGray my-4">{currentModification.description}</p>
                                 <button
                                     onClick={() => setShowModificationModal(false)}
-                                    className="btn-primary mt-4"
+                                    className="btn-primary"
                                 >
                                     Back to Workout
                                 </button>

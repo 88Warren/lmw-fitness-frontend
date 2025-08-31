@@ -74,7 +74,7 @@ const ProgramDayListPage = () => {
 
         <button
           onClick={() => navigate('/profile')}
-          className="btn-full-colour mb-6"
+          className="btn-primary text-black m-6"
         >
           Back to Profile
         </button>
@@ -85,16 +85,23 @@ const ProgramDayListPage = () => {
         </div> */}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 overflow-y-auto px-2 md:px-4 custom-scrollbar">
-          {daysArray.map((day) => {
-            const isDayLocked = day > lastCompletedDay + 1 && user.role !== 'admin'; 
-            const isDayCompleted = day <= lastCompletedDay;
-            const buttonClass = isDayLocked 
-              ? "btn-disabled cursor-not-allowed bg-gray-600 text-gray-400" 
-              : isDayCompleted
-                ? "btn-secondary bg-purple-700 hover:bg-purple-800 mb-2"
-                : "btn-primary bg-limeGreen hover:bg-green-600"; 
+        {daysArray.map((day) => {
+          const isDayLocked = day > lastCompletedDay + 1 && user.role !== 'admin'; 
+          const isDayCompleted = day <= lastCompletedDay;
 
-            const dayStatusText = isDayLocked ? "Locked" : (isDayCompleted ? "Completed" : "Ready");
+          const previewButtonClass = isDayLocked 
+            ? "btn-disabled mt-0" 
+            : isDayCompleted
+              ? "btn-complete mt-0"
+              : "btn-cancel mt-0"; 
+
+          const startButtonClass = isDayLocked 
+            ? "btn-disabled" 
+            : isDayCompleted
+              ? "btn-complete"
+              : "btn-full-colour"; 
+
+          const dayStatusText = isDayLocked ? "Locked" : (isDayCompleted ? "Completed" : "Ready");
 
             return (
               <div key={day} className={`p-2 md:p-4 rounded-lg border-2 ${isDayLocked ? 'border-gray-700' : 'border-brightYellow'} flex flex-col items-center justify-center`}>
@@ -123,7 +130,7 @@ const ProgramDayListPage = () => {
                         navigate(`/workouts/${programName}/${day}?mode=preview`); 
                       }
                     }}
-                    className={`${buttonClass.replace('btn-primary', 'btn-secondary').replace('bg-limeGreen', 'bg-logoGray text-black').replace('hover:bg-green-600', 'hover:bg-hotPink')} w-full`} // Style differently for preview
+                    className={`${previewButtonClass} w-full`} // Style differently for preview
                     disabled={isDayLocked}
                   >
                     Preview Exercises
@@ -134,7 +141,7 @@ const ProgramDayListPage = () => {
                         navigate(`/workouts/${programName}/${day}`);
                       }
                     }}
-                    className={`${buttonClass} w-full`}
+                    className={`${startButtonClass} w-full`}
                     disabled={isDayLocked}
                   >
                     Start Workout
@@ -146,7 +153,7 @@ const ProgramDayListPage = () => {
         </div>
         <button
           onClick={() => navigate('/profile')}
-          className="btn-full-colour mt-8"
+          className="btn-primary text-black mt-8"
         >
           Back to Profile
         </button>

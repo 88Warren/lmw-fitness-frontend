@@ -35,7 +35,7 @@ const HeroSection = () => {
             {/* <p className="font-titillium text-logoGray font-bold text-lg md:text-xl mt-4 tracking-wide leading-relaxed">
               Tailored online personal training designed for you
             </p> */}
-            <HashLink to="/#Pricing" className="btn-primary mt-6 inline-block md:w-3/4 md:mt-10 text-customGray">
+            <HashLink to="/#Pricing" className="btn-primary inline-block md:w-3/4">
               Start Training Today
             </HashLink>
           </div>

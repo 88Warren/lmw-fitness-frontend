@@ -19,6 +19,12 @@ const categories = [
   "Motivation",
 ];
 
+const handleSubmit = (e) => {
+  e.preventDefault();
+  const mode = isEditMode ? 'edit' : 'create';
+  handleFormSubmit(e, mode);
+};
+
   return (
     <div className="max-w-4xl mx-auto">
       {/* Form Header */}
@@ -35,7 +41,7 @@ const categories = [
               </>
             )}
           </h1>
-        <form onSubmit={handleFormSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title */}
             <InputField
               label="Article Title *"

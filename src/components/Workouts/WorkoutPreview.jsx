@@ -120,6 +120,13 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
   const modifiedExercise = getModifiedExercise(currentExercise?.exercise);
   const displayedExercise = showModified && modifiedExercise ? modifiedExercise : currentExercise?.exercise;
 
+ const metrics = [];
+  if (currentExercise?.reps) metrics.push(`Reps: ${currentExercise.reps}`);
+  if (currentExercise?.duration) metrics.push(`Duration: ${currentExercise.duration}`);
+  if (currentExercise?.rest) metrics.push(`Rest: ${currentExercise.rest}`);
+
+  const metricsString = metrics.join(' • ');
+
 
   if (totalExercises === 0) {
     return (
@@ -136,56 +143,58 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
   }
 
   return (
-    <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full min-h-full flex flex-col border-brightYellow border-2 my-20 mx-auto">
+    <div className="bg-customGray rounded-lg text-center lg:w-6xl flex flex-col border-brightYellow border-2 my-20 overview-hidden">
       {/* Title section */}
-       <div className="flex flex-col items-center m-6 text-center">
-          <DynamicHeading 
-            text={`Day ${workoutData.dayNumber} Preview`}
-            className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite leading-loose tracking-widest mb-2"
-          />
+      <div className="flex-shrink-0">
+        <div className="flex flex-col items-center text-center">
+            <DynamicHeading 
+              text={`Day ${workoutData.dayNumber} Preview`}
+              className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite leading-loose tracking-widest m-4 md:m-6"
+            />
+            {/* Buttons*/}
+            <div className="flex flex-col md:flex-row justify-center items-center md:gap-4 md:mb-6">
+              <button
+                onClick={onStartWorkout}
+                className="btn-full-colour"
+              >
+                Start Workout
+              </button>
+              <button
+                onClick={onGoBackToProgram}
+                className="btn-cancel"
+              >
+                Back to Overview
+              </button>
+            </div>
+            
+            <div className="flex flex-col md:flex-row gap-4 w-full max-w-5xl p-4 md:p-0 md:mb-4">
+              {/* Workout description */}
+              {workoutData.description && (
+                <div className="w-full md:w-1/2 bg-gray-800 rounded-lg p-3 text-center">
+                  <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                    <span className="text-limeGreen font-bold">Description:</span> {workoutData.description}
+                  </p>
+                </div>
+              )}
 
-          {/* Title + exercise count */}
-          <p className="text-customWhite text-sm md:text-base mt-4">
-            {workoutData.title} • {totalExercises} exercises
-          </p>
-
-          {/* Workout description */}
-          {workoutData.description && (
-            <p className="text-customWhite text-sm md:text-base max-w-2xl mb-2">
-              {workoutData.description}
-            </p>
-          )}
-
-          {/* First block notes (if any) */}
-          {workoutData.workoutBlocks?.[0]?.blockNotes && (
-            <p className="text-logoGray text-xs md:text-sm italic max-w-2xl">
-              💡 {workoutData.workoutBlocks[0].blockNotes}
-            </p>
-          )}
+              {/* First block notes (if any) */}
+              {workoutData.workoutBlocks?.[0]?.blockNotes && (
+              <div className="w-full md:w-1/2 bg-gray-800 rounded-lg p-3 text-center">
+                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                  <span className="text-limeGreen font-bold">Notes:</span> {workoutData.workoutBlocks[0].blockNotes}
+                </p>
+              </div>
+              )}
+            </div>
         </div>
-
-      {/* All buttons together in a single flex container at the top */}
-      <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 md:space-x-4 m-4">
-        <button
-          onClick={onStartWorkout}
-          className="btn-full-colour bg-brightYellow hover:bg-yellow-600 text-gray-900 px-6 py-2 rounded-lg text-base md:text-lg font-bold shadow-lg"
-        >
-          Start Workout
-        </button>
-        <button
-          onClick={onGoBackToProgram}
-          className="btn-cancel px-6 py-2 rounded-lg text-base md:text-lg font-bold"
-        >
-          Back to Overview
-        </button>
       </div>
 
-      {/* Main content container for the two-column layout */}
-      <div className="flex flex-grow flex-col lg:flex-row lg:items-start justify-center gap-6 overflow-hidden mt-6">
+        {/* Main content container for the two-column layout */}
+        <div className="flex-1 flex flex-col lg:flex-row gap-8 overflow-hidden p-4 md:p-8">
       
         {/* Left-hand side: Video and Exercise Name only */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center">
-          <div className="w-full sm:w-3/4 md:w-2/3 lg:w-full max-w-md aspect-video rounded-lg mb-4 overflow-hidden bg-black">
+        <div className="w-full lg:w-1/2 flex flex-col items-center min-h-0">
+          <div className="w-full aspect-video rounded-lg mb-4 overflow-hidden bg-black flex-shrink-0">
             {displayedExercise?.videoId ? (
               <div
                 ref={iframeRef}
@@ -201,23 +210,23 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
 
           {/* Toggle between original and modified */}
           {modifiedExercise && (
-            <div className="flex space-x-2 mb-4">
+            <div className="flex space-x-2 mb-4 flex-shrink-0">
               <button
                 onClick={() => setShowModified(false)}
-                className={`px-4 py-1 rounded-lg text-sm font-bold ${
+                className={`${
                   !showModified
-                    ? 'bg-limeGreen text-gray-900'
-                    : 'bg-gray-700 text-customWhite hover:bg-gray-600'
+                    ? 'btn-primary mt-2'
+                    : 'btn-cancel mt-2'
                 }`}
               >
                 Original
               </button>
               <button
                 onClick={() => setShowModified(true)}
-                className={`px-4 py-1 rounded-lg text-sm font-bold ${
+                className={`${
                   showModified
-                    ? 'bg-limeGreen text-gray-900'
-                    : 'bg-gray-700 text-customWhite hover:bg-gray-600'
+                    ? 'btn-primary text-gray-900 mt-2'
+                    : 'btn-cancel mt-2'
                 }`}
               >
                 Modified
@@ -225,92 +234,73 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
             </div>
           )}
 
-          {/* Display instructions for current exercise */}
-          {displayedExercise?.instructions && (
-            <div className="bg-gray-800 rounded-lg p-3 mb-4 w-full max-w-md text-center border border-customWhite">
-              <p className="text-logoGray text-sm"> {displayedExercise.instructions}</p>
-            </div>
-          )}
+          <div className="flex-1 overflow-y-auto w-full max-w-5xl space-y-3">
+            {/* Display instructions for current exercise */}
+            {displayedExercise?.instructions && (
+              <div className="w-full bg-gray-800 rounded-lg p-3 text-center">
+                <p className="text-logoGray text-sm"><span className="text-limeGreen font-bold">Instructions:</span> {displayedExercise.instructions}</p>
+              </div>
+            )}
 
-          {/* Display tips for current exercise */}
-          {displayedExercise?.tips && (
-            <div className="bg-gray-800 rounded-lg p-3 mb-4 w-full max-w-md text-center border border-customWhite">
-              <p className="text-logoGray text-xs italic">💡 Top Tip: {displayedExercise.tips}</p>
-            </div>
-          )}
+            {/* Display tips for current exercise */}
+            {displayedExercise?.tips && (
+              <div className="bg-gray-800 rounded-lg p-3 text-center">
+                <p className="text-logoGray text-xs italic">💡 <span className="text-limeGreen font-bold">Top Tip: </span>{displayedExercise.tips}</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right-hand side: Exercise List with Duration and Rest */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start mb-8">
-          <div className="space-y-2 overflow-y-auto w-full text-left"> 
+        <div className="w-full lg:w-1/2 flex flex-col min-h-0">
+          <div className="flex-1 space-y-2 overflow-y-auto"> 
+            {/* Title + exercise count */}
+            <p className="text-customWhite text-base font-bold md:text-base">
+              {workoutData.title} • {totalExercises} exercises
+            </p>
+
+            <p className="text-logoGray text-xs italic mb-4">
+              * Modified version available
+            </p>
+
             {allExercises.map((exercise, index) => (
               <div
                 key={index}
                 onClick={() => handleExerciseClick(index)}
-                className={`p-3 rounded-md text-sm transition-colors duration-200 cursor-pointer mr-2 ${
+                className={`p-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
                   index === currentExerciseIndex
-                    ? 'bg-brightYellow text-gray-900'
+                    ? 'bg-gray-700 text-black'
                     : 'text-logoGray hover:bg-gray-700'
                 }`}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between font-bold gap-2">
+                <div className="flex flex-col sm:flex-row sm:justify-between font-bold gap-2">
                   {/* Left side: name + modified label */}
-                  <div className="flex flex-col">
-                    <span
-                      className={`${
-                        index === currentExerciseIndex ? "text-gray-900" : "text-customWhite"
-                      }`}
-                    >
-                      {exercise.exercise.name}
-                    </span>
-
-                    {/* Modified version label */}
-                    {exercise.exercise.modificationId && (
-                      <span
-                        className={`text-xs font-bold mt-1 ${
-                          index === currentExerciseIndex ? "text-gray-500" : "text-brightYellow"
-                        }`}
-                      >
-                        Modified version available
+                  <div className="flex flex-col items-start">
+                    <div className="flex">
+                      <span className="text-customWhite text-left">
+                        {exercise.exercise.name}
                       </span>
-                    )}
+
+                      {/* Modified version label */}
+                      {exercise.exercise.modificationId && (
+                        <span className={`text-xs align-center ml-1 text-brightYellow`}>
+                          *
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Right side: metrics (stack below name on mobile) */}
+                  {/* Right side: metrics */}
                   <div className="flex flex-wrap gap-2">
-                    {exercise.reps && (
+                    {metricsString && (
                       <div
-                        className={`px-2 py-1 rounded-md text-xs font-bold border ${
+                        className={`px-2 py-1 rounded-lg text-sm border ${
                           index === currentExerciseIndex
-                            ? "bg-white text-gray-900 border-gray-900"
-                            : "bg-gray-800 text-logoGray border-gray-700"
+                            ? "bg-brightYellow text-black border-black"
+                            : "bg-customGray text-logoGray border-gray-500"
                         }`}
                       >
-                        REPS: {exercise.reps}
-                      </div>
-                    )}
-
-                    {exercise.duration && (
-                      <div
-                        className={`px-2 py-1 rounded-md text-xs font-bold border ${
-                          index === currentExerciseIndex
-                            ? "bg-white text-gray-900 border-gray-900"
-                            : "bg-gray-800 text-logoGray border-gray-700"
-                        }`}
-                      >
-                        DURATION: {exercise.duration}
-                      </div>
-                    )}
-
-                    {exercise.rest && (
-                      <div
-                        className={`px-2 py-1 rounded-md text-xs font-bold border ${
-                          index === currentExerciseIndex
-                            ? "bg-white text-gray-900 border-gray-900"
-                            : "bg-gray-800 text-logoGray border-gray-700"
-                        }`}
-                      >
-                        REST: {exercise.rest}
+                        {metricsString}
                       </div>
                     )}
                   </div>

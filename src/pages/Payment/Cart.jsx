@@ -148,6 +148,7 @@ const Cart = () => {
             <div className="text-right text-2xl text-white mt-8 pt-4 border-t border-gray-200">
               <span className="text-white">Total:</span> £{cartTotalPrice.toFixed(2)}
             </div>
+            <p className="text-center mt-4 text-logoGray leading-loose">To sign up, simply enter your email. <br/>We'll send you daily motivation, workout videos and a food planner to keep you on track.</p>
             <div className="mt-6">
               <InputField
                 id="email"
