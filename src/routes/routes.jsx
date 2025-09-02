@@ -25,8 +25,11 @@ import ProtectedRoute from "../components/Shared/ProtectedRoute";
 
 import WorkoutPage from "../pages/Workouts/WorkoutPage";
 import ProgramDayListPage from "../pages/Workouts/ProgramDayListPage";
+import RoutinePage from "../pages/Workouts/Routine";
 import ChangePasswordFirstLoginPage from "../pages/User/ChangePasswordFirstLogin";
 import Profile from "../pages/User/Profile";
+
+import CalorieCalculator from "../pages/calculator/CalorieCalculator";
 
 import NotFoundPage from "../pages/errors/NotFoundPage";
 
@@ -64,7 +67,9 @@ const routes = createRoutesFromElements(
     <Route element={<ProtectedRoute />}>
       <Route path="/change-password-first-login" element={<ChangePasswordFirstLoginPage />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/calorie-calculator" element={<CalorieCalculator />} />
       <Route path="/workouts/:programName/list" element={<ProgramDayListPage />} />
+      <Route path="/workouts/:programName/routines/:routineType" element={<RoutinePage />} />
       <Route path="/workouts/:programName/:dayNumber" element={<WorkoutPage />} />
       <Route path="/blog/create" element={<BlogPage />} /> 
       <Route path="/blog/edit" element={<BlogPage />} /> 

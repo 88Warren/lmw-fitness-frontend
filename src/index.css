@@ -24,11 +24,22 @@
     --font-titillium: titillium, sans-serif;
   }
 
-  @layer base {
-    html {
-      scroll-behavior: smooth;
-    }
+@layer base {
+  html {
+    scroll-behavior: smooth;
   }
+  .no-spinners::-webkit-outer-spin-button,
+  .no-spinners::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .no-spinners {
+    -moz-appearance: textfield; 
+    -webkit-appearance: none; 
+    appearance: none;          
+  }
+}
+
 
 @layer components {
 

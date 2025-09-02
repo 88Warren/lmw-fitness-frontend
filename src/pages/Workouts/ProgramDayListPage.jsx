@@ -67,17 +67,35 @@ const ProgramDayListPage = () => {
       className="flex flex-col items-center justify-center min-h-screen py-30 bg-gradient-to-b from-customGray/30 to-white"
     >
       <div className="bg-customGray p-4 md:p-8 rounded-lg text-center max-w-md sm:max-w-2xl md:max-w-3xl lg:max-w-5xl w-full border-brightYellow border-2">
+        <div className="flex justify-center mb-4 md:justify-end">
+          <button
+            onClick={() => navigate('/profile')}
+            className="btn-primary text-black mt-0"
+          >
+            Back to Profile
+          </button>
+        </div>
         <DynamicHeading 
           text={currentProgram.title} 
           className="font-higherJump text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest" 
         />
 
-        <button
-          onClick={() => navigate('/profile')}
-          className="btn-primary text-black m-6"
-        >
-          Back to Profile
-        </button>
+        
+
+        <div className="flex justify-center gap-4 mb-8">
+          <button
+            onClick={() => navigate(`/workouts/${programName}/routines/warmup`)}
+            className="btn-full-colour text-black"
+          >
+            Warm Up
+          </button>
+          <button
+            onClick={() => navigate(`/workouts/${programName}/routines/cooldown`)}
+            className="btn-full-colour text-black"
+          >
+            Cool Down
+          </button>
+        </div>
 
         {/* Debug info - remove in production
         <div className="text-xs text-gray-400 mb-4">

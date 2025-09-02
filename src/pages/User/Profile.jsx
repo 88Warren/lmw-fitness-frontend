@@ -89,6 +89,12 @@ useEffect(() => {
 
           {/* Link to programs/workouts */}
           <div className="mt-6">
+            <Link
+              to="/calorie-calculator"
+              className="block btn-primary mb-6"
+            >
+              Calorie Calculator
+            </Link>
             {user.role === 'admin' ? (
               <div className="space-y-2">
                 <Link 

@@ -69,9 +69,18 @@ useEffect(() => {
   const handleNavLinkClick = (e, sectionId, path) => {
     e.preventDefault(); 
 
-    if (location.pathname !== "/") {
+    // Check if this is a home page section (About, Testimonials, Pricing, Contact)
+    const homePageSections = ['About', 'Testimonials', 'Pricing', 'Contact', 'Home'];
+    const isHomePageSection = homePageSections.includes(sectionId);
+
+    if (location.pathname !== "/" && isHomePageSection) {
+      // If we're not on home page and clicking a home section, go to home with hash
+      navigate(`/#${sectionId}`, { replace: false });
+    } else if (location.pathname !== "/" && !isHomePageSection) {
+      // If we're not on home page and clicking a non-home section, go to that page
       navigate(`/${path ? path : ''}#${sectionId}`, { replace: false });
     } else {
+      // If we're already on home page, just scroll to section
       const section = document.getElementById(sectionId);
       if (section) {
         section.scrollIntoView({ behavior: "smooth" });
@@ -105,7 +114,7 @@ useEffect(() => {
   };
 
   useEffect(() => {
-    console.log("Active Section:", activeSection);
+    // console.log("Active Section:", activeSection);
   }, [activeSection]);
 
   return (
@@ -137,7 +146,7 @@ useEffect(() => {
               window.scrollTo(0, 0);
               setIsMenuOpen(false);
             }}
-            className="flex items-center justify-center absolute left-7/12 transform -translate-x-1/2"
+            className="flex items-center justify-center absolute left-1/2 transform -translate-x-1/2"
           >
             <h1 className="lmw text-lg md:text-xl">
               <span className="l pr-1">L</span>
@@ -190,18 +199,18 @@ useEffect(() => {
 
               {/* About Link */}
               <NavLink
-                to="/about" 
+                to="/#About" 
                 className={({ isActive }) => getNavLinkClasses(isActive, "About")}
-                onClick={(e) => handleNavLinkClick(e, "About", "about")}
+                onClick={(e) => handleNavLinkClick(e, "About", "")}
               >
                 About
               </NavLink>
 
               {/* Testimonials Link */}
               <NavLink
-                to="/testimonials" 
+                to="/#Testimonials" 
                 className={({ isActive }) => getNavLinkClasses(isActive, "Testimonials")}
-                onClick={(e) => handleNavLinkClick(e, "Testimonials", "testimonials")}
+                onClick={(e) => handleNavLinkClick(e, "Testimonials", "")}
               >
                 Testimonials
               </NavLink>
@@ -209,18 +218,18 @@ useEffect(() => {
 
               {/* Pricing Link */}
               <NavLink
-                to="/pricing" 
+                to="/#Pricing" 
                 className={({ isActive }) => getNavLinkClasses(isActive, "Pricing")}
-                onClick={(e) => handleNavLinkClick(e, "Pricing", "pricing")}
+                onClick={(e) => handleNavLinkClick(e, "Pricing", "")}
               >
                 Packages
               </NavLink>
 
               {/* Contact Link */}
               <NavLink
-                to="/contact"
+                to="/#Contact"
                 className={({ isActive }) => getNavLinkClasses(isActive, "Contact")}
-                onClick={(e) => handleNavLinkClick(e, "Contact", "contact")} 
+                onClick={(e) => handleNavLinkClick(e, "Contact", "")} 
               >
                 Contact
               </NavLink>
@@ -344,41 +353,41 @@ useEffect(() => {
           </NavLink>
           {/* About Link for Mobile */}
           <NavLink
-            to="/about"
+            to="/#About"
             className={({ isActive }) =>
               `text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses(isActive, "About")}`
             }
-            onClick={(e) => handleNavLinkClick(e, "About", "about")}
+            onClick={(e) => handleNavLinkClick(e, "About", "")}
           >
             About
           </NavLink>
           {/* Testimonials Link for Mobile */}
           <NavLink
-            to="/testimonials"
+            to="/#Testimonials"
             className={({ isActive }) =>
               `text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses(isActive, "Testimonials")}`
             }
-            onClick={(e) => handleNavLinkClick(e, "Testimonials", "testimonials")}
+            onClick={(e) => handleNavLinkClick(e, "Testimonials", "")}
           >
             Testimonials
           </NavLink>
           {/* Pricing Link for Mobile */}
           <NavLink
-            to="/pricing"
+            to="/#Pricing"
             className={({ isActive }) =>
               `text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses(isActive, "Pricing")}`
             }
-            onClick={(e) => handleNavLinkClick(e, "Pricing", "pricing")}
+            onClick={(e) => handleNavLinkClick(e, "Pricing", "")}
           >
             Packages
           </NavLink>
           {/* Contact Link for Mobile */}
           <NavLink
-            to="/contact"
+            to="/#Contact"
             className={({ isActive }) =>
               `text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center ${getNavLinkClasses(isActive, "Contact")}`
             }
-            onClick={(e) => handleNavLinkClick(e, "Contact", "contact")}
+            onClick={(e) => handleNavLinkClick(e, "Contact", "")}
           >
             Contact
           </NavLink>

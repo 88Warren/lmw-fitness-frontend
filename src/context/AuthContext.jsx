@@ -17,13 +17,13 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserProfile = useCallback(async (authToken) => {
     try {
-      console.log("AuthContext: Fetching fresh user profile from backend");
+      // console.log("AuthContext: Fetching fresh user profile from backend");
       const response = await axios.get(`${BACKEND_URL}/api/profile`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
       });
-      console.log("AuthContext: Fresh profile data received:", response.data);
+      // console.log("AuthContext: Fresh profile data received:", response.data);
       return response.data;
     } catch (error) {
       console.error("AuthContext: Failed to fetch user profile:", error);
@@ -35,12 +35,12 @@ export const AuthProvider = ({ children }) => {
     if (!updatedUserData) {
       try {
         if (!token) {
-          console.warn("AuthContext: Cannot fetch user data - no token available");
+          // console.warn("AuthContext: Cannot fetch user data - no token available");
           return;
         }
-        console.log("AuthContext: Fetching fresh user data from backend");
+        // console.log("AuthContext: Fetching fresh user data from backend");
         const freshUserData = await fetchUserProfile(token);
-        console.log("AuthContext: Fresh user data received:", freshUserData);
+        // console.log("AuthContext: Fresh user data received:", freshUserData);
         localStorage.setItem("user", JSON.stringify(freshUserData));
         setUser(freshUserData);
         setIsAdmin(freshUserData.role === "admin");
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
         console.error("AuthContext: Failed to fetch fresh user data:", error);
       }
     } else {
-      console.log("AuthContext: Updating user data:", updatedUserData);
+      // console.log("AuthContext: Updating user data:", updatedUserData);
       localStorage.setItem("user", JSON.stringify(updatedUserData));
       setUser(updatedUserData);
       setIsAdmin(updatedUserData.role === "admin");
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
   }, [token, fetchUserProfile]);
 
   const storeAuthData = useCallback((newToken, userData) => {
-    console.log("AuthContext: Storing auth data:", { token: newToken, user: userData });
+    // console.log("AuthContext: Storing auth data:", { token: newToken, user: userData });
     localStorage.setItem("jwtToken", newToken);
     localStorage.setItem("user", JSON.stringify(userData));
     setToken(newToken);
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const clearAuthData = useCallback(() => {
-    console.log("AuthContext: Clearing auth data");
+    // console.log("AuthContext: Clearing auth data");
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("user");
     setToken(null);
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const loadAuth = async () => { 
-      console.log("AuthContext: Loading authentication state");
+      // console.log("AuthContext: Loading authentication state");
       setLoading(true);
       setInitialLoadError(null);
       const storedToken = localStorage.getItem("jwtToken");
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
       if (storedToken && storedUser) {
         try {
           const userData = JSON.parse(storedUser);
-          console.log("AuthContext: Found stored user data:", userData);
+          // console.log("AuthContext: Found stored user data:", userData);
 
           setToken(storedToken);
           setIsLoggedIn(true);
@@ -97,15 +97,15 @@ export const AuthProvider = ({ children }) => {
 
            try {
             const freshUserData = await fetchUserProfile(storedToken);
-            console.log("AuthContext: Using fresh profile data:", freshUserData);
+            // console.log("AuthContext: Using fresh profile data:", freshUserData);
             setUser(freshUserData);
             localStorage.setItem("user", JSON.stringify(freshUserData));
           } catch (profileError) {
-            console.warn("AuthContext: Failed to fetch fresh profile, using stored data:", profileError);
+            // console.warn("AuthContext: Failed to fetch fresh profile, using stored data:", profileError);
             setUser(userData);
 
             if (profileError.response?.status === 401 || profileError.response?.status === 403) {
-              console.log("AuthContext: Profile fetch returned auth error, clearing stored data");
+              // console.log("AuthContext: Profile fetch returned auth error, clearing stored data");
               clearAuthData();
               setInitialLoadError("Your session has expired. Please log in again.");
               setLoading(false);
@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }) => {
           setInitialLoadError("Session data corrupted. Please log in again."); 
         }
       } else {
-        console.log("AuthContext: No stored authentication found");
+        // console.log("AuthContext: No stored authentication found");
       }
       setLoading(false);
     };
@@ -128,22 +128,22 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      console.log("AuthContext: Attempting login for:", email);
+      // console.log("AuthContext: Attempting login for:", email);
       const response = await axios.post(`${BACKEND_URL}/api/login`, {
         email,
         password,
       });
       const { token, user } = response.data;
-      console.log("AuthContext: Login successful, user data:", user);
+      // console.log("AuthContext: Login successful, user data:", user);
 
       storeAuthData(token, user);
 
       try {
         const freshUserData = await fetchUserProfile(token);
-        console.log("AuthContext: Updated user data after login:", freshUserData);
+        // console.log("AuthContext: Updated user data after login:", freshUserData);
         updateUser(freshUserData);
       } catch (profileError) {
-        console.warn("AuthContext: Failed to fetch profile after login, using login data:", profileError);
+        // console.warn("AuthContext: Failed to fetch profile after login, using login data:", profileError);
       }
 
       showToast("success", "Login successful!");
@@ -162,13 +162,13 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password) => {
     try {
-      console.log("AuthContext: Attempting registration for:", email);
+      // console.log("AuthContext: Attempting registration for:", email);
       const response = await axios.post(`${BACKEND_URL}/api/register`, {
         email,
         password,
       });
       const { token, user } = response.data;
-      console.log("AuthContext: Registration successful, user data:", user);
+      // console.log("AuthContext: Registration successful, user data:", user);
       storeAuthData(token, user);
       showToast("success", "Registration successful! You are now logged in.");
       return {
@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    console.log("AuthContext: Logging out");
+    // console.log("AuthContext: Logging out");
     clearAuthData();
     showToast("success", "You have been successfully logged out.");
     return { success: true, message: "Logged out successfully." };
@@ -214,10 +214,10 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const freshUserData = await fetchUserProfile(token);
-        console.log("AuthContext: Updated user data after password change:", freshUserData);
+        // console.log("AuthContext: Updated user data after password change:", freshUserData);
         updateUser(freshUserData);
       } catch (profileError) {
-        console.warn("AuthContext: Failed to fetch profile after password change:", profileError);
+        // console.warn("AuthContext: Failed to fetch profile after password change:", profileError);
         const updatedUser = { ...user, mustChangePassword: false };
         updateUser(updatedUser);
       } 

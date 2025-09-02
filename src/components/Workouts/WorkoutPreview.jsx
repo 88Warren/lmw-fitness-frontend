@@ -60,22 +60,22 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
         },
         events: {
           'onReady': (event) => {
-            console.log('YouTube player ready');
+            // console.log('YouTube player ready');
             if (hasStartedPlayingRef.current && currentExerciseIndex > 0) {
-              console.log('Auto-starting video for exercise:', currentExerciseIndex);
+              // console.log('Auto-starting video for exercise:', currentExerciseIndex);
               event.target.playVideo();
             }
           },
           'onStateChange': (event) => {
-            console.log('Player state changed:', event.data);
+            // console.log('Player state changed:', event.data);
             if (event.data === window.YT.PlayerState.PLAYING && !hasStartedPlayingRef.current) {
-              console.log('Setting hasStartedPlaying to true');
+              // console.log('Setting hasStartedPlaying to true');
               setHasStartedPlaying(true);
               hasStartedPlayingRef.current = true;
             }
             
             if (event.data === window.YT.PlayerState.ENDED) {
-              console.log('Video ended, moving to next exercise');
+              // console.log('Video ended, moving to next exercise');
               hasStartedPlayingRef.current = true;
               setHasStartedPlaying(true);
               
@@ -104,7 +104,7 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
   }, [player]);
 
   const handleExerciseClick = (index) => {
-    console.log('Exercise clicked:', index);
+    // console.log('Exercise clicked:', index);
     setCurrentExerciseIndex(index);
     setShowModified(false);
   };

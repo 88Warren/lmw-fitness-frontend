@@ -5,7 +5,7 @@ import DynamicHeading from '../../components/Shared/DynamicHeading';
 
 const NewsletterConfirmed = () => {
   useEffect(() => {
-    console.log("Newsletter confirmation page loaded.");
+    // console.log("Newsletter confirmation page loaded.");
     window.scrollTo(0, 0); 
   }, []);
 

@@ -24,7 +24,7 @@ const PaymentSuccess = () => {
       return;
     }
 
-    console.log('Payment successful! Session ID:', sessionId);
+    // console.log('Payment successful! Session ID:', sessionId);
     clearCart();
 
 const fetchAuthLink = async (retryCount = 0) => {
@@ -36,7 +36,7 @@ const fetchAuthLink = async (retryCount = 0) => {
     
     if (response.status === 202) {
       if (retryCount < 5) { 
-        console.log(`Workout link still being prepared, retrying in 3 seconds... (Attempt ${retryCount + 1})`);
+        // console.log(`Workout link still being prepared, retrying in 3 seconds... (Attempt ${retryCount + 1})`);
         showToast('info', response.data.message || 'Your workout link is being prepared...');
         setTimeout(() => fetchAuthLink(retryCount + 1), 3000);
       } else {
@@ -65,7 +65,7 @@ const fetchAuthLink = async (retryCount = 0) => {
         showToast('error', 'Workout link not ready yet. Please check your email in a few minutes.');
       } else if (error.response.status === 202) {
         if (retryCount < 5) {
-          console.log(`Workout link still being prepared, retrying in 3 seconds... (Attempt ${retryCount + 1})`);
+          // console.log(`Workout link still being prepared, retrying in 3 seconds... (Attempt ${retryCount + 1})`);
           showToast('info', error.response.data.message || 'Your workout link is being prepared...');
           setTimeout(() => fetchAuthLink(retryCount + 1), 3000);
           return;
@@ -84,8 +84,8 @@ const fetchAuthLink = async (retryCount = 0) => {
     setIsLoading(false);
   }
 };
-    console.log('Session ID:', sessionId);
-    console.log('Auth link received:', authLink);
+    // console.log('Session ID:', sessionId);
+    // console.log('Auth link received:', authLink);
 
     fetchAuthLink();
   }, [sessionId, clearCart]);

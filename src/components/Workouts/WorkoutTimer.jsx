@@ -29,58 +29,58 @@ const WorkoutTimer = ({
 
   // Add debug logging to check if setShowModified is received
   useEffect(() => {
-    console.log("WorkoutTimer props check:", {
-      setShowModified: typeof setShowModified,
-      showModified,
-      hasModification: !!currentExercise?.modification
-    });
+    // console.log("WorkoutTimer props check:", {
+    //   setShowModified: typeof setShowModified,
+    //   showModified,
+    //   hasModification: !!currentExercise?.modification
+    // });
   }, [setShowModified, showModified, currentExercise]);
 
   // Helper to parse duration strings into seconds
   const parseDurationToSeconds = (duration) => {
-    console.log("Parsing duration:", duration, "type:", typeof duration);
+    // console.log("Parsing duration:", duration, "type:", typeof duration);
     
     if (typeof duration === 'number') return duration;
     if (typeof duration === 'string') {
       if (duration.trim() === "") {
-        console.log("Empty duration string, returning 0");
+        // console.log("Empty duration string, returning 0");
         return 0; 
       }
       
       // More comprehensive regex to handle various formats
       const match = duration.match(/(\d+)\s*(seconds?|secs?|sec|s|minutes?|mins?|min|m)/i);
-      console.log("Regex match result:", match);
+      // console.log("Regex match result:", match);
       
       if (match) {
         const value = parseInt(match[1], 10);
         const unit = match[2].toLowerCase();
-        console.log("Parsed value:", value, "unit:", unit);
+        // console.log("Parsed value:", value, "unit:", unit);
         
         if (unit.includes('min') || unit === 'm') {
-          console.log("Converting minutes to seconds:", value * 60);
+          // console.log("Converting minutes to seconds:", value * 60);
           return value * 60;
         }
-        console.log("Returning seconds:", value);
+        // console.log("Returning seconds:", value);
         return value;
       } else {
-        console.log("No regex match for duration:", duration);
+        // console.log("No regex match for duration:", duration);
       }
     }
-    console.log("Fallback: returning 0 for duration:", duration);
+    // console.log("Fallback: returning 0 for duration:", duration);
     return 0; 
   };
 
  useEffect(() => {
-    console.log("Timer initializing:", {
-      isRest,
-      isStopwatch,
-      currentExercise,
-      restValue: currentExercise?.rest,
-      durationValue: currentExercise?.duration,
-      exerciseName: currentExercise?.exercise?.name,
-      modification: currentExercise?.modification,
-      shouldAutoStart
-    });
+    // console.log("Timer initializing:", {
+    //   isRest,
+    //   isStopwatch,
+    //   currentExercise,
+    //   restValue: currentExercise?.rest,
+    //   durationValue: currentExercise?.duration,
+    //   exerciseName: currentExercise?.exercise?.name,
+    //   modification: currentExercise?.modification,
+    //   shouldAutoStart
+    // });
     clearInterval(intervalRef.current);
     
     if (isStopwatch) {
@@ -89,13 +89,13 @@ const WorkoutTimer = ({
         setIsPaused(false);
     } else if (isRest) {
         const rest = parseDurationToSeconds(currentExercise.rest);
-        console.log("Rest duration parsed:", rest);
+        // console.log("Rest duration parsed:", rest);
         setTime(rest);
         setIsActive(true);
         setIsPaused(false);
     } else {
         const exerciseDuration = parseDurationToSeconds(currentExercise.duration);
-        console.log("Exercise duration parsed:", exerciseDuration);
+        // console.log("Exercise duration parsed:", exerciseDuration);
         setTime(exerciseDuration);
         setIsActive(shouldAutoStart);
         setIsPaused(false);
@@ -173,7 +173,7 @@ const WorkoutTimer = ({
 
   // Handle the modification button clicks with better error handling
   const handleOriginalClick = () => {
-    console.log("Original button clicked, setShowModified:", typeof setShowModified);
+    // console.log("Original button clicked, setShowModified:", typeof setShowModified);
     if (typeof setShowModified === 'function') {
       // Pause the timer when switching exercises and reset to original duration
       clearInterval(intervalRef.current);
@@ -189,7 +189,7 @@ const WorkoutTimer = ({
   };
 
   const handleModifiedClick = () => {
-    console.log("Modified button clicked, setShowModified:", typeof setShowModified);
+    // console.log("Modified button clicked, setShowModified:", typeof setShowModified);
     if (typeof setShowModified === 'function') {
       // Pause the timer when switching exercises and reset to original duration
       clearInterval(intervalRef.current);

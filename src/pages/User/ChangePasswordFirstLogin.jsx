@@ -78,8 +78,8 @@ const ChangePasswordFirstLoginPage = () => {
     }
 
     try {
-      console.log("About to call set-first-time-password endpoint");
-      console.log("Token from context:", token);
+      // console.log("About to call set-first-time-password endpoint");
+      // console.log("Token from context:", token);
       
       if (!token) {
         showToast("error", "Authentication token not found. Please log in again.");

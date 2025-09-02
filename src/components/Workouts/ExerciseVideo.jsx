@@ -2,20 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const ExerciseVideo = ({ exercise, shouldAutoStart = false, showModified = false }) => {
-  console.log("ExerciseVideo received:", { exercise, showModified });
+  // console.log("ExerciseVideo received:", { exercise, showModified });
 
   const getActiveExercise = () => {
     if (!exercise) return null;
     
     // Check if we're showing modified and there's a modification available
     if (showModified && exercise.exercise?.modification) {
-      console.log("Using modified exercise:", exercise.exercise.modification);
+      // console.log("Using modified exercise:", exercise.exercise.modification);
       return exercise.exercise.modification;
     }
     
     // Otherwise use the base exercise
     const baseExercise = exercise.exercise || exercise;
-    console.log("Using base exercise:", baseExercise);
+    // console.log("Using base exercise:", baseExercise);
     return baseExercise;
   };
 
@@ -23,7 +23,7 @@ const ExerciseVideo = ({ exercise, shouldAutoStart = false, showModified = false
   const videoId = activeExercise?.videoId;
   const exerciseName = activeExercise?.name;
 
-  console.log("Active exercise details:", { activeExercise, videoId, exerciseName, showModified });
+  // console.log("Active exercise details:", { activeExercise, videoId, exerciseName, showModified });
 
   const getVideoUrl = (id) => {
     if (!id) return null;

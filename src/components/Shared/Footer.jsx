@@ -30,8 +30,8 @@ const Footer = () => {
 
             {/* Legal Links Column (Updated) */}
             <div className="flex flex-col justify-center items-center md:items-end space-y-4 mt-4 md:mt-0">
-              <Link to="/LMW_fitness_Website_Policies.docx" target="_blank" rel="noopener noreferrer" className="font-titillium text-xs text-logoGray hover:text-limeGreen transition-colors duration-300">Privacy Policy</Link>
-              <Link to="/LMW_fitness_Terms_of_Service.docx" target="_blank" rel="noopener noreferrer" className="font-titillium text-xs text-logoGray hover:text-brightYellow transition-colors duration-300">Terms of Service</Link>
+              <Link to="/docs/LMW_fitness_Website_Policies.docx" target="_blank" rel="noopener noreferrer" className="font-titillium text-xs text-logoGray hover:text-limeGreen transition-colors duration-300">Privacy Policy</Link>
+              <Link to="/docs/LMW_fitness_Terms_of_Service.docx" target="_blank" rel="noopener noreferrer" className="font-titillium text-xs text-logoGray hover:text-brightYellow transition-colors duration-300">Terms of Service</Link>
             </div>
           </div>
 
@@ -45,15 +45,15 @@ const Footer = () => {
 
             {/* Social Icons */}
             <div className="flex space-x-4 mt-4 md:mt-0">
-              <a href="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" rel="noopener noreferrer" className="text-limeGreen socials" aria-label="Facebook">
-              <FaFacebook className="text-xl" />
-              </a>
-              <a href="https://www.instagram.com/lmw__fitness/" target="_blank" rel="noopener noreferrer" className="text-brightYellow socials" aria-label="Instagram">
-              <FaInstagram className="text-xl" />
-              </a>
-              <a href="https://www.tiktok.com/en/" target="_blank" rel="noopener noreferrer" className="text-hotPink socials" aria-label="TikTok">
-              <FaTiktok className="text-xl" />
-              </a>
+              <Link to="https://www.facebook.com/profile.php?id=61573194721199" target="_blank" rel="noopener noreferrer" className="text-limeGreen socials" aria-label="Facebook">
+                <FaFacebook className="text-xl" />
+              </Link>
+              <Link to="https://www.instagram.com/lmw__fitness/" target="_blank" rel="noopener noreferrer" className="text-brightYellow socials" aria-label="Instagram">
+                <FaInstagram className="text-xl" />
+              </Link>
+              <Link to="https://www.tiktok.com/en/" target="_blank" rel="noopener noreferrer" className="text-hotPink socials" aria-label="TikTok">
+                <FaTiktok className="text-xl" />
+              </Link>
             </div>
           </div>
         </div>
