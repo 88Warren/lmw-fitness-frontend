@@ -19,7 +19,7 @@ const BlogList = ({
 
    const categoryFilter = searchParams.get("category");
 
-  const filteredBlogPosts = categoryFilter
+  const filteredBlogPosts = categoryFilter && categoryFilter !== 'all'
     ? actualBlogPosts.filter(
         (post) =>
           post.category &&
@@ -40,7 +40,8 @@ const BlogList = ({
     (a, b) => new Date(b.date) - new Date(a.date),
   );
 
-  const gridBlogPosts = allSortedPosts;
+  // Limit to 6 posts on main page, show all when category is filtered
+  const gridBlogPosts = categoryFilter ? allSortedPosts : allSortedPosts.slice(0, 6);
 
   return (
     <> 
@@ -65,12 +66,37 @@ const BlogList = ({
             )}
 
             {/* All Articles Grid */}
-            <AllArticlesGrid
-              gridBlogPosts={gridBlogPosts}
-              handleEditClick={handleEditClick}
-              handleDelete={handleDelete}
-              isAdmin={isAdmin}
-            />
+            <div>
+              <div className="flex justify-between items-center mb-8">
+                {!categoryFilter && allSortedPosts.length > 6 && (
+                  <button
+                    onClick={() => navigate('/blog?category=all')}
+                    className="text-brightYellow hover:text-customWhite font-titillium font-semibold transition-colors duration-300 inline-flex items-center space-x-1"
+                  >
+                    <span>View All ({allSortedPosts.length})</span>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              <AllArticlesGrid
+                gridBlogPosts={gridBlogPosts}
+                handleEditClick={handleEditClick}
+                handleDelete={handleDelete}
+                isAdmin={isAdmin}
+              />
+            </div>
           </div>
 
           {/* Sidebar */}

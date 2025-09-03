@@ -42,7 +42,7 @@ const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
   };
 
   return (
-    <section className="py-8">
+    <section>
       <div className="max-w-4xl mx-auto text-center">
         <motion.div
           initial="hidden"
@@ -51,15 +51,8 @@ const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
         >
           <DynamicHeading
             text="LMW Fitness blog"
-            className="font-higherJump text-black/80 mb-6 text-4xl font-extrabold leading-loose tracking-wide"
+            className="font-higherJump text-customWhite mb-6 text-4xl font-extrabold leading-loose tracking-wide"
           />
-
-          <motion.p
-            variants={textVariants}
-            className="font-titillium text-customWhite text-m max-w-2xl mx-auto leading-relaxed"
-          >
-            Unlock your potential and &quot;Live More With&quot; for my insights on fitness, movement and wellbeing.
-          </motion.p>
 
           {isAdmin && (
             <motion.div variants={buttonVariants}>

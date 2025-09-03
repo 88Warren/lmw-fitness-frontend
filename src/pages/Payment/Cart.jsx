@@ -201,7 +201,7 @@ const Cart = () => {
                   id="terms"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="h-4 w-4 text-brightYellow border-gray-300 rounded focus:ring-brightYellow"
+                  className="h-4 w-4 accent-brightYellow border-gray-300 rounded focus:ring-brightYellow"
                 />
                 <label htmlFor="terms" className="text-sm text-customWhite">
                   I agree to the{" "}

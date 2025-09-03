@@ -67,7 +67,7 @@ const CookieConsent = () => {
               </h3>
               <p className="text-gray-300 text-sm leading-relaxed">
                 We use cookies to enhance your browsing experience, provide
-                personalized content, and analyze our traffic. By clicking
+                personalised content and analyse our traffic. By clicking
                 "Accept All&quot;, you consent to our use of cookies.{" "}
                 <a
                   href="/docs/LMW_fitness_Website_Policies.docx"

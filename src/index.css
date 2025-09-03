@@ -126,11 +126,11 @@
   }
 
   .btn-complete {
-    @apply mt-2 px-4 py-3 bg-customGray border border-customWhite hover:bg-logoGray text-customWhite hover:text-black font-titillium font-bold rounded-lg transition-colors duration-300;
+    @apply mt-6 px-6 py-3 bg-customGray border border-limeGreen hover:bg-limeGreen hover:text-black text-limeGreen font-titillium font-bold rounded-lg transition-colors duration-300;
   }
 
   .btn-disabled {
-    @apply mt-2 px-4 py-3 bg-cyan-200 border border-customWhite hover:bg-logoGray text-customWhite hover:text-black font-titillium font-bold rounded-lg transition-colors duration-300;
+    @apply mt-6 px-6 py-3 bg-customGray border border-customWhite text-customWhite font-titillium font-bold rounded-lg transition-colors duration-300;
   }
 
   /* Green button */
@@ -225,5 +225,102 @@
   .sib-container a {
     text-decoration: underline;
     color: #2BB2FC;
+  }
+
+  /* Blog Article Styles */
+  .blog-article {
+    @apply font-titillium text-logoGray leading-relaxed;
+  }
+
+  .blog-article h1 {
+    @apply font-higherJump text-4xl text-customWhite font-bold tracking-wide mt-12 mb-10 border-b-2 border-brightYellow;
+  }
+
+  .blog-article h2 {
+    @apply font-higherJump text-3xl text-customWhite font-bold tracking-wide mt-12 mb-10 pl-4 border-l-4 border-limeGreen;
+  }
+
+  .blog-article h3 {
+    @apply font-higherJump text-2xl text-customWhite font-semibold tracking-wide mt-10 mb-8;
+  }
+
+  .blog-article h4 {
+    @apply font-higherJump text-xl text-customWhite font-semibold tracking-wide mt-10 mb-8;
+  }
+
+  .blog-article h5 {
+    @apply font-higherJump text-lg text-customWhite font-semibold tracking-wide mt-8 mb-6;
+  }
+
+  .blog-article h6 {
+    @apply font-higherJump text-base text-customWhite font-semibold tracking-wide mt-8 mb-6;
+  }
+
+  .blog-article p {
+    @apply font-titillium text-logoGray text-base leading-loose mb-6;
+  }
+
+  .blog-article a {
+    @apply text-hotPink no-underline hover:text-brightYellow transition-colors duration-200 font-medium;
+  }
+
+  .blog-article strong {
+    @apply text-limeGreen font-bold tracking-wide;
+  }
+
+  .blog-article em {
+    @apply text-brightYellow italic;
+  }
+
+  .blog-article ul, .blog-article ol {
+    @apply text-logoGray my-6 pl-6;
+  }
+
+  .blog-article li {
+    @apply mb-3 leading-relaxed;
+  }
+
+  .blog-article ul li {
+    @apply list-disc;
+  }
+
+  .blog-article ol li {
+    @apply list-decimal;
+  }
+
+  .blog-article blockquote {
+    @apply border-l-4 border-brightYellow pl-6 py-4 my-8 italic text-logoGray bg-customGray/30 rounded-r-lg;
+  }
+
+  .blog-article code {
+    @apply text-limeGreen bg-customGray/80 px-2 py-1 rounded text-sm font-mono;
+  }
+
+  .blog-article pre {
+    @apply bg-customGray/80 border border-logoGray rounded-lg p-4 my-6 overflow-x-auto;
+  }
+
+  .blog-article pre code {
+    @apply bg-transparent p-0 text-sm;
+  }
+
+  .blog-article hr {
+    @apply border-logoGray my-10;
+  }
+
+  .blog-article img {
+    @apply rounded-lg border-2 border-brightYellow my-8 max-w-full h-auto;
+  }
+
+  .blog-article table {
+    @apply w-full border-collapse border border-logoGray my-6;
+  }
+
+  .blog-article th, .blog-article td {
+    @apply border border-logoGray px-4 py-2 text-left;
+  }
+
+  .blog-article th {
+    @apply bg-customGray/50 text-customWhite font-semibold;
   }
 }
