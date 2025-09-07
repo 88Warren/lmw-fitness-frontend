@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const ExerciseVideo = ({ exercise, shouldAutoStart = false, showModified = false }) => {
+const ExerciseVideo = ({ exercise, shouldAutoStart = false, showModified = false, isMobility = false }) => {
   // console.log("ExerciseVideo received:", { exercise, showModified });
 
   const getActiveExercise = () => {
@@ -29,7 +29,8 @@ const ExerciseVideo = ({ exercise, shouldAutoStart = false, showModified = false
     if (!id) return null;
     
     if (id.length === 11) {
-      const autoplayParam = shouldAutoStart ? 'autoplay=1' : 'autoplay=0';
+      // For mobility videos, always autoplay. For regular exercises, use shouldAutoStart
+      const autoplayParam = (isMobility || shouldAutoStart) ? 'autoplay=1' : 'autoplay=0';
       return `https://www.youtube.com/embed/${id}?${autoplayParam}&modestbranding=1&rel=0&controls=1`;
     }
     return null;
@@ -40,7 +41,9 @@ const ExerciseVideo = ({ exercise, shouldAutoStart = false, showModified = false
   return (
     <div className="flex flex-col h-full">
       {/* Video Display */}
-      <div className="flex-1 min-h-[60vh] relative rounded-lg border-0 overflow-hidden mb-4">
+      <div className={`flex-1 relative rounded-lg border-0 overflow-hidden mb-4 ${
+        isMobility ? 'min-h-[70vh]' : 'min-h-[60vh]'
+      }`}>
         {videoUrl ? (
           <iframe
             key={`${videoId}-${shouldAutoStart}-${showModified}`}
@@ -93,6 +96,7 @@ ExerciseVideo.propTypes = {
   }),
   shouldAutoStart: PropTypes.bool,
   showModified: PropTypes.bool,
+  isMobility: PropTypes.bool,
 };
 
 export default ExerciseVideo;
