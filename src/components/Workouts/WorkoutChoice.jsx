@@ -2,21 +2,265 @@ import React from "react";
 import PropTypes from "prop-types";
 import DynamicHeading from "../Shared/DynamicHeading";
 
-const WorkoutChoice = ({ workoutData, onChoiceMade, onGoBack }) => {
+const WorkoutChoice = ({
+  workoutData,
+  onChoiceMade,
+  onGoBack,
+  completedSessions = [],
+}) => {
   const hasMobilityBlock = workoutData.workoutBlocks.some(
     (block) => block.blockType === "Mobility"
   );
-  const hasRegularWorkout = workoutData.workoutBlocks.some(
-    (block) => block.blockType !== "Mobility"
-  );
 
-  const handleChoice = (choice) => {
-    onChoiceMade(choice);
+  // Group non-mobility blocks into separate workouts
+  const getWorkoutSessions = () => {
+    const sessions = [];
+    let currentSession = [];
+    let sessionIndex = 0;
+
+    const nonMobilityBlocks = workoutData.workoutBlocks.filter(
+      (block) => block.blockType !== "Mobility"
+    );
+
+    // If there are multiple non-mobility blocks, we need to determine how to group them
+    if (nonMobilityBlocks.length <= 1) {
+      // Single workout or no workouts
+      if (nonMobilityBlocks.length === 1) {
+        const blockIndex = workoutData.workoutBlocks.findIndex(
+          (b) => b === nonMobilityBlocks[0]
+        );
+        sessions.push({
+          id: 0,
+          name: getSessionName([nonMobilityBlocks[0]], 0),
+          blocks: [nonMobilityBlocks[0]],
+          blockIndices: [blockIndex],
+        });
+      }
+      return sessions;
+    }
+
+    // Multiple blocks - use improved detection logic
+    workoutData.workoutBlocks.forEach((block, index) => {
+      if (block.blockType === "Mobility") {
+        return;
+      }
+
+      // Improved session detection logic
+      let isNewSession = false;
+
+      if (currentSession.length === 0) {
+        // First block always starts a session
+        isNewSession = false;
+      } else {
+        const lastBlock = currentSession[currentSession.length - 1];
+
+        // Check various indicators for a new session
+        isNewSession =
+          // Explicit session break marker
+          block.sessionBreak ||
+          // Block notes contain workout indicators
+          (block.blockNotes &&
+            (block.blockNotes.toLowerCase().includes("workout") ||
+              block.blockNotes.toLowerCase().includes("circuit") ||
+              block.blockNotes.toLowerCase().includes("finisher"))) ||
+          // Start new session when block types change (except consecutive Tabata blocks)
+          (block.blockType !== lastBlock.blockType &&
+            !(
+              block.blockType === "Tabata" && lastBlock.blockType === "Tabata"
+            )) ||
+          // Multiple non-Tabata special blocks are separate sessions
+          (block.blockType !== "Tabata" &&
+            lastBlock.blockType !== "Tabata" &&
+            ["AMRAP", "EMOM", "For Time", "Circuit"].includes(
+              block.blockType
+            ) &&
+            ["AMRAP", "EMOM", "For Time", "Circuit"].includes(
+              lastBlock.blockType
+            )) ||
+          // If we have more than 2 blocks total, split them
+          (nonMobilityBlocks.length > 2 &&
+            currentSession.length >= Math.ceil(nonMobilityBlocks.length / 2));
+      }
+
+      if (isNewSession && currentSession.length > 0) {
+        sessions.push({
+          id: sessionIndex,
+          name: getSessionName(currentSession, sessionIndex),
+          blocks: [...currentSession],
+          blockIndices: currentSession.map((b) => b.originalIndex),
+        });
+        currentSession = [];
+        sessionIndex++;
+      }
+
+      currentSession.push({ ...block, originalIndex: index });
+    });
+
+    // Add the last session if it has blocks
+    if (currentSession.length > 0) {
+      sessions.push({
+        id: sessionIndex,
+        name: getSessionName(currentSession, sessionIndex),
+        blocks: [...currentSession],
+        blockIndices: currentSession.map((b) => b.originalIndex),
+      });
+    }
+
+    return sessions;
+  };
+
+  const getSessionName = (blocks, index) => {
+    // Try to determine session name from block notes or types
+    const firstBlock = blocks[0];
+
+    // Check for finisher
+    if (
+      firstBlock.blockNotes &&
+      firstBlock.blockNotes.toLowerCase().includes("finisher")
+    ) {
+      return "Finisher";
+    }
+
+    // Check for specific workout names in notes
+    if (firstBlock.blockNotes) {
+      const notes = firstBlock.blockNotes.toLowerCase();
+      if (notes.includes("strength")) return "Strength";
+      if (notes.includes("cardio")) return "Cardio";
+      if (notes.includes("conditioning")) return "Conditioning";
+      if (notes.includes("circuit")) return "Circuit";
+    }
+
+    // Default naming
+    return `Workout ${index + 1}`;
+  };
+
+  const getSessionIcon = (sessionName, blocks) => {
+    const name = sessionName.toLowerCase();
+    if (name.includes("finisher")) return "🔥";
+    if (name.includes("strength")) return "💪";
+    if (name.includes("cardio")) return "❤️";
+    if (name.includes("conditioning")) return "⚡";
+    if (name.includes("circuit")) return "🔄";
+
+    // Default based on block types
+    const hasAMRAP = blocks.some((b) => b.blockType === "AMRAP");
+    const hasEMOM = blocks.some((b) => b.blockType === "EMOM");
+    const hasTabata = blocks.some((b) => b.blockType === "Tabata");
+    const hasForTime = blocks.some((b) => b.blockType === "For Time");
+
+    if (hasTabata) return "🔥";
+    if (hasAMRAP) return "⏰";
+    if (hasEMOM) return "⏱️";
+    if (hasForTime) return "🏃‍♂️";
+
+    return "💪";
+  };
+
+  const getSessionDescription = (blocks) => {
+    const blockTypes = [...new Set(blocks.map((b) => b.blockType))];
+    const exerciseCount = blocks.reduce(
+      (total, block) => total + block.exercises.length,
+      0
+    );
+
+    let description = `${exerciseCount} exercises`;
+    if (blockTypes.length > 0) {
+      description += ` • ${blockTypes.join(", ")}`;
+    }
+
+    return description;
+  };
+
+  const workoutSessions = getWorkoutSessions();
+
+  // Debug logging
+  console.log("WorkoutChoice Debug:", {
+    title: workoutData.title,
+    totalBlocks: workoutData.workoutBlocks?.length,
+    blockTypes: workoutData.workoutBlocks?.map((b) => b.blockType),
+    detectedSessions: workoutSessions.length,
+    sessions: workoutSessions,
+  });
+
+  // Force multi-workout detection for known multi-workout days
+  const forceMultiWorkout = () => {
+    const title = workoutData.title?.toLowerCase() || "";
+    const description = workoutData.description?.toLowerCase() || "";
+
+    // Check for specific day patterns that should be multi-workout
+    const hasMultipleCircuits =
+      title.includes("circuit") &&
+      workoutData.workoutBlocks.filter((b) => b.blockType !== "Mobility")
+        .length > 1;
+    const hasFinisher =
+      description.includes("finisher") ||
+      workoutData.workoutBlocks.some((b) =>
+        b.blockNotes?.toLowerCase().includes("finisher")
+      );
+    // Count different types of special blocks, but treat multiple Tabata as one
+    const specialBlockTypes = [
+      ...new Set(
+        workoutData.workoutBlocks
+          .filter((b) =>
+            ["AMRAP", "EMOM", "Tabata", "For Time", "Circuit"].includes(
+              b.blockType
+            )
+          )
+          .map((b) => b.blockType)
+      ),
+    ];
+
+    const hasMultipleSpecialBlocks =
+      specialBlockTypes.length > 1 ||
+      (specialBlockTypes.length === 1 &&
+        specialBlockTypes[0] !== "Tabata" &&
+        workoutData.workoutBlocks.filter(
+          (b) => b.blockType === specialBlockTypes[0]
+        ).length > 1);
+
+    return hasMultipleCircuits || hasFinisher || hasMultipleSpecialBlocks;
+  };
+
+  const shouldForceMulti = forceMultiWorkout();
+  const isMultiWorkoutDay =
+    workoutSessions.length > 1 || hasMobilityBlock || shouldForceMulti;
+
+  // If we should force multi-workout but only detected one session, split it
+  if (
+    shouldForceMulti &&
+    workoutSessions.length === 1 &&
+    workoutSessions[0].blocks.length > 1
+  ) {
+    const blocks = workoutSessions[0].blocks;
+    const midPoint = Math.ceil(blocks.length / 2);
+
+    const newSessions = [
+      {
+        id: 0,
+        name: getSessionName(blocks.slice(0, midPoint), 0),
+        blocks: blocks.slice(0, midPoint),
+        blockIndices: blocks.slice(0, midPoint).map((b) => b.originalIndex),
+      },
+      {
+        id: 1,
+        name: getSessionName(blocks.slice(midPoint), 1),
+        blocks: blocks.slice(midPoint),
+        blockIndices: blocks.slice(midPoint).map((b) => b.originalIndex),
+      },
+    ];
+
+    // Replace the single session with multiple sessions
+    workoutSessions.length = 0;
+    workoutSessions.push(...newSessions);
+  }
+
+  const handleChoice = (choice, sessionData = null) => {
+    onChoiceMade(choice, sessionData);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-6 rounded-lg text-center max-w-4xl w-full border-brightYellow border-2 mt-20 md:mt-26">
+      <div className="bg-customGray p-6 rounded-lg text-center max-w-6xl w-full border-brightYellow border-2 mt-20 md:mt-26">
         {/* Header */}
         <DynamicHeading
           text={workoutData.title}
@@ -44,83 +288,239 @@ const WorkoutChoice = ({ workoutData, onChoiceMade, onGoBack }) => {
 
         {/* Choice Options */}
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-customWhite mb-6">
-            What would you like to do today?
-          </h2>
+          {isMultiWorkoutDay ? (
+            <>
+              <h2 className="text-xl font-bold text-customWhite mb-6">
+                {workoutSessions.length === 0
+                  ? "Today's Mobility - Complete to Finish the Day"
+                  : hasMobilityBlock && workoutSessions.length === 1
+                  ? "Mobility Day - Choose Your Training"
+                  : "Today's Workouts - Complete All to Finish the Day"}
+              </h2>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            {/* Mobility Only */}
-            {hasMobilityBlock && (
-              <div className="bg-gray-600 rounded-lg p-6 hover:bg-gray-600 transition-colors flex flex-col">
-                <div className="text-4xl mb-4">🧘‍♀️</div>
-                <h3 className="text-lg font-bold text-customWhite mb-2">
-                  Mobility Only
-                </h3>
-                <p className="text-logoGray text-sm mb-4">
-                  Focus on stretching and mobility work to improve flexibility
-                  and aid recovery.
-                </p>
-                <div className="mt-auto">
-                  <button
-                    onClick={() => handleChoice("mobility")}
-                    className="btn-primary w-full"
+              <div
+                className={`grid gap-4 max-w-6xl mx-auto ${
+                  (hasMobilityBlock ? 1 : 0) + workoutSessions.length === 2
+                    ? "md:grid-cols-2"
+                    : "md:grid-cols-2 lg:grid-cols-3"
+                }`}
+              >
+                {/* Mobility */}
+                {hasMobilityBlock && (
+                  <div
+                    className={`rounded-lg p-6 transition-colors flex flex-col ${
+                      completedSessions.includes("mobility")
+                        ? "bg-limeGreen text-black"
+                        : "bg-gray-600 hover:bg-gray-500"
+                    }`}
                   >
-                    Start Mobility
-                  </button>
-                </div>
-              </div>
-            )}
+                    <div className="text-4xl mb-4">🧘‍♀️</div>
+                    <h3 className="text-lg font-bold mb-2">
+                      Mobility Session
+                      {completedSessions.includes("mobility") && (
+                        <span className="ml-2 text-lg">✓</span>
+                      )}
+                    </h3>
+                    <p
+                      className={`text-sm mb-4 flex-grow ${
+                        completedSessions.includes("mobility")
+                          ? "text-black"
+                          : "text-logoGray"
+                      }`}
+                    >
+                      Stretching and mobility work for flexibility and recovery.
+                      {workoutSessions.length === 0 && (
+                        <span className="block mt-1 font-semibold text-limeGreen">
+                          Required to complete the day.
+                        </span>
+                      )}
+                    </p>
+                    <div className="mt-auto">
+                      <button
+                        onClick={() => handleChoice("mobility")}
+                        className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                          completedSessions.includes("mobility")
+                            ? "bg-black text-limeGreen hover:bg-gray-800"
+                            : "btn-primary"
+                        }`}
+                      >
+                        {completedSessions.includes("mobility")
+                          ? "Redo Mobility"
+                          : "Start Mobility"}
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-            {/* Workout Only */}
-            {hasRegularWorkout && (
-              <div className="bg-gray-600 rounded-lg p-6 hover:bg-gray-600 transition-colors flex flex-col">
-                <div className="text-4xl mb-4">💪</div>
-                <h3 className="text-lg font-bold text-customWhite mb-2">
-                  Workout Only
-                </h3>
-                <p className="text-logoGray text-sm mb-4">
-                  Jump straight into your workout.
-                </p>
-                <div className="mt-auto">
-                  <button
-                    onClick={() => handleChoice("workout")}
-                    className="btn-primary w-full justify-end"
+                {/* Workout Sessions */}
+                {workoutSessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className={`rounded-lg p-6 transition-colors flex flex-col ${
+                      completedSessions.includes(`workout-${session.id}`)
+                        ? "bg-limeGreen text-black"
+                        : "bg-gray-600 hover:bg-gray-500"
+                    }`}
                   >
-                    Start Workout
-                  </button>
-                </div>
+                    <div className="text-4xl mb-4">
+                      {getSessionIcon(session.name, session.blocks)}
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">
+                      {session.name}
+                      {completedSessions.includes(`workout-${session.id}`) && (
+                        <span className="ml-2 text-lg">✓</span>
+                      )}
+                    </h3>
+                    <p
+                      className={`text-sm mb-4 flex-grow ${
+                        completedSessions.includes(`workout-${session.id}`)
+                          ? "text-black"
+                          : "text-logoGray"
+                      }`}
+                    >
+                      {getSessionDescription(session.blocks)}
+                    </p>
+                    <div className="mt-auto">
+                      <button
+                        onClick={() => handleChoice("workout", session)}
+                        className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                          completedSessions.includes(`workout-${session.id}`)
+                            ? "bg-black text-limeGreen hover:bg-gray-800"
+                            : "btn-primary"
+                        }`}
+                      >
+                        {completedSessions.includes(`workout-${session.id}`)
+                          ? `Redo ${session.name}`
+                          : `Start ${session.name}`}
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
 
-            {/* Both */}
-            {hasRegularWorkout && hasMobilityBlock && (
-              <div className="bg-gray-600 rounded-lg p-6 hover:bg-gray-600 transition-colors flex flex-col">
-                <div className="text-4xl mb-4">🔥</div>
-                <h3 className="text-lg font-bold text-customWhite mb-2">
-                  Both Sessions
-                </h3>
-                <p className="text-logoGray text-sm mb-4">
-                  Complete your workout first, then move on to the mobility session and improve recovery.
+              {/* Progress and Instructions */}
+              <div className="bg-gray-600 rounded-lg p-4 mt-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-limeGreen font-bold">Progress:</span>
+                  <span className="text-customWhite">
+                    {completedSessions.length} /{" "}
+                    {(hasMobilityBlock ? 1 : 0) + workoutSessions.length}{" "}
+                    completed
+                  </span>
+                </div>
+                <div className="bg-gray-500 rounded-full h-3 mb-3">
+                  <div
+                    className="h-full rounded-full transition-all duration-500 bg-limeGreen"
+                    style={{
+                      width: `${
+                        (completedSessions.length /
+                          ((hasMobilityBlock ? 1 : 0) +
+                            workoutSessions.length)) *
+                        100
+                      }%`,
+                    }}
+                  ></div>
+                </div>
+                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                  <span className="text-limeGreen font-bold">
+                    Instructions:{" "}
+                  </span>
+                  {workoutSessions.length === 0
+                    ? "Complete the mobility session to finish today's training."
+                    : hasMobilityBlock && workoutSessions.length === 1
+                    ? "Complete the mobility session to finish the day. The workout is optional for extra challenge."
+                    : "Complete all workouts to finish today's training. You can do them in any order, but finishers are recommended last. Take breaks between workouts as needed."}
                 </p>
-                <div className="mt-auto">
-                  <button
-                    onClick={() => handleChoice("both")}
-                    className="btn-primary w-full"
-                  >
-                    Start Both
-                  </button>
-                </div>
               </div>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold text-customWhite mb-6">
+                What would you like to do today?
+              </h2>
 
-          {/* Additional Info */}
-          <div className="bg-gray-600 rounded-lg p-4 mt-6">
-            <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
-              <span className="text-limeGreen font-bold">Tip: </span> 
-              Mobility work is great for recovery days and help aid recovery and flexibility.
-            </p>
-          </div>
+              <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
+                {/* Mobility */}
+                {hasMobilityBlock && (
+                  <div className="bg-gray-600 rounded-lg p-6 hover:bg-gray-500 transition-colors flex flex-col">
+                    <div className="text-5xl mb-4">🧘‍♀️</div>
+                    <h3 className="text-xl font-bold text-customWhite mb-3">
+                      Mobility Session
+                    </h3>
+                    <p className="text-logoGray text-sm mb-4 flex-grow">
+                      Focus on stretching and mobility work to improve
+                      flexibility and aid recovery.{" "}
+                      <span className="text-limeGreen font-semibold">
+                        Required for day completion.
+                      </span>
+                    </p>
+                    <div className="mt-auto">
+                      <button
+                        onClick={() => handleChoice("mobility")}
+                        className="btn-primary w-full"
+                      >
+                        Start Mobility
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Single Workout */}
+                {workoutSessions.length === 1 && (
+                  <div className="bg-gray-600 rounded-lg p-6 hover:bg-gray-500 transition-colors flex flex-col">
+                    <div className="text-5xl mb-4">
+                      {getSessionIcon(
+                        workoutSessions[0].name,
+                        workoutSessions[0].blocks
+                      )}
+                    </div>
+                    <h3 className="text-xl font-bold text-customWhite mb-3">
+                      {hasMobilityBlock
+                        ? "Optional Workout"
+                        : "Today's Workout"}
+                    </h3>
+                    <p className="text-logoGray text-sm mb-4 flex-grow">
+                      {hasMobilityBlock ? (
+                        <>
+                          Challenge yourself with today's optional workout.
+                          <span className="text-brightYellow font-semibold">
+                            {" "}
+                            Optional - not required for day completion.
+                          </span>
+                        </>
+                      ) : (
+                        getSessionDescription(workoutSessions[0].blocks)
+                      )}
+                    </p>
+                    <div className="mt-auto">
+                      <button
+                        onClick={() =>
+                          handleChoice("workout", workoutSessions[0])
+                        }
+                        className="btn-primary w-full"
+                      >
+                        Start Workout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Recovery Day Info */}
+              {hasMobilityBlock && workoutSessions.length === 1 && (
+                <div className="bg-gray-600 rounded-lg p-4 mt-6">
+                  <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                    <span className="text-limeGreen font-bold">
+                      Recovery Day:{" "}
+                    </span>
+                    Choose mobility for recovery and flexibility, or add the
+                    optional workout for extra challenge. You can do them in any
+                    order or just one - it&apos;s up to you!
+                  </p>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -134,11 +534,14 @@ WorkoutChoice.propTypes = {
     workoutBlocks: PropTypes.arrayOf(
       PropTypes.shape({
         blockType: PropTypes.string.isRequired,
+        blockNotes: PropTypes.string,
+        exercises: PropTypes.array,
       })
     ).isRequired,
   }).isRequired,
   onChoiceMade: PropTypes.func.isRequired,
   onGoBack: PropTypes.func.isRequired,
+  completedSessions: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default WorkoutChoice;

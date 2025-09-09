@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import { motion } from 'framer-motion';
-import DynamicHeading from '../../components/Shared/DynamicHeading';
+import { motion } from "framer-motion";
+import DynamicHeading from "../../components/Shared/DynamicHeading";
 import { showToast } from "../../utils/toastUtil";
 import { BACKEND_URL } from "../../utils/config";
-import axios from "axios"; 
+import axios from "axios";
 
 const RoutinePage = () => {
-  const { user, loadingAuth, isLoggedIn } = useAuth();
+  const { loadingAuth, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const { programName, routineType } = useParams();
-  const location = useLocation();
   const [routineData, setRoutineData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Validate routine type
-  const validRoutineType = routineType === 'warmup' || routineType === 'cooldown' ? routineType : 'warmup';
-  const routineTitle = validRoutineType === 'warmup' ? 'Warm Up' : 'Cool Down';
-
+  const validRoutineType =
+    routineType === "warmup" || routineType === "cooldown"
+      ? routineType
+      : "warmup";
+  const routineTitle = validRoutineType === "warmup" ? "Warm Up" : "Cool Down";
 
   useEffect(() => {
     if (loadingAuth || !isLoggedIn) return;
@@ -26,10 +27,11 @@ const RoutinePage = () => {
     const fetchRoutine = async () => {
       try {
         setIsLoading(true);
-        const endpoint = validRoutineType === 'warmup' 
-          ? `${BACKEND_URL}/api/workouts/${programName}/routines/warmup` 
-          : `${BACKEND_URL}/api/workouts/${programName}/routines/cooldown`;
-        const response = await axios.get(endpoint); 
+        const endpoint =
+          validRoutineType === "warmup"
+            ? `${BACKEND_URL}/api/workouts/${programName}/routines/warmup`
+            : `${BACKEND_URL}/api/workouts/${programName}/routines/cooldown`;
+        const response = await axios.get(endpoint);
         setRoutineData(response.data);
       } catch (error) {
         console.error("Failed to fetch routine:", error);
@@ -38,7 +40,10 @@ const RoutinePage = () => {
         } else if (error.response?.status === 404) {
           showToast("error", `${routineTitle} routine not found.`);
         } else {
-          showToast("error", `Failed to load ${validRoutineType} routine. Please try again.`);
+          showToast(
+            "error",
+            `Failed to load ${validRoutineType} routine. Please try again.`
+          );
         }
         setRoutineData(null);
       } finally {
@@ -112,7 +117,7 @@ const RoutinePage = () => {
 
         {/* Video Block */}
         <div className="w-full mb-6 rounded-lg overflow-hidden border-2 border-brightYellow shadow-md">
-          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+          <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
             <iframe
               src={routineData.videoUrl}
               title={routineTitle}
@@ -132,13 +137,17 @@ const RoutinePage = () => {
               Overview
             </h3>
             <p className="text-customWhite leading-loose whitespace-pre-line">
-                {routineData.description.split("\n").map((line, idx) => 
-                  line.startsWith("-") ? (
-                    <li key={idx} className="ml-6 list-disc">{line.replace("-", "").trim()}</li>
-                  ) : (
-                    <p key={idx} className="mb-2">{line}</p>
-                  )
-                )}
+              {routineData.description.split("\n").map((line, idx) =>
+                line.startsWith("-") ? (
+                  <li key={idx} className="ml-6 list-disc">
+                    {line.replace("-", "").trim()}
+                  </li>
+                ) : (
+                  <p key={idx} className="mb-2">
+                    {line}
+                  </p>
+                )
+              )}
             </p>
           </div>
 

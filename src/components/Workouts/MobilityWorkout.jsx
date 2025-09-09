@@ -8,7 +8,7 @@ const MobilityWorkout = ({
   onComplete,
   onGoBack,
   canGoBack,
-  shouldAutoStart = false,
+  hasOptionalWorkout = false,
 }) => {
   const [hasStarted, setHasStarted] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -28,13 +28,13 @@ const MobilityWorkout = ({
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[110vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
+      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[120vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
         {/* Header */}
         <div className="flex flex-col mb-4 items-center">
           <DynamicHeading
             text="Mobility Session"
             className="font-higherJump m-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-          /> 
+          />
 
           {/* Back Button */}
           {canGoBack && (
@@ -59,23 +59,20 @@ const MobilityWorkout = ({
                 This is a follow-along mobility session. The video will guide
                 you through the entire routine.
               </p>
-              <button
-                onClick={handleStart}
-                className="btn-primary mt-3"
-              >
+              <button onClick={handleStart} className="btn-primary mt-3">
                 Start Mobility Session
               </button>
               {/* Block Notes */}
               <div className="flex items-center justify-center mt-4">
-              {workoutBlock.blockNotes && (
-                <div className="w-2/3 bg-gray-600 rounded-lg p-3 m-3 text-center">
-                  <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
-                    <span className="text-limeGreen font-bold">Notes:</span>{" "}
-                    {workoutBlock.blockNotes}
-                  </p>
-                </div>
-              )}
-          </div>
+                {workoutBlock.blockNotes && (
+                  <div className="w-2/3 bg-gray-600 rounded-lg p-3 m-3 text-center">
+                    <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                      <span className="text-limeGreen font-bold">Notes:</span>{" "}
+                      {workoutBlock.blockNotes}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           ) : isComplete ? (
             /* Completion Screen */
@@ -88,12 +85,34 @@ const MobilityWorkout = ({
                 Great job! Your muscles should feel more relaxed and ready for
                 action.
               </p>
-              <button
-                onClick={handleFinish}
-                className="btn-primary text-xl px-8 py-4"
-              >
-                Finish Session
-              </button>
+
+              {hasOptionalWorkout ? (
+                <div className="space-y-4">
+                  <button
+                    onClick={handleFinish}
+                    className="btn-primary md:mr-4"
+                  >
+                    Finish Day
+                  </button>
+                  <button
+                    onClick={onGoBack}
+                    className="btn-cancel"
+                  >
+                    Back to Choices
+                  </button>
+                  <p className="text-logoGray text-sm text-center max-w-md">
+                    You've completed the required mobility session! You can
+                    finish the day now or go back to try the optional workout.
+                  </p>
+                </div>
+              ) : (
+                <button
+                  onClick={handleFinish}
+                  className="btn-primary text-xl px-8 py-4"
+                >
+                  Finish Session
+                </button>
+              )}
             </div>
           ) : (
             /* Video Screen */
@@ -137,6 +156,7 @@ MobilityWorkout.propTypes = {
   onGoBack: PropTypes.func.isRequired,
   canGoBack: PropTypes.bool.isRequired,
   shouldAutoStart: PropTypes.bool,
+  hasOptionalWorkout: PropTypes.bool,
 };
 
 export default MobilityWorkout;

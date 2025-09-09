@@ -109,9 +109,7 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
     setShowModified(false);
   };
 
-  const handleToggleModified = () => {
-    setShowModified(!showModified);
-  };
+
 
   const getModifiedExercise = (exercise) => {
     return exercise?.modification || null;
@@ -317,8 +315,11 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
 WorkoutPreview.propTypes = {
   workoutData: PropTypes.shape({
     title: PropTypes.string,
+    dayNumber: PropTypes.number,
+    description: PropTypes.string,
     workoutBlocks: PropTypes.arrayOf(
       PropTypes.shape({
+        blockNotes: PropTypes.string,
         exercises: PropTypes.arrayOf(
           PropTypes.shape({
             exercise: PropTypes.shape({ 

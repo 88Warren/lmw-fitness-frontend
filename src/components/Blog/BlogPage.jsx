@@ -12,7 +12,6 @@ const BlogPage = () => {
   const navigate = useNavigate();
 
   const {
-    editingPost,
     actualBlogPosts,
     newBlogData,
     loading,

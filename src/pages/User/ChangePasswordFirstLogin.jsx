@@ -14,7 +14,7 @@ const ChangePasswordFirstLoginPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, isLoggedIn, loading, logout, token, updateUser } = useAuth();
+  const { user, isLoggedIn, loading, logout, token } = useAuth();
   const navigate = useNavigate();
 
   const [newPasswordInputError, setNewPasswordInputError] = useState(false);

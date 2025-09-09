@@ -22,7 +22,8 @@ const ProgramDayListPage = () => {
   };
 
   const currentProgram = programDetails[programName];
-  const lastCompletedDay = user?.completedDays?.[programName] || 0;
+  const unlockedDays = user?.unlockedDays?.[programName] || 0;
+  const completedDaysList = user?.completedDaysList?.[programName] || [];
 
   // console.log("ProgramDayListPage Debug:", {
   //   user,
@@ -114,9 +115,8 @@ const ProgramDayListPage = () => {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 overflow-y-auto px-2 md:px-4 custom-scrollbar">
           {daysArray.map((day) => {
-            const isDayLocked =
-              day > lastCompletedDay + 1 && user.role !== "admin";
-            const isDayCompleted = day <= lastCompletedDay;
+            const isDayLocked = day > unlockedDays && user.role !== "admin";
+            const isDayCompleted = completedDaysList.includes(day);
 
             const previewButtonClass = isDayLocked
               ? "btn-disabled mt-0"

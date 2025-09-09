@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; 
-import { motion } from 'framer-motion';
+import React, { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import useAuth from "../../hooks/useAuth";
-import DynamicHeading from '../../components/Shared/DynamicHeading';
+import DynamicHeading from "../../components/Shared/DynamicHeading";
 
 const ProfilePage = () => {
   const { user, isLoggedIn, loadingAuth } = useAuth();
@@ -32,12 +32,12 @@ const ProfilePage = () => {
     }
   }, [isLoggedIn, navigate, loadingAuth]);
 
-useEffect(() => {
-  if (!loadingAuth && isLoggedIn && user?.mustChangePassword) {
-    // console.log('Must change password redirect triggered');
-    navigate("/change-password-first-login");
-  }
-}, [loadingAuth, isLoggedIn, user, navigate]);
+  useEffect(() => {
+    if (!loadingAuth && isLoggedIn && user?.mustChangePassword) {
+      // console.log('Must change password redirect triggered');
+      navigate("/change-password-first-login");
+    }
+  }, [loadingAuth, isLoggedIn, user, navigate]);
 
   if (loadingAuth || !isLoggedIn || !user) {
     return (
@@ -54,7 +54,7 @@ useEffect(() => {
   //   console.log('Current user state:', user);
   //   console.log('Current purchased programs:', user.purchasedPrograms);
   //   console.log('Checking if user has access to:', programName);
-    
+
   //   if (user.role === 'admin') {
   //     console.log('User is admin, allowing access');
   //   } else if (user.purchasedPrograms && user.purchasedPrograms.includes(programName)) {
@@ -73,9 +73,9 @@ useEffect(() => {
       className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-customGray/30 to-white"
     >
       <div className="bg-customGray p-8 rounded-lg text-center max-w-lg w-full border-brightYellow border-2">
-        <DynamicHeading 
-          text="User Profile" 
-          className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest" 
+        <DynamicHeading
+          text="User Profile"
+          className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest"
         />
         <div className="space-y-4 text-center">
           {/* Debug info */}
@@ -89,48 +89,41 @@ useEffect(() => {
 
           {/* Link to programs/workouts */}
           <div className="mt-6">
-            <Link
-              to="/calorie-calculator"
-              className="block btn-primary mb-6"
-            >
+            <Link to="/calorie-calculator" className="block btn-primary mb-6">
               Calorie Calculator
             </Link>
-            {user.role === 'admin' ? (
+            {user.role === "admin" ? (
               <div className="space-y-2">
-                <Link 
-                  to="/workouts/beginner-program/list" 
+                <Link
+                  to="/workouts/beginner-program/list"
                   className="block btn-full-colour"
-                  onClick={() => handleProgramClick('beginner-program', 1)}
                 >
                   30-Day Beginner Programme
                 </Link>
-                <Link 
-                  to="/workouts/advanced-program/list" 
+                <Link
+                  to="/workouts/advanced-program/list"
                   className="block btn-full-colour"
-                  onClick={() => handleProgramClick('advanced-program', 1)}
                 >
                   30-Day Advanced Programme
                 </Link>
               </div>
             ) : user.purchasedPrograms && user.purchasedPrograms.length > 0 ? (
               <div className="space-y-2">
-              {user.purchasedPrograms.includes('beginner-program') && (
-                <Link 
-                  to="/workouts/beginner-program/list" 
-                  className="block btn-full-colour"
-                  onClick={() => handleProgramClick('beginner-program', 1)}
-                >
-                  30-Day Beginner Programme
-                </Link>
-              )}
-                {user.purchasedPrograms.includes('advanced-program') && (
-                <Link 
-                  to="/workouts/advanced-program/list" 
-                  className="block btn-full-colour"
-                  onClick={() => handleProgramClick('advanced-program', 1)}
-                >
-                  30-Day Advanced Programme
-                </Link>
+                {user.purchasedPrograms.includes("beginner-program") && (
+                  <Link
+                    to="/workouts/beginner-program/list"
+                    className="block btn-full-colour"
+                  >
+                    30-Day Beginner Programme
+                  </Link>
+                )}
+                {user.purchasedPrograms.includes("advanced-program") && (
+                  <Link
+                    to="/workouts/advanced-program/list"
+                    className="block btn-full-colour"
+                  >
+                    30-Day Advanced Programme
+                  </Link>
                 )}
               </div>
             ) : (

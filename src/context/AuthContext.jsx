@@ -1,9 +1,9 @@
-import { createContext, useState, useEffect, useCallback} from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import { BACKEND_URL } from "../utils/config";
 import axios from "axios";
-import { showToast } from '../utils/toastUtil';
-import LoadingAndErrorDisplay from '../components/Shared/Errors/LoadingAndErrorDisplay'; 
-import PropTypes from 'prop-types';
+import { showToast } from "../utils/toastUtil";
+import LoadingAndErrorDisplay from "../components/Shared/Errors/LoadingAndErrorDisplay";
+import PropTypes from "prop-types";
 
 export const AuthContext = createContext(null);
 
@@ -31,29 +31,32 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const updateUser = useCallback(async (updatedUserData) => {
-    if (!updatedUserData) {
-      try {
-        if (!token) {
-          // console.warn("AuthContext: Cannot fetch user data - no token available");
-          return;
+  const updateUser = useCallback(
+    async (updatedUserData) => {
+      if (!updatedUserData) {
+        try {
+          if (!token) {
+            // console.warn("AuthContext: Cannot fetch user data - no token available");
+            return;
+          }
+          // console.log("AuthContext: Fetching fresh user data from backend");
+          const freshUserData = await fetchUserProfile(token);
+          // console.log("AuthContext: Fresh user data received:", freshUserData);
+          localStorage.setItem("user", JSON.stringify(freshUserData));
+          setUser(freshUserData);
+          setIsAdmin(freshUserData.role === "admin");
+        } catch (error) {
+          console.error("AuthContext: Failed to fetch fresh user data:", error);
         }
-        // console.log("AuthContext: Fetching fresh user data from backend");
-        const freshUserData = await fetchUserProfile(token);
-        // console.log("AuthContext: Fresh user data received:", freshUserData);
-        localStorage.setItem("user", JSON.stringify(freshUserData));
-        setUser(freshUserData);
-        setIsAdmin(freshUserData.role === "admin");
-      } catch (error) {
-        console.error("AuthContext: Failed to fetch fresh user data:", error);
+      } else {
+        // console.log("AuthContext: Updating user data:", updatedUserData);
+        localStorage.setItem("user", JSON.stringify(updatedUserData));
+        setUser(updatedUserData);
+        setIsAdmin(updatedUserData.role === "admin");
       }
-    } else {
-      // console.log("AuthContext: Updating user data:", updatedUserData);
-      localStorage.setItem("user", JSON.stringify(updatedUserData));
-      setUser(updatedUserData);
-      setIsAdmin(updatedUserData.role === "admin");
-    }
-  }, [token, fetchUserProfile]);
+    },
+    [token, fetchUserProfile]
+  );
 
   const storeAuthData = useCallback((newToken, userData) => {
     // console.log("AuthContext: Storing auth data:", { token: newToken, user: userData });
@@ -78,7 +81,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const loadAuth = async () => { 
+    const loadAuth = async () => {
       // console.log("AuthContext: Loading authentication state");
       setLoading(true);
       setInitialLoadError(null);
@@ -93,30 +96,43 @@ export const AuthProvider = ({ children }) => {
           setToken(storedToken);
           setIsLoggedIn(true);
           setIsAdmin(userData.role === "admin");
-          axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${storedToken}`;
 
-           try {
+          try {
             const freshUserData = await fetchUserProfile(storedToken);
             // console.log("AuthContext: Using fresh profile data:", freshUserData);
             setUser(freshUserData);
             localStorage.setItem("user", JSON.stringify(freshUserData));
-          } catch (profileError) {
-            // console.warn("AuthContext: Failed to fetch fresh profile, using stored data:", profileError);
+          } catch (error) {
+            // console.warn("AuthContext: Failed to fetch fresh profile, using stored data:", error);
             setUser(userData);
 
-            if (profileError.response?.status === 401 || profileError.response?.status === 403) {
+            if (
+              error.response?.status === 401 ||
+              error.response?.status === 403
+            ) {
               // console.log("AuthContext: Profile fetch returned auth error, clearing stored data");
               clearAuthData();
-              setInitialLoadError("Your session has expired. Please log in again.");
+              setInitialLoadError(
+                "Your session has expired. Please log in again."
+              );
               setLoading(false);
               return;
             }
           }
         } catch (e) {
-          console.error("AuthContext: Failed to parse user data from local storage:", e);
+          console.error(
+            "AuthContext: Failed to parse user data from local storage:",
+            e
+          );
           clearAuthData();
-          showToast("error", "Your session data is corrupted. Please log in again.");
-          setInitialLoadError("Session data corrupted. Please log in again."); 
+          showToast(
+            "error",
+            "Your session data is corrupted. Please log in again."
+          );
+          setInitialLoadError("Session data corrupted. Please log in again.");
         }
       } else {
         // console.log("AuthContext: No stored authentication found");
@@ -142,8 +158,8 @@ export const AuthProvider = ({ children }) => {
         const freshUserData = await fetchUserProfile(token);
         // console.log("AuthContext: Updated user data after login:", freshUserData);
         updateUser(freshUserData);
-      } catch (profileError) {
-        // console.warn("AuthContext: Failed to fetch profile after login, using login data:", profileError);
+      } catch {
+        // console.warn("AuthContext: Failed to fetch profile after login, using login data");
       }
 
       showToast("success", "Login successful!");
@@ -151,10 +167,12 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error(
         "Login failed:",
-        error.response?.data?.error || error.message,
+        error.response?.data?.error || error.message
       );
       clearAuthData();
-      const errorMessage = error.response?.data?.error || "Login failed. Please check your credentials.";
+      const errorMessage =
+        error.response?.data?.error ||
+        "Login failed. Please check your credentials.";
       showToast("error", `${errorMessage}`);
       return { success: false, error: errorMessage };
     }
@@ -179,10 +197,11 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error(
         "Registration failed:",
-        error.response?.data?.error || error.message,
+        error.response?.data?.error || error.message
       );
       clearAuthData();
-      const errorMessage = error.response?.data?.error || "Registration failed.";
+      const errorMessage =
+        error.response?.data?.error || "Registration failed.";
       showToast("error", `${errorMessage}`);
       return { success: false, error: errorMessage };
     }
@@ -195,40 +214,49 @@ export const AuthProvider = ({ children }) => {
     return { success: true, message: "Logged out successfully." };
   };
 
-  const changePassword = async (oldPassword, newPassword, confirmNewPassword) => {
+  const changePassword = async (
+    oldPassword,
+    newPassword,
+    confirmNewPassword
+  ) => {
     try {
       if (!token) {
         showToast("error", "Not authenticated. Please log in.");
         return { success: false, error: "Not authenticated." };
       }
 
-      const response = await axios.put(`${BACKEND_URL}/api/change-password-first-login`, { 
-        oldPassword,
-        newPassword,
-        confirmNewPassword,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.put(
+        `${BACKEND_URL}/api/change-password-first-login`,
+        {
+          oldPassword,
+          newPassword,
+          confirmNewPassword,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       try {
         const freshUserData = await fetchUserProfile(token);
         // console.log("AuthContext: Updated user data after password change:", freshUserData);
         updateUser(freshUserData);
-      } catch (profileError) {
-        // console.warn("AuthContext: Failed to fetch profile after password change:", profileError);
+      } catch {
+        // console.warn("AuthContext: Failed to fetch profile after password change");
         const updatedUser = { ...user, mustChangePassword: false };
         updateUser(updatedUser);
-      } 
+      }
       showToast("success", response.data.message);
       return { success: true, message: response.data.message };
     } catch (error) {
       console.error(
         "Change password failed:",
-        error.response?.data?.error || error.message,
+        error.response?.data?.error || error.message
       );
-      const errorMessage = error.response?.data?.error || "Failed to change password.";
+      const errorMessage =
+        error.response?.data?.error || "Failed to change password.";
       showToast("error", `${errorMessage}`);
       return { success: false, error: errorMessage };
     }
@@ -246,8 +274,8 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     changePassword,
-    storeAuthData, 
-    clearAuthData, 
+    storeAuthData,
+    clearAuthData,
     fetchUserProfile,
   };
 

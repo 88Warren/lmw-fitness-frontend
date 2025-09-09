@@ -8,9 +8,35 @@ import ExerciseVideo from "../../components/Workouts/ExerciseVideo";
 import AMRAPWorkout from "../../components/Workouts/AMRAPWorkout";
 import EMOMWorkout from "../../components/Workouts/EMOMWorkout";
 import MobilityWorkout from "../../components/Workouts/MobilityWorkout";
+import TabataWorkout from "../../components/Workouts/TabataWorkout";
+import ForTimeWorkout from "../../components/Workouts/ForTimeWorkout";
 import WorkoutChoice from "../../components/Workouts/WorkoutChoice";
 import { BACKEND_URL } from "../../utils/config";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
+
+// Helper function to parse duration strings into seconds
+const parseDurationToSeconds = (duration) => {
+  if (typeof duration === "number") return duration;
+  if (typeof duration === "string") {
+    if (duration.trim() === "" || duration === "0s" || duration === "0") {
+      return 0;
+    }
+
+    const match = duration.match(
+      /(\d+)\s*(seconds?|secs?|sec|s|minutes?|mins?|min|m)/i
+    );
+    if (match) {
+      const value = parseInt(match[1], 10);
+      const unit = match[2].toLowerCase();
+
+      if (unit.includes("min") || unit === "m") {
+        return value * 60;
+      }
+      return value;
+    }
+  }
+  return 0;
+};
 
 const WorkoutPage = () => {
   const { isLoggedIn, loadingAuth, user, updateUser } = useAuth();
@@ -34,7 +60,9 @@ const WorkoutPage = () => {
   const [showModificationModal, setShowModificationModal] = useState(false);
   const [currentModification, setCurrentModification] = useState(null);
   const [workoutChoice, setWorkoutChoice] = useState(null);
-  const [currentSession, setCurrentSession] = useState(null); 
+  const [currentSession, setCurrentSession] = useState(null);
+  const [currentSessionData, setCurrentSessionData] = useState(null);
+  const [completedSessions, setCompletedSessions] = useState([]);
   const [showModified, setShowModified] = useState(false);
 
   useEffect(() => {
@@ -137,7 +165,7 @@ const WorkoutPage = () => {
       isRoundRest,
       currentExerciseIndex,
       currentRound,
-      hasStartedWorkout
+      hasStartedWorkout,
     });
     if (!workoutData) return;
     if (!hasStartedWorkout) {
@@ -147,14 +175,19 @@ const WorkoutPage = () => {
     const blockRounds = currentBlock.blockRounds || 1;
     const isAMRAP = currentBlock.blockType === "AMRAP";
     const isEMOM = currentBlock.blockType === "EMOM";
-    const hasRoundRest = currentBlock.roundRest && currentBlock.roundRest !== "";
-    if (isAMRAP || isEMOM) {
+    const isTabata = currentBlock.blockType === "Tabata";
+    const isForTime = currentBlock.blockType === "For Time";
+    // const isCircuit = currentBlock.blockType === "Circuit";
+    const hasRoundRest =
+      currentBlock.roundRest && currentBlock.roundRest !== "";
+    if (isAMRAP || isEMOM || isTabata || isForTime) {
       return;
     }
+    // Circuit blocks use regular workout flow, so don't return early
     if (isRoundRest) {
       setIsRoundRest(false);
       if (isAMRAP) {
-        setCurrentExerciseIndex(0); 
+        setCurrentExerciseIndex(0);
       } else {
         setCurrentRound(currentRound + 1);
         setCurrentExerciseIndex(0);
@@ -170,7 +203,7 @@ const WorkoutPage = () => {
           if (hasRoundRest && !isAMRAP && currentRound < blockRounds) {
             setIsRoundRest(true);
           } else if (isAMRAP) {
-            setCurrentExerciseIndex(0); 
+            setCurrentExerciseIndex(0);
           } else {
             setCurrentRound(currentRound + 1);
             setCurrentExerciseIndex(0);
@@ -183,21 +216,57 @@ const WorkoutPage = () => {
             setCurrentExerciseIndex(0);
             setCurrentRound(1);
           } else {
-            setWorkoutComplete(true);
+            handleWorkoutSessionComplete();
           }
         }
       }
     } else {
-      const nextExerciseExistsInBlock = currentExerciseIndex < currentBlock.exercises.length - 1;
+      const nextExerciseExistsInBlock =
+        currentExerciseIndex < currentBlock.exercises.length - 1;
       const hasMoreRounds = isAMRAP || currentRound < blockRounds;
-      const nextBlockExists = currentBlockIndex < workoutData.workoutBlocks.length - 1;
+      const nextBlockExists =
+        currentBlockIndex < workoutData.workoutBlocks.length - 1;
       const isLastExerciseInRound = !nextExerciseExistsInBlock;
       if (isLastExerciseInRound && hasRoundRest && currentRound < blockRounds) {
         setIsRoundRest(true);
-      } else if (nextExerciseExistsInBlock || hasMoreRounds || nextBlockExists) {
-        setIsRestPeriod(true);
+      } else if (
+        nextExerciseExistsInBlock ||
+        hasMoreRounds ||
+        nextBlockExists
+      ) {
+        // Check if current exercise has rest time > 0
+        const currentExercise = currentBlock.exercises[currentExerciseIndex];
+        const restDuration = parseDurationToSeconds(
+          currentExercise?.rest || "0s"
+        );
+
+        if (restDuration > 0) {
+          setIsRestPeriod(true);
+        } else {
+          // No rest time, move directly to next exercise/round/block
+          if (nextExerciseExistsInBlock) {
+            setCurrentExerciseIndex(currentExerciseIndex + 1);
+          } else if (currentRound < blockRounds) {
+            if (hasRoundRest) {
+              setIsRoundRest(true);
+            } else {
+              setCurrentRound(currentRound + 1);
+              setCurrentExerciseIndex(0);
+            }
+          } else {
+            const nextBlockExists =
+              currentBlockIndex < workoutData.workoutBlocks.length - 1;
+            if (nextBlockExists) {
+              setCurrentBlockIndex(currentBlockIndex + 1);
+              setCurrentExerciseIndex(0);
+              setCurrentRound(1);
+            } else {
+              handleWorkoutSessionComplete();
+            }
+          }
+        }
       } else {
-        setWorkoutComplete(true);
+        handleWorkoutSessionComplete();
       }
     }
   }, [
@@ -211,99 +280,333 @@ const WorkoutPage = () => {
     hasStartedWorkout,
   ]);
 
-  const handleGoBack = useCallback(() => {
-    if (isRoundRest) {
-      setIsRoundRest(false);
-      const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
-      setCurrentExerciseIndex(currentBlock.exercises.length - 1);
-    } else if (isRestPeriod) {
-      setIsRestPeriod(false);
-    } else {
-      if (currentExerciseIndex > 0) {
-        setCurrentExerciseIndex(currentExerciseIndex - 1);
-      } else if (currentRound > 1) {
-        const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
-        setCurrentRound(currentRound - 1);
-        setCurrentExerciseIndex(currentBlock.exercises.length - 1);
-      } else if (currentBlockIndex > 0) {
-        const prevBlock = workoutData.workoutBlocks[currentBlockIndex - 1];
-        const prevBlockRounds = prevBlock.blockRounds || 1;
-        setCurrentBlockIndex(currentBlockIndex - 1);
-        setCurrentRound(prevBlockRounds);
-        setCurrentExerciseIndex(prevBlock.exercises.length - 1);
-      } else {
-        setShowPreview(true);
-        setHasStartedWorkout(false);
-      }
-    }
-  }, [
-    currentBlockIndex,
-    currentExerciseIndex,
-    currentRound,
-    isRestPeriod,
-    isRoundRest,
-    workoutData,
-  ]);
+  // const handleGoBack = useCallback(() => {
+  //   if (isRoundRest) {
+  //     setIsRoundRest(false);
+  //     const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
+  //     setCurrentExerciseIndex(currentBlock.exercises.length - 1);
+  //   } else if (isRestPeriod) {
+  //     setIsRestPeriod(false);
+  //   } else {
+  //     if (currentExerciseIndex > 0) {
+  //       setCurrentExerciseIndex(currentExerciseIndex - 1);
+  //     } else if (currentRound > 1) {
+  //       const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
+  //       setCurrentRound(currentRound - 1);
+  //       setCurrentExerciseIndex(currentBlock.exercises.length - 1);
+  //     } else if (currentBlockIndex > 0) {
+  //       const prevBlock = workoutData.workoutBlocks[currentBlockIndex - 1];
+  //       const prevBlockRounds = prevBlock.blockRounds || 1;
+  //       setCurrentBlockIndex(currentBlockIndex - 1);
+  //       setCurrentRound(prevBlockRounds);
+  //       setCurrentExerciseIndex(prevBlock.exercises.length - 1);
+  //     } else {
+  //       setShowPreview(true);
+  //       setHasStartedWorkout(false);
+  //     }
+  //   }
+  // }, [
+  //   currentBlockIndex,
+  //   currentExerciseIndex,
+  //   currentRound,
+  //   isRestPeriod,
+  //   isRoundRest,
+  //   workoutData,
+  // ]);
 
   const hasMobilityBlock = useCallback(() => {
-    return workoutData?.workoutBlocks?.some(block => block.blockType === 'Mobility') || false;
+    return (
+      workoutData?.workoutBlocks?.some(
+        (block) => block.blockType === "Mobility"
+      ) || false
+    );
   }, [workoutData]);
 
   const hasRegularWorkout = useCallback(() => {
-    return workoutData?.workoutBlocks?.some(block => block.blockType !== 'Mobility') || false;
+    return (
+      workoutData?.workoutBlocks?.some(
+        (block) => block.blockType !== "Mobility"
+      ) || false
+    );
   }, [workoutData]);
 
   const getMobilityBlock = useCallback(() => {
-    return workoutData?.workoutBlocks?.find(block => block.blockType === 'Mobility');
+    return workoutData?.workoutBlocks?.find(
+      (block) => block.blockType === "Mobility"
+    );
   }, [workoutData]);
 
-  const getRegularWorkoutBlocks = useCallback(() => {
-    return workoutData?.workoutBlocks?.filter(block => block.blockType !== 'Mobility') || [];
-  }, [workoutData]);
-
-  const handleWorkoutChoice = (choice) => {
+  const handleWorkoutChoice = (choice, sessionData = null) => {
     setWorkoutChoice(choice);
-    if (choice === 'mobility') {
-      setCurrentSession('mobility');
-    } else if (choice === 'workout') {
-      setCurrentSession('workout');
-      const regularBlocks = getRegularWorkoutBlocks();
-      if (regularBlocks.length > 0) {
-        const firstRegularBlockIndex = workoutData.workoutBlocks.findIndex(block => block.blockType !== 'Mobility');
+    if (choice === "mobility") {
+      setCurrentSession("mobility");
+      setCurrentSessionData(null);
+    } else if (choice === "workout") {
+      setCurrentSession("workout");
+      setCurrentSessionData(sessionData);
+
+      if (
+        sessionData &&
+        sessionData.blockIndices &&
+        sessionData.blockIndices.length > 0
+      ) {
+        // Set to the first block of the selected session
+        setCurrentBlockIndex(sessionData.blockIndices[0]);
+      } else {
+        // Fallback to first regular block
+        const firstRegularBlockIndex = workoutData.workoutBlocks.findIndex(
+          (block) => block.blockType !== "Mobility"
+        );
         setCurrentBlockIndex(firstRegularBlockIndex);
-        setCurrentExerciseIndex(0);
-        setCurrentRound(1);
-        setIsRestPeriod(false);
-        setIsRoundRest(false);
-        setHasStartedWorkout(false);
       }
-    } else if (choice === 'both') {
-      setCurrentSession('workout');
+
+      setCurrentExerciseIndex(0);
+      setCurrentRound(1);
+      setIsRestPeriod(false);
+      setIsRoundRest(false);
+      setHasStartedWorkout(false);
     }
   };
 
   const handleMobilityComplete = () => {
-    if (workoutChoice === 'both') {
-    // Go to mobility next
-    const mobilityBlock = getMobilityBlock();
-    if (mobilityBlock) {
-      setTimeout(() => {
-        setCurrentSession('mobility');
-        const mobilityBlockIndex = workoutData.workoutBlocks.findIndex(
-          block => block.blockType === 'Mobility'
-        );
-        setCurrentBlockIndex(mobilityBlockIndex);
-        setCurrentExerciseIndex(0);
-        setCurrentRound(1);
-        setIsRestPeriod(false);
-        setIsRoundRest(false);
-        setHasStartedWorkout(false);
-      }, 10);
+    // Add mobility to completed sessions
+    const newCompleted = [...completedSessions, "mobility"];
+    setCompletedSessions(newCompleted);
+
+    // For mobility-only days, complete the workout
+    // For mobility + optional workout days, the mobility component handles the choice
+    const isRecoveryDay = hasMobilityBlock() && hasRegularWorkout();
+    
+    if (!isRecoveryDay) {
+      // Pure mobility day - complete the workout
+      setWorkoutComplete(true);
+    } else {
+      // Recovery day with optional workout - complete the day since mobility is all that's required
+      setWorkoutComplete(true);
     }
-  } else {
-    setWorkoutComplete(true);
-  }
-};
+  };
+
+  const handleOptionalWorkoutComplete = useCallback(() => {
+    // Workout completion returns to choice screen
+    setCurrentSession(null);
+    setWorkoutChoice(null);
+    setCurrentSessionData(null);
+    setCurrentBlockIndex(0);
+    setCurrentExerciseIndex(0);
+    setCurrentRound(1);
+    setIsRestPeriod(false);
+    setIsRoundRest(false);
+    setHasStartedWorkout(false);
+  }, []);
+
+  const handleGoBackToChoice = useCallback(() => {
+    // Go back to the choice screen from mobility or workout session
+    setCurrentSession(null);
+    setWorkoutChoice(null);
+    setCurrentSessionData(null);
+    setCurrentBlockIndex(0);
+    setCurrentExerciseIndex(0);
+    setCurrentRound(1);
+    setIsRestPeriod(false);
+    setIsRoundRest(false);
+    setHasStartedWorkout(false);
+  }, []);
+
+  const getBackHandler = useCallback(() => {
+    // Use choice handler for recovery days, program handler for regular days
+    const isRecoveryDay =
+      workoutData?.title?.includes("Recovery day") ||
+      workoutData?.description?.includes("AND/OR");
+    return isRecoveryDay ? handleGoBackToChoice : handleGoBackToProgram;
+  }, [workoutData, handleGoBackToChoice, handleGoBackToProgram]);
+
+  const getWorkoutSessions = useCallback(() => {
+    if (!workoutData?.workoutBlocks) return [];
+
+    const sessions = [];
+    let currentSession = [];
+    let sessionIndex = 0;
+
+    const nonMobilityBlocks = workoutData.workoutBlocks.filter(
+      (block) => block.blockType !== "Mobility"
+    );
+
+    // If there are multiple non-mobility blocks, we need to determine how to group them
+    if (nonMobilityBlocks.length <= 1) {
+      if (nonMobilityBlocks.length === 1) {
+        const blockIndex = workoutData.workoutBlocks.findIndex(
+          (b) => b === nonMobilityBlocks[0]
+        );
+        sessions.push({
+          id: 0,
+          blocks: [nonMobilityBlocks[0]],
+          blockIndices: [blockIndex],
+        });
+      }
+      return sessions;
+    }
+
+    // Check if we should force multi-workout detection
+    const title = workoutData.title?.toLowerCase() || "";
+    const description = workoutData.description?.toLowerCase() || "";
+    const hasMultipleCircuits =
+      title.includes("circuit") && nonMobilityBlocks.length > 1;
+    const hasFinisher =
+      description.includes("finisher") ||
+      workoutData.workoutBlocks.some((b) =>
+        b.blockNotes?.toLowerCase().includes("finisher")
+      );
+    // Count different types of special blocks, but treat multiple Tabata as one
+    const specialBlockTypes = [
+      ...new Set(
+        workoutData.workoutBlocks
+          .filter((b) =>
+            ["AMRAP", "EMOM", "Tabata", "For Time", "Circuit"].includes(
+              b.blockType
+            )
+          )
+          .map((b) => b.blockType)
+      ),
+    ];
+
+    const hasMultipleSpecialBlocks =
+      specialBlockTypes.length > 1 ||
+      (specialBlockTypes.length === 1 &&
+        specialBlockTypes[0] !== "Tabata" &&
+        workoutData.workoutBlocks.filter(
+          (b) => b.blockType === specialBlockTypes[0]
+        ).length > 1);
+
+    const shouldForceMulti =
+      hasMultipleCircuits || hasFinisher || hasMultipleSpecialBlocks;
+
+    workoutData.workoutBlocks.forEach((block, index) => {
+      if (block.blockType === "Mobility") return;
+
+      let isNewSession = false;
+
+      if (currentSession.length === 0) {
+        isNewSession = false;
+      } else {
+        const lastBlock = currentSession[currentSession.length - 1];
+
+        isNewSession =
+          block.sessionBreak ||
+          (block.blockNotes &&
+            (block.blockNotes.toLowerCase().includes("workout") ||
+              block.blockNotes.toLowerCase().includes("circuit") ||
+              block.blockNotes.toLowerCase().includes("finisher"))) ||
+          // Start new session when block types change (except consecutive Tabata blocks)
+          (block.blockType !== lastBlock.blockType &&
+            !(block.blockType === "Tabata" && lastBlock.blockType === "Tabata")) ||
+          
+          // Multiple non-Tabata special blocks are separate sessions
+          (block.blockType !== "Tabata" &&
+            lastBlock.blockType !== "Tabata" &&
+            ["AMRAP", "EMOM", "For Time", "Circuit"].includes(block.blockType) &&
+            ["AMRAP", "EMOM", "For Time", "Circuit"].includes(
+              lastBlock.blockType
+            )) ||
+          (shouldForceMulti &&
+            nonMobilityBlocks.length > 2 &&
+            currentSession.length >= Math.ceil(nonMobilityBlocks.length / 2));
+      }
+
+      if (isNewSession && currentSession.length > 0) {
+        sessions.push({
+          id: sessionIndex,
+          blocks: [...currentSession],
+          blockIndices: currentSession.map((b) => b.originalIndex),
+        });
+        currentSession = [];
+        sessionIndex++;
+      }
+
+      currentSession.push({ ...block, originalIndex: index });
+    });
+
+    if (currentSession.length > 0) {
+      sessions.push({
+        id: sessionIndex,
+        blocks: [...currentSession],
+        blockIndices: currentSession.map((b) => b.originalIndex),
+      });
+    }
+
+    // Force split if we should have multiple sessions but only detected one
+    if (
+      shouldForceMulti &&
+      sessions.length === 1 &&
+      sessions[0].blocks.length > 1
+    ) {
+      const blocks = sessions[0].blocks;
+      const midPoint = Math.ceil(blocks.length / 2);
+
+      return [
+        {
+          id: 0,
+          blocks: blocks.slice(0, midPoint),
+          blockIndices: blocks.slice(0, midPoint).map((b) => b.originalIndex),
+        },
+        {
+          id: 1,
+          blocks: blocks.slice(midPoint),
+          blockIndices: blocks.slice(midPoint).map((b) => b.originalIndex),
+        },
+      ];
+    }
+
+    return sessions;
+  }, [workoutData]);
+
+  const checkAllSessionsComplete = useCallback(
+    (completed) => {
+      const workoutSessions = getWorkoutSessions();
+      const requiredSessions = [];
+
+      if (hasMobilityBlock()) requiredSessions.push("mobility");
+      workoutSessions.forEach((session) =>
+        requiredSessions.push(`workout-${session.id}`)
+      );
+
+      return requiredSessions.every((session) => completed.includes(session));
+    },
+    [getWorkoutSessions, hasMobilityBlock]
+  );
+
+  const handleWorkoutSessionComplete = useCallback(() => {
+    // Add current workout session to completed
+    const sessionId = currentSessionData
+      ? `workout-${currentSessionData.id}`
+      : "workout-0";
+    const newCompleted = [...completedSessions, sessionId];
+    setCompletedSessions(newCompleted);
+
+    // Check if this is an optional workout session on a recovery day
+    const isRecoveryDay =
+      workoutData?.title?.includes("Recovery day") ||
+      workoutData?.description?.includes("AND/OR");
+
+    const allSessionsComplete = checkAllSessionsComplete(newCompleted);
+
+    if (isRecoveryDay && workoutChoice === "workout" && !allSessionsComplete) {
+      // Optional workout complete - return to choice screen
+      handleOptionalWorkoutComplete();
+    } else if (allSessionsComplete) {
+      // All sessions complete - mark day as complete
+      setWorkoutComplete(true);
+    } else {
+      // More sessions to complete - return to choice screen
+      handleOptionalWorkoutComplete();
+    }
+  }, [
+    workoutData,
+    workoutChoice,
+    currentSessionData,
+    completedSessions,
+    checkAllSessionsComplete,
+    handleOptionalWorkoutComplete,
+  ]);
 
   const getCurrentExercise = useCallback(() => {
     if (
@@ -314,7 +617,8 @@ const WorkoutPage = () => {
       return null;
     }
     const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
-    const currentWorkoutExercise = currentBlock?.exercises[currentExerciseIndex];
+    const currentWorkoutExercise =
+      currentBlock?.exercises[currentExerciseIndex];
     if (!currentWorkoutExercise) {
       return null;
     }
@@ -366,7 +670,7 @@ const WorkoutPage = () => {
           : baseExercise.tips) ||
         currentWorkoutExercise.tips ||
         "",
-      modification: modifiedExercise, 
+      modification: modifiedExercise,
       isStopwatch: currentWorkoutExercise.duration === "Max Time",
     };
 
@@ -389,29 +693,74 @@ const WorkoutPage = () => {
       return null;
     }
     const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
+    const blockRounds = currentBlock.blockRounds || 1;
+
+    // If there's a next exercise in the current round
     if (currentExerciseIndex < currentBlock.exercises.length - 1) {
       return currentBlock.exercises[currentExerciseIndex + 1];
     }
+
+    // If we're at the end of a round but there are more rounds in this block
+    if (currentRound < blockRounds) {
+      // Next exercise is the first exercise of the next round
+      return {
+        ...currentBlock.exercises[0],
+        isNextRound: true,
+        nextRoundNumber: currentRound + 1,
+      };
+    }
+
+    // If we're at the end of the block, check for next block
     if (currentBlockIndex < workoutData.workoutBlocks.length - 1) {
       const nextBlock = workoutData.workoutBlocks[currentBlockIndex + 1];
       return nextBlock.exercises[0];
     }
+
     return null;
-  }, [workoutData, currentBlockIndex, currentExerciseIndex]);
+  }, [workoutData, currentBlockIndex, currentExerciseIndex, currentRound]);
 
   const handleAMRAPComplete = useCallback(() => {
-    const nextBlockExists =
-      currentBlockIndex < workoutData.workoutBlocks.length - 1;
-    if (nextBlockExists) {
-      setCurrentBlockIndex(currentBlockIndex + 1);
-      setCurrentExerciseIndex(0);
-      setCurrentRound(1);
-      setIsRestPeriod(false);
-      setIsRoundRest(false);
+    // Check if there's a next block in the current session
+    let nextBlockExists = false;
+
+    if (currentSessionData && currentSessionData.blockIndices) {
+      const currentIndexInSession =
+        currentSessionData.blockIndices.indexOf(currentBlockIndex);
+      nextBlockExists =
+        currentIndexInSession < currentSessionData.blockIndices.length - 1;
+
+      if (nextBlockExists) {
+        const nextBlockIndex =
+          currentSessionData.blockIndices[currentIndexInSession + 1];
+        setCurrentBlockIndex(nextBlockIndex);
+        setCurrentExerciseIndex(0);
+        setCurrentRound(1);
+        setIsRestPeriod(false);
+        setIsRoundRest(false);
+        return;
+      }
     } else {
-      setWorkoutComplete(true);
+      // Fallback for single workout sessions
+      nextBlockExists =
+        currentBlockIndex < workoutData.workoutBlocks.length - 1;
+      if (nextBlockExists) {
+        setCurrentBlockIndex(currentBlockIndex + 1);
+        setCurrentExerciseIndex(0);
+        setCurrentRound(1);
+        setIsRestPeriod(false);
+        setIsRoundRest(false);
+        return;
+      }
     }
-  }, [currentBlockIndex, workoutData]);
+
+    // No more blocks in current session
+    handleWorkoutSessionComplete();
+  }, [
+    currentBlockIndex,
+    currentSessionData,
+    workoutData,
+    handleWorkoutSessionComplete,
+  ]);
 
   useEffect(() => {
     if (!loadingAuth && !isLoggedIn) {
@@ -425,7 +774,7 @@ const WorkoutPage = () => {
       return;
     }
 
-  const fetchWorkout = async () => {
+    const fetchWorkout = async () => {
       setLoadingWorkout(true);
       setError(null);
       try {
@@ -629,8 +978,13 @@ const WorkoutPage = () => {
 
   const totalExercisesInWorkout = workoutData.workoutBlocks.reduce(
     (total, block) => {
-      if (block.blockType === "AMRAP" || block.blockType === "EMOM") {
-        return total + block.exercises.length; 
+      if (
+        block.blockType === "AMRAP" ||
+        block.blockType === "EMOM" ||
+        block.blockType === "Tabata" ||
+        block.blockType === "For Time"
+      ) {
+        return total + block.exercises.length;
       }
       return total + block.exercises.length * (block.blockRounds || 1);
     },
@@ -640,7 +994,12 @@ const WorkoutPage = () => {
   let exercisesCompleted = 0;
   for (let i = 0; i < currentBlockIndex; i++) {
     const block = workoutData.workoutBlocks[i];
-    if (block.blockType === "AMRAP" || block.blockType === "EMOM") {
+    if (
+      block.blockType === "AMRAP" ||
+      block.blockType === "EMOM" ||
+      block.blockType === "Tabata" ||
+      block.blockType === "For Time"
+    ) {
       exercisesCompleted += block.exercises.length;
     } else {
       exercisesCompleted += block.exercises.length * (block.blockRounds || 1);
@@ -648,38 +1007,53 @@ const WorkoutPage = () => {
   }
 
   const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
-  if (currentBlock.blockType === "AMRAP" || currentBlock.blockType === "EMOM") {
+  if (
+    currentBlock.blockType === "AMRAP" ||
+    currentBlock.blockType === "EMOM" ||
+    currentBlock.blockType === "Tabata" ||
+    currentBlock.blockType === "For Time"
+  ) {
     exercisesCompleted += currentExerciseIndex;
   } else {
     exercisesCompleted += (currentRound - 1) * currentBlock.exercises.length;
     exercisesCompleted += currentExerciseIndex;
   }
 
-  const progressPercentage = (exercisesCompleted / totalExercisesInWorkout) * 100;
-  const shouldAutoStart = hasStartedWorkout || !isFirstExercise;
-  const needsChoice = hasMobilityBlock() && hasRegularWorkout() && !workoutChoice;
-  
+  const progressPercentage =
+    (exercisesCompleted / totalExercisesInWorkout) * 100;
+  // Don't auto-start if coming from choice screen (mobility days with optional workouts)
+  const isFromChoiceScreen = workoutChoice === "workout" && hasMobilityBlock() && hasRegularWorkout();
+  const shouldAutoStart = (hasStartedWorkout || !isFirstExercise) && !isFromChoiceScreen;
+  const workoutSessions = getWorkoutSessions();
+  const needsChoice =
+    (hasMobilityBlock() && hasRegularWorkout() && !workoutChoice) ||
+    (workoutSessions.length > 1 && !workoutChoice);
+
   // Show choice screen for special days
   if (needsChoice) {
     return (
-      <WorkoutChoice
-        workoutData={workoutData}
-        onChoiceMade={handleWorkoutChoice}
-        onGoBack={handleGoBackToProgram}
-      />
+      <>
+        <WorkoutChoice
+          workoutData={workoutData}
+          onChoiceMade={handleWorkoutChoice}
+          onGoBack={handleGoBackToProgram}
+          completedSessions={completedSessions}
+        />
+      </>
     );
   }
 
   // Show mobility workout
-  if (currentSession === 'mobility') {
+  if (currentSession === "mobility") {
     const mobilityBlock = getMobilityBlock();
     return (
       <MobilityWorkout
         workoutBlock={mobilityBlock}
         onComplete={handleMobilityComplete}
-        onGoBack={handleGoBackToProgram}
+        onGoBack={handleGoBackToChoice}
         canGoBack={true}
         shouldAutoStart={true}
+        hasOptionalWorkout={hasRegularWorkout()}
       />
     );
   }
@@ -703,18 +1077,31 @@ const WorkoutPage = () => {
   // }
 
   // For workout session, make sure we're using a non-mobility block
-  if (currentSession === 'workout' && currentBlock.blockType === 'Mobility') {
-    const firstRegularBlockIndex = workoutData.workoutBlocks.findIndex(block => block.blockType !== 'Mobility');
-    console.log("Correcting block index from", currentBlockIndex, "to", firstRegularBlockIndex);
-    if (firstRegularBlockIndex !== -1 && firstRegularBlockIndex !== currentBlockIndex) {
+  if (currentSession === "workout" && currentBlock.blockType === "Mobility") {
+    const firstRegularBlockIndex = workoutData.workoutBlocks.findIndex(
+      (block) => block.blockType !== "Mobility"
+    );
+    console.log(
+      "Correcting block index from",
+      currentBlockIndex,
+      "to",
+      firstRegularBlockIndex
+    );
+    if (
+      firstRegularBlockIndex !== -1 &&
+      firstRegularBlockIndex !== currentBlockIndex
+    ) {
       setCurrentBlockIndex(firstRegularBlockIndex);
-      return null; 
+      return null;
     }
   }
 
-  // Check if current block is AMRAP or EMOM
+  // Check if current block is AMRAP, EMOM, Tabata, For Time, or Circuit
   const isAMRAPBlock = currentBlock.blockType === "AMRAP";
   const isEMOMBlock = currentBlock.blockType === "EMOM";
+  const isTabataBlock = currentBlock.blockType === "Tabata";
+  const isForTimeBlock = currentBlock.blockType === "For Time";
+  // const isCircuitBlock = currentBlock.blockType === "Circuit";
 
   // Show AMRAP workout interface
   if (isAMRAPBlock) {
@@ -724,7 +1111,7 @@ const WorkoutPage = () => {
         title={workoutData.title}
         description={workoutData.description}
         onComplete={handleAMRAPComplete}
-        onGoBack={handleGoBackToProgram}
+        onGoBack={getBackHandler()}
         canGoBack={true}
         shouldAutoStart={shouldAutoStart}
       />
@@ -739,7 +1126,49 @@ const WorkoutPage = () => {
         title={workoutData.title}
         description={workoutData.description}
         onComplete={handleAMRAPComplete}
-        onGoBack={handleGoBackToProgram}
+        onGoBack={getBackHandler()}
+        canGoBack={true}
+        shouldAutoStart={shouldAutoStart}
+      />
+    );
+  }
+
+  // Show Tabata workout interface
+  if (isTabataBlock) {
+    // Get all consecutive Tabata blocks for the session
+    const allTabataBlocks = [];
+    let blockIndex = currentBlockIndex;
+    
+    // Find all consecutive Tabata blocks starting from current
+    while (blockIndex < workoutData.workoutBlocks.length && 
+           workoutData.workoutBlocks[blockIndex].blockType === "Tabata") {
+      allTabataBlocks.push(workoutData.workoutBlocks[blockIndex]);
+      blockIndex++;
+    }
+    
+    return (
+      <TabataWorkout
+        workoutBlock={currentBlock}
+        allTabataBlocks={allTabataBlocks}
+        title={workoutData.title}
+        description={workoutData.description}
+        onComplete={handleAMRAPComplete}
+        onGoBack={getBackHandler()}
+        canGoBack={true}
+        shouldAutoStart={shouldAutoStart}
+      />
+    );
+  }
+
+  // Show For Time workout interface
+  if (isForTimeBlock) {
+    return (
+      <ForTimeWorkout
+        workoutBlock={currentBlock}
+        title={workoutData.title}
+        description={workoutData.description}
+        onComplete={handleAMRAPComplete}
+        onGoBack={getBackHandler()}
         canGoBack={true}
         shouldAutoStart={shouldAutoStart}
       />
@@ -750,13 +1179,13 @@ const WorkoutPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
       <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[110vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
-         {/* Buttons*/}
+        {/* Buttons*/}
         <button
-            onClick={handleGoBackToProgram}
-            className="btn-cancel mt-0 self-end"
-          >
-            Back to Overview
-          </button>
+          onClick={handleGoBackToProgram}
+          className="btn-cancel mt-0 self-end"
+        >
+          Back to Overview
+        </button>
         {/* Workout Title and Buttons at the top */}
         <div className="flex flex-col mt-4 mb-4 items-center">
           {/* <DynamicHeading
@@ -766,7 +1195,7 @@ const WorkoutPage = () => {
           <DynamicHeading
             text={workoutData.title}
             className="font-higherJump m-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-          />  
+          />
           <div className="flex flex-col md:flex-row gap:0 md:gap-4 w-full items-center">
             {workoutData.description && (
               <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
@@ -794,15 +1223,21 @@ const WorkoutPage = () => {
           <div className="w-full lg:w-1/2 flex flex-col">
             <WorkoutTimer
               key={`${currentBlockIndex}-${currentExerciseIndex}-${currentRound}-${hasStartedWorkout}`}
-              currentBlockType={workoutData.workoutBlocks[currentBlockIndex].blockType}
+              currentBlockType={
+                workoutData.workoutBlocks[currentBlockIndex].blockType
+              }
               currentExerciseNumber={currentExerciseIndex + 1}
-              totalExercisesInBlock={workoutData.workoutBlocks[currentBlockIndex].exercises.length}
+              totalExercisesInBlock={
+                workoutData.workoutBlocks[currentBlockIndex].exercises.length
+              }
               currentRound={currentRound}
-              totalRounds={workoutData.workoutBlocks[currentBlockIndex].blockRounds || 1}
+              totalRounds={
+                workoutData.workoutBlocks[currentBlockIndex].blockRounds || 1
+              }
               currentExercise={currentExerciseData}
               nextExercise={getNextExercise()}
               onExerciseComplete={handleExerciseComplete}
-              onGoBack={handleGoBack}
+              onGoBack={getBackHandler()}
               canGoBack={!isFirstExercise}
               isRest={isRestPeriod}
               isRoundRest={isRoundRest}
@@ -845,38 +1280,95 @@ const WorkoutPage = () => {
           {/* Left Column: Video */}
           <div className="w-full lg:w-1/2">
             {isRoundRest ? (
-              <div className="bg-gray-600 rounded-lg p-10 h-fit flex flex-col items-center justify-center text-center">
-                <div className="hidden lg:block h-12"></div> 
-                <div className="text-8xl mb-4">⏰</div>
-                <h3 className="text-xl font-bold text-hotPink mb-2">
-                  Round Rest
-                </h3>
-                <p className="text-logoGray text-md">Rest between rounds</p>
-                <p className="text-logoGray mt-2 text-md">
-                  Next up:{" "}
-                  <span className="font-semibold text-white">
-                    Round {currentRound + 1}
-                  </span>
-                </p>
+              <div className="h-full flex flex-col">
+                {/* Blank placeholder to match WorkoutTimer header spacing - hidden on mobile */}
+                {(workoutData.workoutBlocks[currentBlockIndex].blockRounds ||
+                  1) > 1 && (
+                  <div className="text-2xl font-titillium font-semibold mb-4 opacity-0 hidden lg:block">
+                    Placeholder
+                  </div>
+                )}
+
+                <div className="bg-gray-600 rounded-lg p-6 flex-1 flex flex-col justify-center text-center">
+                  {/* Top spacer for better vertical alignment */}
+                  <div className="flex-1 flex flex-col justify-center">
+                    <div className="text-8xl mb-6">⏰</div>
+                      <h3 className="text-2xl font-bold text-hotPink mb-4">
+                        Round Rest
+                      </h3>
+                    <div className="space-y-3">
+                      <p className="text-logoGray text-lg">
+                        <span className="font-semibold text-brightYellow text-xl">
+                         Next: Starting Round {currentRound + 1}
+                        </span>
+                      </p>
+                      {getNextExercise() && (
+                        <p className="text-logoGray text-lg">
+                          First exercise:{" "}
+                          <span className="font-semibold text-white text-xl">
+                            {getNextExercise().exercise.name}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {/* Bottom spacer for balance */}
+                  <div className="flex-1"></div>
+                </div>
               </div>
             ) : isRestPeriod ? (
-              <div className="bg-gray-600 rounded-lg p-10 h-full flex flex-col items-center justify-end text-center">
-                <div className="hidden lg:block h-12"></div> 
-                <div className="text-8xl mb-4">🧘</div>
-                <h3 className="text-xl font-bold text-brightYellow mb-2">
-                  Rest Period
-                </h3>
-                <p className="text-logoGray text-md">
-                  Get ready for the next exercise
-                </p>
-                {getNextExercise() && (
-                  <p className="text-logoGray mt-2 text-md">
-                    Next up:{" "}
-                    <span className="font-semibold text-white">
-                      {getNextExercise().exercise.name}
-                    </span>
-                  </p>
+              <div className="h-full flex flex-col">
+                {/* Blank placeholder to match WorkoutTimer header spacing - hidden on mobile */}
+                {(workoutData.workoutBlocks[currentBlockIndex].blockRounds ||
+                  1) > 1 && (
+                  <div className="text-2xl font-titillium font-semibold mb-4 opacity-0 hidden lg:block">
+                    Placeholder
+                  </div>
                 )}
+
+                <div className="bg-gray-600 rounded-lg p-6 flex-1 flex flex-col justify-center text-center">
+                  {/* Top spacer for better vertical alignment */}
+                  <div className="flex-1 flex flex-col justify-center">
+                    <div className="text-8xl mb-6">🧘</div>
+                    <h3 className="text-2xl font-bold text-brightYellow mb-4">
+                      Rest Period
+                    </h3>
+                    <div className="space-y-3">
+                      <p className="text-logoGray text-lg">
+                        Get ready for the next exercise
+                      </p>
+                      {getNextExercise() && (
+                        <div>
+                          {getNextExercise().isNextRound ? (
+                            <div className="space-y-2">
+                              <p className="text-logoGray text-lg">
+                                <span className="font-semibold text-brightYellow text-xl">
+                                  Round {getNextExercise().nextRoundNumber}{" "}
+                                  starts next
+                                </span>
+                              </p>
+                              <p className="text-logoGray text-lg">
+                                First exercise:{" "}
+                                <span className="font-semibold text-white text-xl">
+                                  {getNextExercise().exercise.name}
+                                </span>
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-logoGray text-lg">
+                              Next up:{" "}
+                              <span className="font-semibold text-white text-xl">
+                                {getNextExercise().exercise.name}
+                              </span>
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {/* Bottom spacer for balance */}
+                  <div className="flex-1"></div>
+                </div>
               </div>
             ) : (
               <ExerciseVideo

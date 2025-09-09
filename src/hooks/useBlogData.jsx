@@ -10,7 +10,6 @@ const useBlogData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
-  const [viewMode, setViewMode] = useState('list');
   const [newBlogData, setNewBlogData] = useState({
     title: '',
     excerpt: '',
