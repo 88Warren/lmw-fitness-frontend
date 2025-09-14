@@ -9,6 +9,7 @@ const MobilityWorkout = ({
   onGoBack,
   canGoBack,
   hasOptionalWorkout = false,
+  onFinishDay = null,
 }) => {
   const [hasStarted, setHasStarted] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -89,19 +90,21 @@ const MobilityWorkout = ({
               {hasOptionalWorkout ? (
                 <div className="space-y-4">
                   <button
-                    onClick={handleFinish}
-                    className="btn-primary md:mr-4"
+                    onClick={onFinishDay || handleFinish}
+                    className="btn-primary mr-4"
                   >
                     Finish Day
                   </button>
                   <button
-                    onClick={onGoBack}
+                    onClick={() => {
+                      handleFinish();
+                    }}
                     className="btn-cancel"
                   >
                     Back to Choices
                   </button>
                   <p className="text-logoGray text-sm text-center max-w-md">
-                    You've completed the required mobility session! You can
+                    You&apos;ve completed the required mobility session! You can
                     finish the day now or go back to try the optional workout.
                   </p>
                 </div>
@@ -157,6 +160,7 @@ MobilityWorkout.propTypes = {
   canGoBack: PropTypes.bool.isRequired,
   shouldAutoStart: PropTypes.bool,
   hasOptionalWorkout: PropTypes.bool,
+  onFinishDay: PropTypes.func,
 };
 
 export default MobilityWorkout;

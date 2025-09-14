@@ -77,7 +77,7 @@ const ProgramDayListPage = () => {
       transition={{ duration: 0.7 }}
       className="flex flex-col items-center justify-center min-h-screen py-30 bg-gradient-to-b from-customGray/30 to-white"
     >
-      <div className="bg-customGray p-4 md:p-8 rounded-lg text-center max-w-md sm:max-w-2xl md:max-w-3xl lg:max-w-5xl w-full border-brightYellow border-2">
+      <div className="bg-customGray p-4 md:p-8 rounded-lg text-center max-w-sm md:max-w-4xl lg:max-w-5xl w-full border-brightYellow border-2">
         <div className="flex justify-center mb-4 md:justify-end">
           <button
             onClick={() => navigate("/profile")}
@@ -113,22 +113,22 @@ const ProgramDayListPage = () => {
           Debug: Last completed day: {lastCompletedDay}, User role: {user.role}
         </div> */}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 overflow-y-auto px-2 md:px-4 custom-scrollbar">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 overflow-y-auto px-2 md:px-4 custom-scrollbar">
           {daysArray.map((day) => {
             const isDayLocked = day > unlockedDays && user.role !== "admin";
             const isDayCompleted = completedDaysList.includes(day);
 
             const previewButtonClass = isDayLocked
-              ? "btn-disabled mt-0"
+              ? "btn-disabled  px-1 md:px-2 mt-0"
               : isDayCompleted
-              ? "btn-complete mt-0"
-              : "btn-cancel mt-0";
+              ? "btn-complete px-1 md:px-2 mt-0"
+              : "btn-cancel px-1 md:px-2 mt-0";
 
             const startButtonClass = isDayLocked
-              ? "btn-disabled mt-0"
+              ? "btn-disabled  px-1 md:px-2 mt-0"
               : isDayCompleted
-              ? "btn-complete mt-0"
-              : "btn-full-colour mt-0";
+              ? "btn-complete px-1 md:px-2 mt-0"
+              : "btn-full-colour px-1 md:px-2 mt-0";
 
             const borderColor = isDayCompleted
               ? "border-limeGreen"
@@ -170,7 +170,7 @@ const ProgramDayListPage = () => {
                     </svg>
                   )}
                 </div>
-                <div className="flex flex-col w-full gap-2">
+                <div className="flex flex-col items-center w-full gap-2">
                   <button
                     onClick={() => {
                       if (!isDayLocked) {
@@ -179,10 +179,10 @@ const ProgramDayListPage = () => {
                         );
                       }
                     }}
-                    className={`${previewButtonClass} w-full`}
+                    className={`${previewButtonClass} w-4/5 lg:w-full`}
                     disabled={isDayLocked}
                   >
-                    Preview Exercises
+                    Preview Workout
                   </button>
                   <button
                     onClick={() => {
@@ -190,7 +190,7 @@ const ProgramDayListPage = () => {
                         navigate(`/workouts/${programName}/${day}`);
                       }
                     }}
-                    className={`${startButtonClass} w-full`}
+                    className={`${startButtonClass} w-4/5 lg:w-full`}
                     disabled={isDayLocked}
                   >
                     Start Workout
@@ -202,7 +202,7 @@ const ProgramDayListPage = () => {
         </div>
         <button
           onClick={() => navigate("/profile")}
-          className="btn-primary text-black mt-8"
+          className="btn-cancel text-black mt-8"
         >
           Back to Profile
         </button>

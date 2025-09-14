@@ -14,6 +14,7 @@ const EMOMWorkout = ({
   onGoBack,
   canGoBack,
   shouldAutoStart = false,
+  isAdmin = false,
 }) => {
   const [timerState, setTimerState] = useState({
     totalTime: 0,
@@ -24,36 +25,26 @@ const EMOMWorkout = ({
     isComplete: false,
   });
   const [showModified, setShowModified] = useState({});
+  const [hasResetOnce, setHasResetOnce] = useState(false);
   const intervalRef = useRef(null);
-  const { audioEnabled, toggleAudio, playWhistle } = useWorkoutAudio();
+  const { audioEnabled, toggleAudio, playBeep } = useWorkoutAudio();
 
-  // Extract total duration and pattern from block notes
   const extractWorkoutInfo = () => {
     const notes = workoutBlock.blockNotes || "";
 
-    // Extract total minutes
     let match = notes.match(/(\d+)\s*(?:minutes?|mins?)/i);
     const totalMinutes = match ? parseInt(match[1]) : 12;
-
-    // Check for "every 2 minutes" pattern
     const isEveryTwoMinutes = /every\s+2\s+minutes?/i.test(notes);
 
-    // Check for rounds with rest minutes (e.g., "Minute 5 is rest")
-    const hasRestMinutes = /minute\s+\d+\s+(?:is\s+)?rest/i.test(notes);
-
-    return { totalMinutes, isEveryTwoMinutes, hasRestMinutes };
+    return { totalMinutes, isEveryTwoMinutes };
   };
 
-  const { totalMinutes, isEveryTwoMinutes, hasRestMinutes } =
-    extractWorkoutInfo();
-
-  // Determine current exercise based on minute and pattern - using useMemo to recalculate when currentMinute changes
+  const { totalMinutes, isEveryTwoMinutes } = extractWorkoutInfo();
   const currentExercise = useMemo(() => {
     if (!workoutBlock.exercises || workoutBlock.exercises.length === 0) {
       return null;
     }
 
-    // If only one exercise, use it for all minutes
     if (workoutBlock.exercises.length === 1) {
       return workoutBlock.exercises[0];
     }
@@ -61,35 +52,18 @@ const EMOMWorkout = ({
     const currentMinute = timerState.currentMinute;
     const exercises = workoutBlock.exercises;
 
-    // Pattern 3: Every 2 minutes (e.g., "Every 2 minutes for 20 minutes")
     if (isEveryTwoMinutes) {
       const exerciseIndex =
         Math.floor((currentMinute - 1) / 2) % exercises.length;
       return exercises[exerciseIndex];
     }
 
-    // Pattern 4: Rounds with rest minutes (e.g., "4 rounds, Minute 5 is rest")
-    if (hasRestMinutes && workoutBlock.blockRounds) {
-      const minutesPerRound = exercises.length + 1; // +1 for rest minute
-      const minuteInRound = ((currentMinute - 1) % minutesPerRound) + 1;
-
-      // If it's the last minute of the round, it's rest
-      if (minuteInRound > exercises.length) {
-        return { exercise: { name: "Rest" }, reps: "Rest", isRest: true };
-      }
-
-      return exercises[minuteInRound - 1];
-    }
-
-    // Pattern 1 & 2: Standard cycling through exercises
-    // Minute 1 -> Exercise 0, Minute 2 -> Exercise 1, etc.
     const exerciseIndex = (currentMinute - 1) % exercises.length;
     return exercises[exerciseIndex];
   }, [
     timerState.currentMinute,
     workoutBlock.exercises,
     isEveryTwoMinutes,
-    hasRestMinutes,
     workoutBlock.blockRounds,
   ]);
 
@@ -99,41 +73,29 @@ const EMOMWorkout = ({
     }
   }, [shouldAutoStart]);
 
-  // Debug effect to log minute changes
   useEffect(() => {
     console.log(`EMOM: Current minute changed to ${timerState.currentMinute}`);
-    console.log(
-      `EMOM: Pattern - Every 2 min: ${isEveryTwoMinutes}, Has rest: ${hasRestMinutes}`
-    );
+    console.log(`EMOM: Pattern - Every 2 min: ${isEveryTwoMinutes}`);
     console.log(
       `EMOM: Total exercises in block:`,
       workoutBlock.exercises?.length
     );
     console.log(`EMOM: Current exercise:`, currentExercise);
-  }, [
-    timerState.currentMinute,
-    currentExercise,
-    isEveryTwoMinutes,
-    hasRestMinutes,
-  ]);
+  }, [timerState.currentMinute, currentExercise, isEveryTwoMinutes]);
 
-  // Main timer effect
   useEffect(() => {
     if (timerState.isActive && !timerState.isPaused) {
       intervalRef.current = setInterval(() => {
         setTimerState((prevState) => {
           const newSeconds = prevState.secondsInCurrentMinute - 1;
 
-          // Play whistle sound for last 3 seconds of each minute
           if (newSeconds <= 3 && newSeconds > 0) {
-            playWhistle();
+            playBeep();
           }
 
           if (newSeconds <= 0) {
-            // Move to next minute
             const nextMinute = prevState.currentMinute + 1;
             if (nextMinute > totalMinutes) {
-              // Workout complete
               clearInterval(intervalRef.current);
               return { ...prevState, isComplete: true };
             }
@@ -157,7 +119,7 @@ const EMOMWorkout = ({
     }
 
     return () => clearInterval(intervalRef.current);
-  }, [timerState.isActive, timerState.isPaused, totalMinutes, playWhistle]);
+  }, [timerState.isActive, timerState.isPaused, totalMinutes, playBeep]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -175,6 +137,7 @@ const EMOMWorkout = ({
 
   const startTimer = () => {
     setTimerState((prev) => ({ ...prev, isActive: true, isPaused: false }));
+    setHasResetOnce(false);
   };
 
   const pauseTimer = () => {
@@ -183,13 +146,43 @@ const EMOMWorkout = ({
 
   const resetTimer = () => {
     clearInterval(intervalRef.current);
-    setTimerState({
-      totalTime: 0,
-      currentMinute: 1,
-      secondsInCurrentMinute: 60,
-      isActive: false,
-      isPaused: false,
-      isComplete: false,
+    
+    if (!hasResetOnce) {
+      setTimerState(prevState => ({
+        ...prevState,
+        secondsInCurrentMinute: 60,
+        isActive: false,
+        isPaused: false,
+      }));
+      setHasResetOnce(true);
+    } else {
+      setTimerState({
+        totalTime: 0,
+        currentMinute: 1,
+        secondsInCurrentMinute: 60,
+        isActive: false,
+        isPaused: false,
+        isComplete: false,
+      });
+      setHasResetOnce(false);
+    }
+  };
+
+  const skipCurrentMinute = () => {
+    if (!isAdmin) return;
+
+    setTimerState((prevState) => {
+      const nextMinute = prevState.currentMinute + 1;
+      if (nextMinute > totalMinutes) {
+        clearInterval(intervalRef.current);
+        return { ...prevState, isComplete: true };
+      }
+      return {
+        ...prevState,
+        currentMinute: nextMinute,
+        secondsInCurrentMinute: 60,
+        totalTime: prevState.totalTime + prevState.secondsInCurrentMinute,
+      };
     });
   };
 
@@ -203,21 +196,34 @@ const EMOMWorkout = ({
     return (timerState.totalTime / totalWorkoutSeconds) * 100;
   };
 
+  const getExerciseName = (exercise, minute) => {
+    if (!exercise?.exercise) return "";
+
+    const isModified = showModified[minute] || false;
+    if (isModified && exercise.exercise.modification) {
+      return exercise.exercise.modification.name;
+    }
+    return exercise.exercise.name;
+  };
+
   if (timerState.isComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-        <div className="bg-customGray p-6 rounded-lg text-center max-w-2xl w-full border-brightYellow border-2">
+        <div className="bg-customGray p-6 rounded-lg text-center max-w-xs md:max-w-2xl w-full border-brightYellow border-2">
           <div className="text-6xl m-6">🎉</div>
           <DynamicHeading
             text="Workout Complete!"
-            className="font-higherJump text-3xl font-bold text-customWhite m-4"
+            className="font-higherJump text-2xl sm:text-3xl font-bold text-customWhite m-4 leading-loose"
           />
-          <p className="text-lg text-logoGray m-4">
+          <p className="text-lg text-logoGray mt-6">
             Great job! You completed {totalMinutes} minutes of EMOM training.
           </p>
           <div className="space-x-4">
-            <button onClick={handleComplete} className="btn-full-colour">
-              Continue Workout
+            <button
+              onClick={handleComplete}
+              className="btn-full-colour mr-0 sm:mr-2"
+            >
+              Back to Program
             </button>
             <button onClick={resetTimer} className="btn-cancel">
               Restart EMOM
@@ -230,7 +236,7 @@ const EMOMWorkout = ({
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[120vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
+      <div className="bg-customGray p-4 rounded-lg text-center max-w-xs sm:max-w-2xl md:max-w-6xl w-full h-full lg:max-h-[120vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
         <div className="flex justify-between items-center">
           <AudioControl
             audioEnabled={audioEnabled}
@@ -249,9 +255,9 @@ const EMOMWorkout = ({
             text={title}
             className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
           />
-          <div className="flex flex-col md:flex-row gap-0 md:gap-4 w-full items-center">
+          <div className="flex flex-col md:flex-row gap-0 md:gap-4 w-full items-center md:items-stretch">
             {/* Description */}
-            <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
               <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
                 <span className="text-limeGreen font-bold">Description:</span>{" "}
                 {description}
@@ -259,15 +265,16 @@ const EMOMWorkout = ({
             </div>
 
             {/* Instructions */}
-            {currentExercise && !currentExercise.isRest && (
-              <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+            {currentExercise && (
+              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
                 <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                   <span className="text-limeGreen font-bold">
                     Instructions:
                   </span>{" "}
                   Complete {currentExercise.reps} reps of{" "}
-                  {currentExercise.exercise.name} within this minute. Use any
-                  remaining time to rest before the next minute begins.
+                  {getExerciseName(currentExercise, timerState.currentMinute)}{" "}
+                  within this minute. Use any remaining time to rest before the
+                  next minute begins.
                 </p>
               </div>
             )}
@@ -275,7 +282,7 @@ const EMOMWorkout = ({
         </div>
 
         <div>
-          <h2 className="text-customWhite text-2xl font-titillium font-semibold mb-2">
+          <h2 className="text-customWhite text-lg md:text-2xl font-titillium font-semibold lg:mb-2">
             Minute{" "}
             <span className="text-brightYellow">
               {timerState.currentMinute}
@@ -293,104 +300,73 @@ const EMOMWorkout = ({
         </div>
 
         {/* Main Content */}
-        <div className="flex-grow flex flex-col lg:flex-row gap-6">
+        <div className="flex-grow flex flex-col lg:flex-row gap-0 md:gap-4 p-4">
           {/* Left Column: Timer and Controls */}
-          <div className="w-full lg:w-1/3 flex flex-col pl-4 space-y-4">
+          <div className="w-full lg:w-1/3 flex flex-col space-y-4">
             {currentExercise && (
               <div className="space-y-4 pt-4">
-                <div
-                  className={`p-4 rounded-lg text-center ${
-                    currentExercise.isRest
-                      ? "bg-hotPink text-white"
-                      : "bg-limeGreen text-black"
-                  }`}
-                >
-                  <h4 className="font-bold text-lg mb-2">
-                    {currentExercise.exercise.name}
+                <div className="p-4 rounded-lg text-center bg-gray-600 text-customWhite">
+                  <h4 className="font-bold text-lg">
+                    {getExerciseName(currentExercise, timerState.currentMinute)}
                   </h4>
-                  <div className="text-2xl font-bold mb-3">
-                    {currentExercise.isRest
-                      ? "Rest"
-                      : `${currentExercise.reps} ${
-                          currentExercise.duration
-                            ? `(${currentExercise.duration})`
-                            : "reps"
-                        }`}
+                  {/* Exercise-specific tips (e.g., "2 Jabs = 1 rep") */}
+                  {currentExercise.tips && (
+                    <p className="text-xs text-logoGray mb-2 italic">
+                      {currentExercise.tips}
+                    </p>
+                  )}
+                  <div className="text-4xl font-bold mb-3 text-brightYellow">
+                    {`${currentExercise.reps} ${
+                      currentExercise.duration
+                        ? `(${currentExercise.duration})`
+                        : "reps"
+                    }`}
                   </div>
 
                   {/* Modification Toggle */}
-                  {!currentExercise.isRest &&
-                    currentExercise.exercise?.modification && (
-                      <div className="flex justify-center space-x-1 mb-2">
-                        {(() => {
-                          const { standardText, modifiedText } = getToggleButtonText(currentExercise);
-                          return (
-                            <>
-                              <button
-                                onClick={() =>
-                                  setShowModified((prev) => ({
-                                    ...prev,
-                                    [timerState.currentMinute]: false,
-                                  }))
-                                }
-                                className={`text-xs px-2 py-1 rounded ${
-                                  !showModified[timerState.currentMinute]
-                                    ? "bg-black text-limeGreen"
-                                    : "bg-gray-400 text-black"
-                                }`}
-                              >
-                                {standardText}
-                              </button>
-                              <button
-                                onClick={() =>
-                                  setShowModified((prev) => ({
-                                    ...prev,
-                                    [timerState.currentMinute]: true,
-                                  }))
-                                }
-                                className={`text-xs px-2 py-1 rounded ${
-                                  showModified[timerState.currentMinute]
-                                    ? "bg-black text-limeGreen"
-                                    : "bg-gray-400 text-black"
-                                }`}
-                              >
-                                {modifiedText}
-                              </button>
-                            </>
-                          );
-                        })()}
-                      </div>
-                    )}
-
-                  {!currentExercise.isRest && (
-                    <div className="text-sm mt-2 opacity-75">
-                      {isEveryTwoMinutes
-                        ? `Every 2 min - Ex ${
-                            Math.floor((timerState.currentMinute - 1) / 2) + 1
-                          }`
-                        : hasRestMinutes
-                        ? `Round ${Math.ceil(
-                            timerState.currentMinute /
-                              (workoutBlock.exercises.length + 1)
-                          )}`
-                        : `Exercise ${
-                            ((timerState.currentMinute - 1) %
-                              workoutBlock.exercises.length) +
-                            1
-                          }`}
+                  {currentExercise.exercise?.modification && (
+                    <div className="flex justify-center space-x-1">
+                      {(() => {
+                        const { standardText, modifiedText } =
+                          getToggleButtonText(currentExercise);
+                        return (
+                          <>
+                            <button
+                              onClick={() =>
+                                setShowModified((prev) => ({
+                                  ...prev,
+                                  [timerState.currentMinute]: false,
+                                }))
+                              }
+                              className={`text-xs px-2 py-1 rounded border ${
+                                !showModified[timerState.currentMinute]
+                                  ? "border-limeGreen bg-limeGreen text-black"
+                                  : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                              }`}
+                            >
+                              {standardText}
+                            </button>
+                            <button
+                              onClick={() =>
+                                setShowModified((prev) => ({
+                                  ...prev,
+                                  [timerState.currentMinute]: true,
+                                }))
+                              }
+                              className={`text-xs px-2 py-1 rounded border ${
+                                showModified[timerState.currentMinute]
+                                  ? "border-limeGreen bg-limeGreen text-black"
+                                  : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                              }`}
+                            >
+                              {modifiedText}
+                            </button>
+                          </>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
-                {currentExercise.isRest && (
-                  <div className="bg-gray-600 rounded-lg p-3">
-                    <p className="text-sm text-logoGray">
-                      <span className="text-hotPink font-bold">
-                        Rest Minute:
-                      </span>{" "}
-                      Take this minute to recover before the next round begins.
-                    </p>
-                  </div>
-                )}
               </div>
             )}
             <div className="flex flex-col sm:flex-row-reverse lg:flex-col gap-4">
@@ -414,8 +390,16 @@ const EMOMWorkout = ({
                     </button>
                   )}
                   <button onClick={resetTimer} className="btn-cancel mt-3">
-                    Reset
+                    {hasResetOnce ? "Reset All" : "Reset"}
                   </button>
+                  {isAdmin && timerState.isActive && (
+                    <button
+                      onClick={skipCurrentMinute}
+                      className="btn-skip mt-3"
+                    >
+                      Next
+                    </button>
+                  )}
                 </div>
               </div>
               {/* Total Time */}
@@ -439,11 +423,11 @@ const EMOMWorkout = ({
 
           {/* Right Column: Current Exercise */}
           <div className="w-full lg:w-2/3">
-            <div className="px-4 h-full">
+            <div className="h-full">
               {/* Video */}
               {currentExercise ? (
                 <div className="pt-4">
-                  <div className="relative w-full pb-[80.25%] overflow-hidden rounded-lg">
+                  <div className="relative w-full pb-[100%] md:pb-[80.25%] overflow-hidden rounded-lg">
                     <div className="absolute top-0 left-0 w-full h-full">
                       <ExerciseVideo
                         exercise={currentExercise}
@@ -476,9 +460,11 @@ const EMOMWorkout = ({
                 {currentExercise &&
                   (currentExercise?.tips ||
                     currentExercise?.exercise?.tips) && (
-                    <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-3 mt-2 text-center">
+                    <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-2 mt-3 text-center">
                       <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                        <span className="text-limeGreen font-bold">Tips:</span>{" "}
+                        <span className="text-limeGreen font-bold">
+                          Form Tips:
+                        </span>{" "}
                         {currentExercise?.tips ||
                           currentExercise?.exercise?.tips}
                       </p>
@@ -488,10 +474,10 @@ const EMOMWorkout = ({
                 {currentExercise &&
                   (currentExercise?.instructions ||
                     currentExercise?.exercise?.instructions) && (
-                    <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-3 mt-2 text-center">
+                    <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-2 mt-3 text-center">
                       <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                         <span className="text-limeGreen font-bold">
-                          Exercise Instructions:
+                          Instructions:
                         </span>{" "}
                         {currentExercise?.instructions ||
                           currentExercise?.exercise?.instructions}
@@ -536,6 +522,7 @@ EMOMWorkout.propTypes = {
   onGoBack: PropTypes.func.isRequired,
   canGoBack: PropTypes.bool.isRequired,
   shouldAutoStart: PropTypes.bool,
+  isAdmin: PropTypes.bool,
 };
 
 export default EMOMWorkout;

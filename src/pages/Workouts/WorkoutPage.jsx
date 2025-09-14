@@ -13,8 +13,10 @@ import ForTimeWorkout from "../../components/Workouts/ForTimeWorkout";
 import WorkoutChoice from "../../components/Workouts/WorkoutChoice";
 import { BACKEND_URL } from "../../utils/config";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
+import { getToggleButtonText } from "../../utils/exerciseUtils";
+import AudioControl from "../../components/Shared/AudioControl";
+import useWorkoutAudio from "../../hooks/useWorkoutAudio";
 
-// Helper function to parse duration strings into seconds
 const parseDurationToSeconds = (duration) => {
   if (typeof duration === "number") return duration;
   if (typeof duration === "string") {
@@ -63,7 +65,8 @@ const WorkoutPage = () => {
   const [currentSession, setCurrentSession] = useState(null);
   const [currentSessionData, setCurrentSessionData] = useState(null);
   const [completedSessions, setCompletedSessions] = useState([]);
-  const [showModified, setShowModified] = useState(false);
+  const [showModified, setShowModified] = useState({});
+  const { audioEnabled, toggleAudio, playBeep } = useWorkoutAudio();
 
   useEffect(() => {
     if (!showPreview && !workoutComplete) {
@@ -132,14 +135,22 @@ const WorkoutPage = () => {
     handleCompletion();
   }, [workoutComplete, programName, dayNum, updateUser]);
 
-  const handleGoBackToProgram = () => {
-    navigate(`/workouts/${programName}/list`);
-  };
-
   const handleShowModificationModal = useCallback((modificationData) => {
     setCurrentModification(modificationData);
     setShowModificationModal(true);
   }, []);
+
+  const handleOriginalClick = useCallback(() => {
+    if (typeof setShowModified === "function") {
+      setShowModified(prev => ({ ...prev, [currentExerciseIndex]: false }));
+    }
+  }, [setShowModified, currentExerciseIndex]);
+
+  const handleModifiedClick = useCallback(() => {
+    if (typeof setShowModified === "function") {
+      setShowModified(prev => ({ ...prev, [currentExerciseIndex]: true }));
+    }
+  }, [setShowModified, currentExerciseIndex]);
 
   const handleStartWorkout = useCallback(() => {
     if (isPreviewMode) {
@@ -177,13 +188,11 @@ const WorkoutPage = () => {
     const isEMOM = currentBlock.blockType === "EMOM";
     const isTabata = currentBlock.blockType === "Tabata";
     const isForTime = currentBlock.blockType === "For Time";
-    // const isCircuit = currentBlock.blockType === "Circuit";
     const hasRoundRest =
       currentBlock.roundRest && currentBlock.roundRest !== "";
     if (isAMRAP || isEMOM || isTabata || isForTime) {
       return;
     }
-    // Circuit blocks use regular workout flow, so don't return early
     if (isRoundRest) {
       setIsRoundRest(false);
       if (isAMRAP) {
@@ -209,14 +218,34 @@ const WorkoutPage = () => {
             setCurrentExerciseIndex(0);
           }
         } else {
-          const nextBlockExists =
-            currentBlockIndex < workoutData.workoutBlocks.length - 1;
-          if (nextBlockExists) {
-            setCurrentBlockIndex(currentBlockIndex + 1);
-            setCurrentExerciseIndex(0);
-            setCurrentRound(1);
+          if (currentSessionData && currentSessionData.blockIndices) {
+            const currentIndexInSession = currentSessionData.blockIndices.indexOf(currentBlockIndex);
+            const nextBlockInSession = currentIndexInSession < currentSessionData.blockIndices.length - 1;
+            
+            if (nextBlockInSession) {
+              const nextBlockIndex = currentSessionData.blockIndices[currentIndexInSession + 1];
+              setCurrentBlockIndex(nextBlockIndex);
+              setCurrentExerciseIndex(0);
+              setCurrentRound(1);
+            } else {
+              handleWorkoutSessionComplete();
+            }
           } else {
-            handleWorkoutSessionComplete();
+            const nextBlockExists = currentBlockIndex < workoutData.workoutBlocks.length - 1;
+            if (nextBlockExists) {
+              const workoutSessions = getWorkoutSessions();
+              const isMultiSession = workoutSessions.length > 1 || hasMobilityBlock();
+              
+              if (isMultiSession) {
+                handleWorkoutSessionComplete();
+              } else {
+                setCurrentBlockIndex(currentBlockIndex + 1);
+                setCurrentExerciseIndex(0);
+                setCurrentRound(1);
+              }
+            } else {
+              handleWorkoutSessionComplete();
+            }
           }
         }
       }
@@ -234,7 +263,6 @@ const WorkoutPage = () => {
         hasMoreRounds ||
         nextBlockExists
       ) {
-        // Check if current exercise has rest time > 0
         const currentExercise = currentBlock.exercises[currentExerciseIndex];
         const restDuration = parseDurationToSeconds(
           currentExercise?.rest || "0s"
@@ -243,7 +271,6 @@ const WorkoutPage = () => {
         if (restDuration > 0) {
           setIsRestPeriod(true);
         } else {
-          // No rest time, move directly to next exercise/round/block
           if (nextExerciseExistsInBlock) {
             setCurrentExerciseIndex(currentExerciseIndex + 1);
           } else if (currentRound < blockRounds) {
@@ -254,14 +281,34 @@ const WorkoutPage = () => {
               setCurrentExerciseIndex(0);
             }
           } else {
-            const nextBlockExists =
-              currentBlockIndex < workoutData.workoutBlocks.length - 1;
-            if (nextBlockExists) {
-              setCurrentBlockIndex(currentBlockIndex + 1);
-              setCurrentExerciseIndex(0);
-              setCurrentRound(1);
+            if (currentSessionData && currentSessionData.blockIndices) {
+              const currentIndexInSession = currentSessionData.blockIndices.indexOf(currentBlockIndex);
+              const nextBlockInSession = currentIndexInSession < currentSessionData.blockIndices.length - 1;
+              
+              if (nextBlockInSession) {
+                const nextBlockIndex = currentSessionData.blockIndices[currentIndexInSession + 1];
+                setCurrentBlockIndex(nextBlockIndex);
+                setCurrentExerciseIndex(0);
+                setCurrentRound(1);
+              } else {
+                handleWorkoutSessionComplete();
+              }
             } else {
-              handleWorkoutSessionComplete();
+              const nextBlockExists = currentBlockIndex < workoutData.workoutBlocks.length - 1;
+              if (nextBlockExists) {
+                const workoutSessions = getWorkoutSessions();
+                const isMultiSession = workoutSessions.length > 1 || hasMobilityBlock();
+                
+                if (isMultiSession) {
+                  handleWorkoutSessionComplete();
+                } else {
+                  setCurrentBlockIndex(currentBlockIndex + 1);
+                  setCurrentExerciseIndex(0);
+                  setCurrentRound(1);
+                }
+              } else {
+                handleWorkoutSessionComplete();
+              }
             }
           }
         }
@@ -279,40 +326,6 @@ const WorkoutPage = () => {
     showToast,
     hasStartedWorkout,
   ]);
-
-  // const handleGoBack = useCallback(() => {
-  //   if (isRoundRest) {
-  //     setIsRoundRest(false);
-  //     const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
-  //     setCurrentExerciseIndex(currentBlock.exercises.length - 1);
-  //   } else if (isRestPeriod) {
-  //     setIsRestPeriod(false);
-  //   } else {
-  //     if (currentExerciseIndex > 0) {
-  //       setCurrentExerciseIndex(currentExerciseIndex - 1);
-  //     } else if (currentRound > 1) {
-  //       const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
-  //       setCurrentRound(currentRound - 1);
-  //       setCurrentExerciseIndex(currentBlock.exercises.length - 1);
-  //     } else if (currentBlockIndex > 0) {
-  //       const prevBlock = workoutData.workoutBlocks[currentBlockIndex - 1];
-  //       const prevBlockRounds = prevBlock.blockRounds || 1;
-  //       setCurrentBlockIndex(currentBlockIndex - 1);
-  //       setCurrentRound(prevBlockRounds);
-  //       setCurrentExerciseIndex(prevBlock.exercises.length - 1);
-  //     } else {
-  //       setShowPreview(true);
-  //       setHasStartedWorkout(false);
-  //     }
-  //   }
-  // }, [
-  //   currentBlockIndex,
-  //   currentExerciseIndex,
-  //   currentRound,
-  //   isRestPeriod,
-  //   isRoundRest,
-  //   workoutData,
-  // ]);
 
   const hasMobilityBlock = useCallback(() => {
     return (
@@ -336,6 +349,54 @@ const WorkoutPage = () => {
     );
   }, [workoutData]);
 
+  const handleGoBackToProgram = useCallback(async () => {
+    const isRecoveryDay = hasMobilityBlock() && hasRegularWorkout();
+    const mobilityCompleted = completedSessions.includes("mobility");
+
+    if (isRecoveryDay && mobilityCompleted && !workoutComplete) {
+      try {
+        localStorage.removeItem("workoutProgress");
+
+        const authToken = localStorage.getItem("jwtToken");
+        const response = await fetch(
+          `${BACKEND_URL}/api/workouts/complete-day`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ programName, dayNumber: dayNum }),
+          }
+        );
+
+        if (response.ok) {
+          try {
+            await updateUser();
+          } catch (userUpdateError) {
+            console.error(
+              "Failed to update user data after workout completion:",
+              userUpdateError
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Failed to update user completion status:", error);
+      }
+    }
+
+    navigate(`/workouts/${programName}/list`);
+  }, [
+    hasMobilityBlock,
+    hasRegularWorkout,
+    completedSessions,
+    workoutComplete,
+    programName,
+    dayNum,
+    updateUser,
+    navigate,
+  ]);
+
   const handleWorkoutChoice = (choice, sessionData = null) => {
     setWorkoutChoice(choice);
     if (choice === "mobility") {
@@ -350,10 +411,8 @@ const WorkoutPage = () => {
         sessionData.blockIndices &&
         sessionData.blockIndices.length > 0
       ) {
-        // Set to the first block of the selected session
         setCurrentBlockIndex(sessionData.blockIndices[0]);
       } else {
-        // Fallback to first regular block
         const firstRegularBlockIndex = workoutData.workoutBlocks.findIndex(
           (block) => block.blockType !== "Mobility"
         );
@@ -369,25 +428,28 @@ const WorkoutPage = () => {
   };
 
   const handleMobilityComplete = () => {
-    // Add mobility to completed sessions
     const newCompleted = [...completedSessions, "mobility"];
     setCompletedSessions(newCompleted);
 
-    // For mobility-only days, complete the workout
-    // For mobility + optional workout days, the mobility component handles the choice
     const isRecoveryDay = hasMobilityBlock() && hasRegularWorkout();
-    
+
     if (!isRecoveryDay) {
-      // Pure mobility day - complete the workout
       setWorkoutComplete(true);
     } else {
-      // Recovery day with optional workout - complete the day since mobility is all that's required
-      setWorkoutComplete(true);
+      handleGoBackToChoice();
     }
   };
 
+  const handleMobilityFinishDay = useCallback(() => {
+    const newCompleted = completedSessions.includes("mobility")
+      ? completedSessions
+      : [...completedSessions, "mobility"];
+    setCompletedSessions(newCompleted);
+
+    setWorkoutComplete(true);
+  }, [completedSessions]);
+
   const handleOptionalWorkoutComplete = useCallback(() => {
-    // Workout completion returns to choice screen
     setCurrentSession(null);
     setWorkoutChoice(null);
     setCurrentSessionData(null);
@@ -400,7 +462,6 @@ const WorkoutPage = () => {
   }, []);
 
   const handleGoBackToChoice = useCallback(() => {
-    // Go back to the choice screen from mobility or workout session
     setCurrentSession(null);
     setWorkoutChoice(null);
     setCurrentSessionData(null);
@@ -413,12 +474,66 @@ const WorkoutPage = () => {
   }, []);
 
   const getBackHandler = useCallback(() => {
-    // Use choice handler for recovery days, program handler for regular days
     const isRecoveryDay =
       workoutData?.title?.includes("Recovery day") ||
       workoutData?.description?.includes("AND/OR");
     return isRecoveryDay ? handleGoBackToChoice : handleGoBackToProgram;
   }, [workoutData, handleGoBackToChoice, handleGoBackToProgram]);
+
+  const handleCircuitGoBack = useCallback(() => {
+    if (isRoundRest) {
+      setIsRoundRest(false);
+      const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
+      setCurrentExerciseIndex(currentBlock.exercises.length - 1);
+      if (currentRound > 1) {
+        setCurrentRound(currentRound - 1);
+      }
+    } else if (isRestPeriod) {
+      setIsRestPeriod(false);
+    } else {
+      if (currentExerciseIndex > 0) {
+        setCurrentExerciseIndex(currentExerciseIndex - 1);
+        const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
+        const prevExercise = currentBlock.exercises[currentExerciseIndex - 1];
+        const restDuration = parseDurationToSeconds(prevExercise?.rest || "0s");
+        if (restDuration > 0) {
+          setIsRestPeriod(true);
+        }
+      } else if (currentRound > 1) {
+        const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
+        setCurrentRound(currentRound - 1);
+        setCurrentExerciseIndex(currentBlock.exercises.length - 1);
+        const hasRoundRest = currentBlock.roundRest && currentBlock.roundRest !== "";
+        if (hasRoundRest) {
+          setIsRoundRest(true);
+        }
+      } else if (currentBlockIndex > 0) {
+        const prevBlock = workoutData.workoutBlocks[currentBlockIndex - 1];
+        const prevBlockRounds = prevBlock.blockRounds || 1;
+        setCurrentBlockIndex(currentBlockIndex - 1);
+        setCurrentRound(prevBlockRounds);
+        setCurrentExerciseIndex(prevBlock.exercises.length - 1);
+      } else {
+        const isRecoveryDay =
+          workoutData?.title?.includes("Recovery day") ||
+          workoutData?.description?.includes("AND/OR");
+        if (isRecoveryDay) {
+          handleGoBackToChoice();
+        } else {
+          handleGoBackToProgram();
+        }
+      }
+    }
+  }, [
+    isRoundRest,
+    isRestPeriod,
+    currentExerciseIndex,
+    currentRound,
+    currentBlockIndex,
+    workoutData,
+    handleGoBackToChoice,
+    handleGoBackToProgram,
+  ]);
 
   const getWorkoutSessions = useCallback(() => {
     if (!workoutData?.workoutBlocks) return [];
@@ -431,7 +546,6 @@ const WorkoutPage = () => {
       (block) => block.blockType !== "Mobility"
     );
 
-    // If there are multiple non-mobility blocks, we need to determine how to group them
     if (nonMobilityBlocks.length <= 1) {
       if (nonMobilityBlocks.length === 1) {
         const blockIndex = workoutData.workoutBlocks.findIndex(
@@ -446,7 +560,6 @@ const WorkoutPage = () => {
       return sessions;
     }
 
-    // Check if we should force multi-workout detection
     const title = workoutData.title?.toLowerCase() || "";
     const description = workoutData.description?.toLowerCase() || "";
     const hasMultipleCircuits =
@@ -456,7 +569,6 @@ const WorkoutPage = () => {
       workoutData.workoutBlocks.some((b) =>
         b.blockNotes?.toLowerCase().includes("finisher")
       );
-    // Count different types of special blocks, but treat multiple Tabata as one
     const specialBlockTypes = [
       ...new Set(
         workoutData.workoutBlocks
@@ -496,14 +608,15 @@ const WorkoutPage = () => {
             (block.blockNotes.toLowerCase().includes("workout") ||
               block.blockNotes.toLowerCase().includes("circuit") ||
               block.blockNotes.toLowerCase().includes("finisher"))) ||
-          // Start new session when block types change (except consecutive Tabata blocks)
           (block.blockType !== lastBlock.blockType &&
-            !(block.blockType === "Tabata" && lastBlock.blockType === "Tabata")) ||
-          
-          // Multiple non-Tabata special blocks are separate sessions
+            !(
+              block.blockType === "Tabata" && lastBlock.blockType === "Tabata"
+            )) ||
           (block.blockType !== "Tabata" &&
             lastBlock.blockType !== "Tabata" &&
-            ["AMRAP", "EMOM", "For Time", "Circuit"].includes(block.blockType) &&
+            ["AMRAP", "EMOM", "For Time", "Circuit"].includes(
+              block.blockType
+            ) &&
             ["AMRAP", "EMOM", "For Time", "Circuit"].includes(
               lastBlock.blockType
             )) ||
@@ -533,7 +646,6 @@ const WorkoutPage = () => {
       });
     }
 
-    // Force split if we should have multiple sessions but only detected one
     if (
       shouldForceMulti &&
       sessions.length === 1 &&
@@ -575,14 +687,12 @@ const WorkoutPage = () => {
   );
 
   const handleWorkoutSessionComplete = useCallback(() => {
-    // Add current workout session to completed
     const sessionId = currentSessionData
       ? `workout-${currentSessionData.id}`
       : "workout-0";
     const newCompleted = [...completedSessions, sessionId];
     setCompletedSessions(newCompleted);
 
-    // Check if this is an optional workout session on a recovery day
     const isRecoveryDay =
       workoutData?.title?.includes("Recovery day") ||
       workoutData?.description?.includes("AND/OR");
@@ -590,13 +700,10 @@ const WorkoutPage = () => {
     const allSessionsComplete = checkAllSessionsComplete(newCompleted);
 
     if (isRecoveryDay && workoutChoice === "workout" && !allSessionsComplete) {
-      // Optional workout complete - return to choice screen
       handleOptionalWorkoutComplete();
     } else if (allSessionsComplete) {
-      // All sessions complete - mark day as complete
       setWorkoutComplete(true);
     } else {
-      // More sessions to complete - return to choice screen
       handleOptionalWorkoutComplete();
     }
   }, [
@@ -642,7 +749,9 @@ const WorkoutPage = () => {
 
     const exerciseData = {
       exercise: {
-        name: baseExercise.name,
+        name: showModified[currentExerciseIndex] && modifiedExercise 
+          ? modifiedExercise.name 
+          : baseExercise.name,
         videoId: baseExercise.videoId,
         instructions: baseExercise.instructions,
         tips: baseExercise.tips,
@@ -659,13 +768,13 @@ const WorkoutPage = () => {
       duration: currentWorkoutExercise.duration,
       rest: currentWorkoutExercise.rest,
       instructions:
-        (showModified && modifiedExercise
+        (showModified[currentExerciseIndex] && modifiedExercise
           ? modifiedExercise.instructions
           : baseExercise.instructions) ||
         currentWorkoutExercise.instructions ||
         "",
       tips:
-        (showModified && modifiedExercise
+        (showModified[currentExerciseIndex] && modifiedExercise
           ? modifiedExercise.tips
           : baseExercise.tips) ||
         currentWorkoutExercise.tips ||
@@ -695,14 +804,11 @@ const WorkoutPage = () => {
     const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
     const blockRounds = currentBlock.blockRounds || 1;
 
-    // If there's a next exercise in the current round
     if (currentExerciseIndex < currentBlock.exercises.length - 1) {
       return currentBlock.exercises[currentExerciseIndex + 1];
     }
 
-    // If we're at the end of a round but there are more rounds in this block
     if (currentRound < blockRounds) {
-      // Next exercise is the first exercise of the next round
       return {
         ...currentBlock.exercises[0],
         isNextRound: true,
@@ -710,7 +816,6 @@ const WorkoutPage = () => {
       };
     }
 
-    // If we're at the end of the block, check for next block
     if (currentBlockIndex < workoutData.workoutBlocks.length - 1) {
       const nextBlock = workoutData.workoutBlocks[currentBlockIndex + 1];
       return nextBlock.exercises[0];
@@ -719,48 +824,77 @@ const WorkoutPage = () => {
     return null;
   }, [workoutData, currentBlockIndex, currentExerciseIndex, currentRound]);
 
-  const handleAMRAPComplete = useCallback(() => {
-    // Check if there's a next block in the current session
-    let nextBlockExists = false;
+  const handleSpecialWorkoutComplete = useCallback(async () => {
+    const workoutSessions = getWorkoutSessions();
+    const isMultiSession = workoutSessions.length > 1 || hasMobilityBlock();
+    
+    if (isMultiSession) {
+      const sessionId = currentSessionData
+        ? `workout-${currentSessionData.id}`
+        : "workout-0";
+      const newCompleted = [...completedSessions, sessionId];
+      setCompletedSessions(newCompleted);
 
-    if (currentSessionData && currentSessionData.blockIndices) {
-      const currentIndexInSession =
-        currentSessionData.blockIndices.indexOf(currentBlockIndex);
-      nextBlockExists =
-        currentIndexInSession < currentSessionData.blockIndices.length - 1;
-
-      if (nextBlockExists) {
-        const nextBlockIndex =
-          currentSessionData.blockIndices[currentIndexInSession + 1];
-        setCurrentBlockIndex(nextBlockIndex);
-        setCurrentExerciseIndex(0);
-        setCurrentRound(1);
-        setIsRestPeriod(false);
-        setIsRoundRest(false);
-        return;
+      const allSessionsComplete = checkAllSessionsComplete(newCompleted);
+      
+      if (allSessionsComplete) {
+        await completeEntireWorkout();
+      } else {
+        showToast("success", "Workout session completed! Great job!");
+        handleOptionalWorkoutComplete();
       }
     } else {
-      // Fallback for single workout sessions
-      nextBlockExists =
-        currentBlockIndex < workoutData.workoutBlocks.length - 1;
-      if (nextBlockExists) {
-        setCurrentBlockIndex(currentBlockIndex + 1);
-        setCurrentExerciseIndex(0);
-        setCurrentRound(1);
-        setIsRestPeriod(false);
-        setIsRoundRest(false);
-        return;
+      await completeEntireWorkout();
+    }
+  }, [
+    getWorkoutSessions,
+    hasMobilityBlock,
+    currentSessionData,
+    completedSessions,
+    checkAllSessionsComplete,
+    handleOptionalWorkoutComplete,
+    showToast,
+  ]);
+
+  const completeEntireWorkout = useCallback(async () => {
+    localStorage.removeItem("workoutProgress");
+
+    showToast("success", "Workout completed! Great job!");
+
+    try {
+      const authToken = localStorage.getItem("jwtToken");
+      const response = await fetch(`${BACKEND_URL}/api/workouts/complete-day`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ programName, dayNumber: dayNum }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${
+            errorData.error || "Unknown error"
+          }`
+        );
       }
+
+      try {
+        await updateUser();
+      } catch (userUpdateError) {
+        console.error(
+          "Failed to update user data after workout completion:",
+          userUpdateError
+        );
+      }
+    } catch (error) {
+      console.error("Failed to update user completion status:", error);
     }
 
-    // No more blocks in current session
-    handleWorkoutSessionComplete();
-  }, [
-    currentBlockIndex,
-    currentSessionData,
-    workoutData,
-    handleWorkoutSessionComplete,
-  ]);
+    navigate(`/workouts/${programName}/list`);
+  }, [programName, dayNum, updateUser, navigate, showToast]);
 
   useEffect(() => {
     if (!loadingAuth && !isLoggedIn) {
@@ -924,17 +1058,16 @@ const WorkoutPage = () => {
     );
   }
 
-  // Show Workout complete
   if (workoutComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-        <div className="bg-customGray p-4 rounded-lg text-center max-w-5xl w-full h-full lg:max-h-[90vh] flex flex-col border-brightYellow border-2">
+        <div className="bg-customGray p-4 rounded-lg text-center max-w-3xl lg:max-w-5xl w-full h-full lg:max-h-[90vh] flex flex-col border-brightYellow border-2">
           <div className="text-6xl mb-6">🎉</div>
           <DynamicHeading
             text="Workout Complete"
             className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
           />
-          <p className="text-lg text-logoGray my-6">
+          <p className="text-md md-text-xl text-logoGray m-6">
             Great job completing today&apos;s workout! <br /> You are another
             step closer to your fitness goals.
           </p>
@@ -942,7 +1075,7 @@ const WorkoutPage = () => {
           <div className="space-y-4">
             <button
               onClick={handleGoBackToProgram}
-              className="btn-full-colour mr-2 md:mr-4"
+              className="btn-full-colour sm:mr-4"
             >
               Back to Program
             </button>
@@ -957,7 +1090,7 @@ const WorkoutPage = () => {
                 setIsRestPeriod(false);
                 setIsRoundRest(false);
               }}
-              className="btn-cancel mt-2 px-6 py-3 md:mt-6"
+              className="btn-cancel mt-2 md:mt-6"
             >
               Restart Workout
             </button>
@@ -1021,15 +1154,15 @@ const WorkoutPage = () => {
 
   const progressPercentage =
     (exercisesCompleted / totalExercisesInWorkout) * 100;
-  // Don't auto-start if coming from choice screen (mobility days with optional workouts)
-  const isFromChoiceScreen = workoutChoice === "workout" && hasMobilityBlock() && hasRegularWorkout();
-  const shouldAutoStart = (hasStartedWorkout || !isFirstExercise) && !isFromChoiceScreen;
   const workoutSessions = getWorkoutSessions();
+  const isMultiSession = workoutSessions.length > 1 || hasMobilityBlock();
+  const isFromChoiceScreen = workoutChoice === "workout" && isMultiSession;
+  const shouldAutoStart =
+    (hasStartedWorkout || !isFirstExercise) && !isFromChoiceScreen;
   const needsChoice =
     (hasMobilityBlock() && hasRegularWorkout() && !workoutChoice) ||
     (workoutSessions.length > 1 && !workoutChoice);
 
-  // Show choice screen for special days
   if (needsChoice) {
     return (
       <>
@@ -1043,7 +1176,6 @@ const WorkoutPage = () => {
     );
   }
 
-  // Show mobility workout
   if (currentSession === "mobility") {
     const mobilityBlock = getMobilityBlock();
     return (
@@ -1054,6 +1186,7 @@ const WorkoutPage = () => {
         canGoBack={true}
         shouldAutoStart={true}
         hasOptionalWorkout={hasRegularWorkout()}
+        onFinishDay={handleMobilityFinishDay}
       />
     );
   }
@@ -1076,7 +1209,6 @@ const WorkoutPage = () => {
   //   });
   // }
 
-  // For workout session, make sure we're using a non-mobility block
   if (currentSession === "workout" && currentBlock.blockType === "Mobility") {
     const firstRegularBlockIndex = workoutData.workoutBlocks.findIndex(
       (block) => block.blockType !== "Mobility"
@@ -1096,109 +1228,106 @@ const WorkoutPage = () => {
     }
   }
 
-  // Check if current block is AMRAP, EMOM, Tabata, For Time, or Circuit
   const isAMRAPBlock = currentBlock.blockType === "AMRAP";
   const isEMOMBlock = currentBlock.blockType === "EMOM";
   const isTabataBlock = currentBlock.blockType === "Tabata";
   const isForTimeBlock = currentBlock.blockType === "For Time";
-  // const isCircuitBlock = currentBlock.blockType === "Circuit";
 
-  // Show AMRAP workout interface
   if (isAMRAPBlock) {
     return (
       <AMRAPWorkout
         workoutBlock={currentBlock}
         title={workoutData.title}
         description={workoutData.description}
-        onComplete={handleAMRAPComplete}
+        onComplete={handleSpecialWorkoutComplete}
         onGoBack={getBackHandler()}
         canGoBack={true}
         shouldAutoStart={shouldAutoStart}
+        isAdmin={user?.role === "admin"}
       />
     );
   }
 
-  // Show EMOM workout interface
   if (isEMOMBlock) {
     return (
       <EMOMWorkout
         workoutBlock={currentBlock}
         title={workoutData.title}
         description={workoutData.description}
-        onComplete={handleAMRAPComplete}
+        onComplete={handleSpecialWorkoutComplete}
         onGoBack={getBackHandler()}
         canGoBack={true}
         shouldAutoStart={shouldAutoStart}
+        isAdmin={user?.role === "admin"}
       />
     );
   }
 
-  // Show Tabata workout interface
   if (isTabataBlock) {
-    // Get all consecutive Tabata blocks for the session
     const allTabataBlocks = [];
     let blockIndex = currentBlockIndex;
-    
-    // Find all consecutive Tabata blocks starting from current
-    while (blockIndex < workoutData.workoutBlocks.length && 
-           workoutData.workoutBlocks[blockIndex].blockType === "Tabata") {
+
+    while (
+      blockIndex < workoutData.workoutBlocks.length &&
+      workoutData.workoutBlocks[blockIndex].blockType === "Tabata"
+    ) {
       allTabataBlocks.push(workoutData.workoutBlocks[blockIndex]);
       blockIndex++;
     }
-    
+
     return (
       <TabataWorkout
         workoutBlock={currentBlock}
         allTabataBlocks={allTabataBlocks}
         title={workoutData.title}
         description={workoutData.description}
-        onComplete={handleAMRAPComplete}
+        onComplete={handleSpecialWorkoutComplete}
         onGoBack={getBackHandler()}
         canGoBack={true}
         shouldAutoStart={shouldAutoStart}
+        isAdmin={user?.role === "admin"}
       />
     );
   }
 
-  // Show For Time workout interface
   if (isForTimeBlock) {
     return (
       <ForTimeWorkout
         workoutBlock={currentBlock}
         title={workoutData.title}
         description={workoutData.description}
-        onComplete={handleAMRAPComplete}
+        onComplete={handleSpecialWorkoutComplete}
         onGoBack={getBackHandler()}
         canGoBack={true}
         shouldAutoStart={shouldAutoStart}
+        isAdmin={user?.role === "admin"}
       />
     );
   }
 
-  // Show active workout
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
       <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[110vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
-        {/* Buttons*/}
-        <button
-          onClick={handleGoBackToProgram}
-          className="btn-cancel mt-0 self-end"
-        >
-          Back to Overview
-        </button>
+        {/* Audio Control and Back Button */}
+        <div className="flex justify-between items-center">
+          <AudioControl
+            audioEnabled={audioEnabled}
+            onToggle={toggleAudio}
+            className="mt-0"
+          />
+          <button onClick={handleGoBackToProgram} className="btn-cancel mt-0">
+            Back to Overview
+          </button>
+        </div>
         {/* Workout Title and Buttons at the top */}
         <div className="flex flex-col mt-4 mb-4 items-center">
-          {/* <DynamicHeading
-            text={`Day ${String(workoutData.dayNumber)}`}
-            className="font-higherJump text-md md:text-xl text-customWhite text-center leading-loose tracking-widest"
-          />   */}
           <DynamicHeading
             text={workoutData.title}
             className="font-higherJump m-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
           />
-          <div className="flex flex-col md:flex-row gap:0 md:gap-4 w-full items-center">
+          <div className="flex flex-col md:flex-row gap-0 md:gap-4 w-full items-center md:items-stretch">
             {workoutData.description && (
-              <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
                 <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
                   <span className="text-limeGreen font-bold">Description:</span>{" "}
                   {workoutData.description}
@@ -1207,7 +1336,7 @@ const WorkoutPage = () => {
             )}
 
             {workoutData.workoutBlocks[currentBlockIndex]?.blockNotes && (
-              <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
                 <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
                   <span className="text-limeGreen font-bold">Notes:</span>{" "}
                   {workoutData.workoutBlocks[currentBlockIndex].blockNotes}
@@ -1218,7 +1347,7 @@ const WorkoutPage = () => {
         </div>
 
         {/* Main content grid for video and timer */}
-        <div className="flex-grow flex flex-col lg:flex-row-reverse items-start gap-6 overflow-hidden m-2">
+        <div className="flex-grow flex flex-col lg:flex-row-reverse items-start md:gap-6 overflow-hidden m-2">
           {/* Right Column: Timer, Instructions, and Progress */}
           <div className="w-full lg:w-1/2 flex flex-col">
             <WorkoutTimer
@@ -1237,21 +1366,48 @@ const WorkoutPage = () => {
               currentExercise={currentExerciseData}
               nextExercise={getNextExercise()}
               onExerciseComplete={handleExerciseComplete}
-              onGoBack={getBackHandler()}
+              onGoBack={handleCircuitGoBack}
               canGoBack={!isFirstExercise}
               isRest={isRestPeriod}
               isRoundRest={isRoundRest}
               isStopwatch={isStopwatchMode}
-              exerciseInstructions={currentExerciseData?.instructions}
-              exerciseTips={currentExerciseData?.tips}
               progressPercentage={progressPercentage}
               onShowModificationModal={handleShowModificationModal}
               currentModification={currentModification}
               setShowModificationModal={setShowModificationModal}
               shouldAutoStart={shouldAutoStart}
-              setShowModified={setShowModified}
-              showModified={showModified}
+              isAdmin={user?.role === "admin"}
+              playBeep={playBeep}
             />
+
+            {/* Instructions and Tips - Desktop Only (in timer section) */}
+            <div className="hidden lg:flex lg:flex-col mt-4 space-y-3">
+              {currentExerciseData?.instructions && (
+                <div className="bg-gray-600 rounded-lg p-3 text-left">
+                  <p>
+                    <span className="text-limeGreen text-sm font-bold mb-2">
+                      Instructions:{" "}
+                    </span>
+                    <span className="text-logoGray text-sm">
+                      {currentExerciseData.instructions}
+                    </span>
+                  </p>
+                </div>
+              )}
+
+              {currentExerciseData?.tips && (
+                <div className="bg-gray-600 rounded-lg p-3 text-left">
+                  <p>
+                    <span className="text-limeGreen font-bold text-sm mb-2">
+                      Form Tips:{" "}
+                    </span>
+                    <span className="text-logoGray text-sm">
+                      {currentExerciseData.tips}
+                    </span>
+                  </p>
+                </div>
+              )}
+            </div>
 
             {showModificationModal && currentModification && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 p-4">
@@ -1281,29 +1437,29 @@ const WorkoutPage = () => {
           <div className="w-full lg:w-1/2">
             {isRoundRest ? (
               <div className="h-full flex flex-col">
-                {/* Blank placeholder to match WorkoutTimer header spacing - hidden on mobile */}
-                {(workoutData.workoutBlocks[currentBlockIndex].blockRounds ||
-                  1) > 1 && (
-                  <div className="text-2xl font-titillium font-semibold mb-4 opacity-0 hidden lg:block">
+                {/* Header placeholder to match WorkoutTimer header spacing exactly */}
+                <div className="md:min-h-[48px] md:mb-4 flex items-center justify-center">
+                  <div className="opacity-0 md:text-2xl font-titillium font-semibold">
                     Placeholder
                   </div>
-                )}
+                </div>
 
                 <div className="bg-gray-600 rounded-lg p-6 flex-1 flex flex-col justify-center text-center">
                   {/* Top spacer for better vertical alignment */}
                   <div className="flex-1 flex flex-col justify-center">
                     <div className="text-8xl mb-6">⏰</div>
-                      <h3 className="text-2xl font-bold text-hotPink mb-4">
-                        Round Rest
-                      </h3>
+                    <h3 className="text-2xl font-bold text-hotPink mb-4">
+                      Round Rest
+                    </h3>
                     <div className="space-y-3">
                       <p className="text-logoGray text-lg">
-                        <span className="font-semibold text-brightYellow text-xl">
-                         Next: Starting Round {currentRound + 1}
+                        Next:{" "}
+                        <span className="font-semibold text-white text-xl">
+                           Starting Round {currentRound + 1}
                         </span>
                       </p>
                       {getNextExercise() && (
-                        <p className="text-logoGray text-lg">
+                        <p className="text-logoGray text-lg mb-5">
                           First exercise:{" "}
                           <span className="font-semibold text-white text-xl">
                             {getNextExercise().exercise.name}
@@ -1318,13 +1474,12 @@ const WorkoutPage = () => {
               </div>
             ) : isRestPeriod ? (
               <div className="h-full flex flex-col">
-                {/* Blank placeholder to match WorkoutTimer header spacing - hidden on mobile */}
-                {(workoutData.workoutBlocks[currentBlockIndex].blockRounds ||
-                  1) > 1 && (
-                  <div className="text-2xl font-titillium font-semibold mb-4 opacity-0 hidden lg:block">
+                {/* Header placeholder to match WorkoutTimer header spacing exactly */}
+                <div className="md:min-h-[48px] md:mb-4 flex items-center justify-center">
+                  <div className="opacity-0 md:text-2xl font-titillium font-semibold">
                     Placeholder
                   </div>
-                )}
+                </div>
 
                 <div className="bg-gray-600 rounded-lg p-6 flex-1 flex flex-col justify-center text-center">
                   {/* Top spacer for better vertical alignment */}
@@ -1355,7 +1510,7 @@ const WorkoutPage = () => {
                               </p>
                             </div>
                           ) : (
-                            <p className="text-logoGray text-lg">
+                            <p className="text-logoGray text-lg mb-4">
                               Next up:{" "}
                               <span className="font-semibold text-white text-xl">
                                 {getNextExercise().exercise.name}
@@ -1371,12 +1526,86 @@ const WorkoutPage = () => {
                 </div>
               </div>
             ) : (
-              <ExerciseVideo
-                exercise={currentExerciseData}
-                isActive={!isRestPeriod && !isRoundRest}
-                shouldAutoStart={shouldAutoStart}
-                showModified={showModified}
-              />
+              <div className="h-full flex flex-col">
+                {/* Single placeholder area to match WorkoutTimer - either toggle buttons or placeholder */}
+                <div className="md:min-h-[48px] md:mb-4 flex items-center justify-center">
+                  {currentExerciseData?.modification ? (
+                    <div className="flex space-x-2">
+                      {(() => {
+                        const { standardText, modifiedText } =
+                          getToggleButtonText(currentExerciseData);
+                        return (
+                          <>
+                            <button
+                              onClick={handleOriginalClick}
+                              className={`${
+                                !showModified[currentExerciseIndex]
+                                  ? "btn-primary px-4 py-2 mt-2 md:mt-0"
+                                  : "btn-cancel px-4 py-2 mt-2 md:mt-0"
+                              }`}
+                            >
+                              {standardText}
+                            </button>
+                            <button
+                              onClick={handleModifiedClick}
+                              className={`${
+                                showModified[currentExerciseIndex]
+                                  ? "btn-primary px-4 py-2 mt-2 md:mt-0"
+                                  : "btn-cancel px-4 py-2 mt-2 md:mt-0"
+                              }`}
+                            >
+                              {modifiedText}
+                            </button>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  ) : (
+                    // Invisible placeholder to match timer height exactly
+                    <div className="opacity-0 md:text-2xl font-titillium font-semibold">
+                      Placeholder
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1">
+                  <ExerciseVideo
+                    exercise={currentExerciseData}
+                    isActive={!isRestPeriod && !isRoundRest}
+                    shouldAutoStart={shouldAutoStart}
+                    showModified={showModified[currentExerciseIndex] || false}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Instructions and Tips - Mobile Only (below video) */}
+          <div className="lg:hidden mt-4 flex flex-col space-y-3">
+            {currentExerciseData?.instructions && (
+              <div className="bg-gray-600 rounded-lg p-3 text-left">
+                <p>
+                  <span className="text-limeGreen text-sm font-bold mb-2">
+                    Instructions:{" "}
+                  </span>
+                  <span className="text-logoGray text-sm">
+                    {currentExerciseData.instructions}
+                  </span>
+                </p>
+              </div>
+            )}
+
+            {currentExerciseData?.tips && (
+              <div className="bg-gray-600 rounded-lg p-3 text-left">
+                <p>
+                  <span className="text-limeGreen font-bold text-sm mb-2">
+                    Form Tips:{" "}
+                  </span>
+                  <span className="text-logoGray text-sm">
+                    {currentExerciseData.tips}
+                  </span>
+                </p>
+              </div>
             )}
           </div>
         </div>

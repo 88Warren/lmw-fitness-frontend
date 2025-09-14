@@ -71,7 +71,7 @@ const Pricing = () => {
         id="Pricing"
         className="py-16 px-6 bg-white"
       >
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto text-center">
           <motion.h2
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -93,7 +93,7 @@ const Pricing = () => {
             <br className="hidden md:block" /> I have the perfect solution to
             support your fitness journey.
           </motion.p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl gap-8 md:gap-14 mx-auto justify-items-center">
             {/* Beginner Training Programs */}
             <motion.div
               variants={cardVariants}
@@ -210,7 +210,10 @@ const Pricing = () => {
               </button>
           )}
             </motion.div>
+          </div>
 
+          {/* Bonus Resources */}
+          <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl gap-8 md:gap-14 mt-10 mx-auto justify-items-center">
             {/* Tailored Coaching Plan */}
             <motion.div
               variants={cardVariants}
@@ -267,82 +270,64 @@ const Pricing = () => {
                   </button>
                 )}
             </motion.div>
-          </div>
-
-          {/* Bonus Resources */}
-          <motion.div
-            variants={bonusVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            className="mt-20 p-8 md:p-14 bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-white rounded-2xl shadow-2xl"
-          >
-            <h3 className="text-3xl md:text-4xl font-bold text-center mb-10">
-              Unlock More Resources
-            </h3>
-
-            {/* Flex container for cards */}
-            <div className="flex flex-col md:flex-row justify-center gap-10">
-              {/* Blog Section */}
-              <div className="bg-white md:w-1/2 p-8 rounded-xl text-gray-700 shadow-lg flex flex-col justify-between">
-                <div>
-                  <h4 className="text-xl font-bold text-gray-700 mb-4">
-                    Fortnightly Fitness & Nutrition Blog (Free)
-                  </h4>
-                  <p className="text-lg text-gray-700 mb-6">
-                    Get expert tips straight to your inbox:
-                  </p>
-                  <ul className="text-lg space-y-3 mb-8">
-                    <li>
-                      <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
-                      <strong>Fitness & nutrition advice</strong>
-                    </li>
-                    <li>
-                      <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
-                      <strong>Expert insights & tips</strong>
-                    </li>
-                    <li>
-                      <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
-                      <strong>Exclusive content for subscribers</strong>
-                    </li>
-                    <li>
-                      <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
-                      <strong>Weekly motivation</strong> to stay on track
-                    </li>
-                    <li>
-                      <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
-                      <strong>Goal setting techniques</strong> for success
-                    </li>
-                  </ul>
-                </div>
-
+            {/* <motion.div
+                variants={bonusVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                className="p-8 bg-white border border-brightYellow rounded-xl flex flex-col"
+              > */}
+              {/* <h3 className="text-2xl font-bold text-black mb-4 min-h-[60px] flex items-center justify-center text-center">
+                Fortnightly Fitness & Nutrition Blog (Free)
+              </h3> */}
+                {/* Blog Section */}
+                {/* <p className="text-xl font-bold text-limeGreen mb-6">
+                  Get expert tips straight to your inbox:
+                </p>
+                <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
+                  <li>
+                    <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                    <strong>Fitness & nutrition advice</strong>
+                  </li>
+                  <li>
+                    <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                    <strong>Expert insights & tips</strong>
+                  </li>
+                  <li>
+                    <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                    <strong>Exclusive content for subscribers</strong>
+                  </li>
+                  <li>
+                    <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                    <strong>Weekly motivation</strong> to stay on track
+                  </li>
+                  <li>
+                    <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                    <strong>Goal setting techniques</strong> for success
+                  </li>
+                </ul> */}
                 {/* Newsletter Signup Form */}
-                <div className="mt-auto">
+                {/* <div className="mt-auto"> */}
                   {/* Main Brevo form container */}
-                  <div className="sib-form" style={{ textAlign: 'center', backgroundColor: 'transparent' }}>
-                    
-                    <div id="sib-form-container" className="sib-form-container">
+                  {/* <div className="sib-form" style={{ textAlign: 'center', backgroundColor: 'transparent' }}>
+                    <div id="sib-form-container" className="sib-form-container"> */}
                       {/* Error Message Panel */}
-                      <div id="error-message" className="sib-form-message-panel hidden" style={{ fontSize:'14px', textAlign:'center', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'5px', padding:'8px', marginBottom:'12px' }}>
+                      {/* <div id="error-message" className="sib-form-message-panel hidden" style={{ fontSize:'14px', textAlign:'center', fontFamily:'Helvetica, sans-serif', color:'#661d1d', backgroundColor:'#ffeded', borderRadius:'5px', padding:'8px', marginBottom:'12px' }}>
                         <span className="sib-form-message-panel__inner-text">
                           Your subscription could not be saved. Please try again.
                         </span>
-                      </div>
+                      </div> */}
                       {/* Success Message Panel */}
-                      <div id="success-message" className="sib-form-message-panel hidden" style={{ fontSize:'14px', textAlign:'center', fontFamily:'Helvetica, sans-serif', color:'#085229', backgroundColor:'#e7faf0', borderRadius:'5px', padding:'8px', marginBottom:'12px' }}>
+                      {/* <div id="success-message" className="sib-form-message-panel hidden" style={{ fontSize:'14px', textAlign:'center', fontFamily:'Helvetica, sans-serif', color:'#085229', backgroundColor:'#e7faf0', borderRadius:'5px', padding:'8px', marginBottom:'12px' }}>
                         <span className="sib-form-message-panel__inner-text">
                           Your subscription has been successful.
                         </span>
                       </div>
-
-
-                      <div id="sib-container" className="sib-container--medium sib-container--vertical" style={{ textAlign:'center', backgroundColor:'transparent', borderRadius:'7px', borderWidth:'0px', borderStyle:'none', direction:'ltr', marginBottom:'0px' }}>
-
+                      <div id="sib-container" className="sib-container--medium sib-container--vertical" style={{ textAlign:'center', backgroundColor:'transparent', borderRadius:'7px', borderWidth:'0px', borderStyle:'none', direction:'ltr', marginBottom:'0px' }}> */}
                         {/* The actual HTML form */}
-                        <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFAIWCsK6dmKethzit7GFp1Rs7KwlwKPdCqE96r68cyjuwMBK0MxnRoTHKJTZG1sI_cGZWhfn1R1n7X9vZ3-Ex1p6CR4CRiI_7PT1sgi-8cOQE2cY6n9RRFG9e-3uUdbuvdU78aMKDpt5EPWzMS5lLnWJmXRigoewuyg1fAemOmx9JN08cUGgJT4aQXhCUswmwlsyB5Jq-JHRf" data-type="subscription">
-
+                        {/* <form id="sib-form" method="POST" action="https://f9f46221.sibforms.com/serve/MUIFAIWCsK6dmKethzit7GFp1Rs7KwlwKPdCqE96r68cyjuwMBK0MxnRoTHKJTZG1sI_cGZWhfn1R1n7X9vZ3-Ex1p6CR4CRiI_7PT1sgi-8cOQE2cY6n9RRFG9e-3uUdbuvdU78aMKDpt5EPWzMS5lLnWJmXRigoewuyg1fAemOmx9JN08cUGgJT4aQXhCUswmwlsyB5Jq-JHRf" data-type="subscription"> */}
                         {/* Container for the email input */}
-                          <div className="flex justify-center mb-4"> 
+                          {/* <div className="flex justify-center mb-4"> 
                             <input
                               className="flex-1 p-3 rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-limeGreen focus:border-transparent"
                               type="text"
@@ -353,12 +338,11 @@ const Pricing = () => {
                               data-required="true"
                               required
                             />
-                          </div>
+                          </div> */}
                           {/* Error label for input validation */}
-                          <label className="entry__error entry__error--primary text-red-600 text-sm mt-1 block text-center"></label>
-                          
+                          {/* <label className="entry__error entry__error--primary text-red-600 text-sm mt-1 block text-center"></label> */}
                           {/* Container for the button */}
-                          <div className="flex justify-center">
+                          {/* <div className="flex justify-center">
                             <button
                               className="btn-primary w-full flex justify-center items-center"
                               form="sib-form"
@@ -369,42 +353,47 @@ const Pricing = () => {
                               </svg>
                               Subscribe
                             </button>
-                          </div>
+                          </div> */}
                           {/* Hidden fields required by Brevo */}
-                          <input type="text" name="email_address_check" value="" className="hidden" />
+                          {/* <input type="text" name="email_address_check" value="" className="hidden" />
                           <input type="hidden" name="locale" value="en" />
                         </form>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+            </motion.div> */}
 
-              {/* Standalone Package */}
-              <div className="bg-white md:w-1/2 p-8 rounded-xl text-customGray shadow-lg flex flex-col justify-between">
-                <div>
-                  <h4 className="text-xl font-bold text-customGray mb-4">
+            {/* Standalone Package */}
+            <motion.div
+                  variants={bonusVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="p-8 bg-white border border-brightYellow rounded-xl flex flex-col"
+                >
+                  <h3 className="text-2xl font-bold text-black mb-4 min-h-[60px] flex items-center justify-center text-center">
                     Ultimate Habit & Mindset Package (£25)
-                  </h4>
-                  <p className="text-lg text-customGray mb-6">
+                  </h3>
+                  <p className="ttext-base font-normal text-limeGreen mb-6">
                     Get instant access to:
                   </p>
-                  <ul className="text-lg space-y-3 mb-8">
+                  <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
                     <li>
                       <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
-                      <strong>Habit building worksheet</strong>
+                      Habit building worksheet
                     </li>
                     <li>
                       <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
-                      <strong>Mindset coaching guide</strong>
+                      Mindset coaching guide
                     </li>
                     <li>
                       <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
-                      <strong>7 Day habit challenge</strong>
+                      7 Day habit challenge
                     </li>
                     <li>
                       <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
-                      <strong>Daily motivation & productivity checklist</strong>
+                      Daily motivation & productivity checklist
                     </li>
                     <li>
                       <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
@@ -412,27 +401,25 @@ const Pricing = () => {
                       any package, when purchased together
                     </li>
                   </ul>
-                </div>
-                <div className="flex justify-center mt-auto">
-                  {isItemInCart(ULTIMATE_MINDSET_PACKAGE_PRICE_ID) ? (
-                      <button 
-                        className="bg-white w-full py-3 mt-auto font-bold border border-brightYellow hover:bg-brightYellow"
-                        onClick={() => navigate('/cart')}
-                    >
-                        View Basket
-                    </button>
-                ) : (
-                    <button 
-                      className="btn-subscribe w-full py-3 mt-auto"
-                      onClick={() => addItemToCart({ name: 'Ultimate Habit & Mindset Package', priceId: `${ULTIMATE_MINDSET_PACKAGE_PRICE_ID}`, price: 25 })}
+                  <div className="flex justify-center mt-auto">
+                    {isItemInCart(ULTIMATE_MINDSET_PACKAGE_PRICE_ID) ? (
+                        <button 
+                          className="bg-white w-full py-3 mt-auto font-bold border border-brightYellow hover:bg-brightYellow"
+                          onClick={() => navigate('/cart')}
                       >
-                        Add to Cart
-                    </button>
-                )}
-                </div>
-              </div>
-            </div>
-          </motion.div>
+                          View Basket
+                      </button>
+                  ) : (
+                      <button 
+                        className="btn-subscribe w-full py-3 mt-auto"
+                        onClick={() => addItemToCart({ name: 'Ultimate Habit & Mindset Package', priceId: `${ULTIMATE_MINDSET_PACKAGE_PRICE_ID}`, price: 25 })}
+                        >
+                          Add to Cart
+                      </button>
+                  )}
+                  </div>
+            </motion.div>
+          </div>
         </div>
       </section>
     </>

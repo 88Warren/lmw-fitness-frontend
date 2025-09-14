@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
-import axios from 'axios';
+import api from '../../utils/api';
 import { BACKEND_URL } from '../../utils/config';
 import { showToast } from '../../utils/toastUtil';
 import DynamicHeading from '../../components/Shared/DynamicHeading';
@@ -32,7 +32,7 @@ const fetchAuthLink = async (retryCount = 0) => {
     setIsLoading(true);
     setErrorMessage('');
 
-    const response = await axios.post(`${BACKEND_URL}/api/get-workout-link`, { sessionId });
+    const response = await api.post(`${BACKEND_URL}/api/get-workout-link`, { sessionId });
     
     if (response.status === 202) {
       if (retryCount < 5) { 

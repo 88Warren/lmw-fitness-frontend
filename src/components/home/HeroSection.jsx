@@ -17,7 +17,6 @@ const HeroSection = () => {
   return (
     <section
       id="Home"
-      // className="min-h-screen flex items-center px-4 md:px-0 bg-gradient-to-br from-white via-customGray/80 to-customGray"
       className="min-h-screen flex items-center px-4 md:px-0 bg-gradient-to-br from-customGray to-logoGray"
     >
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-6 items-center pt-24">
@@ -32,9 +31,6 @@ const HeroSection = () => {
               text="Get fit on your schedule"
               className="font-higherJump mb-2 text-4xl md:text-5xl font-extrabold leading-loose tracking-wide text-white"
             />
-            {/* <p className="font-titillium text-logoGray font-bold text-lg md:text-xl mt-4 tracking-wide leading-relaxed">
-              Tailored online personal training designed for you
-            </p> */}
             <HashLink to="/#Pricing" className="btn-primary inline-block md:w-3/4">
               Start Training Today
             </HashLink>
@@ -47,47 +43,20 @@ const HeroSection = () => {
           animate="visible"
           className="relative w-full max-w-md mx-auto aspect-square hidden lg:block"
         >
-          <div className="grid grid-cols-2 grid-rows-2 gap-5 absolute inset-0 p-2">
+          <div className="grid grid-cols-1 grid-rows-1 gap-5 absolute inset-0 p-2">
             {/* Top left: Large rectangle with L-shaped green border */}
             <div className="relative flex items-end justify-end p-4">
               <img
-                src={placeholderImages[4]}
-                alt="Fitness"
-                className="w-36 h-28 md:min-w-56 md:h-40 rounded-2xl object-contain"
-              />
-              {/* Border - Left */}
-              <div className="absolute left-0 bottom-0 w-1 h-2/3 md:right-7 bg-limeGreen rounded-t-lg"></div>
-            </div>
-
-            {/* Top right: Small rectangle with yellow top+right border (touching) */}
-            <div className="relative flex items-end justify-start">
-              <img
                 src={placeholderImages[0]}
                 alt="Fitness"
-                className="w-32 h-24 md:w-40 md:h-32 rounded-2xl object-center"
+                className="w-full h-full rounded-2xl object-cover"
               />
-              {/* Top border */}
+              {/* Top Left Border */}
+              <div className="absolute left-0 bottom-0 w-1 h-2/3 md:right-7 bg-limeGreen rounded-t-lg"></div>
+              {/* Top right border */}
               <div className="absolute top-10 right-1.5 w-3/4 h-1 bg-brightYellow rounded-bl-lg"></div>
-              {/* Right border - connected to top border */}
               <div className="absolute top-10 right-1.5 h-1/3 w-1 bg-brightYellow rounded-bl-lg"></div>
-            </div>
-
-            {/* Bottom left: Circle with pink L-shaped corner */}
-            <div className="relative flex items-start justify-end p-2.5">
-              <img
-                src={placeholderImages[6]}
-                alt="Fitness"
-                className="w-24 h-24 md:w-34 md:h-34 rounded-full object-fill"
-              />
-            </div>
-
-            {/* Bottom right: No border */}
-            <div className="flex items-start justify-start p-5">
-              <img
-                src={placeholderImages[2]}
-                alt="Fitness"
-                className="w-32 h-28 md:w-44 md:h-40 rounded-2xl object-center"
-              />
+              {/* Bottom left border */}
               <div className="absolute bottom-6 right-5 w-6 h-1 bg-hotPink rounded-r-lg"></div>
               <div className="absolute bottom-6 right-5 w-1 h-10 bg-hotPink rounded-t-lg"></div>
             </div>

@@ -10,7 +10,7 @@ const CalorieCalculator = () => {
     age: '',
     weight: '', 
     height: '', 
-    gender: 'woman',
+    gender: 'female',
     activityLevel: 'sedentary',
     goal: 'maintain'
   });
@@ -20,7 +20,7 @@ const CalorieCalculator = () => {
   const [isActivityDropdownOpen, setIsActivityDropdownOpen] = useState(false);
   const [isGoalDropdownOpen, setIsGoalDropdownOpen] = useState(false);
 
-  const genderOptions = ['woman', 'men'];
+  const genderOptions = ['female', 'male'];
   const activityOptions = [
       { value: 'sedentary', label: 'Sedentary (little or no exercise)' },
       { value: 'light', label: 'Light activity (1-3 days/week)' },
@@ -63,9 +63,9 @@ const CalorieCalculator = () => {
     }
 
     let bmr;
-    if (gender === 'men') {
+    if (gender === 'male') {
       bmr = 66.5 + (13.75 * weightNum) + (5 * heightNum) - (6.75 * ageNum);
-    } else { // women
+    } else { 
       bmr = 655.1 + (9.563 * weightNum) + (1.85 * heightNum) - (4.676 * ageNum);
     }
 
@@ -92,7 +92,7 @@ const CalorieCalculator = () => {
       transition={{ duration: 0.7 }}
       className="flex flex-col items-center justify-center min-h-screen mb-20 pt-20 bg-gradient-to-b from-customGray/30 to-white"
     >
-      <div className="bg-customGray p-8 rounded-lg text-center max-w-md md:max-w-lg w-full border-brightYellow border-2">
+      <div className="bg-customGray p-8 rounded-lg text-center max-w-sm md:max-w-lg w-full border-brightYellow border-2">
         <DynamicHeading 
           text="Calorie Calculator" 
           className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest" 
@@ -278,7 +278,7 @@ const CalorieCalculator = () => {
               transition={{ duration: 0.5 }}
               className="mt-6 p-4 border-2 border-brightYellow rounded-lg text-center"
             >
-              <p className="text-xl font-bold text-brightYellow">Your estimated daily calorie needs:</p>
+              <p className="text-xl font-bold text-brightYellow">Your estimated daily calorie intake:</p>
               <p className="text-4xl font-titillium font-bold text-customWhite mt-2">{result} Calories</p>
             </motion.div>
           )}

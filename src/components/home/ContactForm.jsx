@@ -126,7 +126,7 @@ const ContactForm = () => {
 
   return (
     <section id="Contact" className="min-h-screen py-20 bg-logoGray">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         {/* Header Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

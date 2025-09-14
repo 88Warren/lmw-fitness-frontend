@@ -14,13 +14,14 @@ const ForTimeWorkout = ({
   onGoBack,
   canGoBack,
   shouldAutoStart = false,
+  isAdmin = false,
 }) => {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [selectedExerciseIndex, setSelectedExerciseIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
-  const [showModified, setShowModified] = useState(false);
+  const [showModified, setShowModified] = useState({});
   const [completedExercises, setCompletedExercises] = useState(new Set());
   const [currentRound, setCurrentRound] = useState(1);
   const [currentLadderStep, setCurrentLadderStep] = useState(0);
@@ -28,28 +29,26 @@ const ForTimeWorkout = ({
   const [restTime, setRestTime] = useState(0);
   const intervalRef = useRef(null);
   const { audioEnabled, toggleAudio } = useWorkoutAudio();
-
-  // Determine workout type and structure
   const workoutType = getWorkoutType();
   const totalRounds = workoutBlock.blockRounds || 1;
-  const roundRestSeconds = workoutBlock.roundRest ? parseRestTime(workoutBlock.roundRest) : 0;
+  const roundRestSeconds = workoutBlock.roundRest
+    ? parseRestTime(workoutBlock.roundRest)
+    : 0;
 
   function getWorkoutType() {
-    // Check if it's a multi-round workout
     if (workoutBlock.blockRounds && workoutBlock.blockRounds > 1) {
-      return 'multi-round';
+      return "multi-round";
     }
-    
-    // Check if any exercise has ladder/pyramid reps (contains commas)
-    const hasLadderReps = workoutBlock.exercises.some(exercise => 
-      exercise.reps && exercise.reps.includes(',')
+
+    const hasLadderReps = workoutBlock.exercises.some(
+      (exercise) => exercise.reps && exercise.reps.includes(",")
     );
-    
+
     if (hasLadderReps) {
-      return 'ladder';
+      return "ladder";
     }
-    
-    return 'simple';
+
+    return "simple";
   }
 
   function parseRestTime(restString) {
@@ -59,60 +58,68 @@ const ForTimeWorkout = ({
   }
 
   function getLadderSteps() {
-    if (workoutType !== 'ladder') return [];
+    if (workoutType !== "ladder") return [];
     const firstExercise = workoutBlock.exercises[0];
     if (!firstExercise?.reps) return [];
-    return firstExercise.reps.split(',').map(rep => rep.trim());
+    return firstExercise.reps.split(",").map((rep) => rep.trim());
   }
 
   function getCurrentReps(exercise, stepIndex = 0) {
-    if (workoutType === 'ladder') {
-      const steps = exercise.reps.split(',').map(rep => rep.trim());
+    if (workoutType === "ladder") {
+      const steps = exercise.reps.split(",").map((rep) => rep.trim());
       return steps[stepIndex] || steps[0];
     }
     return exercise.reps;
   }
 
   function getWorkoutDescription() {
-    if (workoutType === 'multi-round') {
+    if (workoutType === "multi-round") {
       return `Complete ${totalRounds} rounds of all exercises as fast as possible!`;
-    } else if (workoutType === 'ladder') {
+    } else if (workoutType === "ladder") {
       return `Complete the ladder pattern for all exercises as fast as possible!`;
     }
     return `Complete all exercises with the prescribed reps as quickly as possible!`;
   }
 
   function getProgressDisplay() {
-    const currentCompleted = workoutBlock.exercises.filter((_, index) => isExerciseCompleted(index)).length;
-    
-    if (workoutType === 'simple') {
+    const currentCompleted = workoutBlock.exercises.filter((_, index) =>
+      isExerciseCompleted(index)
+    ).length;
+
+    if (workoutType === "simple") {
       return `${currentCompleted}/${workoutBlock.exercises.length}`;
-    } else if (workoutType === 'multi-round') {
+    } else if (workoutType === "multi-round") {
       const totalExercises = workoutBlock.exercises.length * totalRounds;
-      const completedExercises = (currentRound - 1) * workoutBlock.exercises.length + currentCompleted;
+      const completedExercises =
+        (currentRound - 1) * workoutBlock.exercises.length + currentCompleted;
       return `${completedExercises}/${totalExercises}`;
-    } else if (workoutType === 'ladder') {
+    } else if (workoutType === "ladder") {
       const totalSteps = getLadderSteps().length;
       const totalExercises = workoutBlock.exercises.length * totalSteps;
-      const completedExercises = currentLadderStep * workoutBlock.exercises.length + currentCompleted;
+      const completedExercises =
+        currentLadderStep * workoutBlock.exercises.length + currentCompleted;
       return `${completedExercises}/${totalExercises}`;
     }
     return `${currentCompleted}/${workoutBlock.exercises.length}`;
   }
 
   function getProgressPercentage() {
-    const currentCompleted = workoutBlock.exercises.filter((_, index) => isExerciseCompleted(index)).length;
-    
-    if (workoutType === 'simple') {
+    const currentCompleted = workoutBlock.exercises.filter((_, index) =>
+      isExerciseCompleted(index)
+    ).length;
+
+    if (workoutType === "simple") {
       return (currentCompleted / workoutBlock.exercises.length) * 100;
-    } else if (workoutType === 'multi-round') {
+    } else if (workoutType === "multi-round") {
       const totalExercises = workoutBlock.exercises.length * totalRounds;
-      const completedExercises = (currentRound - 1) * workoutBlock.exercises.length + currentCompleted;
+      const completedExercises =
+        (currentRound - 1) * workoutBlock.exercises.length + currentCompleted;
       return (completedExercises / totalExercises) * 100;
-    } else if (workoutType === 'ladder') {
+    } else if (workoutType === "ladder") {
       const totalSteps = getLadderSteps().length;
       const totalExercises = workoutBlock.exercises.length * totalSteps;
-      const completedExercises = currentLadderStep * workoutBlock.exercises.length + currentCompleted;
+      const completedExercises =
+        currentLadderStep * workoutBlock.exercises.length + currentCompleted;
       return (completedExercises / totalExercises) * 100;
     }
     return (currentCompleted / workoutBlock.exercises.length) * 100;
@@ -124,14 +131,12 @@ const ForTimeWorkout = ({
     }
   }, [shouldAutoStart]);
 
-  // Main timer effect (stopwatch or rest timer)
   useEffect(() => {
     if (isActive && !isPaused) {
       intervalRef.current = setInterval(() => {
         if (isResting) {
           setRestTime((prev) => {
             if (prev <= 1) {
-              // Rest complete, advance to next round
               setIsResting(false);
               setCurrentRound(currentRound + 1);
               return 0;
@@ -151,7 +156,9 @@ const ForTimeWorkout = ({
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const startTimer = () => {
@@ -176,6 +183,14 @@ const ForTimeWorkout = ({
     setRestTime(0);
   };
 
+  const skipToEnd = () => {
+    if (!isAdmin) return;
+
+    clearInterval(intervalRef.current);
+    setIsActive(false);
+    setIsComplete(true);
+  };
+
   const handleComplete = () => {
     clearInterval(intervalRef.current);
     setIsActive(false);
@@ -198,7 +213,7 @@ const ForTimeWorkout = ({
   const toggleExerciseComplete = (exerciseIndex) => {
     const newCompleted = new Set(completedExercises);
     const key = getExerciseKey(exerciseIndex);
-    
+
     if (newCompleted.has(key)) {
       newCompleted.delete(key);
     } else {
@@ -207,10 +222,20 @@ const ForTimeWorkout = ({
     setCompletedExercises(newCompleted);
   };
 
+  const getExerciseName = (exercise, exerciseIndex) => {
+    if (!exercise?.exercise) return "";
+    
+    const isModified = showModified[exerciseIndex] || false;
+    if (isModified && exercise.exercise.modification) {
+      return exercise.exercise.modification.name;
+    }
+    return exercise.exercise.name;
+  };
+
   const getExerciseKey = (exerciseIndex) => {
-    if (workoutType === 'multi-round') {
+    if (workoutType === "multi-round") {
       return `${currentRound}-${exerciseIndex}`;
-    } else if (workoutType === 'ladder') {
+    } else if (workoutType === "ladder") {
       return `${currentLadderStep}-${exerciseIndex}`;
     }
     return exerciseIndex.toString();
@@ -222,35 +247,43 @@ const ForTimeWorkout = ({
   };
 
   const allCurrentExercisesCompleted = () => {
-    return workoutBlock.exercises.every((_, index) => isExerciseCompleted(index));
+    return workoutBlock.exercises.every((_, index) =>
+      isExerciseCompleted(index)
+    );
   };
 
   const canAdvanceToNext = () => {
-    if (workoutType === 'simple') {
+    if (workoutType === "simple") {
       return allCurrentExercisesCompleted();
-    } else if (workoutType === 'multi-round') {
+    } else if (workoutType === "multi-round") {
       return allCurrentExercisesCompleted() && currentRound < totalRounds;
-    } else if (workoutType === 'ladder') {
+    } else if (workoutType === "ladder") {
       const ladderSteps = getLadderSteps();
-      return allCurrentExercisesCompleted() && currentLadderStep < ladderSteps.length - 1;
+      return (
+        allCurrentExercisesCompleted() &&
+        currentLadderStep < ladderSteps.length - 1
+      );
     }
     return false;
   };
 
   const isWorkoutComplete = () => {
-    if (workoutType === 'simple') {
+    if (workoutType === "simple") {
       return allCurrentExercisesCompleted();
-    } else if (workoutType === 'multi-round') {
+    } else if (workoutType === "multi-round") {
       return currentRound === totalRounds && allCurrentExercisesCompleted();
-    } else if (workoutType === 'ladder') {
+    } else if (workoutType === "ladder") {
       const ladderSteps = getLadderSteps();
-      return currentLadderStep === ladderSteps.length - 1 && allCurrentExercisesCompleted();
+      return (
+        currentLadderStep === ladderSteps.length - 1 &&
+        allCurrentExercisesCompleted()
+      );
     }
     return false;
   };
 
   const advanceToNext = () => {
-    if (workoutType === 'multi-round' && currentRound < totalRounds) {
+    if (workoutType === "multi-round" && currentRound < totalRounds) {
       if (roundRestSeconds > 0) {
         setIsResting(true);
         setRestTime(roundRestSeconds);
@@ -258,7 +291,7 @@ const ForTimeWorkout = ({
       } else {
         setCurrentRound(currentRound + 1);
       }
-    } else if (workoutType === 'ladder') {
+    } else if (workoutType === "ladder") {
       const ladderSteps = getLadderSteps();
       if (currentLadderStep < ladderSteps.length - 1) {
         setCurrentLadderStep(currentLadderStep + 1);
@@ -271,15 +304,20 @@ const ForTimeWorkout = ({
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
         <div className="bg-customGray p-6 rounded-lg text-center max-w-2xl w-full border-brightYellow border-2">
           <div className="text-6xl mb-6">⏱️</div>
-          <h2 className="font-higherJump text-3xl font-bold text-customWhite mb-4">
-            For Time Complete!
-          </h2>
-          <p className="text-lg text-logoGray mb-4">
-            Excellent work! You finished in <span className="text-limeGreen font-bold">{formatTime(time)}</span>
+          <DynamicHeading
+            className="font-higherJump text-3xl font-bold text-customWhite mb-4"
+            text="For Time Complete!"
+          />
+          <p className="text-lg text-logoGray mt-6">
+            Excellent work! You finished in{" "}
+            <span className="text-limeGreen font-bold">{formatTime(time)}</span>
           </p>
           <div className="space-y-4">
-            <button onClick={handleFinishWorkout} className="btn-full-colour">
-              Continue Workout
+            <button
+              onClick={handleFinishWorkout}
+              className="btn-full-colour mr-4"
+            >
+              Back to Program
             </button>
             <button onClick={resetTimer} className="btn-cancel">
               Restart For Time
@@ -294,8 +332,8 @@ const ForTimeWorkout = ({
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
       <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[140vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
         <div className="flex justify-between items-center">
-          <AudioControl 
-            audioEnabled={audioEnabled} 
+          <AudioControl
+            audioEnabled={audioEnabled}
             onToggle={toggleAudio}
             className="mt-0"
           />
@@ -305,14 +343,14 @@ const ForTimeWorkout = ({
             </button>
           )}
         </div>
-        
+
         {/* Header */}
         <div className="flex flex-col mt-4 mb-4 items-center">
           <DynamicHeading
             text={title}
             className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
           />
-          
+
           {/* For Time Explanation */}
           <div className="bg-brightYellow text-black rounded-lg p-3 mb-4 max-w-4xl">
             <p className="text-sm font-semibold text-center">
@@ -321,18 +359,28 @@ const ForTimeWorkout = ({
           </div>
 
           {/* Workout Progress */}
-          {(workoutType === 'multi-round' || workoutType === 'ladder') && (
+          {(workoutType === "multi-round" || workoutType === "ladder") && (
             <div className="bg-gray-700 rounded-lg p-3 mb-4 max-w-2xl">
               <div className="text-center">
-                {workoutType === 'multi-round' && (
+                {workoutType === "multi-round" && (
                   <p className="text-customWhite font-semibold">
-                    Round <span className="text-brightYellow">{currentRound}</span> of <span className="text-brightYellow">{totalRounds}</span>
-                    {roundRestSeconds > 0 && ` • ${roundRestSeconds}s rest between rounds`}
+                    Round{" "}
+                    <span className="text-brightYellow">{currentRound}</span> of{" "}
+                    <span className="text-brightYellow">{totalRounds}</span>
+                    {roundRestSeconds > 0 &&
+                      ` • ${roundRestSeconds}s rest between rounds`}
                   </p>
                 )}
-                {workoutType === 'ladder' && (
+                {workoutType === "ladder" && (
                   <p className="text-customWhite font-semibold">
-                    Step <span className="text-brightYellow">{currentLadderStep + 1}</span> of <span className="text-brightYellow">{getLadderSteps().length}</span>
+                    Step{" "}
+                    <span className="text-brightYellow">
+                      {currentLadderStep + 1}
+                    </span>{" "}
+                    of{" "}
+                    <span className="text-brightYellow">
+                      {getLadderSteps().length}
+                    </span>
                     {` • Current reps: ${getLadderSteps()[currentLadderStep]}`}
                   </p>
                 )}
@@ -353,7 +401,8 @@ const ForTimeWorkout = ({
             <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
               <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                 <span className="text-limeGreen font-bold">Instructions:</span>{" "}
-                Complete all prescribed reps for each exercise as fast as possible. Mark exercises complete when finished.
+                Complete all prescribed reps for each exercise as fast as
+                possible. Mark exercises complete when finished.
               </p>
             </div>
           </div>
@@ -366,16 +415,27 @@ const ForTimeWorkout = ({
             <div className="flex flex-row-reverse lg:flex-col gap-4">
               {/* Timer */}
               <div className="w-1/2 lg:w-full bg-gray-600 rounded-lg p-6 text-center">
-                <div className={`text-6xl mb-4 ${isResting ? 'text-hotPink' : 'text-limeGreen'}`}>
+                <div
+                  className={`text-6xl mb-4 ${
+                    isResting ? "text-hotPink" : "text-limeGreen"
+                  }`}
+                >
                   {isResting ? formatTime(restTime) : formatTime(time)}
                 </div>
-                <div className={`text-xl font-bold mb-4 ${isResting ? 'text-hotPink' : 'text-customWhite'}`}>
-                  {isResting ? 'REST' : 'STOPWATCH'}
+                <div
+                  className={`text-xl font-bold mb-4 ${
+                    isResting ? "text-hotPink" : "text-customWhite"
+                  }`}
+                >
+                  {isResting ? "REST" : "STOPWATCH"}
                 </div>
                 {/* Timer Controls */}
                 <div className="flex justify-center space-x-2">
                   {!isActive || isPaused ? (
-                    <button onClick={startTimer} className="btn-full-colour mt-3">
+                    <button
+                      onClick={startTimer}
+                      className="btn-full-colour mt-3"
+                    >
                       {isPaused ? "Resume" : "Start"}
                     </button>
                   ) : (
@@ -386,6 +446,11 @@ const ForTimeWorkout = ({
                   <button onClick={resetTimer} className="btn-cancel mt-3">
                     Reset
                   </button>
+                  {isAdmin && isActive && (
+                    <button onClick={skipToEnd} className="btn-skip mt-3">
+                      End
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -400,19 +465,27 @@ const ForTimeWorkout = ({
                 <div className="bg-gray-500 rounded-full h-3 mb-4">
                   <div
                     className="h-full rounded-full transition-all duration-500 bg-limeGreen"
-                    style={{ 
-                      width: `${getProgressPercentage()}%` 
+                    style={{
+                      width: `${getProgressPercentage()}%`,
                     }}
                   ></div>
                 </div>
                 {allCurrentExercisesCompleted() && (
                   <div className="space-y-2">
                     {canAdvanceToNext() ? (
-                      <button onClick={handleFinishStep} className="btn-subscribe mt-3">
-                        {workoutType === 'multi-round' ? 'Next Round' : 'Next Step'}
+                      <button
+                        onClick={handleFinishStep}
+                        className="btn-subscribe mt-3"
+                      >
+                        {workoutType === "multi-round"
+                          ? "Next Round"
+                          : "Next Step"}
                       </button>
                     ) : isWorkoutComplete() ? (
-                      <button onClick={handleComplete} className="btn-full-colour mt-3">
+                      <button
+                        onClick={handleComplete}
+                        className="btn-full-colour mt-3"
+                      >
                         Finish!
                       </button>
                     ) : null}
@@ -426,22 +499,30 @@ const ForTimeWorkout = ({
               {workoutBlock.exercises[selectedExerciseIndex] && (
                 <>
                   {(workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                    workoutBlock.exercises[selectedExerciseIndex]?.exercise?.tips) && (
+                    workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                      ?.tips) && (
                     <div className="bg-gray-600 rounded-lg p-3">
                       <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                         <span className="text-limeGreen font-bold">Tips:</span>{" "}
                         {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                          workoutBlock.exercises[selectedExerciseIndex]?.exercise?.tips}
+                          workoutBlock.exercises[selectedExerciseIndex]
+                            ?.exercise?.tips}
                       </p>
                     </div>
                   )}
-                  {(workoutBlock.exercises[selectedExerciseIndex]?.instructions ||
-                    workoutBlock.exercises[selectedExerciseIndex]?.exercise?.instructions) && (
+                  {(workoutBlock.exercises[selectedExerciseIndex]
+                    ?.instructions ||
+                    workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                      ?.instructions) && (
                     <div className="bg-gray-600 rounded-lg p-3">
                       <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                        <span className="text-limeGreen font-bold">Instructions:</span>{" "}
-                        {workoutBlock.exercises[selectedExerciseIndex]?.instructions ||
-                          workoutBlock.exercises[selectedExerciseIndex]?.exercise?.instructions}
+                        <span className="text-limeGreen font-bold">
+                          Instructions:
+                        </span>{" "}
+                        {workoutBlock.exercises[selectedExerciseIndex]
+                          ?.instructions ||
+                          workoutBlock.exercises[selectedExerciseIndex]
+                            ?.exercise?.instructions}
                       </p>
                     </div>
                   )}
@@ -463,8 +544,11 @@ const ForTimeWorkout = ({
               <div className="space-y-2">
                 {workoutBlock.exercises.map((exercise, index) => {
                   const isCompleted = isExerciseCompleted(index);
-                  const currentReps = getCurrentReps(exercise, currentLadderStep);
-                  
+                  const currentReps = getCurrentReps(
+                    exercise,
+                    currentLadderStep
+                  );
+
                   return (
                     <div
                       key={exercise.id || index}
@@ -478,7 +562,6 @@ const ForTimeWorkout = ({
                       onClick={() => {
                         setSelectedExerciseIndex(index);
                         if (isCompleted) {
-                          // If clicking on completed exercise, allow toggling
                           toggleExerciseComplete(index);
                         }
                       }}
@@ -488,7 +571,9 @@ const ForTimeWorkout = ({
                           <div className="flex items-center mr-3">
                             {isCompleted ? (
                               <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                                <span className="text-limeGreen text-sm font-bold">✓</span>
+                                <span className="text-limeGreen text-sm font-bold">
+                                  ✓
+                                </span>
                               </div>
                             ) : (
                               <div className="w-6 h-6 border-2 border-gray-400 rounded-full"></div>
@@ -497,51 +582,54 @@ const ForTimeWorkout = ({
                           <div className="flex-1">
                             <div className="flex items-center space-x-2">
                               <div className="font-semibold">
-                                {exercise.exercise.name}
+                                {getExerciseName(exercise, index)}
                               </div>
-                              {exercise.exercise.modification && selectedExerciseIndex === index && (
-                                <div className="flex space-x-1">
-                                  {(() => {
-                                    const { standardText, modifiedText } = getToggleButtonText(exercise);
-                                    return (
-                                      <>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setShowModified(false);
-                                          }}
-                                          className={`text-xs px-2 py-1 rounded ${
-                                            !showModified
-                                              ? "bg-limeGreen text-black"
-                                              : "bg-gray-400 text-black"
-                                          }`}
-                                        >
-                                          {standardText}
-                                        </button>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setShowModified(true);
-                                          }}
-                                          className={`text-xs px-2 py-1 rounded ${
-                                            showModified
-                                              ? "bg-limeGreen text-black"
-                                              : "bg-gray-400 text-black"
-                                          }`}
-                                        >
-                                          {modifiedText}
-                                        </button>
-                                      </>
-                                    );
-                                  })()}
+                              {exercise.exercise.modification &&
+                                selectedExerciseIndex === index && (
+                                  <div className="flex space-x-1">
+                                    {(() => {
+                                      const { standardText, modifiedText } =
+                                        getToggleButtonText(exercise);
+                                      return (
+                                        <>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setShowModified(prev => ({ ...prev, [index]: false }));
+                                            }}
+                                            className={`text-xs px-2 py-1 rounded ${
+                                              !showModified[index]
+                                                ? "bg-limeGreen text-black"
+                                                : "bg-gray-400 text-black"
+                                            }`}
+                                          >
+                                            {standardText}
+                                          </button>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setShowModified(prev => ({ ...prev, [index]: true }));
+                                            }}
+                                            className={`text-xs px-2 py-1 rounded ${
+                                              showModified[index]
+                                                ? "bg-limeGreen text-black"
+                                                : "bg-gray-400 text-black"
+                                            }`}
+                                          >
+                                            {modifiedText}
+                                          </button>
+                                        </>
+                                      );
+                                    })()}
+                                  </div>
+                                )}
+                            </div>
+                            {exercise.exercise.modification &&
+                              selectedExerciseIndex !== index && (
+                                <div className="text-xs text-limeGreen">
+                                  Modified version available
                                 </div>
                               )}
-                            </div>
-                            {exercise.exercise.modification && selectedExerciseIndex !== index && (
-                              <div className="text-xs text-limeGreen">
-                                Modified version available
-                              </div>
-                            )}
                           </div>
                         </div>
                         <div className="flex items-center space-x-3">
@@ -550,8 +638,11 @@ const ForTimeWorkout = ({
                               {currentReps}
                             </div>
                             <div className="text-xs opacity-75">
-                              {workoutType === 'ladder' ? 'this step' : 
-                               currentReps.toLowerCase().includes('rep') ? 'total' : 'reps'}
+                              {workoutType === "ladder"
+                                ? "this step"
+                                : currentReps.toLowerCase().includes("rep")
+                                ? "total"
+                                : "reps"}
                             </div>
                           </div>
                           {!isCompleted && (
@@ -571,65 +662,88 @@ const ForTimeWorkout = ({
                   );
                 })}
               </div>
-              
+
               {/* Workout Summary */}
               <div className="mt-4 p-3 bg-gray-700 rounded-lg">
-                {workoutType === 'multi-round' && (
+                {workoutType === "multi-round" && (
                   <>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-logoGray">Current Round:</span>
-                      <span className="text-brightYellow font-semibold">{currentRound} of {totalRounds}</span>
+                      <span className="text-brightYellow font-semibold">
+                        {currentRound} of {totalRounds}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center text-sm mt-1">
                       <span className="text-logoGray">Round Progress:</span>
                       <span className="text-limeGreen font-semibold">
-                        {workoutBlock.exercises.filter((_, index) => isExerciseCompleted(index)).length}/{workoutBlock.exercises.length}
+                        {
+                          workoutBlock.exercises.filter((_, index) =>
+                            isExerciseCompleted(index)
+                          ).length
+                        }
+                        /{workoutBlock.exercises.length}
                       </span>
                     </div>
                   </>
                 )}
-                {workoutType === 'ladder' && (
+                {workoutType === "ladder" && (
                   <>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-logoGray">Current Step:</span>
-                      <span className="text-brightYellow font-semibold">{currentLadderStep + 1} of {getLadderSteps().length}</span>
+                      <span className="text-brightYellow font-semibold">
+                        {currentLadderStep + 1} of {getLadderSteps().length}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center text-sm mt-1">
                       <span className="text-logoGray">Step Reps:</span>
-                      <span className="text-brightYellow font-semibold">{getLadderSteps()[currentLadderStep]}</span>
+                      <span className="text-brightYellow font-semibold">
+                        {getLadderSteps()[currentLadderStep]}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center text-sm mt-1">
                       <span className="text-logoGray">Step Progress:</span>
                       <span className="text-limeGreen font-semibold">
-                        {workoutBlock.exercises.filter((_, index) => isExerciseCompleted(index)).length}/{workoutBlock.exercises.length}
+                        {
+                          workoutBlock.exercises.filter((_, index) =>
+                            isExerciseCompleted(index)
+                          ).length
+                        }
+                        /{workoutBlock.exercises.length}
                       </span>
                     </div>
                   </>
                 )}
-                {workoutType === 'simple' && (
+                {workoutType === "simple" && (
                   <>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-logoGray">Total Exercises:</span>
-                      <span className="text-customWhite font-semibold">{workoutBlock.exercises.length}</span>
+                      <span className="text-customWhite font-semibold">
+                        {workoutBlock.exercises.length}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center text-sm mt-1">
                       <span className="text-logoGray">Completed:</span>
                       <span className="text-limeGreen font-semibold">
-                        {workoutBlock.exercises.filter((_, index) => isExerciseCompleted(index)).length}
+                        {
+                          workoutBlock.exercises.filter((_, index) =>
+                            isExerciseCompleted(index)
+                          ).length
+                        }
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-sm mt-1">
                       <span className="text-logoGray">Remaining:</span>
                       <span className="text-brightYellow font-semibold">
-                        {workoutBlock.exercises.length - workoutBlock.exercises.filter((_, index) => isExerciseCompleted(index)).length}
+                        {workoutBlock.exercises.length -
+                          workoutBlock.exercises.filter((_, index) =>
+                            isExerciseCompleted(index)
+                          ).length}
                       </span>
                     </div>
                   </>
                 )}
               </div>
             </div>
-
-
 
             {/* Video */}
             <div className="pt-4">
@@ -639,7 +753,7 @@ const ForTimeWorkout = ({
                     exercise={workoutBlock.exercises[selectedExerciseIndex]}
                     isActive={true}
                     shouldAutoStart={false}
-                    showModified={showModified}
+                    showModified={showModified[selectedExerciseIndex] || false}
                   />
                 </div>
               </div>
@@ -650,22 +764,30 @@ const ForTimeWorkout = ({
               {workoutBlock.exercises[selectedExerciseIndex] && (
                 <>
                   {(workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                    workoutBlock.exercises[selectedExerciseIndex]?.exercise?.tips) && (
+                    workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                      ?.tips) && (
                     <div className="bg-gray-600 rounded-lg p-3">
                       <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                         <span className="text-limeGreen font-bold">Tips:</span>{" "}
                         {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                          workoutBlock.exercises[selectedExerciseIndex]?.exercise?.tips}
+                          workoutBlock.exercises[selectedExerciseIndex]
+                            ?.exercise?.tips}
                       </p>
                     </div>
                   )}
-                  {(workoutBlock.exercises[selectedExerciseIndex]?.instructions ||
-                    workoutBlock.exercises[selectedExerciseIndex]?.exercise?.instructions) && (
+                  {(workoutBlock.exercises[selectedExerciseIndex]
+                    ?.instructions ||
+                    workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                      ?.instructions) && (
                     <div className="bg-gray-600 rounded-lg p-3">
                       <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                        <span className="text-limeGreen font-bold">Instructions:</span>{" "}
-                        {workoutBlock.exercises[selectedExerciseIndex]?.instructions ||
-                          workoutBlock.exercises[selectedExerciseIndex]?.exercise?.instructions}
+                        <span className="text-limeGreen font-bold">
+                          Instructions:
+                        </span>{" "}
+                        {workoutBlock.exercises[selectedExerciseIndex]
+                          ?.instructions ||
+                          workoutBlock.exercises[selectedExerciseIndex]
+                            ?.exercise?.instructions}
                       </p>
                     </div>
                   )}
@@ -698,7 +820,7 @@ ForTimeWorkout.propTypes = {
             PropTypes.shape({
               name: PropTypes.string,
               videoId: PropTypes.string,
-            })
+            }),
           ]),
         }).isRequired,
         tips: PropTypes.string,
@@ -712,6 +834,7 @@ ForTimeWorkout.propTypes = {
   onGoBack: PropTypes.func.isRequired,
   canGoBack: PropTypes.bool.isRequired,
   shouldAutoStart: PropTypes.bool,
+  isAdmin: PropTypes.bool,
 };
 
 export default ForTimeWorkout;

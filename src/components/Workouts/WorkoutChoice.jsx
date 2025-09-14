@@ -12,7 +12,6 @@ const WorkoutChoice = ({
     (block) => block.blockType === "Mobility"
   );
 
-  // Group non-mobility blocks into separate workouts
   const getWorkoutSessions = () => {
     const sessions = [];
     let currentSession = [];
@@ -22,9 +21,7 @@ const WorkoutChoice = ({
       (block) => block.blockType !== "Mobility"
     );
 
-    // If there are multiple non-mobility blocks, we need to determine how to group them
     if (nonMobilityBlocks.length <= 1) {
-      // Single workout or no workouts
       if (nonMobilityBlocks.length === 1) {
         const blockIndex = workoutData.workoutBlocks.findIndex(
           (b) => b === nonMobilityBlocks[0]
@@ -39,36 +36,28 @@ const WorkoutChoice = ({
       return sessions;
     }
 
-    // Multiple blocks - use improved detection logic
     workoutData.workoutBlocks.forEach((block, index) => {
       if (block.blockType === "Mobility") {
         return;
       }
 
-      // Improved session detection logic
       let isNewSession = false;
 
       if (currentSession.length === 0) {
-        // First block always starts a session
         isNewSession = false;
       } else {
         const lastBlock = currentSession[currentSession.length - 1];
 
-        // Check various indicators for a new session
         isNewSession =
-          // Explicit session break marker
           block.sessionBreak ||
-          // Block notes contain workout indicators
           (block.blockNotes &&
             (block.blockNotes.toLowerCase().includes("workout") ||
               block.blockNotes.toLowerCase().includes("circuit") ||
               block.blockNotes.toLowerCase().includes("finisher"))) ||
-          // Start new session when block types change (except consecutive Tabata blocks)
           (block.blockType !== lastBlock.blockType &&
             !(
               block.blockType === "Tabata" && lastBlock.blockType === "Tabata"
             )) ||
-          // Multiple non-Tabata special blocks are separate sessions
           (block.blockType !== "Tabata" &&
             lastBlock.blockType !== "Tabata" &&
             ["AMRAP", "EMOM", "For Time", "Circuit"].includes(
@@ -77,7 +66,6 @@ const WorkoutChoice = ({
             ["AMRAP", "EMOM", "For Time", "Circuit"].includes(
               lastBlock.blockType
             )) ||
-          // If we have more than 2 blocks total, split them
           (nonMobilityBlocks.length > 2 &&
             currentSession.length >= Math.ceil(nonMobilityBlocks.length / 2));
       }
@@ -96,7 +84,6 @@ const WorkoutChoice = ({
       currentSession.push({ ...block, originalIndex: index });
     });
 
-    // Add the last session if it has blocks
     if (currentSession.length > 0) {
       sessions.push({
         id: sessionIndex,
@@ -110,10 +97,8 @@ const WorkoutChoice = ({
   };
 
   const getSessionName = (blocks, index) => {
-    // Try to determine session name from block notes or types
     const firstBlock = blocks[0];
 
-    // Check for finisher
     if (
       firstBlock.blockNotes &&
       firstBlock.blockNotes.toLowerCase().includes("finisher")
@@ -121,7 +106,6 @@ const WorkoutChoice = ({
       return "Finisher";
     }
 
-    // Check for specific workout names in notes
     if (firstBlock.blockNotes) {
       const notes = firstBlock.blockNotes.toLowerCase();
       if (notes.includes("strength")) return "Strength";
@@ -130,7 +114,6 @@ const WorkoutChoice = ({
       if (notes.includes("circuit")) return "Circuit";
     }
 
-    // Default naming
     return `Workout ${index + 1}`;
   };
 
@@ -142,7 +125,6 @@ const WorkoutChoice = ({
     if (name.includes("conditioning")) return "⚡";
     if (name.includes("circuit")) return "🔄";
 
-    // Default based on block types
     const hasAMRAP = blocks.some((b) => b.blockType === "AMRAP");
     const hasEMOM = blocks.some((b) => b.blockType === "EMOM");
     const hasTabata = blocks.some((b) => b.blockType === "Tabata");
@@ -174,20 +156,18 @@ const WorkoutChoice = ({
   const workoutSessions = getWorkoutSessions();
 
   // Debug logging
-  console.log("WorkoutChoice Debug:", {
-    title: workoutData.title,
-    totalBlocks: workoutData.workoutBlocks?.length,
-    blockTypes: workoutData.workoutBlocks?.map((b) => b.blockType),
-    detectedSessions: workoutSessions.length,
-    sessions: workoutSessions,
-  });
+  // console.log("WorkoutChoice Debug:", {
+  //   title: workoutData.title,
+  //   totalBlocks: workoutData.workoutBlocks?.length,
+  //   blockTypes: workoutData.workoutBlocks?.map((b) => b.blockType),
+  //   detectedSessions: workoutSessions.length,
+  //   sessions: workoutSessions,
+  // });
 
-  // Force multi-workout detection for known multi-workout days
   const forceMultiWorkout = () => {
     const title = workoutData.title?.toLowerCase() || "";
     const description = workoutData.description?.toLowerCase() || "";
 
-    // Check for specific day patterns that should be multi-workout
     const hasMultipleCircuits =
       title.includes("circuit") &&
       workoutData.workoutBlocks.filter((b) => b.blockType !== "Mobility")
@@ -197,7 +177,6 @@ const WorkoutChoice = ({
       workoutData.workoutBlocks.some((b) =>
         b.blockNotes?.toLowerCase().includes("finisher")
       );
-    // Count different types of special blocks, but treat multiple Tabata as one
     const specialBlockTypes = [
       ...new Set(
         workoutData.workoutBlocks
@@ -225,7 +204,6 @@ const WorkoutChoice = ({
   const isMultiWorkoutDay =
     workoutSessions.length > 1 || hasMobilityBlock || shouldForceMulti;
 
-  // If we should force multi-workout but only detected one session, split it
   if (
     shouldForceMulti &&
     workoutSessions.length === 1 &&
@@ -249,7 +227,6 @@ const WorkoutChoice = ({
       },
     ];
 
-    // Replace the single session with multiple sessions
     workoutSessions.length = 0;
     workoutSessions.push(...newSessions);
   }
@@ -292,10 +269,10 @@ const WorkoutChoice = ({
             <>
               <h2 className="text-xl font-bold text-customWhite mb-6">
                 {workoutSessions.length === 0
-                  ? "Today's Mobility - Complete to Finish the Day"
+                  ? "Today's Mobility - Complete to finish the day"
                   : hasMobilityBlock && workoutSessions.length === 1
-                  ? "Mobility Day - Choose Your Training"
-                  : "Today's Workouts - Complete All to Finish the Day"}
+                  ? "Mobility Day - Choose your training"
+                  : "Today's Workouts - Complete all to finish the day"}
               </h2>
 
               <div
@@ -482,7 +459,7 @@ const WorkoutChoice = ({
                     <p className="text-logoGray text-sm mb-4 flex-grow">
                       {hasMobilityBlock ? (
                         <>
-                          Challenge yourself with today's optional workout.
+                          Challenge yourself with today&apos;s optional workout.
                           <span className="text-brightYellow font-semibold">
                             {" "}
                             Optional - not required for day completion.

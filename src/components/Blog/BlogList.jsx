@@ -31,16 +31,17 @@ const BlogList = ({
     navigate(`/blog/${post.ID}`);
   };
 
-  const featuredPosts = filteredBlogPosts 
-    .filter((post) => post.isFeatured)
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 3);
+  const featuredPosts = !categoryFilter 
+    ? filteredBlogPosts 
+        .filter((post) => post.isFeatured)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 3)
+    : [];
 
   const allSortedPosts = [...filteredBlogPosts].sort( 
     (a, b) => new Date(b.date) - new Date(a.date),
   );
 
-  // Limit to 6 posts on main page, show all when category is filtered
   const gridBlogPosts = categoryFilter ? allSortedPosts : allSortedPosts.slice(0, 6);
 
   return (
@@ -57,8 +58,8 @@ const BlogList = ({
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content Area */}
           <div className="lg:col-span-3 space-y-12">
-            {/* Featured Posts Carousel */}
-            {featuredPosts.length > 0 && (
+            {/* Featured Posts Carousel - Only show on main page */}
+            {!categoryFilter && featuredPosts.length > 0 && (
               <FeaturedPostsCarousel
                 featuredPosts={featuredPosts}
                 handleReadMore={handleReadMore}
@@ -71,22 +72,9 @@ const BlogList = ({
                 {!categoryFilter && allSortedPosts.length > 6 && (
                   <button
                     onClick={() => navigate('/blog?category=all')}
-                    className="text-brightYellow hover:text-customWhite font-titillium font-semibold transition-colors duration-300 inline-flex items-center space-x-1"
+                    className="text-customGray hover:text-customGray/70 font-titillium font-semibold transition-colors duration-300"
                   >
-                    <span>View All ({allSortedPosts.length})</span>
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    View All ({allSortedPosts.length})
                   </button>
                 )}
               </div>

@@ -14,6 +14,7 @@ const AMRAPWorkout = ({
   onGoBack,
   canGoBack,
   shouldAutoStart = false,
+  isAdmin = false,
 }) => {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -25,26 +26,15 @@ const AMRAPWorkout = ({
   const [isRoundRest, setIsRoundRest] = useState(false);
   const [showModified, setShowModified] = useState({});
   const intervalRef = useRef(null);
-  const {
-    audioEnabled,
-    toggleAudio,
-    playWhistle,
-    playSound,
-    soundTypes,
-    selectedSound,
-    setSelectedSound,
-  } = useWorkoutAudio();
+  const { audioEnabled, toggleAudio, playBeep } = useWorkoutAudio();
 
-  // Extract duration from block notes or description
   const extractDuration = () => {
     const notes = workoutBlock.blockNotes || "";
-    // Try to match various time formats: "12 minutes", "15 min", "20 minutes total", "8 min work"
     let match = notes.match(/(\d+)\s*(?:minutes?|mins?)\s*(?:total|work)?/i);
     if (!match) {
-      // Try to match "2 x 8 min work" format
       match = notes.match(/\d+\s*x\s*(\d+)\s*min/i);
     }
-    return match ? parseInt(match[1]) * 60 : 720; // Default to 12 minutes if not found
+    return match ? parseInt(match[1]) * 60 : 720; 
   };
 
   const totalDuration = extractDuration();
@@ -52,11 +42,10 @@ const AMRAPWorkout = ({
   const totalAMRAPRounds = workoutBlock.blockRounds || 1;
   const hasRoundRest = workoutBlock.roundRest && workoutBlock.roundRest !== "";
 
-  // Helper to parse round rest duration
   const parseRoundRestDuration = () => {
     if (!hasRoundRest || !workoutBlock.roundRest) return 0;
     const match = workoutBlock.roundRest.match(/(\d+)/);
-    return match ? parseInt(match[1]) : 120; // Default to 2 minutes
+    return match ? parseInt(match[1]) : 120;
   };
 
   useEffect(() => {
@@ -65,36 +54,31 @@ const AMRAPWorkout = ({
     } else {
       setTime(totalDuration);
     }
-    // Only auto-start if explicitly requested and not in a choice scenario
     if (shouldAutoStart && !isRoundRest && !canGoBack) {
       setIsActive(true);
     }
   }, [totalDuration, shouldAutoStart, isRoundRest, canGoBack]);
 
-  // Timer effect
   useEffect(() => {
     if (isActive && !isPaused && time > 0) {
       intervalRef.current = setInterval(() => {
         setTime((prev) => {
-          // Play whistle sound for last 3 seconds
           if (prev <= 3 && prev > 0) {
-            playWhistle();
+            playBeep();
           }
 
           if (prev <= 1) {
             clearInterval(intervalRef.current);
             if (isRoundRest) {
-              // Finished round rest, start next AMRAP round
               setIsRoundRest(false);
               setCurrentAMRAPRound(currentAMRAPRound + 1);
-              setRoundsCompleted(0); // Reset rounds for new AMRAP session
+              setRoundsCompleted(0); 
               setTime(totalDuration);
               setIsActive(true);
             } else if (
               hasMultipleAMRAPRounds &&
               currentAMRAPRound < totalAMRAPRounds
             ) {
-              // Finished AMRAP round, start rest period
               if (hasRoundRest) {
                 setIsRoundRest(true);
                 setTime(parseRoundRestDuration());
@@ -103,10 +87,9 @@ const AMRAPWorkout = ({
                 setCurrentAMRAPRound(currentAMRAPRound + 1);
                 setRoundsCompleted(0);
                 setTime(totalDuration);
-                setIsActive(false); // Let user start next round manually
+                setIsActive(false);
               }
             } else {
-              // All AMRAP rounds complete
               setIsComplete(true);
             }
             return 0;
@@ -128,7 +111,7 @@ const AMRAPWorkout = ({
     totalAMRAPRounds,
     hasRoundRest,
     totalDuration,
-    playWhistle,
+    playBeep,
   ]);
 
   const formatTime = (seconds) => {
@@ -159,6 +142,15 @@ const AMRAPWorkout = ({
     setIsRoundRest(false);
   };
 
+  const skipToEnd = () => {
+    if (!isAdmin) return;
+
+    clearInterval(intervalRef.current);
+    setTime(0);
+    setIsActive(false);
+    setIsComplete(true);
+  };
+
   const incrementRounds = () => {
     setRoundsCompleted((prev) => prev + 1);
   };
@@ -169,8 +161,18 @@ const AMRAPWorkout = ({
 
   const handleComplete = () => {
     clearInterval(intervalRef.current);
-    setIsComplete(false); // Reset completion state
+    setIsComplete(false);
     onComplete();
+  };
+
+  const getExerciseName = (exercise, exerciseIndex) => {
+    if (!exercise?.exercise) return "";
+
+    const isModified = showModified[exerciseIndex] || false;
+    if (isModified && exercise.exercise.modification) {
+      return exercise.exercise.modification.name;
+    }
+    return exercise.exercise.name;
   };
 
   if (isComplete) {
@@ -180,9 +182,9 @@ const AMRAPWorkout = ({
           <div className="text-6xl mb-6">⏰</div>
           <DynamicHeading
             text="AMRAP Complete!"
-            className="font-higherJump text-3xl font-bold text-customWhite mb-8 leading-loose md:leading-normal"
+            className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite mb-8 leading-loose md:leading-normal"
           />
-          <p className="text-lg text-logoGray m-4">
+          <p className="text-lg text-logoGray mt-6 mb-2">
             {hasMultipleAMRAPRounds
               ? `All ${totalAMRAPRounds} AMRAP rounds complete!`
               : `Time's up! You completed ${roundsCompleted} rounds.`}
@@ -190,9 +192,9 @@ const AMRAPWorkout = ({
           <div className="space-y-4">
             <button
               onClick={handleComplete}
-              className="btn-full-colour md:mr-4"
+              className="btn-full-colour sm:mr-4"
             >
-              Continue Workout
+              Back to Program
             </button>
             <button onClick={resetTimer} className="btn-cancel mt-0 md:mt-6">
               Restart AMRAP
@@ -210,14 +212,10 @@ const AMRAPWorkout = ({
           <AudioControl
             audioEnabled={audioEnabled}
             onToggle={toggleAudio}
-            soundTypes={soundTypes}
-            selectedSound={selectedSound}
-            onSoundChange={setSelectedSound}
-            onTestSound={playSound}
             className="mt-0"
           />
           {canGoBack && (
-            <button onClick={onGoBack} className="btn-cancel mt-0">
+            <button onClick={onGoBack} className="btn-cancel mt-0 self-end">
               Back to Overview
             </button>
           )}
@@ -228,9 +226,9 @@ const AMRAPWorkout = ({
             text={title}
             className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
           />
-          <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center">
+          <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center md:items-stretch">
             {/* Description */}
-            <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
               <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
                 <span className="text-limeGreen font-bold">Description:</span>{" "}
                 {description}
@@ -238,7 +236,7 @@ const AMRAPWorkout = ({
             </div>
 
             {/* Instructions */}
-            <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
               <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                 <span className="text-limeGreen font-bold">Instructions:</span>{" "}
                 Complete all exercises in order for 1 round. Click exercises to
@@ -254,62 +252,70 @@ const AMRAPWorkout = ({
           <div className="w-full lg:w-1/3 flex flex-col space-y-4">
             <div className="flex flex-col sm:flex-row-reverse lg:flex-col gap-4">
               {/* Timer */}
-              <div className="w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg p-4 lg:p-6 text-center">
-                <div
-                  className={`text-4xl sm:text-5xl lg:text-6xl mb-2 lg:mb-4 ${
-                    isRoundRest ? "text-hotPink" : "text-limeGreen"
-                  }`}
-                >
-                  {formatTime(time)}
+              <div className="w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg p-4 lg:p-6 text-center flex flex-col justify-between min-h-[150px]">
+                <div className="flex-1 flex flex-col justify-center">
+                  <div className="text-4xl sm:text-5xl lg:text-6xl mb-2 lg:mb-4 text-limeGreen">
+                    {formatTime(time)}
+                  </div>
                 </div>
-                <div className="text-sm lg:text-base text-customWhite mb-2">
-                  {isRoundRest ? "Round Rest" : "AMRAP Timer"}
-                </div>
-                {/* Timer Controls */}
+
+                {/* Timer Controls - Positioned at bottom */}
                 <div className="flex justify-center space-x-1 lg:space-x-2">
                   {!isActive || isPaused ? (
                     <button
                       onClick={startTimer}
-                      className="btn-full-colour text-xs lg:text-sm px-2 lg:px-4 py-1 lg:py-2"
+                      className="btn-full-colour text-sm px-4 py-2 mt-0"
                     >
                       {isPaused ? "Resume" : "Start"}
                     </button>
                   ) : (
                     <button
                       onClick={pauseTimer}
-                      className="btn-subscribe text-xs lg:text-sm px-2 lg:px-4 py-1 lg:py-2"
+                      className="btn-subscribe text-sm px-4 py-2 mt-0"
                     >
                       Pause
                     </button>
                   )}
                   <button
                     onClick={resetTimer}
-                    className="btn-cancel text-xs lg:text-sm px-2 lg:px-4 py-1 lg:py-2"
+                    className="btn-cancel text-sm px-4 py-2 mt-0"
                   >
                     Reset
                   </button>
+                  {isAdmin && isActive && (
+                    <button
+                      onClick={skipToEnd}
+                      className="btn-skip text-sm px-4 py-2 mt-0"
+                    >
+                      End
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Round Counter */}
-              <div className="bg-gray-600 w-full sm:w-1/2 lg:w-full rounded-lg p-4 lg:p-6 text-center">
-                <div className="text-4xl sm:text-5xl lg:text-6xl text-brightYellow mb-2 lg:mb-4">
-                  {roundsCompleted}
+              <div className="bg-gray-600 w-full sm:w-1/2 lg:w-full rounded-lg p-4 lg:p-6 text-center flex flex-col justify-between min-h-[150px]">
+                <div className="flex-1 flex flex-col justify-center">
+                  <div className="text-4xl sm:text-5xl lg:text-6xl text-brightYellow mb-2 lg:mb-4">
+                    {roundsCompleted}
+                  </div>
+                  <div className="text-sm lg:text-base text-customWhite mb-2">
+                    Rounds Completed
+                  </div>
                 </div>
-                <div className="text-sm lg:text-base text-customWhite mb-2">
-                  Rounds Completed
-                </div>
-                <div className="flex justify-center space-x-1 lg:space-x-2">
+
+                {/* Round Counter Controls - Positioned at bottom */}
+                <div className="flex justify-center space-x-2">
                   <button
                     onClick={decrementRounds}
-                    className="btn-cancel text-xs lg:text-sm px-2 lg:px-4 py-1 lg:py-2"
+                    className="btn-cancel text-sm px-4 py-2 mt-0"
                     disabled={roundsCompleted === 0}
                   >
                     -1
                   </button>
                   <button
                     onClick={incrementRounds}
-                    className="btn-full-colour text-xs lg:text-sm px-2 lg:px-4 py-1 lg:py-2"
+                    className="btn-full-colour text-sm px-4 py-2 mt-0"
                   >
                     +1
                   </button>
@@ -352,45 +358,67 @@ const AMRAPWorkout = ({
 
           {/* Right Column: Exercise Table and Video */}
           <div className="w-full lg:w-2/3">
-            <div className="bg-gray-600 rounded-lg p-4 mb-4">
-              {/* Exercise List */}
-              <div className="space-y-2">
-                {workoutBlock.exercises.map((exercise, index) => (
-                  <div
-                    key={exercise.id || index}
-                    onClick={() => setSelectedExerciseIndex(index)}
-                    className={`cursor-pointer transition-colors rounded-lg p-3 ${
-                      selectedExerciseIndex === index
-                        ? "bg-limeGreen text-black"
-                        : "hover:bg-gray-500"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="font-semibold">
-                          {exercise.exercise.name}
-                        </div>
-                        {exercise.tips && (
-                          <div className="text-xs mt-1 opacity-75">
-                            {exercise.tips}
-                          </div>
-                        )}
-                        {/* Show modification toggle on mobile */}
+            <div className="flex-1 space-y-2 overflow-y-auto mb-4">
+              {workoutBlock.exercises.map((exercise, index) => (
+                <div
+                  key={exercise.id || index}
+                  onClick={() => setSelectedExerciseIndex(index)}
+                  className={`p-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                    index === selectedExerciseIndex
+                      ? "bg-gray-700 text-black"
+                      : "text-logoGray hover:bg-gray-700"
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row justify-center sm:justify-between font-bold gap-2">
+                    {/* Exercise name with tips and modified label */}
+                    <div className="flex flex-col items-center md:items-start">
+                      <div className="flex items-center">
+                        <span className="text-customWhite text-left">
+                          {getExerciseName(exercise, index)}
+                        </span>
+                        {/* Modified version label */}
                         {exercise.exercise.modification && (
-                          <div className="sm:hidden mt-2 flex space-x-1">
+                          <span
+                            className={`text-xs align-center ml-1 text-brightYellow`}
+                          >
+                            *
+                          </span>
+                        )}
+                      </div>
+                      {/* Exercise tips for rep breakdown */}
+                      {exercise.tips && (
+                        <div className="text-xs text-logoGray italic mt-1">
+                          {exercise.tips}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Pills container - all in one line for mobile, separate for desktop */}
+                    <div className="flex flex-wrap gap-2 items-center justify-center md:justify-start mt-2 md:mt-0">
+                      {/* Mobile: All pills in one line */}
+                      <div className="sm:hidden flex items-center space-x-1">
+                        {/* Modification toggle for mobile */}
+                        {exercise.exercise.modification && (
+                          <>
                             {(() => {
-                              const { standardText, modifiedText } = getToggleButtonText(exercise);
+                              const { standardText, modifiedText } =
+                                getToggleButtonText(exercise);
                               return (
                                 <>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setShowModified(prev => ({ ...prev, [index]: false }));
+                                      setShowModified((prev) => ({
+                                        ...prev,
+                                        [index]: false,
+                                      }));
                                     }}
-                                    className={`text-xs px-2 py-1 rounded ${
-                                      !showModified[index]
-                                        ? "bg-black text-limeGreen"
-                                        : "bg-gray-400 text-black"
+                                    className={`text-xs px-2 py-1 rounded border ${
+                                      selectedExerciseIndex === index
+                                        ? !showModified[index]
+                                          ? "border-limeGreen bg-limeGreen text-black"
+                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                        : "border-gray-500"
                                     }`}
                                   >
                                     {standardText}
@@ -398,12 +426,80 @@ const AMRAPWorkout = ({
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setShowModified(prev => ({ ...prev, [index]: true }));
+                                      setShowModified((prev) => ({
+                                        ...prev,
+                                        [index]: true,
+                                      }));
                                     }}
-                                    className={`text-xs px-2 py-1 rounded ${
-                                      showModified[index]
-                                        ? "bg-black text-limeGreen"
-                                        : "bg-gray-400 text-black"
+                                    className={`text-xs px-2 py-1 rounded border ${
+                                      selectedExerciseIndex === index
+                                        ? showModified[index]
+                                          ? "border-limeGreen bg-limeGreen text-black"
+                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                        : "border-gray-500"
+                                    }`}
+                                  >
+                                    {modifiedText}
+                                  </button>
+                                </>
+                              );
+                            })()}
+                          </>
+                        )}
+
+                        {/* Reps badge for mobile */}
+                        <div
+                          className={`px-2 py-1 rounded text-xs border ${
+                            index === selectedExerciseIndex
+                              ? "bg-brightYellow text-black border-black"
+                              : "bg-brightYellow text-black border-black"
+                          }`}
+                        >
+                          Reps: {exercise.reps}
+                        </div>
+                      </div>
+
+                      {/* Desktop: Separate modification toggle and reps badge */}
+                      <div className="hidden sm:flex items-center space-x-1">
+                        {exercise.exercise.modification && (
+                          <div className="flex space-x-2">
+                            {(() => {
+                              const { standardText, modifiedText } =
+                                getToggleButtonText(exercise);
+                              return (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setShowModified((prev) => ({
+                                        ...prev,
+                                        [index]: false,
+                                      }));
+                                    }}
+                                    className={`text-sm px-2 py-1 rounded-lg border ${
+                                      selectedExerciseIndex === index
+                                        ? !showModified[index]
+                                          ? "border-limeGreen bg-limeGreen text-black"
+                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                        : "border-gray-500"
+                                    }`}
+                                  >
+                                    {standardText}
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setShowModified((prev) => ({
+                                        ...prev,
+                                        [index]: true,
+                                      }));
+                                    }}
+                                    className={`px-2 py-1 rounded-lg text-sm border ${
+                                      selectedExerciseIndex === index
+                                        ? showModified[index]
+                                          ? "border-limeGreen bg-limeGreen text-black"
+                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                        : "border-gray-500"
                                     }`}
                                   >
                                     {modifiedText}
@@ -414,67 +510,26 @@ const AMRAPWorkout = ({
                           </div>
                         )}
                       </div>
-                      
-                      {/* Desktop modification toggle */}
-                      <div className="hidden sm:flex items-center space-x-2">
-                        {exercise.exercise.modification ? (
-                          <div className="flex space-x-1">
-                            {(() => {
-                              const { standardText, modifiedText } = getToggleButtonText(exercise);
-                              return (
-                                <>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setShowModified(prev => ({ ...prev, [index]: false }));
-                                    }}
-                                    className={`text-xs px-2 py-1 rounded ${
-                                      !showModified[index]
-                                        ? selectedExerciseIndex === index
-                                          ? "bg-black text-limeGreen"
-                                          : "bg-limeGreen text-black"
-                                        : "bg-gray-400 text-black"
-                                    }`}
-                                  >
-                                    {standardText}
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setShowModified(prev => ({ ...prev, [index]: true }));
-                                    }}
-                                    className={`text-xs px-2 py-1 rounded ${
-                                      showModified[index]
-                                        ? selectedExerciseIndex === index
-                                          ? "bg-black text-limeGreen"
-                                          : "bg-limeGreen text-black"
-                                        : "bg-gray-400 text-black"
-                                    }`}
-                                  >
-                                    {modifiedText}
-                                  </button>
-                                </>
-                              );
-                            })()}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-gray-400">-</span>
-                        )}
-                      </div>
-                      
-                      {/* Reps */}
-                      <div className="font-bold text-right ml-4">
-                        {exercise.reps}
+
+                      {/* Reps badge for desktop */}
+                      <div
+                        className={`hidden sm:block px-2 py-1 rounded-lg text-sm border ${
+                          index === selectedExerciseIndex
+                            ? "bg-brightYellow text-black border-black"
+                            : "bg-brightYellow text-black border-black"
+                        }`}
+                      >
+                        Reps: {exercise.reps}
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
 
             {/* Video */}
             <div className="pt-4">
-              <div className="relative w-full pb-[56.25%] sm:pb-[45%] lg:pb-[40%] overflow-hidden rounded-lg">
+              <div className="relative w-full pb-[100%] md:pb-[60%] lg:pb-[80%] overflow-hidden rounded-lg">
                 <div className="absolute top-0 left-0 w-full h-full">
                   <ExerciseVideo
                     exercise={workoutBlock.exercises[selectedExerciseIndex]}
@@ -555,6 +610,7 @@ AMRAPWorkout.propTypes = {
   onGoBack: PropTypes.func.isRequired,
   canGoBack: PropTypes.bool.isRequired,
   shouldAutoStart: PropTypes.bool,
+  isAdmin: PropTypes.bool,
 };
 
 export default AMRAPWorkout;

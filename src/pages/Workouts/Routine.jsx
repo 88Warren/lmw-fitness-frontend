@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
 import { showToast } from "../../utils/toastUtil";
 import { BACKEND_URL } from "../../utils/config";
-import axios from "axios";
+import api from "../../utils/api";
 
 const RoutinePage = () => {
   const { loadingAuth, isLoggedIn } = useAuth();
@@ -14,7 +14,6 @@ const RoutinePage = () => {
   const [routineData, setRoutineData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Validate routine type
   const validRoutineType =
     routineType === "warmup" || routineType === "cooldown"
       ? routineType
@@ -31,7 +30,7 @@ const RoutinePage = () => {
           validRoutineType === "warmup"
             ? `${BACKEND_URL}/api/workouts/${programName}/routines/warmup`
             : `${BACKEND_URL}/api/workouts/${programName}/routines/cooldown`;
-        const response = await axios.get(endpoint);
+        const response = await api.get(endpoint);
         setRoutineData(response.data);
       } catch (error) {
         console.error("Failed to fetch routine:", error);

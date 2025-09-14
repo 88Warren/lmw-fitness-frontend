@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BACKEND_URL } from "../../utils/config";
 import useAuth from '../../hooks/useAuth';  
-import axios from 'axios';
+import api from '../../utils/api';
 import DynamicHeading from '../../components/Shared/DynamicHeading';
 
 const WorkoutAuthPage = () => {
@@ -22,19 +22,17 @@ const WorkoutAuthPage = () => {
             return;
         }
 
-        // 3. Check the ref before proceeding
         if (verificationAttempted.current) {
             return;
         }
 
-        // 4. Mark the ref as true for subsequent renders
         verificationAttempted.current = true;
 
         // console.log('Token from URL:', token);
 
             const verifyToken = async () => {
             try {
-                const response = await axios.post(`${BACKEND_URL}/api/verify-workout-token`, { token });
+                const response = await api.post(`${BACKEND_URL}/api/verify-workout-token`, { token });
                 
                 const { jwt, user } = response.data; 
 

@@ -6,14 +6,11 @@ const ExerciseVideo = ({ exercise, shouldAutoStart = false, showModified = false
 
   const getActiveExercise = () => {
     if (!exercise) return null;
-    
-    // Check if we're showing modified and there's a modification available
     if (showModified && exercise.exercise?.modification) {
       // console.log("Using modified exercise:", exercise.exercise.modification);
       return exercise.exercise.modification;
     }
     
-    // Otherwise use the base exercise
     const baseExercise = exercise.exercise || exercise;
     // console.log("Using base exercise:", baseExercise);
     return baseExercise;
@@ -29,7 +26,6 @@ const ExerciseVideo = ({ exercise, shouldAutoStart = false, showModified = false
     if (!id) return null;
     
     if (id.length === 11) {
-      // For mobility videos, always autoplay. For regular exercises, use shouldAutoStart
       const autoplayParam = (isMobility || shouldAutoStart) ? 'autoplay=1' : 'autoplay=0';
       return `https://www.youtube.com/embed/${id}?${autoplayParam}&modestbranding=1&rel=0&controls=1`;
     }
@@ -39,10 +35,10 @@ const ExerciseVideo = ({ exercise, shouldAutoStart = false, showModified = false
   const videoUrl = getVideoUrl(videoId);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full mt-2 md:mt-0">
       {/* Video Display */}
       <div className={`flex-1 relative rounded-lg border-0 overflow-hidden mb-4 ${
-        isMobility ? 'min-h-[70vh]' : 'min-h-[60vh]'
+        isMobility ? 'min-h-[70vh]' : 'min-h-[50vh]'
       }`}>
         {videoUrl ? (
           <iframe

@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { BACKEND_URL } from "../utils/config";
-import axios from "axios";
+import api from "../utils/api";
 import { showToast } from "../utils/toastUtil";
 import LoadingAndErrorDisplay from "../components/Shared/Errors/LoadingAndErrorDisplay";
 import PropTypes from "prop-types";
@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = useCallback(async (authToken) => {
     try {
       // console.log("AuthContext: Fetching fresh user profile from backend");
-      const response = await axios.get(`${BACKEND_URL}/api/profile`, {
+      const response = await api.get(`${BACKEND_URL}/api/profile`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setIsLoggedIn(true);
     setIsAdmin(userData.role === "admin");
-    axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+    api.setAuthToken(newToken);
   }, []);
 
   const clearAuthData = useCallback(() => {
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsLoggedIn(false);
     setIsAdmin(false);
-    delete axios.defaults.headers.common["Authorization"];
+    api.removeAuthToken();
   }, []);
 
   useEffect(() => {
@@ -96,9 +96,7 @@ export const AuthProvider = ({ children }) => {
           setToken(storedToken);
           setIsLoggedIn(true);
           setIsAdmin(userData.role === "admin");
-          axios.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${storedToken}`;
+          api.setAuthToken(storedToken);
 
           try {
             const freshUserData = await fetchUserProfile(storedToken);
@@ -145,7 +143,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       // console.log("AuthContext: Attempting login for:", email);
-      const response = await axios.post(`${BACKEND_URL}/api/login`, {
+      const response = await api.post(`${BACKEND_URL}/api/login`, {
         email,
         password,
       });
@@ -181,7 +179,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password) => {
     try {
       // console.log("AuthContext: Attempting registration for:", email);
-      const response = await axios.post(`${BACKEND_URL}/api/register`, {
+      const response = await api.post(`${BACKEND_URL}/api/register`, {
         email,
         password,
       });
@@ -225,7 +223,7 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: "Not authenticated." };
       }
 
-      const response = await axios.put(
+      const response = await api.put(
         `${BACKEND_URL}/api/change-password-first-login`,
         {
           oldPassword,

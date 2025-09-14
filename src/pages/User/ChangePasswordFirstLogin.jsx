@@ -6,7 +6,7 @@ import useAuth from '../../hooks/useAuth';
 import { showToast } from '../../utils/toastUtil';
 import { ToastContainer } from 'react-toastify';
 import { BACKEND_URL } from '../../utils/config';
-import axios from 'axios';
+import api from '../../utils/api';
 import DynamicHeading from '../../components/Shared/DynamicHeading';
 
 const ChangePasswordFirstLoginPage = () => {
@@ -87,7 +87,7 @@ const ChangePasswordFirstLoginPage = () => {
         return;
       }
 
-      const response = await axios.post(
+      const response = await api.post(
         `${BACKEND_URL}/api/set-first-time-password`,
         {
           newPassword,

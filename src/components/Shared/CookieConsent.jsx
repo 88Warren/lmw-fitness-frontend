@@ -6,10 +6,8 @@ const CookieConsent = () => {
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
-    // Check if user has already made a choice
     const cookieConsent = localStorage.getItem("cookieConsent");
     if (!cookieConsent) {
-      // Show banner after a short delay for better UX
       const timer = setTimeout(() => {
         setShowBanner(true);
       }, 1000);
@@ -68,7 +66,7 @@ const CookieConsent = () => {
               <p className="text-gray-300 text-sm leading-relaxed">
                 We use cookies to enhance your browsing experience, provide
                 personalised content and analyse our traffic. By clicking
-                "Accept All&quot;, you consent to our use of cookies.{" "}
+                &quot;Accept All&quot;, you consent to our use of cookies.{" "}
                 <a
                   href="/docs/LMW_fitness_Website_Policies.docx"
                   className="text-brightYellow hover:text-limeGreen underline transition-colors"

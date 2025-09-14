@@ -100,7 +100,8 @@ const Cart = () => {
       transition={{ duration: 0.7 }}
       className="min-h-screen pt-32 pb-16 px-6 relative bg-gradient-to-b from-customGray/30 to-white"
     >
-      <div className="max-w-3xl w-full mx-auto bg-customGray p-12 rounded-xl text-gray-700 border-brightYellow border-2 shadow-lg">
+      <div className="max-w-7xl w-full mx-auto">
+        <div className="max-w-3xl mx-auto bg-customGray p-12 rounded-xl text-gray-700 border-brightYellow border-2 shadow-lg">
         <h2 className="text-3xl md:text-4xl font-higherJump text-customWhite mb-8 text-center leading-loose">
           Shopping Cart
         </h2>
@@ -240,6 +241,7 @@ const Cart = () => {
             </>
           )
         )}
+        </div>
       </div>
     </motion.div>
   );

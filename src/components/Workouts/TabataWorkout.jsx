@@ -4,16 +4,18 @@ import ExerciseVideo from "./ExerciseVideo";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
+import { getToggleButtonText } from "../../utils/exerciseUtils";
 
 const TabataWorkout = ({
   workoutBlock,
-  allTabataBlocks = [workoutBlock], // Accept multiple blocks for full Tabata session
+  allTabataBlocks = [workoutBlock], 
   title,
   description,
   onComplete,
   onGoBack,
   canGoBack,
   shouldAutoStart = false,
+  isAdmin = false,
 }) => {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -23,37 +25,25 @@ const TabataWorkout = ({
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [isRest, setIsRest] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  const [showModified, setShowModified] = useState(false);
+  const [showModified, setShowModified] = useState({});
+  const [hasResetOnce, setHasResetOnce] = useState(false);
   const intervalRef = useRef(null);
-  const {
-    audioEnabled,
-    toggleAudio,
-    playWhistle,
-    playSound,
-    soundTypes,
-    selectedSound,
-    setSelectedSound,
-  } = useWorkoutAudio();
+  const { audioEnabled, toggleAudio, playBeep } = useWorkoutAudio();
 
-  // Extract Tabata configuration from block notes
   const extractTabataConfig = () => {
-    const currentBlock = allTabataBlocks[currentBlockIndex];
-    const notes = currentBlock.blockNotes || "";
+    const currentBlock = allTabataBlocks?.[currentBlockIndex];
+    const notes = currentBlock?.blockNotes || "";
 
-    // Default Tabata: 20s work, 10s rest, 8 sets per block
     let workTime = 20;
     let restTime = 10;
     let setsPerBlock = 8;
 
-    // Try to extract work time (e.g., "20 seconds work", "30s work")
     let match = notes.match(/(\d+)\s*(?:seconds?|secs?|s)\s+work/i);
     if (match) workTime = parseInt(match[1]);
 
-    // Try to extract rest time (e.g., "10 seconds rest", "15s rest")
     match = notes.match(/(\d+)\s*(?:seconds?|secs?|s)\s+rest/i);
     if (match) restTime = parseInt(match[1]);
 
-    // Try to extract sets per block (e.g., "8 sets", "6 rounds")
     match = notes.match(/(\d+)\s+(?:sets?|rounds?)/i);
     if (match) setsPerBlock = parseInt(match[1]);
 
@@ -61,14 +51,13 @@ const TabataWorkout = ({
       workTime,
       restTime,
       setsPerBlock,
-      totalBlocks: allTabataBlocks.length,
+      totalBlocks: allTabataBlocks?.length || 0,
     };
   };
 
   const { workTime, restTime, setsPerBlock, totalBlocks } =
     extractTabataConfig();
 
-  // Initialize timer based on current state
   useEffect(() => {
     if (isRest) {
       setTime(restTime);
@@ -81,14 +70,12 @@ const TabataWorkout = ({
     }
   }, [workTime, restTime, shouldAutoStart, isRest]);
 
-  // Main timer effect
   useEffect(() => {
     if (isActive && !isPaused && time > 0) {
       intervalRef.current = setInterval(() => {
         setTime((prev) => {
-          // Play whistle sound for last 3 seconds
           if (prev <= 3 && prev > 0) {
-            playWhistle();
+            playBeep();
           }
 
           if (prev <= 1) {
@@ -103,10 +90,11 @@ const TabataWorkout = ({
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
-  }, [isActive, isPaused, time, playWhistle]);
+  }, [isActive, isPaused, time, playBeep]);
 
   const handleTimerComplete = () => {
-    const currentBlock = allTabataBlocks[currentBlockIndex];
+    const currentBlock = allTabataBlocks?.[currentBlockIndex];
+    if (!currentBlock) return;
 
     console.log("Timer complete:", {
       isRest,
@@ -118,14 +106,11 @@ const TabataWorkout = ({
     });
 
     if (isRest) {
-      // Rest period complete, start next work period
       setIsRest(false);
       setTime(workTime);
 
-      // Move to next set
       if (currentSet < setsPerBlock) {
         setCurrentSet(currentSet + 1);
-        // Cycle through exercises in current block
         const nextExerciseIndex =
           (currentExerciseIndex + 1) % currentBlock.exercises.length;
         console.log("Moving to next exercise:", {
@@ -134,36 +119,31 @@ const TabataWorkout = ({
         });
         setCurrentExerciseIndex(nextExerciseIndex);
       } else {
-        // Block complete, move to next block
         if (currentBlockIndex < totalBlocks - 1) {
           console.log("Starting new block:", currentBlockIndex + 1);
           setCurrentBlockIndex(currentBlockIndex + 1);
           setCurrentSet(1);
           setCurrentExerciseIndex(0);
         } else {
-          // All blocks complete
           setIsComplete(true);
           return;
         }
       }
       setIsActive(true);
     } else {
-      // Work period complete, start rest period
       if (currentSet < setsPerBlock) {
         setIsRest(true);
         setTime(restTime);
         setIsActive(true);
       } else if (currentBlockIndex < totalBlocks - 1) {
-        // End of block, longer rest before next block
         console.log(
           "Block complete, starting rest before block:",
           currentBlockIndex + 1
         );
         setIsRest(true);
-        setTime(60); // 1 minute rest between blocks
+        setTime(60);
         setIsActive(true);
       } else {
-        // Workout complete
         setIsComplete(true);
       }
     }
@@ -180,6 +160,7 @@ const TabataWorkout = ({
   const startTimer = () => {
     setIsActive(true);
     setIsPaused(false);
+    setHasResetOnce(false);
   };
 
   const pauseTimer = () => {
@@ -188,14 +169,35 @@ const TabataWorkout = ({
 
   const resetTimer = () => {
     clearInterval(intervalRef.current);
-    setTime(workTime);
-    setIsActive(false);
-    setIsPaused(false);
-    setCurrentBlockIndex(0);
-    setCurrentSet(1);
-    setCurrentExerciseIndex(0);
-    setIsRest(false);
-    setIsComplete(false);
+    
+    if (!hasResetOnce) {
+      if (isRest) {
+        setTime(restTime);
+      } else {
+        setTime(workTime);
+      }
+      setIsActive(false);
+      setIsPaused(false);
+      setHasResetOnce(true);
+    } else {
+      setTime(workTime);
+      setIsActive(false);
+      setIsPaused(false);
+      setCurrentBlockIndex(0);
+      setCurrentSet(1);
+      setCurrentExerciseIndex(0);
+      setIsRest(false);
+      setIsComplete(false);
+      setHasResetOnce(false);
+    }
+  };
+
+  const skipCurrent = () => {
+    if (!isAdmin) return;
+
+    clearInterval(intervalRef.current);
+    setTime(0);
+    handleTimerComplete();
   };
 
   const handleComplete = () => {
@@ -204,34 +206,82 @@ const TabataWorkout = ({
   };
 
   const getCurrentExercise = () => {
-    const currentBlock = allTabataBlocks[currentBlockIndex];
+    const currentBlock = allTabataBlocks?.[currentBlockIndex];
     if (!currentBlock?.exercises || currentBlock.exercises.length === 0) {
       return null;
     }
-    // Ensure currentExerciseIndex is within bounds
     const safeIndex = currentExerciseIndex % currentBlock.exercises.length;
     return currentBlock.exercises[safeIndex];
   };
 
   const currentExercise = getCurrentExercise();
 
+  const getExerciseName = (exercise, exerciseIndex) => {
+    if (!exercise?.exercise) return "";
+    
+    const isModified = showModified[exerciseIndex] || false;
+    if (isModified && exercise.exercise.modification) {
+      return exercise.exercise.modification.name;
+    }
+    return exercise.exercise.name;
+  };
+
+  const getNextExerciseInfo = () => {
+    if (!isRest) return null;
+
+    const currentBlock = allTabataBlocks?.[currentBlockIndex];
+    if (!currentBlock) return null;
+    if (currentSet < setsPerBlock) {
+      const nextExerciseIndex = (currentExerciseIndex + 1) % currentBlock.exercises.length;
+      const nextExercise = currentBlock.exercises[nextExerciseIndex];
+      
+      return {
+        type: 'single',
+        exercise: nextExercise,
+        exerciseIndex: nextExerciseIndex,
+        setNumber: currentSet + 1
+      };
+    } 
+
+    else if (currentBlockIndex < totalBlocks - 1) {
+      const nextBlock = allTabataBlocks[currentBlockIndex + 1];
+      if (nextBlock?.exercises?.length >= 2) {
+        return {
+          type: 'nextBlock',
+          exercises: [nextBlock.exercises[0], nextBlock.exercises[1]],
+          blockNumber: currentBlockIndex + 2
+        };
+      } else if (nextBlock?.exercises?.length === 1) {
+        return {
+          type: 'single',
+          exercise: nextBlock.exercises[0],
+          exerciseIndex: 0,
+          blockNumber: currentBlockIndex + 2
+        };
+      }
+    }
+
+    return null;
+  };
+
   if (isComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
         <div className="bg-customGray p-6 rounded-lg text-center max-w-2xl w-full border-brightYellow border-2">
           <div className="text-6xl mb-6">🔥</div>
-          <h2 className="font-higherJump text-3xl font-bold text-customWhite mb-4">
-            Tabata Complete!
-          </h2>
-          <p className="text-lg text-logoGray mb-4">
+          <DynamicHeading
+            className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite mb-4 leading-loose"
+            text="Tabata Complete!"
+          />
+          <p className="text-lg text-logoGray mt-6 mb-2">
             Incredible work! You completed {totalBlocks} blocks of Tabata
             training.
           </p>
           <div className="space-y-4">
-            <button onClick={handleComplete} className="btn-full-colour">
-              Continue Workout
+            <button onClick={handleComplete} className="btn-full-colour sm:mr-4">
+              Back to Program
             </button>
-            <button onClick={resetTimer} className="btn-cancel">
+            <button onClick={resetTimer} className="btn-cancel mt-0 md:mt-6">
               Restart Tabata
             </button>
           </div>
@@ -247,10 +297,6 @@ const TabataWorkout = ({
           <AudioControl
             audioEnabled={audioEnabled}
             onToggle={toggleAudio}
-            soundTypes={soundTypes}
-            selectedSound={selectedSound}
-            onSoundChange={setSelectedSound}
-            onTestSound={playSound}
             className="mt-0"
           />
           {canGoBack && (
@@ -269,9 +315,9 @@ const TabataWorkout = ({
             text={title}
             className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
           />
-          <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center">
+          <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center md:items-stretch">
             {/* Description */}
-            <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
               <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
                 <span className="text-limeGreen font-bold">Description:</span>{" "}
                 {description}
@@ -279,7 +325,7 @@ const TabataWorkout = ({
             </div>
 
             {/* Instructions */}
-            <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
               <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                 <span className="text-limeGreen font-bold">Instructions:</span>{" "}
                 {workTime}s work, {restTime}s rest. Complete {setsPerBlock} sets
@@ -290,7 +336,7 @@ const TabataWorkout = ({
         </div>
 
         {/* Round and Set Progress */}
-        <div className="mb-4">
+        <div className="">
           <h2 className="text-customWhite text-2xl font-titillium font-semibold mb-2">
             Block{" "}
             <span className="text-brightYellow">{currentBlockIndex + 1}</span>{" "}
@@ -315,13 +361,6 @@ const TabataWorkout = ({
                 >
                   {formatTime(time)}
                 </div>
-                <div
-                  className={`text-xl font-bold mb-2 lg:mb-4 ${
-                    isRest ? "text-hotPink" : "text-limeGreen"
-                  }`}
-                >
-                  {isRest ? "REST" : "WORK"}
-                </div>
                 {/* Timer Controls */}
                 <div className="flex justify-center space-x-1 lg:space-x-2">
                   {!isActive || isPaused ? (
@@ -337,133 +376,173 @@ const TabataWorkout = ({
                     </button>
                   )}
                   <button onClick={resetTimer} className="btn-cancel">
-                    Reset
+                    {hasResetOnce ? "Reset All" : (isRest ? "Reset Rest" : "Reset Work")}
                   </button>
+                  {isAdmin && isActive && (
+                    <button onClick={skipCurrent} className="btn-skip">
+                      Next
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Current Exercise - Second on mobile */}
+              {/* Current/Next Exercise - Second on mobile */}
               <div className="bg-gray-600 w-full sm:w-1/2 lg:w-full rounded-lg p-4 lg:p-6 text-center">
-                <h3 className="text-lg lg:text-xl font-bold text-customWhite mb-2">
-                  Current Exercise
-                </h3>
-                {currentExercise && (
-                  <div className="text-brightYellow text-base lg:text-lg font-bold">
-                    {currentExercise.exercise.name}
-                    {currentExercise.exercise?.modification && (
-                      <span className="text-xs text-limeGreen ml-2 block">
-                        (Modified Available)
-                      </span>
+                {isRest ? (
+                  // Show next exercise during rest
+                  <>
+                    <h3 className="text-lg lg:text-xl font-bold text-customWhite mb-2">
+                      Next Up
+                    </h3>
+                    {(() => {
+                      const nextInfo = getNextExerciseInfo();
+                      if (!nextInfo) return null;
+
+                      if (nextInfo.type === 'single') {
+                        return (
+                          <div className="text-brightYellow text-base lg:text-lg font-bold">
+                            {getExerciseName(nextInfo.exercise, nextInfo.exerciseIndex)}
+                            {nextInfo.blockNumber && (
+                              <div className="text-sm text-logoGray mt-1">
+                                Block {nextInfo.blockNumber}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      } else if (nextInfo.type === 'nextBlock') {
+                        return (
+                          <div className="text-brightYellow text-base lg:text-lg font-bold">
+                            <div>Block {nextInfo.blockNumber}</div>
+                            <div className="text-sm text-logoGray mt-1">
+                              {getExerciseName(nextInfo.exercises[0], 0)} & {getExerciseName(nextInfo.exercises[1], 1)}
+                            </div>
+                          </div>
+                        );
+                      }
+                    })()}
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-lg lg:text-xl font-bold text-customWhite mb-2">
+                      Current Exercise
+                    </h3>
+                    {currentExercise && (
+                      <div className="text-brightYellow text-base lg:text-lg font-bold">
+                        {getExerciseName(currentExercise, currentExerciseIndex)}
+                      </div>
                     )}
-                  </div>
+                  </>
                 )}
               </div>
-            </div>
-
-            {/* Exercise Details - Hidden on mobile, shown on desktop */}
-            <div className="mt-2 space-y-2 hidden lg:block">
-              {currentExercise && (
-                <>
-                  {(currentExercise?.tips ||
-                    currentExercise?.exercise?.tips) && (
-                    <div className="bg-gray-600 rounded-lg p-3">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                        <span className="text-limeGreen font-bold">Tips:</span>{" "}
-                        {currentExercise?.tips ||
-                          currentExercise?.exercise?.tips}
-                      </p>
-                    </div>
-                  )}
-                  {(currentExercise?.instructions ||
-                    currentExercise?.exercise?.instructions) && (
-                    <div className="bg-gray-600 rounded-lg p-3">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                        <span className="text-limeGreen font-bold">
-                          Instructions:
-                        </span>{" "}
-                        {currentExercise?.instructions ||
-                          currentExercise?.exercise?.instructions}
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
             </div>
           </div>
 
           {/* Right Column: Exercise List and Video */}
           <div className="w-full lg:w-2/3">
-            {/* Exercise List */}
-            <div className="bg-gray-600 rounded-lg p-4 mb-4">
-              <div className="space-y-2">
-                {allTabataBlocks[currentBlockIndex]?.exercises.map(
-                  (exercise, index) => (
-                    <div
-                      key={exercise.id || index}
-                      className={`w-full p-3 rounded-lg text-center transition-colors ${
-                        currentExerciseIndex === index
-                          ? "bg-limeGreen text-black"
-                          : "bg-gray-700 text-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-center space-x-2">
-                        <span className="font-semibold">
-                          {exercise.exercise.name}
+            {/* Exercise Table */}
+            <div className="flex-1 space-y-2 overflow-y-auto mb-4">
+              {allTabataBlocks?.[currentBlockIndex]?.exercises?.map(
+                (exercise, index) => (
+                  <div
+                    key={exercise.id || index}
+                    onClick={() => setCurrentExerciseIndex(index)}
+                    className={`p-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                      index === currentExerciseIndex
+                        ? "bg-gray-700 text-black"
+                        : "text-logoGray hover:bg-gray-700"
+                    }`}
+                  >
+                    <div className="flex flex-row justify-between font-bold gap-2">
+                      {/* Left side: exercise name */}
+                      <div className="flex flex-row items-start">
+                        <span className="text-customWhite text-left">
+                          {getExerciseName(exercise, index)}
                         </span>
-                        {exercise.exercise?.modification && (
-                          <div className="flex space-x-1">
-                            <button
-                              onClick={() => setShowModified(false)}
-                              className={`text-xs px-1 py-0.5 rounded ${
-                                !showModified
-                                  ? "bg-black text-limeGreen"
-                                  : "bg-gray-400 text-black"
-                              }`}
-                            >
-                              Std
-                            </button>
-                            <button
-                              onClick={() => setShowModified(true)}
-                              className={`text-xs px-1 py-0.5 rounded ${
-                                showModified
-                                  ? "bg-black text-limeGreen"
-                                  : "bg-gray-400 text-black"
-                              }`}
-                            >
-                              Mod
-                            </button>
+                        {/* Modified version label */}
+                        {exercise.exercise.modification && (
+                          <span
+                            className={`text-xs align-center ml-1 text-brightYellow`}
+                          >
+                            *
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Right side: standard/modified toggle for both mobile and desktop */}
+                      <div className="flex flex-wrap gap-2 items-center">
+                        {exercise.exercise.modification && (
+                          <div className="flex items-center space-x-1">
+                            {(() => {
+                              const { standardText, modifiedText } =
+                                getToggleButtonText(exercise);
+                              return (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setShowModified(prev => ({ ...prev, [index]: false }));
+                                    }}
+                                    className={`text-xs sm:text-sm px-2 py-1 rounded sm:rounded-lg border ${
+                                      currentExerciseIndex === index
+                                        ? !showModified[index]
+                                          ? "border-limeGreen bg-limeGreen text-black"
+                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                        : "border-gray-500"
+                                    }`}
+                                  >
+                                    {standardText}
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setShowModified(prev => ({ ...prev, [index]: true }));
+                                    }}
+                                    className={`text-xs sm:text-sm px-2 py-1 rounded sm:rounded-lg border ${
+                                      currentExerciseIndex === index
+                                        ? showModified[index]
+                                          ? "border-limeGreen bg-limeGreen text-black"
+                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                        : "border-gray-500"
+                                    }`}
+                                  >
+                                    {modifiedText}
+                                  </button>
+                                </>
+                              );
+                            })()}
                           </div>
                         )}
                       </div>
                     </div>
-                  )
-                )}
-              </div>
+                  </div>
+                )
+              )}
             </div>
 
             {/* Video */}
             {currentExercise && (
               <div className="pt-4">
-                <div className="relative w-full pb-[86.25%] overflow-hidden rounded-lg">
+                <div className="relative w-full pb-[70%] md:pb-[75%] overflow-hidden rounded-lg">
                   <div className="absolute top-0 left-0 w-full h-full">
                     <ExerciseVideo
                       exercise={currentExercise}
                       isActive={true}
                       shouldAutoStart={false}
-                      showModified={showModified}
+                      showModified={showModified[currentExerciseIndex] || false}
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Exercise Details - Shown on mobile below video, hidden on desktop */}
-            <div className="mt-4 space-y-2 lg:hidden">
+            {/* Exercise Details - Side by side on desktop, stacked on mobile */}
+            <div className="mt-2 flex flex-col md:flex-row gap-4 w-full">
               {currentExercise && (
                 <>
+                  {/* Show individual exercise tips */}
                   {(currentExercise?.tips ||
                     currentExercise?.exercise?.tips) && (
-                    <div className="bg-gray-600 rounded-lg p-3">
+                    <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
                       <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                         <span className="text-limeGreen font-bold">Tips:</span>{" "}
                         {currentExercise?.tips ||
@@ -471,12 +550,13 @@ const TabataWorkout = ({
                       </p>
                     </div>
                   )}
+                  {/* Show individual exercise instructions */}
                   {(currentExercise?.instructions ||
                     currentExercise?.exercise?.instructions) && (
-                    <div className="bg-gray-600 rounded-lg p-3">
+                    <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
                       <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                         <span className="text-limeGreen font-bold">
-                          Instructions:
+                          Exercise Instructions:
                         </span>{" "}
                         {currentExercise?.instructions ||
                           currentExercise?.exercise?.instructions}
@@ -523,6 +603,7 @@ TabataWorkout.propTypes = {
   onGoBack: PropTypes.func.isRequired,
   canGoBack: PropTypes.bool.isRequired,
   shouldAutoStart: PropTypes.bool,
+  isAdmin: PropTypes.bool,
 };
 
 export default TabataWorkout;
