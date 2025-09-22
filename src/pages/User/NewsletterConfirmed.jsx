@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import DynamicHeading from '../../components/Shared/DynamicHeading';
 
 const NewsletterConfirmed = () => {
   useEffect(() => {
-    console.log("Newsletter confirmation page loaded.");
+    // console.log("Newsletter confirmation page loaded.");
     window.scrollTo(0, 0); 
   }, []);
 
@@ -16,9 +17,10 @@ const NewsletterConfirmed = () => {
         transition={{ duration: 0.8 }}
         className="max-w-lg bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg text-center"
       >
-        <h2 className="text-xl sm:text-2xl md:text-4xl font-bold text-center text-customWhite mb-8 font-higherJump leading-loose tracking-widest">
-          Subscription Confir<span className="m">m</span>ed
-        </h2>
+        <DynamicHeading
+          text="Subscription Confirmed"
+          className="text-xl sm:text-2xl md:text-4xl font-bold text-center text-customWhite mb-8 font-higherJump leading-loose tracking-widest"
+        />
         <p className="text-md md:text-lg text-customWhite font-titillium mb-4 md:mb-6">
           Thank you for confirming your subscription to the LMW Fitness newsletter.
           You are all set to receive our latest tips and updates.

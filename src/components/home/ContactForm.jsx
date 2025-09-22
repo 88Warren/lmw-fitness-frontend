@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { InputField, TextAreaField } from "../../controllers/forms/formFields";
 import { showToast } from "../../utils/toastUtil";
 import { motion } from "framer-motion";
+import DynamicHeading from "../Shared/DynamicHeading";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -124,8 +125,8 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="Contact" className="min-h-screen py-20 bg-black">
-      <div className="max-w-4xl mx-auto px-4">
+    <section id="Contact" className="min-h-screen py-20 bg-logoGray">
+      <div className="max-w-7xl mx-auto px-4">
         {/* Header Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -134,10 +135,10 @@ const ContactForm = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 font-higherJump leading-loose tracking-widest text-white">
-            Get In Touch <span className="w">w</span>
-            ith <span className="m">m</span>e
-          </h2>
+          <DynamicHeading
+            text="Get in touch with me"
+            className="text-4xl md:text-5xl font-bold mb-6 font-higherJump leading-loose tracking-widest text-white"
+          />
           <p className="text-lg max-w-2xl mx-auto text-white">
             Have a question or need more info? Drop me a message
           </p>
@@ -213,7 +214,7 @@ const ContactForm = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              className="btn-full-colour w-full dark:bg-yellow-400 dark:text-white"
+              className="btn-full-colour w-full"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">

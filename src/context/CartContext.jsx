@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { showToast } from "../utils/toastUtil"; 
 import { ULTIMATE_MINDSET_PACKAGE_PRICE_ID, DISCOUNT_AMOUNT } from '../utils/config';
 import PropTypes from 'prop-types';
@@ -10,7 +10,7 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(() => {
+  const [cartItems, setCartItems] = useState(() => {
     try {
       const savedCart = localStorage.getItem('cart');
       return savedCart ? JSON.parse(savedCart) : [];
@@ -22,47 +22,45 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('cart', JSON.stringify(cart));
+      localStorage.setItem('cart', JSON.stringify(cartItems));
     } catch (error) {
       console.error("Failed to save cart to localStorage", error);
     }
-  }, [cart]);
+  }, [cartItems]);
 
-  const addItemToCart = (item) => {
-    setCart((prevCart) => {
-      const existingItemIndex = prevCart.findIndex(i => i.priceId === item.priceId);
-      if (existingItemIndex > -1) {
-        showToast("warn", `${item.name} is already in your cart.`);
-        return prevCart;
-      }
+  const addItemToCart = useCallback((item) => {
+    const existingItemIndex = cartItems.findIndex(i => i.priceId === item.priceId);
+
+    if (existingItemIndex > -1) {
+      showToast("warn", `${item.name} is already in your cart.`);
+    } else {
+      setCartItems(prevCart => [...prevCart, { ...item, quantity: 1 }]);
       showToast("success", `${item.name} added to cart!`);
-      return [...prevCart, { ...item, quantity: 1 }]; 
-    });
-  };
+    }
+  }, [cartItems]);
 
-  const removeItemFromCart = (priceId) => {
-    setCart((prevCart) => {
+  const removeItemFromCart = useCallback((priceId) => {
+    setCartItems((prevCart) => {
       const updatedCart = prevCart.filter(item => item.priceId !== priceId);
       showToast("warn", "Item removed from cart."); 
       return updatedCart;
     });
-  };
+  }, []);
 
-  const clearCart = () => {
-    setCart([]);
-    localStorage.removeItem('cart'); 
-  };
+  const clearCart = useCallback(() => {
+    setCartItems([]);
+  }, []);
 
-    const cartItemCount = cart.length; 
-    const baseTotalPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-    const hasMindsetPackage = cart.some(item => item.priceId === ULTIMATE_MINDSET_PACKAGE_PRICE_ID);
-    const hasAnotherItem = cart.length > 1; 
+    const cartItemCount = cartItems.length; 
+    const baseTotalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    const hasMindsetPackage = cartItems.some(item => item.priceId === ULTIMATE_MINDSET_PACKAGE_PRICE_ID);
+    const hasAnotherItem = cartItems.length > 1; 
 
     const isDiscountApplied = hasMindsetPackage && hasAnotherItem;
     const finalTotalPrice = isDiscountApplied ? baseTotalPrice - DISCOUNT_AMOUNT : baseTotalPrice;
 
   const value = {
-    cart,
+    cartItems,
     addItemToCart,
     removeItemFromCart,
     clearCart,

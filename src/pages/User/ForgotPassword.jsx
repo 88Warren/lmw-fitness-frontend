@@ -4,6 +4,7 @@ import { InputField } from "../../controllers/forms/formFields";
 import { BACKEND_URL } from "../../utils/config";
 import { showToast } from "../../utils/toastUtil";
 import { ToastContainer } from "react-toastify";
+import DynamicHeading from "../../components/Shared/DynamicHeading";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -49,9 +50,10 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center py-20 bg-gradient-to-b from-customGray/30 to-white">
       <div className="max-w-lg bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2">
-        <h2 className="text-3xl md:text-4xl font-bold text-customWhite mb-8 font-higherJump text-center leading-loose tracking-widest">
-          Forgot Pass<span className="w">w</span>ord
-        </h2>
+        <DynamicHeading
+          text="Forgot Password"
+          className="text-3xl md:text-4xl font-bold text-customWhite mb-8 font-higherJump text-center leading-loose tracking-widest"
+        />
         
 
         {requestSent ? (
@@ -61,12 +63,12 @@ const ForgotPassword = () => {
               <br /> 
               Please check your inbox (and spam folder).
             </p>
-            <button
+            <Link
               to="/login"
-              className="btn-full-colour w-full"
+              className="btn-full-colour w-full inline-block text-center"
             >
               Back to Login
-            </button>
+            </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">   

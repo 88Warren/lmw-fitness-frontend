@@ -24,9 +24,10 @@ const FeaturedPostsCarousel = ({ featuredPosts, handleReadMore }) => {
             key={post.ID}
             className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
               index === currentSlide
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-105"
+                ? "opacity-100 scale-100 z-10"
+                : "opacity-0 scale-105 z-0"
             }`}
+            style={{ pointerEvents: index === currentSlide ? 'auto' : 'none' }}
           >
             <img
               src={

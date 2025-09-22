@@ -5,4 +5,4 @@ export const BEGINNER_PRICE_ID = import.meta.env.VITE_BEGINNER_PRICE_ID;
 export const ADVANCED_PRICE_ID = import.meta.env.VITE_ADVANCED_PRICE_ID;
 export const TAILORED_COACHING_PRICE_ID = import.meta.env.VITE_TAILORED_COACHING_PRICE_ID; 
 export const ULTIMATE_MINDSET_PACKAGE_PRICE_ID = import.meta.env.VITE_ULTIMATE_MINDSET_PACKAGE_PRICE_ID;
-export const DISCOUNT_AMOUNT = 10; 
+export const DISCOUNT_AMOUNT = import.meta.env.VITE_DISCOUNT_AMOUNT;

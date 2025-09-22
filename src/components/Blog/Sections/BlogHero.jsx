@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import PropTypes from 'prop-types';
+import DynamicHeading from "../../Shared/DynamicHeading";
 
 const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
   const containerVariants = {
@@ -9,19 +10,6 @@ const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
       y: 0, 
       transition: { 
         duration: 0.8, 
-        ease: "easeOut" 
-      } 
-    },
-  };
-
-  const textVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { 
-        duration: 0.8, 
-        delay: 0.2, 
         ease: "easeOut" 
       } 
     },
@@ -41,26 +29,17 @@ const BlogHero = ({ isAdmin, handleCreateNewBlogClick }) => {
   };
 
   return (
-    <section className="py-8">
+    <section>
       <div className="max-w-4xl mx-auto text-center">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
         >
-          <motion.h1
-            variants={textVariants}
-            className="font-higherJump text-black/80 mb-6 text-4xl font-extrabold leading-loose tracking-wide"
-          >
-            <span className="l">L</span><span className="m">M</span><span className="w">W</span> Fitness B<span className="l">l</span>og
-          </motion.h1>
-          
-          <motion.p
-            variants={textVariants}
-            className="font-titillium text-customWhite text-m max-w-2xl mx-auto leading-relaxed"
-          >
-            Unlock your potential and &quot;Live More With&quot; for my insights on fitness, movement and wellbeing.
-          </motion.p>
+          <DynamicHeading
+            text="LMW Fitness blog"
+            className="font-higherJump text-customWhite mb-6 text-4xl font-extrabold leading-loose tracking-wide"
+          />
 
           {isAdmin && (
             <motion.div variants={buttonVariants}>

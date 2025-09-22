@@ -6,12 +6,12 @@ export function register() {
     window.addEventListener('load', () => {
       navigator.serviceWorker
         .register(`${import.meta.env.BASE_URL}service-worker.js`)
-        .then(() => {
-          console.log('ServiceWorker registration successful');
-        })
-        .catch(err => {
-          console.log('ServiceWorker registration failed: ', err);
-        });
+        // .then(() => {
+        //   console.log('ServiceWorker registration successful');
+        // })
+        // .catch(err => {
+        //   console.log('ServiceWorker registration failed: ', err);
+        // });
     });
   }
 }

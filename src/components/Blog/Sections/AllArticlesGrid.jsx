@@ -12,14 +12,6 @@ const AllArticlesGrid = ({
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-16">
-        <div className="h-px bg-gradient-to-r from-transparent to-customWhite flex-1 mr-6"></div>
-        <h2 className="text-3xl font-higherJump text-customWhite text-center tracking-wide">
-          <span className="l">L</span>atest Artic<span className="l">l</span>es
-        </h2>
-        <div className="h-px bg-gradient-to-r from-customWhite to-transparent flex-1 ml-6"></div>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
         {gridBlogPosts.map((post) => (
           <article
@@ -103,7 +95,7 @@ const AllArticlesGrid = ({
                     e.stopPropagation();
                     handleDelete(post.ID);
                   }}
-                  className="btn-delete-small"
+                  className="btn-skip-small"
                   title="Delete post"
                 >
                   <svg

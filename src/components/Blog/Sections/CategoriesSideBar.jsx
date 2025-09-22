@@ -5,6 +5,7 @@ import workoutsVideo from "../../../assets/icons/workout_reencoded.mp4";
 import mindsetVideo from "../../../assets/icons/mindset_reencoded.mp4";
 import recoveryVideo from "../../../assets/icons/recovery_reencoded.mp4";
 import motivationVideo from "../../../assets/icons/motivation_reencoded.mp4";
+import miscellaneousVideo from "../../../assets/icons/applause_reencoded.mp4";
 
 const CategoriesSidebar = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const CategoriesSidebar = () => {
     { name: "Mindset", videoSrc: mindsetVideo },
     { name: "Recovery", videoSrc: recoveryVideo },
     { name: "Motivation", videoSrc: motivationVideo },
+    { name: "Miscellaneous", videoSrc: miscellaneousVideo },
   ];
 
   const handleCategoryClick = (categoryName) => {
@@ -27,7 +29,16 @@ const CategoriesSidebar = () => {
       <h3 className="text-lg font-higherJump text-customWhite mb-4 text-center leading-loose tracking-wide">
         Exp<span className="l">l</span>ore Categories
       </h3>
-      <div className="grid grid-cols-2">
+      
+      {/* All Articles Button */}
+      <button
+        onClick={() => navigate('/blog?category=all')}
+        className="w-full mb-2 text-customWhite  hover:text-logoGray font-titillium font-semibold"
+      >
+        View All Articles
+      </button>
+      
+      <div className="grid grid-cols-2 gap-2">
         {categories.map((category, index) => (
           <button
             key={index}

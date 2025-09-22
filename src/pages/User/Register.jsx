@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { InputField } from "../../controllers/forms/formFields";
 import useAuth from "../../hooks/useAuth";
@@ -10,15 +10,26 @@ const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);   
-  const { register, isLoggedIn } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [justRegistered, setJustRegistered] = useState(false);   
+  const { register, isLoggedIn, loadingAuth, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/profile");
+    // Only redirect if user was already logged in when component mounted (not from fresh registration)
+    if (!loadingAuth && isLoggedIn && !justRegistered) {
+      // console.log("Register useEffect - User data:", user);
+      // console.log("Register useEffect - Must change password:", user?.mustChangePassword);
+      
+      if (user && user.mustChangePassword) {
+        // console.log("Register useEffect - Redirecting to change password");
+        navigate("/change-password-first-login");
+      } else {
+        // console.log("Register useEffect - Redirecting to profile");
+        navigate("/profile");
+      }
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate, loadingAuth, user, justRegistered]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,23 +57,34 @@ const RegisterPage = () => {
       return;
     }
 
+    setJustRegistered(true);
     const result = await register(email, password);
 
     if (result.success) {
+      // console.log("Registration result:", result);
+      // console.log("User data:", result.user);
+      // console.log("Must change password:", result.user?.mustChangePassword);
+      
       showToast("success", result.message);
-      setTimeout(() => {
+      
+      // Navigate immediately based on the registration result
+      if (result.user && result.user.mustChangePassword) {
+        // console.log("Redirecting to change password page");
+        navigate("/change-password-first-login");
+      } else {
+        // console.log("Redirecting to profile page");
         navigate("/profile");
-      }, 1500);
+      }
     } else {
       showToast("error", `${result.error}`);
     }
-    setIsSubmitting(false); 
+    setIsSubmitting(false);
   };
 
-  if (isLoggedIn) {
+  if (loadingAuth || isLoggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-customWhite p-4">
-        <p className="text-xl font-titillium text-customGray">Redirecting...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
+        <p className="text-xl font-titillium text-brightYellow">Redirecting...</p>
       </div>
     );
   }

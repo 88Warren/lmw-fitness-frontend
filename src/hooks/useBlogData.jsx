@@ -10,7 +10,6 @@ const useBlogData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
-  const [viewMode, setViewMode] = useState('list');
   const [newBlogData, setNewBlogData] = useState({
     title: '',
     excerpt: '',
@@ -55,7 +54,7 @@ const useBlogData = () => {
     }));
   };
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = async (e, mode) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -69,38 +68,34 @@ const useBlogData = () => {
 
     // console.log("Submitting newBlogData:", newBlogData);
 
-try {
     let response;
     let url;
     let method;
     let successMessage;
 
-    if (viewMode === 'create') {
+    if (mode === 'create') {
       url = `${BACKEND_URL}/api/blog`;
       method = 'POST';
       successMessage = 'Blog post created successfully!';
-    } else if (viewMode === 'edit' && editingPost) {
+    } else if (mode === 'edit' && editingPost) {
       url = `${BACKEND_URL}/api/blog/${editingPost.ID}`;
       method = 'PUT';
       successMessage = 'Blog post updated successfully!';
     } else {
-      throw new Error("Invalid view mode for form submission.");
+        showToast('error', 'Invalid mode or no post selected for submission.');
+        setLoading(false);
+        return;
     }
 
-    response = await fetch(url, {
+    try{
+      response = await fetch(url, {
         method: method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         credentials: 'include',
-        body: JSON.stringify({
-          title: newBlogData.title,
-          excerpt: newBlogData.excerpt,
-          fullContent: newBlogData.fullContent,
-          image: newBlogData.image,
-          isFeatured: newBlogData.isFeatured,
-        }),
+        body: JSON.stringify(newBlogData),
       });
 
       if (!response.ok) {
@@ -112,16 +107,8 @@ try {
       showToast('success', successMessage);
 
       const refreshResponse = await fetch(`${BACKEND_URL}/api/blog`);
-        if (!refreshResponse.ok) {
-          const refreshErrorData = await refreshResponse.json();
-          console.error("Failed to refresh blog posts after submission:", refreshErrorData);
-          showToast('warn', 'Blog post saved, but failed to refresh list.');
-        } else {
-          const refreshData = await refreshResponse.json();
-          setActualBlogPosts(refreshData);
-      }
-
-      setViewMode('list');
+      const refreshData = await refreshResponse.json();
+      setActualBlogPosts(refreshData);
       setNewBlogData({
         title: '',
         excerpt: '',
@@ -141,7 +128,6 @@ try {
   };
 
   const handleCreateNewBlogClick = () => {
-    setViewMode('create');
     setNewBlogData({
       title: '',
       excerpt: '',
@@ -149,11 +135,9 @@ try {
       image: '',
       isFeatured: false,
     });
-    navigate('/blog/create'); 
   };
 
   const handleEditClick = (postToEdit) => {
-    setViewMode('edit');
     setEditingPost(postToEdit);
     setNewBlogData({
       title: postToEdit.title,
@@ -162,7 +146,6 @@ try {
       image: postToEdit.image,
       isFeatured: postToEdit.isFeatured,
     });
-    navigate('/blog/edit');
   };
 
   const handleDelete = async (postIdToDelete) => {
@@ -215,7 +198,6 @@ try {
   };
 
   const handleBackToList = () => {
-    setViewMode('list'); 
     setNewBlogData({ 
       title: '',
       excerpt: '',
@@ -228,7 +210,6 @@ try {
   };
 
   return {
-    viewMode,
     editingPost,
     actualBlogPosts,
     newBlogData,

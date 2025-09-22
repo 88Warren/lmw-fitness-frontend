@@ -19,7 +19,7 @@ const BlogList = ({
 
    const categoryFilter = searchParams.get("category");
 
-  const filteredBlogPosts = categoryFilter
+  const filteredBlogPosts = categoryFilter && categoryFilter !== 'all'
     ? actualBlogPosts.filter(
         (post) =>
           post.category &&
@@ -31,16 +31,18 @@ const BlogList = ({
     navigate(`/blog/${post.ID}`);
   };
 
-  const featuredPosts = filteredBlogPosts 
-    .filter((post) => post.isFeatured)
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 3);
+  const featuredPosts = !categoryFilter 
+    ? filteredBlogPosts 
+        .filter((post) => post.isFeatured)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 3)
+    : [];
 
   const allSortedPosts = [...filteredBlogPosts].sort( 
     (a, b) => new Date(b.date) - new Date(a.date),
   );
 
-  const gridBlogPosts = allSortedPosts;
+  const gridBlogPosts = categoryFilter ? allSortedPosts : allSortedPosts.slice(0, 6);
 
   return (
     <> 
@@ -56,8 +58,8 @@ const BlogList = ({
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content Area */}
           <div className="lg:col-span-3 space-y-12">
-            {/* Featured Posts Carousel */}
-            {featuredPosts.length > 0 && (
+            {/* Featured Posts Carousel - Only show on main page */}
+            {!categoryFilter && featuredPosts.length > 0 && (
               <FeaturedPostsCarousel
                 featuredPosts={featuredPosts}
                 handleReadMore={handleReadMore}
@@ -65,12 +67,24 @@ const BlogList = ({
             )}
 
             {/* All Articles Grid */}
-            <AllArticlesGrid
-              gridBlogPosts={gridBlogPosts}
-              handleEditClick={handleEditClick}
-              handleDelete={handleDelete}
-              isAdmin={isAdmin}
-            />
+            <div>
+              <div className="flex justify-between items-center mb-8">
+                {!categoryFilter && allSortedPosts.length > 6 && (
+                  <button
+                    onClick={() => navigate('/blog?category=all')}
+                    className="text-customGray hover:text-customGray/70 font-titillium font-semibold transition-colors duration-300"
+                  >
+                    View All ({allSortedPosts.length})
+                  </button>
+                )}
+              </div>
+              <AllArticlesGrid
+                gridBlogPosts={gridBlogPosts}
+                handleEditClick={handleEditClick}
+                handleDelete={handleDelete}
+                isAdmin={isAdmin}
+              />
+            </div>
           </div>
 
           {/* Sidebar */}

@@ -1,5 +1,6 @@
 import React from "react";
 import { InputField, TextAreaField } from "../../controllers/forms/formFields";
+import DynamicHeading from "../../components/Shared/DynamicHeading";
 import PropTypes from 'prop-types';
 
 const BlogForm = ({
@@ -17,7 +18,14 @@ const categories = [
   "Mindset",
   "Recovery",
   "Motivation",
+  "Miscellaneous",
 ];
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+  const mode = isEditMode ? 'edit' : 'create';
+  handleFormSubmit(e, mode);
+};
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -26,16 +34,18 @@ const categories = [
         <div className="w-full mb-8 ">
           <h1 className="text-3xl md:text-5xl p-8 font-bold text-center text-customWhite mb-8 font-higherJump tracking-widest leading-loose">
             {isEditMode ? (
-              <>
-                Edit Artic<span className="l">l</span>e
-              </>
+                <DynamicHeading
+                  text={"Edit Article"}
+                  className="font-higherJump text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest"
+                />
             ) : (
-              <>
-                Create Ne<span className="w">w</span> Artic<span className="l">l</span>e
-              </>
+                <DynamicHeading
+                  text={"Create Article"}
+                  className="font-higherJump text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest"
+                />
             )}
           </h1>
-        <form onSubmit={handleFormSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title */}
             <InputField
               label="Article Title *"
