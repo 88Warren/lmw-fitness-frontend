@@ -10,19 +10,26 @@ const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);   
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [justRegistered, setJustRegistered] = useState(false);   
   const { register, isLoggedIn, loadingAuth, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loadingAuth && isLoggedIn) {
+    // Only redirect if user was already logged in when component mounted (not from fresh registration)
+    if (!loadingAuth && isLoggedIn && !justRegistered) {
+      // console.log("Register useEffect - User data:", user);
+      // console.log("Register useEffect - Must change password:", user?.mustChangePassword);
+      
       if (user && user.mustChangePassword) {
+        // console.log("Register useEffect - Redirecting to change password");
         navigate("/change-password-first-login");
       } else {
+        // console.log("Register useEffect - Redirecting to profile");
         navigate("/profile");
       }
     }
-  }, [isLoggedIn, navigate, loadingAuth, user]);
+  }, [isLoggedIn, navigate, loadingAuth, user, justRegistered]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,17 +57,24 @@ const RegisterPage = () => {
       return;
     }
 
+    setJustRegistered(true);
     const result = await register(email, password);
 
     if (result.success) {
+      // console.log("Registration result:", result);
+      // console.log("User data:", result.user);
+      // console.log("Must change password:", result.user?.mustChangePassword);
+      
       showToast("success", result.message);
-      setTimeout(() => {
-        if (result.user && result.user.mustChangePassword) {
-          navigate("/change-password-first-login");
-        } else {
-          navigate("/profile");
-        }
-      }, 1500);
+      
+      // Navigate immediately based on the registration result
+      if (result.user && result.user.mustChangePassword) {
+        // console.log("Redirecting to change password page");
+        navigate("/change-password-first-login");
+      } else {
+        // console.log("Redirecting to profile page");
+        navigate("/profile");
+      }
     } else {
       showToast("error", `${result.error}`);
     }

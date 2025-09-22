@@ -96,14 +96,14 @@ const TabataWorkout = ({
     const currentBlock = allTabataBlocks?.[currentBlockIndex];
     if (!currentBlock) return;
 
-    console.log("Timer complete:", {
-      isRest,
-      currentSet,
-      setsPerBlock,
-      currentBlockIndex,
-      totalBlocks,
-      currentExerciseIndex,
-    });
+    // console.log("Timer complete:", {
+    //   isRest,
+    //   currentSet,
+    //   setsPerBlock,
+    //   currentBlockIndex,
+    //   totalBlocks,
+    //   currentExerciseIndex,
+    // });
 
     if (isRest) {
       setIsRest(false);
@@ -113,14 +113,14 @@ const TabataWorkout = ({
         setCurrentSet(currentSet + 1);
         const nextExerciseIndex =
           (currentExerciseIndex + 1) % currentBlock.exercises.length;
-        console.log("Moving to next exercise:", {
-          currentExerciseIndex,
-          nextExerciseIndex,
-        });
+        // console.log("Moving to next exercise:", {
+        //   currentExerciseIndex,
+        //   nextExerciseIndex,
+        // });
         setCurrentExerciseIndex(nextExerciseIndex);
       } else {
         if (currentBlockIndex < totalBlocks - 1) {
-          console.log("Starting new block:", currentBlockIndex + 1);
+          // console.log("Starting new block:", currentBlockIndex + 1);
           setCurrentBlockIndex(currentBlockIndex + 1);
           setCurrentSet(1);
           setCurrentExerciseIndex(0);
@@ -136,10 +136,10 @@ const TabataWorkout = ({
         setTime(restTime);
         setIsActive(true);
       } else if (currentBlockIndex < totalBlocks - 1) {
-        console.log(
-          "Block complete, starting rest before block:",
-          currentBlockIndex + 1
-        );
+        // console.log(
+        //   "Block complete, starting rest before block:",
+        //   currentBlockIndex + 1
+        // );
         setIsRest(true);
         setTime(60);
         setIsActive(true);

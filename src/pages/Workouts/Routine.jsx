@@ -135,7 +135,7 @@ const RoutinePage = () => {
             <h3 className="text-brightYellow font-titillium text-lg font-semibold mb-2">
               Overview
             </h3>
-            <p className="text-customWhite leading-loose whitespace-pre-line">
+            <div className="text-customWhite leading-loose whitespace-pre-line">
               {routineData.description.split("\n").map((line, idx) =>
                 line.startsWith("-") ? (
                   <li key={idx} className="ml-6 list-disc">
@@ -147,7 +147,7 @@ const RoutinePage = () => {
                   </p>
                 )
               )}
-            </p>
+            </div>
           </div>
 
           {/* Instructions */}

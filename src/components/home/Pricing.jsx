@@ -215,7 +215,7 @@ const Pricing = () => {
           {/* Bonus Resources */}
           <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl gap-8 md:gap-14 mt-10 mx-auto justify-items-center">
             {/* Tailored Coaching Plan */}
-            <motion.div
+            {/* <motion.div
               variants={cardVariants}
               initial="hidden"
               whileInView="visible"
@@ -269,7 +269,9 @@ const Pricing = () => {
                      Add to Cart
                   </button>
                 )}
-            </motion.div>
+            </motion.div> */}
+
+            {/* Newsletter */}
             {/* <motion.div
                 variants={bonusVariants}
                 initial="hidden"
@@ -365,7 +367,7 @@ const Pricing = () => {
             </motion.div> */}
 
             {/* Standalone Package */}
-            <motion.div
+            {/* <motion.div
                   variants={bonusVariants}
                   initial="hidden"
                   whileInView="visible"
@@ -418,7 +420,7 @@ const Pricing = () => {
                       </button>
                   )}
                   </div>
-            </motion.div>
+            </motion.div> */}
           </div>
         </div>
       </section>

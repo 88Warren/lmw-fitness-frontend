@@ -73,15 +73,15 @@ const EMOMWorkout = ({
     }
   }, [shouldAutoStart]);
 
-  useEffect(() => {
-    console.log(`EMOM: Current minute changed to ${timerState.currentMinute}`);
-    console.log(`EMOM: Pattern - Every 2 min: ${isEveryTwoMinutes}`);
-    console.log(
-      `EMOM: Total exercises in block:`,
-      workoutBlock.exercises?.length
-    );
-    console.log(`EMOM: Current exercise:`, currentExercise);
-  }, [timerState.currentMinute, currentExercise, isEveryTwoMinutes]);
+  // useEffect(() => {
+  //   console.log(`EMOM: Current minute changed to ${timerState.currentMinute}`);
+  //   console.log(`EMOM: Pattern - Every 2 min: ${isEveryTwoMinutes}`);
+  //   console.log(
+  //     `EMOM: Total exercises in block:`,
+  //     workoutBlock.exercises?.length
+  //   );
+  //   console.log(`EMOM: Current exercise:`, currentExercise);
+  // }, [timerState.currentMinute, currentExercise, isEveryTwoMinutes]);
 
   useEffect(() => {
     if (timerState.isActive && !timerState.isPaused) {

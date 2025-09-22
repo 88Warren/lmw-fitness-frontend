@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import useAuth from "../../hooks/useAuth";
-import { useCart } from '../../context/CartContext'; 
+import { useCart } from "../../context/CartContext";
 
 const Navbar = () => {
   const [activeSection, setActiveSection] = useState("");
@@ -22,60 +22,68 @@ const Navbar = () => {
   const { cartItemCount } = useCart();
 
   useEffect(() => {
-    if (location.hash === "" && location.pathname !== "/") { 
+    if (location.hash === "" && location.pathname !== "/") {
       window.scrollTo(0, 0);
-    } else if (location.hash !== "") { 
+    } else if (location.hash !== "") {
       const element = document.getElementById(location.hash.substring(1));
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: "smooth" });
       }
     }
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
-      const sectionElements = Array.from(
-        document.querySelectorAll("section[id]")
-      );
-      setSections(sectionElements);
+    const sectionElements = Array.from(
+      document.querySelectorAll("section[id]")
+    );
+    setSections(sectionElements);
   }, [location.pathname]);
 
   useEffect(() => {
-  const handleScroll = () => {
-    setIsScrolled(window.scrollY > 0);
-  };
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
 
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, []);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-useEffect(() => {
-  if (location.pathname !== "/" || sections.length === 0) return;
-  const observer = new IntersectionObserver(
-    (entries) => {
-      let topMostVisible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+  useEffect(() => {
+    if (location.pathname !== "/" || sections.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let topMostVisible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort(
+            (a, b) => a.boundingClientRect.top - b.boundingClientRect.top
+          )[0];
 
-      if (topMostVisible) {
-        setActiveSection(topMostVisible.target.id);
-      }
-    },
-    { threshold: 0.4 }
-  );
-  sections.forEach((section) => observer.observe(section));
-  return () => sections.forEach((section) => observer.unobserve(section));
-}, [sections, location.pathname]);
+        if (topMostVisible) {
+          setActiveSection(topMostVisible.target.id);
+        }
+      },
+      { threshold: 0.4 }
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => sections.forEach((section) => observer.unobserve(section));
+  }, [sections, location.pathname]);
 
   const handleNavLinkClick = (e, sectionId, path) => {
-    e.preventDefault(); 
+    e.preventDefault();
 
-    const homePageSections = ['About', 'Testimonials', 'Pricing', 'Contact', 'Home'];
+    const homePageSections = [
+      "About",
+      "Testimonials",
+      "Pricing",
+      "Contact",
+      "Home",
+    ];
     const isHomePageSection = homePageSections.includes(sectionId);
 
     if (location.pathname !== "/" && isHomePageSection) {
       navigate(`/#${sectionId}`, { replace: false });
     } else if (location.pathname !== "/" && !isHomePageSection) {
-      navigate(`/${path ? path : ''}#${sectionId}`, { replace: false });
+      navigate(`/${path ? path : ""}#${sectionId}`, { replace: false });
     } else {
       const section = document.getElementById(sectionId);
       if (section) {
@@ -83,10 +91,11 @@ useEffect(() => {
         setActiveSection(sectionId);
       }
     }
-    setIsMenuOpen(false); 
+    setIsMenuOpen(false);
   };
 
-  const inactiveLinkClasses = "btn-cancel mt-0 bg-transparent text-customWhite hover:bg-brightYellow hover:text-black";
+  const inactiveLinkClasses =
+    "btn-cancel mt-0 bg-transparent text-customWhite hover:bg-brightYellow hover:text-black";
   const activeLinkClasses = "btn-full-colour mt-0";
 
   const getNavLinkClasses = (isNavLinkActive, sectionId = null) => {
@@ -97,11 +106,11 @@ useEffect(() => {
     }
 
     if (!isOnHomePage && isNavLinkActive) {
-        return activeLinkClasses;
-      }
+      return activeLinkClasses;
+    }
 
-      return inactiveLinkClasses;
-    };
+    return inactiveLinkClasses;
+  };
 
   const handleLogout = () => {
     logout();
@@ -116,44 +125,48 @@ useEffect(() => {
   return (
     <>
       {/* Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center transition-all duration-300 ${
-        isScrolled ? 'bg-customGray opacity-90 text-black' : ''
-      }`}>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 flex items-center transition-all duration-300 ${
+          isScrolled ? "bg-customGray opacity-90 text-black" : ""
+        }`}
+      >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10">
-        
-        {/* Mobile Menu */}
-        <div className="xl:hidden flex justify-between items-center w-full">
-          {/* Hamburger menu icon  */}
-          <button
-            className="xl:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-          >
-            {isMenuOpen ? (
-              <FaTimes className="text-3xl" />
-            ) : (
-              <FaBars className="text-3xl" />
-            )}
-          </button>
+          {/* Mobile Menu */}
+          <div className="xl:hidden flex justify-between items-center w-full">
+            {/* Hamburger menu icon  */}
+            <button
+              className="xl:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+            >
+              {isMenuOpen ? (
+                <FaTimes className="text-3xl" />
+              ) : (
+                <FaBars className="text-3xl" />
+              )}
+            </button>
 
-          {/* Logo */}
-          <NavLink
-            to="/"
-            onClick={() => {
-              window.scrollTo(0, 0);
-              setIsMenuOpen(false);
-            }}
-            className="flex items-center justify-center absolute left-1/2 transform -translate-x-1/2"
-          >
-            <h1 className="lmw text-lg md:text-xl">
-              <span className="l pr-1">L</span>
-              <span className="m pr-1">M</span>
-              <span className="w pr-2">W</span>
-              <span className="fitness">fitness</span>
-            </h1>
-          </NavLink>
+            {/* Logo */}
+            <NavLink
+              to="/"
+              onClick={() => {
+                window.scrollTo(0, 0);
+                setIsMenuOpen(false);
+              }}
+              className="flex items-center justify-center absolute left-1/2 transform -translate-x-1/2"
+            >
+              <h1 className="lmw text-lg md:text-xl">
+                <span className="l pr-1">L</span>
+                <span className="m pr-1">M</span>
+                <span className="w pr-2">W</span>
+                <span className="fitness">fitness</span>
+              </h1>
+            </NavLink>
 
-          {/* Cart Icon */}
-            <NavLink to="/cart" className="relative text-white hover:text-brightYellow transition-colors pl-4"> 
+            {/* Cart Icon */}
+            <NavLink
+              to="/cart"
+              className="relative text-white hover:text-brightYellow transition-colors pl-4"
+            >
               <FiShoppingCart className="h-7 w-7" aria-label="Shopping Cart" />
               {cartItemCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-hotPink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -186,49 +199,63 @@ useEffect(() => {
             <div className="flex items-center space-x-2">
               <NavLink
                 to="/"
-                className={({ isActive }) => `${getNavLinkClasses(isActive, "Home")} text-sm px-3 py-2`}
+                className={({ isActive }) =>
+                  `${getNavLinkClasses(isActive, "Home")} text-sm px-3 py-2`
+                }
                 onClick={(e) => handleNavLinkClick(e, "Home", "")}
               >
                 Home
               </NavLink>
 
               <NavLink
-                to="/#About" 
-                className={({ isActive }) => `${getNavLinkClasses(isActive, "About")} text-sm px-3 py-2`}
+                to="/#About"
+                className={({ isActive }) =>
+                  `${getNavLinkClasses(isActive, "About")} text-sm px-3 py-2`
+                }
                 onClick={(e) => handleNavLinkClick(e, "About", "")}
               >
                 About
               </NavLink>
 
               <NavLink
-                to="/#Testimonials" 
-                className={({ isActive }) => `${getNavLinkClasses(isActive, "Testimonials")} text-sm px-3 py-2`}
+                to="/#Testimonials"
+                className={({ isActive }) =>
+                  `${getNavLinkClasses(
+                    isActive,
+                    "Testimonials"
+                  )} text-sm px-3 py-2`
+                }
                 onClick={(e) => handleNavLinkClick(e, "Testimonials", "")}
               >
                 Reviews
               </NavLink>
 
               <NavLink
-                to="/#Pricing" 
-                className={({ isActive }) => `${getNavLinkClasses(isActive, "Pricing")} text-sm px-3 py-2`}
+                to="/#Pricing"
+                className={({ isActive }) =>
+                  `${getNavLinkClasses(isActive, "Pricing")} text-sm px-3 py-2`
+                }
                 onClick={(e) => handleNavLinkClick(e, "Pricing", "")}
               >
                 Packages
               </NavLink>
               <NavLink
                 to="/#Contact"
-                className={({ isActive }) => `${getNavLinkClasses(isActive, "Contact")} text-sm px-3 py-2`}
-                onClick={(e) => handleNavLinkClick(e, "Contact", "")} 
+                className={({ isActive }) =>
+                  `${getNavLinkClasses(isActive, "Contact")} text-sm px-3 py-2`
+                }
+                onClick={(e) => handleNavLinkClick(e, "Contact", "")}
               >
                 Contact
               </NavLink>
-              <NavLink 
-                to="/blog" 
-                className={({ isActive }) => `${getNavLinkClasses(isActive)} text-sm px-3 py-2`}
+              <NavLink
+                to="/blog"
+                className={({ isActive }) =>
+                  `${getNavLinkClasses(isActive)} text-sm px-3 py-2`
+                }
               >
                 Blog
               </NavLink>
-             
             </div>
 
             {/* Right: User Actions & Social */}
@@ -238,7 +265,9 @@ useEffect(() => {
                 <NavLink
                   to="/login"
                   className={({ isActive }) =>
-                    `${isActive ? activeLinkClasses : inactiveLinkClasses} text-sm px-3 py-2`
+                    `${
+                      isActive ? activeLinkClasses : inactiveLinkClasses
+                    } text-sm px-3 py-2`
                   }
                   onClick={() => setIsMenuOpen(false)}
                   aria-label="Login"
@@ -250,7 +279,9 @@ useEffect(() => {
                   <NavLink
                     to="/profile"
                     className={({ isActive }) =>
-                      `${isActive ? activeLinkClasses : inactiveLinkClasses} text-sm px-3 py-2`
+                      `${
+                        isActive ? activeLinkClasses : inactiveLinkClasses
+                      } text-sm px-3 py-2`
                     }
                     onClick={() => setIsMenuOpen(false)}
                     aria-label="Profile"
@@ -297,8 +328,14 @@ useEffect(() => {
               </div>
 
               {/* Cart Icon */}
-              <NavLink to="/cart" className="relative text-white hover:text-brightYellow transition-colors p-1 ml-2">
-                <FiShoppingCart className="h-6 w-6" aria-label="Shopping Cart" />
+              <NavLink
+                to="/cart"
+                className="relative text-white hover:text-brightYellow transition-colors p-1 ml-2"
+              >
+                <FiShoppingCart
+                  className="h-6 w-6"
+                  aria-label="Shopping Cart"
+                />
                 {cartItemCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-hotPink text-white text-xs rounded-full h-4 w-4 flex items-center justify-center text-[10px]">
                     {cartItemCount}
@@ -384,9 +421,7 @@ useEffect(() => {
               <NavLink
                 to="/login"
                 className={({ isActive }) =>
-                  isActive
-                    ? `${activeLinkClasses} w-3/4 text-center`
-                    : "w-3/4 text-center"
+                  `w-3/4 text-center ${getNavLinkClasses(isActive)}`
                 }
                 onClick={() => setIsMenuOpen(false)}
               >

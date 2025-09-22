@@ -9,7 +9,6 @@ import { getToggleButtonText } from "../../utils/exerciseUtils";
 const ForTimeWorkout = ({
   workoutBlock,
   title,
-  description,
   onComplete,
   onGoBack,
   canGoBack,
@@ -22,107 +21,70 @@ const ForTimeWorkout = ({
   const [selectedExerciseIndex, setSelectedExerciseIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [showModified, setShowModified] = useState({});
-  const [completedExercises, setCompletedExercises] = useState(new Set());
-  const [currentRound, setCurrentRound] = useState(1);
-  const [currentLadderStep, setCurrentLadderStep] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState(new Set());
   const [isResting, setIsResting] = useState(false);
   const [restTime, setRestTime] = useState(0);
   const intervalRef = useRef(null);
   const { audioEnabled, toggleAudio } = useWorkoutAudio();
-  const workoutType = getWorkoutType();
-  const totalRounds = workoutBlock.blockRounds || 1;
-  const roundRestSeconds = workoutBlock.roundRest
-    ? parseRestTime(workoutBlock.roundRest)
-    : 0;
 
-  function getWorkoutType() {
-    if (workoutBlock.blockRounds && workoutBlock.blockRounds > 1) {
-      return "multi-round";
-    }
+  const workoutSteps = generateWorkoutSteps();
 
+  function generateWorkoutSteps() {
+    const steps = [];
+
+    // Check if this is a ladder workout (has comma-separated reps)
     const hasLadderReps = workoutBlock.exercises.some(
       (exercise) => exercise.reps && exercise.reps.includes(",")
     );
 
     if (hasLadderReps) {
-      return "ladder";
+      // Ladder workout - create steps based on comma-separated reps
+      const firstExercise = workoutBlock.exercises[0];
+      const repSteps = firstExercise.reps.split(",").map((rep) => rep.trim());
+
+      repSteps.forEach((reps, stepIndex) => {
+        steps.push({
+          id: stepIndex + 1,
+          stepNumber: stepIndex + 1,
+          reps: reps,
+          exercises: workoutBlock.exercises,
+          isCompleted: false,
+        });
+      });
+    } else if (workoutBlock.blockRounds && workoutBlock.blockRounds > 1) {
+      // Multi-round workout - create steps for each round
+      for (let round = 1; round <= workoutBlock.blockRounds; round++) {
+        steps.push({
+          id: round,
+          stepNumber: round,
+          reps: null, // Use original reps from exercises
+          exercises: workoutBlock.exercises,
+          isCompleted: false,
+        });
+      }
+    } else {
+      // Simple workout - single step
+      steps.push({
+        id: 1,
+        stepNumber: 1,
+        reps: null, // Use original reps from exercises
+        exercises: workoutBlock.exercises,
+        isCompleted: false,
+      });
     }
 
-    return "simple";
-  }
-
-  function parseRestTime(restString) {
-    if (!restString) return 0;
-    const match = restString.match(/(\d+)/);
-    return match ? parseInt(match[1]) : 0;
-  }
-
-  function getLadderSteps() {
-    if (workoutType !== "ladder") return [];
-    const firstExercise = workoutBlock.exercises[0];
-    if (!firstExercise?.reps) return [];
-    return firstExercise.reps.split(",").map((rep) => rep.trim());
-  }
-
-  function getCurrentReps(exercise, stepIndex = 0) {
-    if (workoutType === "ladder") {
-      const steps = exercise.reps.split(",").map((rep) => rep.trim());
-      return steps[stepIndex] || steps[0];
-    }
-    return exercise.reps;
-  }
-
-  function getWorkoutDescription() {
-    if (workoutType === "multi-round") {
-      return `Complete ${totalRounds} rounds of all exercises as fast as possible!`;
-    } else if (workoutType === "ladder") {
-      return `Complete the ladder pattern for all exercises as fast as possible!`;
-    }
-    return `Complete all exercises with the prescribed reps as quickly as possible!`;
+    return steps;
   }
 
   function getProgressDisplay() {
-    const currentCompleted = workoutBlock.exercises.filter((_, index) =>
-      isExerciseCompleted(index)
-    ).length;
-
-    if (workoutType === "simple") {
-      return `${currentCompleted}/${workoutBlock.exercises.length}`;
-    } else if (workoutType === "multi-round") {
-      const totalExercises = workoutBlock.exercises.length * totalRounds;
-      const completedExercises =
-        (currentRound - 1) * workoutBlock.exercises.length + currentCompleted;
-      return `${completedExercises}/${totalExercises}`;
-    } else if (workoutType === "ladder") {
-      const totalSteps = getLadderSteps().length;
-      const totalExercises = workoutBlock.exercises.length * totalSteps;
-      const completedExercises =
-        currentLadderStep * workoutBlock.exercises.length + currentCompleted;
-      return `${completedExercises}/${totalExercises}`;
-    }
-    return `${currentCompleted}/${workoutBlock.exercises.length}`;
+    const completedStepsCount = completedSteps.size;
+    return `${completedStepsCount}/${workoutSteps.length}`;
   }
 
   function getProgressPercentage() {
-    const currentCompleted = workoutBlock.exercises.filter((_, index) =>
-      isExerciseCompleted(index)
-    ).length;
-
-    if (workoutType === "simple") {
-      return (currentCompleted / workoutBlock.exercises.length) * 100;
-    } else if (workoutType === "multi-round") {
-      const totalExercises = workoutBlock.exercises.length * totalRounds;
-      const completedExercises =
-        (currentRound - 1) * workoutBlock.exercises.length + currentCompleted;
-      return (completedExercises / totalExercises) * 100;
-    } else if (workoutType === "ladder") {
-      const totalSteps = getLadderSteps().length;
-      const totalExercises = workoutBlock.exercises.length * totalSteps;
-      const completedExercises =
-        currentLadderStep * workoutBlock.exercises.length + currentCompleted;
-      return (completedExercises / totalExercises) * 100;
-    }
-    return (currentCompleted / workoutBlock.exercises.length) * 100;
+    const completedStepsCount = completedSteps.size;
+    return (completedStepsCount / workoutSteps.length) * 100;
   }
 
   useEffect(() => {
@@ -138,7 +100,6 @@ const ForTimeWorkout = ({
           setRestTime((prev) => {
             if (prev <= 1) {
               setIsResting(false);
-              setCurrentRound(currentRound + 1);
               return 0;
             }
             return prev - 1;
@@ -151,7 +112,7 @@ const ForTimeWorkout = ({
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
-  }, [isActive, isPaused, isResting, currentRound]);
+  }, [isActive, isPaused, isResting]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -175,10 +136,9 @@ const ForTimeWorkout = ({
     setTime(0);
     setIsActive(false);
     setIsPaused(false);
-    setCompletedExercises(new Set());
+    setCompletedSteps(new Set());
     setIsComplete(false);
-    setCurrentRound(1);
-    setCurrentLadderStep(0);
+    setCurrentStepIndex(0);
     setIsResting(false);
     setRestTime(0);
   };
@@ -197,34 +157,47 @@ const ForTimeWorkout = ({
     setIsComplete(true);
   };
 
-  const handleFinishStep = () => {
-    if (isWorkoutComplete()) {
-      handleComplete();
-    } else if (canAdvanceToNext()) {
-      advanceToNext();
-    }
-  };
-
   const handleFinishWorkout = () => {
     clearInterval(intervalRef.current);
     onComplete();
   };
 
-  const toggleExerciseComplete = (exerciseIndex) => {
-    const newCompleted = new Set(completedExercises);
-    const key = getExerciseKey(exerciseIndex);
+  const completeStep = (stepIndex) => {
+    const newCompletedSteps = new Set(completedSteps);
+    newCompletedSteps.add(stepIndex);
+    setCompletedSteps(newCompletedSteps);
 
-    if (newCompleted.has(key)) {
-      newCompleted.delete(key);
+    // Check if workout is complete
+    if (newCompletedSteps.size === workoutSteps.length) {
+      handleComplete();
     } else {
-      newCompleted.add(key);
+      // Move to next step if available
+      if (
+        stepIndex === currentStepIndex &&
+        currentStepIndex < workoutSteps.length - 1
+      ) {
+        setCurrentStepIndex(currentStepIndex + 1);
+      }
     }
-    setCompletedExercises(newCompleted);
+  };
+
+  const uncompleteStep = (stepIndex) => {
+    const newCompletedSteps = new Set(completedSteps);
+    newCompletedSteps.delete(stepIndex);
+    setCompletedSteps(newCompletedSteps);
+
+    // If this was the last completed step, make it the current step
+    const maxCompletedStep = Math.max(...Array.from(newCompletedSteps), -1);
+    const newCurrentStep = Math.min(
+      maxCompletedStep + 1,
+      workoutSteps.length - 1
+    );
+    setCurrentStepIndex(newCurrentStep);
   };
 
   const getExerciseName = (exercise, exerciseIndex) => {
     if (!exercise?.exercise) return "";
-    
+
     const isModified = showModified[exerciseIndex] || false;
     if (isModified && exercise.exercise.modification) {
       return exercise.exercise.modification.name;
@@ -232,71 +205,13 @@ const ForTimeWorkout = ({
     return exercise.exercise.name;
   };
 
-  const getExerciseKey = (exerciseIndex) => {
-    if (workoutType === "multi-round") {
-      return `${currentRound}-${exerciseIndex}`;
-    } else if (workoutType === "ladder") {
-      return `${currentLadderStep}-${exerciseIndex}`;
+  const getStepReps = (step, exercise) => {
+    // If step has specific reps (ladder), use those
+    if (step.reps) {
+      return step.reps;
     }
-    return exerciseIndex.toString();
-  };
-
-  const isExerciseCompleted = (exerciseIndex) => {
-    const key = getExerciseKey(exerciseIndex);
-    return completedExercises.has(key);
-  };
-
-  const allCurrentExercisesCompleted = () => {
-    return workoutBlock.exercises.every((_, index) =>
-      isExerciseCompleted(index)
-    );
-  };
-
-  const canAdvanceToNext = () => {
-    if (workoutType === "simple") {
-      return allCurrentExercisesCompleted();
-    } else if (workoutType === "multi-round") {
-      return allCurrentExercisesCompleted() && currentRound < totalRounds;
-    } else if (workoutType === "ladder") {
-      const ladderSteps = getLadderSteps();
-      return (
-        allCurrentExercisesCompleted() &&
-        currentLadderStep < ladderSteps.length - 1
-      );
-    }
-    return false;
-  };
-
-  const isWorkoutComplete = () => {
-    if (workoutType === "simple") {
-      return allCurrentExercisesCompleted();
-    } else if (workoutType === "multi-round") {
-      return currentRound === totalRounds && allCurrentExercisesCompleted();
-    } else if (workoutType === "ladder") {
-      const ladderSteps = getLadderSteps();
-      return (
-        currentLadderStep === ladderSteps.length - 1 &&
-        allCurrentExercisesCompleted()
-      );
-    }
-    return false;
-  };
-
-  const advanceToNext = () => {
-    if (workoutType === "multi-round" && currentRound < totalRounds) {
-      if (roundRestSeconds > 0) {
-        setIsResting(true);
-        setRestTime(roundRestSeconds);
-        setIsActive(true);
-      } else {
-        setCurrentRound(currentRound + 1);
-      }
-    } else if (workoutType === "ladder") {
-      const ladderSteps = getLadderSteps();
-      if (currentLadderStep < ladderSteps.length - 1) {
-        setCurrentLadderStep(currentLadderStep + 1);
-      }
-    }
+    // Otherwise use exercise's original reps
+    return exercise.reps;
   };
 
   if (isComplete) {
@@ -305,7 +220,7 @@ const ForTimeWorkout = ({
         <div className="bg-customGray p-6 rounded-lg text-center max-w-2xl w-full border-brightYellow border-2">
           <div className="text-6xl mb-6">⏱️</div>
           <DynamicHeading
-            className="font-higherJump text-3xl font-bold text-customWhite mb-4"
+            className="font-higherJump text-3xl font-bold text-customWhite mb-4 leading-loose"
             text="For Time Complete!"
           />
           <p className="text-lg text-logoGray mt-6">
@@ -329,8 +244,8 @@ const ForTimeWorkout = ({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[140vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white p-6">
+      <div className="bg-customGray p-6 rounded-lg text-center max-w-6xl w-full min-h-[90vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
         <div className="flex justify-between items-center">
           <AudioControl
             audioEnabled={audioEnabled}
@@ -348,86 +263,44 @@ const ForTimeWorkout = ({
         <div className="flex flex-col mt-4 mb-4 items-center">
           <DynamicHeading
             text={title}
-            className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
+            className="font-higherJump mb-6 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
           />
 
-          {/* For Time Explanation */}
-          <div className="bg-brightYellow text-black rounded-lg p-3 mb-4 max-w-4xl">
-            <p className="text-sm font-semibold text-center">
-              🏃‍♂️ FOR TIME: {getWorkoutDescription()}
-            </p>
-          </div>
-
-          {/* Workout Progress */}
-          {(workoutType === "multi-round" || workoutType === "ladder") && (
-            <div className="bg-gray-700 rounded-lg p-3 mb-4 max-w-2xl">
-              <div className="text-center">
-                {workoutType === "multi-round" && (
-                  <p className="text-customWhite font-semibold">
-                    Round{" "}
-                    <span className="text-brightYellow">{currentRound}</span> of{" "}
-                    <span className="text-brightYellow">{totalRounds}</span>
-                    {roundRestSeconds > 0 &&
-                      ` • ${roundRestSeconds}s rest between rounds`}
-                  </p>
-                )}
-                {workoutType === "ladder" && (
-                  <p className="text-customWhite font-semibold">
-                    Step{" "}
-                    <span className="text-brightYellow">
-                      {currentLadderStep + 1}
-                    </span>{" "}
-                    of{" "}
-                    <span className="text-brightYellow">
-                      {getLadderSteps().length}
-                    </span>
-                    {` • Current reps: ${getLadderSteps()[currentLadderStep]}`}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center">
-            {/* Description */}
-            <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+          <div className="flex flex-col md:flex-row gap-0 md:gap-6 w-full items-center md:items-stretch">
+            {/* Block Notes */}
+            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 mb-3 md:mb-0 text-center">
               <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
-                <span className="text-limeGreen font-bold">Description:</span>{" "}
-                {description}
+                <span className="text-limeGreen font-bold">Notes:</span>{" "}
+                {workoutBlock.blockNotes ||
+                  "No additional notes for this workout."}
               </p>
             </div>
 
             {/* Instructions */}
-            <div className="flex items-center justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
               <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
                 <span className="text-limeGreen font-bold">Instructions:</span>{" "}
-                Complete all prescribed reps for each exercise as fast as
-                possible. Mark exercises complete when finished.
+                {workoutSteps.length === 1
+                  ? "Complete all exercises in this workout with the prescribed reps, you can do the exercises in any order and break up the reps if you need."
+                  : "Complete all exercises in each step with the prescribed reps, then mark the entire step as complete."}
               </p>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex-grow flex flex-col lg:flex-row gap-6 p-4">
-          {/* Left Column: Stopwatch and Progress */}
-          <div className="w-full lg:w-1/3 flex flex-col space-y-4">
-            <div className="flex flex-row-reverse lg:flex-col gap-4">
+        <div className="flex-grow flex flex-col lg:flex-row gap-6">
+          {/* Left Column: Stopwatch, Progress, and Video (Desktop) */}
+          <div className="w-full lg:w-1/2 flex flex-col space-y-4">
+            <div className="flex flex-col gap-4">
               {/* Timer */}
-              <div className="w-1/2 lg:w-full bg-gray-600 rounded-lg p-6 text-center">
+              <div className="w-full bg-gray-600 rounded-lg p-6 text-center">
                 <div
                   className={`text-6xl mb-4 ${
                     isResting ? "text-hotPink" : "text-limeGreen"
                   }`}
                 >
                   {isResting ? formatTime(restTime) : formatTime(time)}
-                </div>
-                <div
-                  className={`text-xl font-bold mb-4 ${
-                    isResting ? "text-hotPink" : "text-customWhite"
-                  }`}
-                >
-                  {isResting ? "REST" : "STOPWATCH"}
                 </div>
                 {/* Timer Controls */}
                 <div className="flex justify-center space-x-2">
@@ -454,62 +327,123 @@ const ForTimeWorkout = ({
                 </div>
               </div>
 
-              {/* Progress */}
-              <div className="bg-gray-600 w-1/2 lg:w-full rounded-lg p-6 text-center">
-                <h3 className="text-xl font-bold text-customWhite mb-2">
-                  Progress
-                </h3>
-                <div className="text-6xl text-brightYellow mb-4">
-                  {getProgressDisplay()}
-                </div>
-                <div className="bg-gray-500 rounded-full h-3 mb-4">
-                  <div
-                    className="h-full rounded-full transition-all duration-500 bg-limeGreen"
-                    style={{
-                      width: `${getProgressPercentage()}%`,
-                    }}
-                  ></div>
-                </div>
-                {allCurrentExercisesCompleted() && (
-                  <div className="space-y-2">
-                    {canAdvanceToNext() ? (
-                      <button
-                        onClick={handleFinishStep}
-                        className="btn-subscribe mt-3"
-                      >
-                        {workoutType === "multi-round"
-                          ? "Next Round"
-                          : "Next Step"}
-                      </button>
-                    ) : isWorkoutComplete() ? (
+              {/* Progress - Only show for multi-step workouts */}
+              {workoutSteps.length > 1 && (
+                <div className="bg-gray-600 w-full rounded-lg p-6 text-center">
+                  <h3 className="text-xl font-bold text-customWhite mb-2">
+                    Progress
+                  </h3>
+                  <div className="text-6xl text-brightYellow mb-4">
+                    {getProgressDisplay()}
+                  </div>
+                  <div className="bg-gray-500 rounded-full h-3 mb-4">
+                    <div
+                      className="h-full rounded-full transition-all duration-500 bg-limeGreen"
+                      style={{
+                        width: `${getProgressPercentage()}%`,
+                      }}
+                    ></div>
+                  </div>
+                  {completedSteps.size === workoutSteps.length && (
+                    <div className="space-y-2">
                       <button
                         onClick={handleComplete}
                         className="btn-full-colour mt-3"
                       >
                         Finish!
                       </button>
-                    ) : null}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Finish Button for Single-Step Workouts */}
+              {workoutSteps.length === 1 &&
+                completedSteps.size === workoutSteps.length && (
+                  <div className="bg-gray-600 w-full rounded-lg p-6 text-center">
+                    <div className="space-y-2">
+                      <button
+                        onClick={handleComplete}
+                        className="btn-full-colour mt-3"
+                      >
+                        Finish!
+                      </button>
+                    </div>
                   </div>
                 )}
+            </div>
+
+            {/* Exercise Modification Toggle - Desktop Only */}
+            {workoutBlock.exercises[selectedExerciseIndex]?.exercise
+              ?.modification && (
+              <div className="bg-gray-600 rounded-lg p-3 hidden lg:block">
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="text-customWhite text-sm font-medium mr-2">
+                    {getExerciseName(
+                      workoutBlock.exercises[selectedExerciseIndex],
+                      selectedExerciseIndex
+                    )}
+                    :
+                  </span>
+                  {(() => {
+                    const { standardText, modifiedText } = getToggleButtonText(
+                      workoutBlock.exercises[selectedExerciseIndex]
+                    );
+                    return (
+                      <>
+                        <button
+                          onClick={() =>
+                            setShowModified((prev) => ({
+                              ...prev,
+                              [selectedExerciseIndex]: false,
+                            }))
+                          }
+                          className={`text-sm px-3 py-1.5 rounded font-medium ${
+                            !showModified[selectedExerciseIndex]
+                              ? "bg-limeGreen text-black"
+                              : "bg-gray-400 text-black hover:bg-gray-300"
+                          }`}
+                        >
+                          {standardText}
+                        </button>
+                        <button
+                          onClick={() =>
+                            setShowModified((prev) => ({
+                              ...prev,
+                              [selectedExerciseIndex]: true,
+                            }))
+                          }
+                          className={`text-sm px-3 py-1.5 rounded font-medium ${
+                            showModified[selectedExerciseIndex]
+                              ? "bg-limeGreen text-black"
+                              : "bg-gray-400 text-black hover:bg-gray-300"
+                          }`}
+                        >
+                          {modifiedText}
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* Video - Desktop Only */}
+            <div className="relative w-full pb-[56.25%] overflow-hidden rounded-lg hidden lg:block">
+              <div className="absolute top-0 left-0 w-full h-full">
+                <ExerciseVideo
+                  exercise={workoutBlock.exercises[selectedExerciseIndex]}
+                  isActive={true}
+                  shouldAutoStart={false}
+                  showModified={showModified[selectedExerciseIndex] || false}
+                />
               </div>
             </div>
 
             {/* Exercise Details - Hidden on mobile, shown on desktop */}
-            <div className="mt-2 space-y-2 hidden lg:block">
+            <div className="space-y-2 hidden lg:block">
               {workoutBlock.exercises[selectedExerciseIndex] && (
                 <>
-                  {(workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                    workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                      ?.tips) && (
-                    <div className="bg-gray-600 rounded-lg p-3">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                        <span className="text-limeGreen font-bold">Tips:</span>{" "}
-                        {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                          workoutBlock.exercises[selectedExerciseIndex]
-                            ?.exercise?.tips}
-                      </p>
-                    </div>
-                  )}
                   {(workoutBlock.exercises[selectedExerciseIndex]
                     ?.instructions ||
                     workoutBlock.exercises[selectedExerciseIndex]?.exercise
@@ -531,231 +465,175 @@ const ForTimeWorkout = ({
             </div>
           </div>
 
-          {/* Right Column: Exercise List and Video */}
-          <div className="w-full lg:w-2/3">
-            {/* Exercise List */}
-            <div className="bg-gray-600 rounded-lg p-4 mb-4">
-              <h3 className="text-xl font-bold text-customWhite mb-3">
-                Workout Checklist
-                <span className="text-sm font-normal text-logoGray ml-2">
-                  (Complete all exercises)
-                </span>
-              </h3>
-              <div className="space-y-2">
-                {workoutBlock.exercises.map((exercise, index) => {
-                  const isCompleted = isExerciseCompleted(index);
-                  const currentReps = getCurrentReps(
-                    exercise,
-                    currentLadderStep
-                  );
+          {/* Right Column: Step List */}
+          <div className="w-full lg:w-1/2">
+            {/* Step List */}
+            <div className="">
+              <div className="space-y-3">
+                {workoutSteps.map((step, stepIndex) => {
+                  const isStepCompleted = completedSteps.has(stepIndex);
+                  const isCurrentStep = stepIndex === currentStepIndex;
 
                   return (
                     <div
-                      key={exercise.id || index}
-                      className={`w-full p-3 rounded-lg text-left transition-colors cursor-pointer border-2 ${
-                        isCompleted
+                      key={step.id}
+                      className={`w-full p-3 rounded-lg border-2 transition-all duration-300 ${
+                        isStepCompleted
                           ? "bg-limeGreen text-black border-limeGreen"
-                          : selectedExerciseIndex === index
-                          ? "bg-brightYellow text-black border-brightYellow"
-                          : "bg-gray-700 text-white hover:bg-gray-600 border-gray-500"
+                          : isCurrentStep
+                          ? "bg-transparent text-customWhite border-brightYellow shadow-xs shadow-brightYellow/30 backdrop-blur-sm"
+                          : "bg-customGray text-white border-gray-500"
                       }`}
-                      onClick={() => {
-                        setSelectedExerciseIndex(index);
-                        if (isCompleted) {
-                          toggleExerciseComplete(index);
-                        }
-                      }}
                     >
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center flex-1">
-                          <div className="flex items-center mr-3">
-                            {isCompleted ? (
-                              <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                                <span className="text-limeGreen text-sm font-bold">
-                                  ✓
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="w-6 h-6 border-2 border-gray-400 rounded-full"></div>
-                            )}
+                      {/* Collapsed view for completed steps */}
+                      {isStepCompleted ? (
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center flex-1">
+                            <span className="font-medium text-sm">
+                              Step {step.stepNumber} Complete ✓
+                            </span>
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <div className="font-semibold">
-                                {getExerciseName(exercise, index)}
-                              </div>
-                              {exercise.exercise.modification &&
-                                selectedExerciseIndex === index && (
-                                  <div className="flex space-x-1">
-                                    {(() => {
-                                      const { standardText, modifiedText } =
-                                        getToggleButtonText(exercise);
-                                      return (
-                                        <>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setShowModified(prev => ({ ...prev, [index]: false }));
-                                            }}
-                                            className={`text-xs px-2 py-1 rounded ${
-                                              !showModified[index]
-                                                ? "bg-limeGreen text-black"
-                                                : "bg-gray-400 text-black"
-                                            }`}
-                                          >
-                                            {standardText}
-                                          </button>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setShowModified(prev => ({ ...prev, [index]: true }));
-                                            }}
-                                            className={`text-xs px-2 py-1 rounded ${
-                                              showModified[index]
-                                                ? "bg-limeGreen text-black"
-                                                : "bg-gray-400 text-black"
-                                            }`}
-                                          >
-                                            {modifiedText}
-                                          </button>
-                                        </>
-                                      );
-                                    })()}
-                                  </div>
-                                )}
-                            </div>
-                            {exercise.exercise.modification &&
-                              selectedExerciseIndex !== index && (
-                                <div className="text-xs text-limeGreen">
-                                  Modified version available
-                                </div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="text-right">
-                            <div className="text-xl font-bold">
-                              {currentReps}
-                            </div>
-                            <div className="text-xs opacity-75">
-                              {workoutType === "ladder"
-                                ? "this step"
-                                : currentReps.toLowerCase().includes("rep")
-                                ? "total"
-                                : "reps"}
-                            </div>
-                          </div>
-                          {!isCompleted && (
+                          <div className="ml-3">
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleExerciseComplete(index);
-                              }}
-                              className="bg-limeGreen text-black px-3 py-1 rounded font-semibold text-sm hover:bg-green-400 transition-colors"
+                              onClick={() => uncompleteStep(stepIndex)}
+                              className="bg-gray-500 text-white px-3 py-1.5 rounded font-semibold text-sm hover:bg-gray-400 transition-colors"
                             >
-                              Complete
+                              Undo
                             </button>
-                          )}
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        /* Expanded view for incomplete steps */
+                        <div className="space-y-3">
+                          {/* Complete Button - Mobile Top, Desktop Right */}
+                          <div className="flex justify-center lg:hidden">
+                            <button
+                              onClick={() => completeStep(stepIndex)}
+                              className="bg-limeGreen text-black px-4 py-2 rounded font-semibold text-sm hover:bg-green-400 transition-colors"
+                            >
+                              {workoutSteps.length === 1
+                                ? "Complete Round"
+                                : "Complete Step"}
+                            </button>
+                          </div>
+
+                          {/* Exercise List */}
+                          <div className="space-y-1">
+                            {step.exercises.map((exercise, exerciseIndex) => (
+                              <div
+                                key={exercise.id || exerciseIndex}
+                                className={`flex items-center justify-between p-2 rounded text-md transition-colors ${
+                                  selectedExerciseIndex === exerciseIndex &&
+                                  isCurrentStep
+                                    ? "bg-brightYellow text-black cursor-pointer"
+                                    : "hover:bg-brightYellow hover:text-black cursor-pointer"
+                                }`}
+                                onClick={() => {
+                                  setSelectedExerciseIndex(exerciseIndex);
+                                }}
+                              >
+                                <div className="flex items-center space-x-2 flex-1">
+                                  <span className="font-medium">
+                                    {getExerciseName(exercise, exerciseIndex)}
+                                  </span>
+                                  {exercise.tips && (
+                                    <span className="text-xs text-logoGray italic">
+                                      ({exercise.tips})
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-right ml-2">
+                                  <div className="font-bold text-sm">
+                                    {getStepReps(step, exercise)}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Complete Button - Desktop (centered below exercises) */}
+                          <div className="flex justify-center hidden lg:flex mt-3">
+                            <button
+                              onClick={() => completeStep(stepIndex)}
+                              className="bg-limeGreen text-black px-4 py-2 rounded font-semibold text-sm hover:bg-green-400 transition-colors"
+                            >
+                              {workoutSteps.length === 1
+                                ? "Complete Round"
+                                : "Complete Step"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
-
-              {/* Workout Summary */}
-              <div className="mt-4 p-3 bg-gray-700 rounded-lg">
-                {workoutType === "multi-round" && (
-                  <>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-logoGray">Current Round:</span>
-                      <span className="text-brightYellow font-semibold">
-                        {currentRound} of {totalRounds}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm mt-1">
-                      <span className="text-logoGray">Round Progress:</span>
-                      <span className="text-limeGreen font-semibold">
-                        {
-                          workoutBlock.exercises.filter((_, index) =>
-                            isExerciseCompleted(index)
-                          ).length
-                        }
-                        /{workoutBlock.exercises.length}
-                      </span>
-                    </div>
-                  </>
-                )}
-                {workoutType === "ladder" && (
-                  <>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-logoGray">Current Step:</span>
-                      <span className="text-brightYellow font-semibold">
-                        {currentLadderStep + 1} of {getLadderSteps().length}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm mt-1">
-                      <span className="text-logoGray">Step Reps:</span>
-                      <span className="text-brightYellow font-semibold">
-                        {getLadderSteps()[currentLadderStep]}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm mt-1">
-                      <span className="text-logoGray">Step Progress:</span>
-                      <span className="text-limeGreen font-semibold">
-                        {
-                          workoutBlock.exercises.filter((_, index) =>
-                            isExerciseCompleted(index)
-                          ).length
-                        }
-                        /{workoutBlock.exercises.length}
-                      </span>
-                    </div>
-                  </>
-                )}
-                {workoutType === "simple" && (
-                  <>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-logoGray">Total Exercises:</span>
-                      <span className="text-customWhite font-semibold">
-                        {workoutBlock.exercises.length}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm mt-1">
-                      <span className="text-logoGray">Completed:</span>
-                      <span className="text-limeGreen font-semibold">
-                        {
-                          workoutBlock.exercises.filter((_, index) =>
-                            isExerciseCompleted(index)
-                          ).length
-                        }
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm mt-1">
-                      <span className="text-logoGray">Remaining:</span>
-                      <span className="text-brightYellow font-semibold">
-                        {workoutBlock.exercises.length -
-                          workoutBlock.exercises.filter((_, index) =>
-                            isExerciseCompleted(index)
-                          ).length}
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
             </div>
 
-            {/* Video */}
-            <div className="pt-4">
-              <div className="relative w-full pb-[30.25%] overflow-hidden rounded-lg">
-                <div className="absolute top-0 left-0 w-full h-full">
-                  <ExerciseVideo
-                    exercise={workoutBlock.exercises[selectedExerciseIndex]}
-                    isActive={true}
-                    shouldAutoStart={false}
-                    showModified={showModified[selectedExerciseIndex] || false}
-                  />
+            {/* Exercise Modification Toggle - Mobile */}
+            {workoutBlock.exercises[selectedExerciseIndex]?.exercise
+              ?.modification && (
+              <div className="bg-gray-600 rounded-lg p-3 mt-4 lg:hidden">
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="text-customWhite text-sm font-medium mr-2">
+                    {getExerciseName(
+                      workoutBlock.exercises[selectedExerciseIndex],
+                      selectedExerciseIndex
+                    )}
+                    :
+                  </span>
+                  {(() => {
+                    const { standardText, modifiedText } = getToggleButtonText(
+                      workoutBlock.exercises[selectedExerciseIndex]
+                    );
+                    return (
+                      <>
+                        <button
+                          onClick={() =>
+                            setShowModified((prev) => ({
+                              ...prev,
+                              [selectedExerciseIndex]: false,
+                            }))
+                          }
+                          className={`text-sm px-3 py-1.5 rounded font-medium ${
+                            !showModified[selectedExerciseIndex]
+                              ? "bg-limeGreen text-black"
+                              : "bg-gray-400 text-black hover:bg-gray-300"
+                          }`}
+                        >
+                          {standardText}
+                        </button>
+                        <button
+                          onClick={() =>
+                            setShowModified((prev) => ({
+                              ...prev,
+                              [selectedExerciseIndex]: true,
+                            }))
+                          }
+                          className={`text-sm px-3 py-1.5 rounded font-medium ${
+                            showModified[selectedExerciseIndex]
+                              ? "bg-limeGreen text-black"
+                              : "bg-gray-400 text-black hover:bg-gray-300"
+                          }`}
+                        >
+                          {modifiedText}
+                        </button>
+                      </>
+                    );
+                  })()}
                 </div>
+              </div>
+            )}
+
+            {/* Video - Mobile Only */}
+            <div className="relative w-full pb-[56.25%] overflow-hidden rounded-lg mt-4 lg:hidden">
+              <div className="absolute top-0 left-0 w-full h-full">
+                <ExerciseVideo
+                  exercise={workoutBlock.exercises[selectedExerciseIndex]}
+                  isActive={true}
+                  shouldAutoStart={false}
+                  showModified={showModified[selectedExerciseIndex] || false}
+                />
               </div>
             </div>
 
@@ -763,18 +641,6 @@ const ForTimeWorkout = ({
             <div className="mt-4 space-y-2 lg:hidden">
               {workoutBlock.exercises[selectedExerciseIndex] && (
                 <>
-                  {(workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                    workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                      ?.tips) && (
-                    <div className="bg-gray-600 rounded-lg p-3">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                        <span className="text-limeGreen font-bold">Tips:</span>{" "}
-                        {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                          workoutBlock.exercises[selectedExerciseIndex]
-                            ?.exercise?.tips}
-                      </p>
-                    </div>
-                  )}
                   {(workoutBlock.exercises[selectedExerciseIndex]
                     ?.instructions ||
                     workoutBlock.exercises[selectedExerciseIndex]?.exercise

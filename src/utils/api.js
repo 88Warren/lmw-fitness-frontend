@@ -43,7 +43,7 @@ const handleResponse = async (response) => {
   
   if (!response.ok) {
     throw new ApiError(
-      data.message || `HTTP ${response.status}: ${response.statusText}`,
+      data.error || data.message || `HTTP ${response.status}: ${response.statusText}`,
       response.status,
       data
     );
@@ -102,6 +102,19 @@ export const del = async (url, config = {}) => {
   return handleResponse(response);
 };
 
+const refreshToken = async () => {
+  if (!authToken) {
+    throw new ApiError('No auth token available for refresh', 401);
+  }
+  
+  const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'}/api/refresh-token`, {
+    method: 'POST',
+    headers: buildHeaders(),
+  });
+  
+  return handleResponse(response);
+};
+
 const api = {
   get,
   post,
@@ -109,6 +122,7 @@ const api = {
   delete: del,
   setAuthToken,
   removeAuthToken,
+  refreshToken,
 };
 
 export default api;

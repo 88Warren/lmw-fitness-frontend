@@ -63,12 +63,12 @@ const ForgotPassword = () => {
               <br /> 
               Please check your inbox (and spam folder).
             </p>
-            <button
+            <Link
               to="/login"
-              className="btn-full-colour w-full"
+              className="btn-full-colour w-full inline-block text-center"
             >
               Back to Login
-            </button>
+            </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">   

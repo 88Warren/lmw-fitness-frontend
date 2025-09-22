@@ -60,17 +60,17 @@ const WorkoutTimer = ({
   };
 
   useEffect(() => {
-    console.log("Timer initializing:", {
-      isRest,
-      isRoundRest,
-      isStopwatch,
-      currentExercise,
-      restValue: currentExercise?.rest,
-      durationValue: currentExercise?.duration,
-      exerciseName: currentExercise?.exercise?.name,
-      modification: currentExercise?.modification,
-      shouldAutoStart,
-    });
+    // console.log("Timer initializing:", {
+    //   isRest,
+    //   isRoundRest,
+    //   isStopwatch,
+    //   currentExercise,
+    //   restValue: currentExercise?.rest,
+    //   durationValue: currentExercise?.duration,
+    //   exerciseName: currentExercise?.exercise?.name,
+    //   modification: currentExercise?.modification,
+    //   shouldAutoStart,
+    // });
     clearInterval(intervalRef.current);
 
     if (isStopwatch) {

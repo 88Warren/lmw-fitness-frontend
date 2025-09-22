@@ -165,9 +165,9 @@ const BlogPostDetail = ({ handleEditClick, handleDelete }) => {
       </div>
 
       {/* Newsletter Signup - Now outside the card */}
-      <div className="w-full md:w-1/2 flex flex-col items-center mx-auto mt-8">
+      {/* <div className="w-full md:w-1/2 flex flex-col items-center mx-auto mt-8">
         <NewsletterSignup />
-      </div>
+      </div> */}
     </>
   );
 };

@@ -3,6 +3,7 @@ import { BACKEND_URL } from "../utils/config";
 import api from "../utils/api";
 import { showToast } from "../utils/toastUtil";
 import LoadingAndErrorDisplay from "../components/Shared/Errors/LoadingAndErrorDisplay";
+import { isTokenExpired, getTimeUntilExpiry } from "../utils/tokenUtils";
 import PropTypes from "prop-types";
 
 export const AuthContext = createContext(null);
@@ -80,6 +81,27 @@ export const AuthProvider = ({ children }) => {
     api.removeAuthToken();
   }, []);
 
+  const refreshAuthToken = useCallback(async () => {
+    try {
+      if (!token) {
+        throw new Error('No token available for refresh');
+      }
+      
+      // console.log("AuthContext: Refreshing auth token");
+      const response = await api.refreshToken();
+      const { token: newToken, user: userData } = response.data;
+      
+      storeAuthData(newToken, userData);
+      showToast("success", "Session refreshed successfully");
+      return { success: true, token: newToken, user: userData };
+    } catch (error) {
+      console.error("AuthContext: Token refresh failed:", error);
+      clearAuthData();
+      showToast("error", "Session expired. Please log in again.");
+      return { success: false, error: error.message };
+    }
+  }, [token, storeAuthData, clearAuthData]);
+
   useEffect(() => {
     const loadAuth = async () => {
       // console.log("AuthContext: Loading authentication state");
@@ -93,6 +115,15 @@ export const AuthProvider = ({ children }) => {
           const userData = JSON.parse(storedUser);
           // console.log("AuthContext: Found stored user data:", userData);
 
+          // Check if token is expired
+          if (isTokenExpired(storedToken)) {
+            // console.log("AuthContext: Stored token is expired, clearing auth data");
+            clearAuthData();
+            setInitialLoadError("Your session has expired. Please log in again.");
+            setLoading(false);
+            return;
+          }
+
           setToken(storedToken);
           setIsLoggedIn(true);
           setIsAdmin(userData.role === "admin");
@@ -105,11 +136,12 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem("user", JSON.stringify(freshUserData));
           } catch (error) {
             // console.warn("AuthContext: Failed to fetch fresh profile, using stored data:", error);
-            setUser(userData);
-
+            
             if (
-              error.response?.status === 401 ||
-              error.response?.status === 403
+              error.status === 401 ||
+              error.status === 403 ||
+              error.message?.includes('expired') ||
+              error.message?.includes('invalid')
             ) {
               // console.log("AuthContext: Profile fetch returned auth error, clearing stored data");
               clearAuthData();
@@ -119,6 +151,9 @@ export const AuthProvider = ({ children }) => {
               setLoading(false);
               return;
             }
+            
+            // For other errors, use stored data but still set user as logged in
+            setUser(userData);
           }
         } catch (e) {
           console.error(
@@ -138,7 +173,34 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     };
     loadAuth();
-  }, [storeAuthData, clearAuthData]);
+  }, [fetchUserProfile, clearAuthData]);
+
+  // Set up automatic token refresh
+  useEffect(() => {
+    if (!token || !isLoggedIn) return;
+
+    const checkTokenExpiry = () => {
+      if (isTokenExpired(token)) {
+        // console.log("AuthContext: Token expired, attempting refresh");
+        refreshAuthToken();
+        return;
+      }
+
+      const timeUntilExpiry = getTimeUntilExpiry(token);
+      if (timeUntilExpiry && timeUntilExpiry < 5 * 60 * 1000) { // 5 minutes
+        // console.log("AuthContext: Token expiring soon, refreshing proactively");
+        refreshAuthToken();
+      }
+    };
+
+    // Check immediately
+    checkTokenExpiry();
+
+    // Set up interval to check every 5 minutes
+    const interval = setInterval(checkTokenExpiry, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [token, isLoggedIn, refreshAuthToken]);
 
   const login = async (email, password) => {
     try {
@@ -185,6 +247,7 @@ export const AuthProvider = ({ children }) => {
       });
       const { token, user } = response.data;
       // console.log("AuthContext: Registration successful, user data:", user);
+      // console.log("AuthContext: MustChangePassword value:", user.mustChangePassword);
       storeAuthData(token, user);
       showToast("success", "Registration successful! You are now logged in.");
       return {
@@ -275,6 +338,7 @@ export const AuthProvider = ({ children }) => {
     storeAuthData,
     clearAuthData,
     fetchUserProfile,
+    refreshAuthToken,
   };
 
   if (loading) {

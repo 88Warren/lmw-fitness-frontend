@@ -170,14 +170,14 @@ const WorkoutPage = () => {
   }, [isPreviewMode, navigate, programName, dayNumber]);
 
   const handleExerciseComplete = useCallback(() => {
-    console.log("handleExerciseComplete called - current state:", {
-      currentSession,
-      isRestPeriod,
-      isRoundRest,
-      currentExerciseIndex,
-      currentRound,
-      hasStartedWorkout,
-    });
+    // console.log("handleExerciseComplete called - current state:", {
+    //   currentSession,
+    //   isRestPeriod,
+    //   isRoundRest,
+    //   currentExerciseIndex,
+    //   currentRound,
+    //   hasStartedWorkout,
+    // });
     if (!workoutData) return;
     if (!hasStartedWorkout) {
       setHasStartedWorkout(true);
@@ -1213,12 +1213,12 @@ const WorkoutPage = () => {
     const firstRegularBlockIndex = workoutData.workoutBlocks.findIndex(
       (block) => block.blockType !== "Mobility"
     );
-    console.log(
-      "Correcting block index from",
-      currentBlockIndex,
-      "to",
-      firstRegularBlockIndex
-    );
+    // console.log(
+    //   "Correcting block index from",
+    //   currentBlockIndex,
+    //   "to",
+    //   firstRegularBlockIndex
+    // );
     if (
       firstRegularBlockIndex !== -1 &&
       firstRegularBlockIndex !== currentBlockIndex

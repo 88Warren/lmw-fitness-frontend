@@ -1,18 +1,24 @@
 // src/components/ProtectedRoute.js
 import { Navigate, Outlet } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import { isTokenExpired } from '../../utils/tokenUtils';
 
 const ProtectedRoute = () => {
-  const { isLoggedIn, loading } = useAuth(); 
+  const { isLoggedIn, loading, token, clearAuthData } = useAuth(); 
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (!isLoggedIn) {
+  // Check if token is expired
+  if (token && isTokenExpired(token)) {
+    clearAuthData();
     return <Navigate to="/login" replace />;
   }
 
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
 
   return <Outlet />;
 };
