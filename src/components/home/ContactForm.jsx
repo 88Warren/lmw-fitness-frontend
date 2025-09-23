@@ -184,7 +184,7 @@ const ContactForm = () => {
             />
 
             <div className="flex justify-center m-6">
-              {!captchaError ? (
+              {!captchaError && RECAPTCHA_SITE_KEY ? (
                 <ReCAPTCHA
                   ref={recaptchaRef}
                   sitekey={RECAPTCHA_SITE_KEY}
@@ -196,7 +196,7 @@ const ContactForm = () => {
               ) : (
                 <div className="text-center p-6 bg-gray-50 rounded-xl">
                   <p className="text-red-500 mb-3">
-                    reCAPTCHA is currently unavailable
+                    {!RECAPTCHA_SITE_KEY ? 'reCAPTCHA configuration missing' : 'reCAPTCHA is currently unavailable'}
                   </p>
                   <button
                     type="button"
