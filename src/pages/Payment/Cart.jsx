@@ -127,7 +127,7 @@ const Cart = () => {
           body: JSON.stringify({
             items: checkoutItems,
             isDiscountApplied: isDiscountApplied,
-            CustomerEmail: customerEmail,
+            customerEmail: customerEmail,
             couponCode: appliedCoupon?.id || null,
           }),
         }
