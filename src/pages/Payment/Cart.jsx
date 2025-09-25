@@ -43,7 +43,7 @@ const Cart = () => {
         cartTotal: cartTotalPrice,
       };
 
-      console.log("Sending coupon validation request:", requestData);
+      
 
       const response = await fetch(`${BACKEND_URL}/api/validate-coupon`, {
         method: "POST",
@@ -260,15 +260,12 @@ const Cart = () => {
                     <div className="flex justify-between items-center bg-green-100 p-3 rounded-md">
                       <div>
                         <span className="text-green-800 font-semibold">
-                          Coupon "{appliedCoupon.id}" applied!
-                        </span>
-                        <p className="text-green-600 text-sm">
                           You saved £{couponDiscount.toFixed(2)}
-                        </p>
+                        </span>
                       </div>
                       <button
                         onClick={handleRemoveCoupon}
-                        className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200"
+                        className="px-3 py-1 bg-hotPink text-white rounded-md hover:bg-red-700 transition-colors duration-200"
                       >
                         Remove
                       </button>
