@@ -128,7 +128,7 @@ const Cart = () => {
             items: checkoutItems,
             isDiscountApplied: isDiscountApplied,
             customerEmail: customerEmail,
-            couponCode: appliedCoupon?.id || null,
+            couponCode: couponCode.trim() || null,
           }),
         }
       );
