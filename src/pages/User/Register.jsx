@@ -58,7 +58,7 @@ const RegisterPage = () => {
     }
 
     setJustRegistered(true);
-    const result = await register(email, password);
+    const result = await register((email || '').trim().toLowerCase(), password);
 
     if (result.success) {
       // console.log("Registration result:", result);

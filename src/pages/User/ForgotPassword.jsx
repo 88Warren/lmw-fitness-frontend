@@ -27,7 +27,7 @@ const ForgotPassword = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: (email || '').trim().toLowerCase() }),
       });
 
       const data = await response.json();
