@@ -73,14 +73,15 @@ const WorkoutTimer = ({
 
   // Temporary debug logging
   if (currentExercise?.exercise?.name?.toLowerCase().includes("plank")) {
-    // console.log("PLANK DEBUG:", {
-    //   exerciseName: currentExercise?.exercise?.name,
-    //   duration: currentExercise?.duration,
-    //   isMaxTimeExercise,
-    //   isRest,
-    //   isRoundRest,
-    //   isStopwatch,
-    // });
+    console.log("PLANK DEBUG - PRODUCTION TEST:", {
+      exerciseName: currentExercise?.exercise?.name,
+      duration: currentExercise?.duration,
+      isMaxTimeExercise,
+      isRest,
+      isRoundRest,
+      isStopwatch,
+      timestamp: new Date().toISOString()
+    });
   }
 
   useEffect(() => {
