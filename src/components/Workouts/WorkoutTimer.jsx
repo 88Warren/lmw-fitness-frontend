@@ -35,6 +35,11 @@ const WorkoutTimer = ({
         return 0;
       }
 
+      // Check for "Max Time" or "Max time" - return -1 to indicate max time
+      if (duration.toLowerCase().includes("max time")) {
+        return -1;
+      }
+
       const match = duration.match(
         /(\d+)\s*(seconds?|secs?|sec|s|minutes?|mins?|min|m)/i
       );
@@ -59,6 +64,25 @@ const WorkoutTimer = ({
     return 0;
   };
 
+  // Check if current exercise is a "Max Time" exercise
+  const isMaxTimeExercise =
+    !isRest &&
+    !isRoundRest &&
+    currentExercise?.duration &&
+    currentExercise.duration.toLowerCase().includes("max time");
+
+  // Temporary debug logging
+  if (currentExercise?.exercise?.name?.toLowerCase().includes("plank")) {
+    // console.log("PLANK DEBUG:", {
+    //   exerciseName: currentExercise?.exercise?.name,
+    //   duration: currentExercise?.duration,
+    //   isMaxTimeExercise,
+    //   isRest,
+    //   isRoundRest,
+    //   isStopwatch,
+    // });
+  }
+
   useEffect(() => {
     // console.log("Timer initializing:", {
     //   isRest,
@@ -70,10 +94,11 @@ const WorkoutTimer = ({
     //   exerciseName: currentExercise?.exercise?.name,
     //   modification: currentExercise?.modification,
     //   shouldAutoStart,
+    //   isMaxTimeExercise,
     // });
     clearInterval(intervalRef.current);
 
-    if (isStopwatch) {
+    if (isStopwatch || isMaxTimeExercise) {
       setTime(0);
       setIsActive(false);
       setIsPaused(false);
@@ -98,13 +123,20 @@ const WorkoutTimer = ({
       setIsActive(shouldAutoStart);
       setIsPaused(false);
     }
-  }, [currentExercise, isRest, isRoundRest, isStopwatch, shouldAutoStart]);
+  }, [
+    currentExercise,
+    isRest,
+    isRoundRest,
+    isStopwatch,
+    shouldAutoStart,
+    isMaxTimeExercise,
+  ]);
 
   useEffect(() => {
     if (isActive && !isPaused) {
       intervalRef.current = setInterval(() => {
         setTime((prev) => {
-          if (isStopwatch) {
+          if (isStopwatch || isMaxTimeExercise) {
             return prev + 1;
           } else {
             if (prev <= 3 && prev > 0) {
@@ -130,6 +162,7 @@ const WorkoutTimer = ({
     isActive,
     isPaused,
     isStopwatch,
+    isMaxTimeExercise,
     isRoundRest,
     isRest,
     onExerciseComplete,
@@ -151,13 +184,13 @@ const WorkoutTimer = ({
   const resumeTimer = () => {
     setIsPaused(false);
     setIsActive(true);
-    setHasResetOnce(false); 
+    setHasResetOnce(false);
   };
 
   const stopAndReset = () => {
     clearInterval(intervalRef.current);
     let resetTime = 0;
-    if (isStopwatch) {
+    if (isStopwatch || isMaxTimeExercise) {
       resetTime = 0;
     } else if (isRoundRest) {
       resetTime = parseDurationToSeconds(currentExercise.rest);
@@ -182,7 +215,7 @@ const WorkoutTimer = ({
 
     if (!hasResetOnce) {
       let resetTime = 0;
-      if (isStopwatch) {
+      if (isStopwatch || isMaxTimeExercise) {
         resetTime = 0;
       } else if (isRoundRest) {
         resetTime = parseDurationToSeconds(currentExercise.rest);
@@ -225,7 +258,7 @@ const WorkoutTimer = ({
         <div className="mb-2">
           <div className="flex flex-col items-center mb-2">
             <h3 className="text-3xl mb-2 font-bold text-customWhite">
-              {isStopwatch
+              {isStopwatch || isMaxTimeExercise
                 ? activeExercise?.name
                 : isRoundRest
                 ? "Round Rest"
@@ -233,6 +266,11 @@ const WorkoutTimer = ({
                 ? "Rest Time"
                 : activeExercise?.name}
             </h3>
+            {isMaxTimeExercise && (
+              <p className="text-brightYellow text-sm font-semibold mb-2">
+                Hold as long as possible - Use Skip/Done when finished
+              </p>
+            )}
             <p className="text-logoGray text-xs">
               Exercise {currentExerciseNumber} of {totalExercisesInBlock}
             </p>
@@ -293,7 +331,7 @@ const WorkoutTimer = ({
             <button
               onClick={resumeTimer}
               className={`btn-full-colour px-3 py-1 md:px-6 md:py-3 ${
-                isStopwatch && isActive
+                (isStopwatch || isMaxTimeExercise) && isActive
                   ? "btn-subscribe px-3 py-1 md:px-6 md:py-3"
                   : "px-6 py-2 bg-limeGreen hover:bg-green-600 text-black"
               }`}
@@ -309,15 +347,34 @@ const WorkoutTimer = ({
             </button>
           )}
 
-          {isStopwatch && isActive && (
+          {(isStopwatch || isMaxTimeExercise) && isActive && (
             <button
               onClick={stopAndReset}
-              className="btn-skip px-3 py-1 md:px-6 md:py-3"
+              className="btn-cancel px-3 py-1 md:px-6 md:py-3"
             >
               Reset
             </button>
           )}
-          {isStopwatch && isAdmin && (
+
+          {/* Skip button for Max Time exercises - Always show when it's a max time exercise */}
+          {(isMaxTimeExercise ||
+            (currentExercise?.duration &&
+              (currentExercise.duration === "Max Time" ||
+                currentExercise.duration === "Max time")) ||
+            (currentExercise?.exercise?.name?.toLowerCase().includes("plank") &&
+              currentExercise?.duration?.toLowerCase().includes("max"))) && (
+            <button
+              onClick={() => {
+                clearInterval(intervalRef.current);
+                onExerciseComplete();
+              }}
+              className="btn-skip px-3 py-1 md:px-6 md:py-3"
+            >
+              Done
+            </button>
+          )}
+
+          {(isStopwatch || isMaxTimeExercise) && isAdmin && (
             <button
               onClick={() => {
                 clearInterval(intervalRef.current);
@@ -329,7 +386,7 @@ const WorkoutTimer = ({
             </button>
           )}
 
-          {!isStopwatch && (
+          {!isStopwatch && !isMaxTimeExercise && (
             <button
               onClick={resetCurrentTimer}
               className="btn-cancel px-3 py-1 md:px-6 md:py-3"
@@ -342,6 +399,15 @@ const WorkoutTimer = ({
             </button>
           )}
 
+          {isMaxTimeExercise && (
+            <button
+              onClick={resetCurrentTimer}
+              className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+            >
+              {hasResetOnce ? "Go Back" : "Reset"}
+            </button>
+          )}
+
           {!isStopwatch && (isRest || isRoundRest) && time > 0 && (
             <button
               onClick={skipRest}
@@ -351,17 +417,21 @@ const WorkoutTimer = ({
             </button>
           )}
 
-          {!isStopwatch && !isRest && !isRoundRest && isAdmin && (
-            <button
-              onClick={() => {
-                clearInterval(intervalRef.current);
-                onExerciseComplete();
-              }}
-              className="btn-cancel px-3 py-1 md:px-6 md:py-3"
-            >
-              Next
-            </button>
-          )}
+          {!isStopwatch &&
+            !isMaxTimeExercise &&
+            !isRest &&
+            !isRoundRest &&
+            isAdmin && (
+              <button
+                onClick={() => {
+                  clearInterval(intervalRef.current);
+                  onExerciseComplete();
+                }}
+                className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+              >
+                Next
+              </button>
+            )}
         </div>
       </div>
     </div>
