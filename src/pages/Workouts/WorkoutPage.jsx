@@ -1572,7 +1572,7 @@ const WorkoutPage = () => {
                   <ExerciseVideo
                     exercise={currentExerciseData}
                     isActive={!isRestPeriod && !isRoundRest}
-                    shouldAutoStart={shouldAutoStart}
+                    shouldAutoStart={false}
                     showModified={showModified[currentExerciseIndex] || false}
                   />
                 </div>

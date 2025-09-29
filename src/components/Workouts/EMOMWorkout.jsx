@@ -432,10 +432,7 @@ const EMOMWorkout = ({
                       <ExerciseVideo
                         exercise={currentExercise}
                         isActive={true}
-                        shouldAutoStart={
-                          timerState.currentMinute > 1 &&
-                          timerState.secondsInCurrentMinute >= 58
-                        }
+                        shouldAutoStart={false}
                         showModified={
                           showModified[timerState.currentMinute] || false
                         }
