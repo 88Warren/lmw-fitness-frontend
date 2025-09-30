@@ -5,11 +5,14 @@ import useAuth from "../../hooks/useAuth";
 import { BACKEND_URL } from "../../utils/config";
 import { showToast } from "../../utils/toastUtil";
 import { ToastContainer } from "react-toastify";
+import { Eye, EyeOff } from "lucide-react"; 
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [justRegistered, setJustRegistered] = useState(false);   
   const { register, isLoggedIn, loadingAuth, user } = useAuth();
@@ -47,7 +50,7 @@ const RegisterPage = () => {
       return;
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+=[{\]};:'",<.>/?\\|`~])(?=.{8,})/;
     if (!passwordRegex.test(password)) {
       showToast(
         "warn",
@@ -109,32 +112,53 @@ const RegisterPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <InputField
-                label="Email Address"
-                type="email"
-                name="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email address"
+              label="Email Address"
+              type="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your email address"
+              required
+            />
+            <div className="relative">
+              <InputField
+                label="Password"
+                type="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
                 required
               />
-            <InputField
-              label="Password"
-              type="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
-            <InputField
-              label="Confirm Password"
-              type="password"
-              name="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 translate-y-1/4 text-logoGray hover:text-brightYellow"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <div className="relative">
+              <InputField
+                label="Confirm Password"
+                type="password"
+                name="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 translate-y-1/4 text-logoGray hover:text-brightYellow"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
             <button type="submit" className="btn-full-colour w-full" disabled={isSubmitting}>
               {isSubmitting ? "Registering..." : "Register"}
             </button>

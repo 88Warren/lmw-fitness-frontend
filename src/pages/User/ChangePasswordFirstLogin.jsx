@@ -8,11 +8,14 @@ import { ToastContainer } from 'react-toastify';
 import { BACKEND_URL } from '../../utils/config';
 import api from '../../utils/api';
 import DynamicHeading from '../../components/Shared/DynamicHeading';
+import { Eye, EyeOff } from "lucide-react"; 
 
 const ChangePasswordFirstLoginPage = () => {
   // console.log("ChangePasswordFirstLoginPage rendering");
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false); 
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, isLoggedIn, loading, logout, token } = useAuth();
   const navigate = useNavigate();
@@ -55,7 +58,7 @@ const ChangePasswordFirstLoginPage = () => {
       hasError = true;
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+=[{\]};:'",<.>/?\\|`~])(?=.{8,})/;
     if (newPassword && !passwordRegex.test(newPassword)) {
       let errorMessage = [];
       if (newPassword.length < 8) {
@@ -64,8 +67,8 @@ const ChangePasswordFirstLoginPage = () => {
       if (!/[A-Z]/.test(newPassword)) {
         errorMessage.push("contain at least one capital letter");
       }
-      if (!/[!@#$%^&*]/.test(newPassword)) {
-        errorMessage.push("contain at least one special character (!@#$%^&*)");
+      if (!/[!@#$%^&*()_\-+=[{\]};:'",<.>/?\\|`~]/.test(newPassword)) {
+        errorMessage.push("contain at least one special character");
       }
       setPasswordComplexityMessage("Password must: " + errorMessage.join(", "));
       hasError = true;
@@ -142,9 +145,10 @@ const ChangePasswordFirstLoginPage = () => {
           className="font-higherJump text-3xl md:text-4xl text-center font-bold text-customWhite mb-8 leading-loose tracking-widest"
         />
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="relative">
               <InputField
                 label="New Password"
-                type="password"
+                type={showNewPassword ? "text" : "password"}
                 name="newPassword"
                 value={newPassword}
                 onChange={(e) => {
@@ -157,22 +161,43 @@ const ChangePasswordFirstLoginPage = () => {
                 required
                 className={`${newPasswordInputError || passwordMismatchError || passwordComplexityMessage ? 'border-red-500' : ''}`}
               />
+              <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 translate-y-1/4 text-logoGray hover:text-brightYellow"
+                  tabIndex={-1}
+                >
+                  {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
               {newPasswordInputError && <p className="text-red-500 text-sm mt-1">New password cannot be empty.</p>}
               {passwordComplexityMessage && <p className="text-red-500 text-sm mt-1">{passwordComplexityMessage}</p>}
-              <InputField
-                label="Confirm New Password"
-                type="password"
-                name="confirmNewPassword"
-                value={confirmNewPassword}
-                onChange={(e) => {
-                  setConfirmNewPassword(e.target.value);
-                  setConfirmNewPasswordInputError(false);
-                  setPasswordMismatchError(false); 
-                }}
-                placeholder="••••••••"
-                required
-                className={`${confirmNewPasswordInputError || passwordMismatchError ? 'border-red-500' : ''}`}
-              />
+              <div className="relative">
+                <InputField
+                  label="Confirm New Password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmNewPassword"
+                  value={confirmNewPassword}
+                  onChange={(e) => {
+                    setConfirmNewPassword(e.target.value);
+                    setConfirmNewPasswordInputError(false);
+                    setPasswordMismatchError(false); 
+                  }}
+                  placeholder="••••••••"
+                  required
+                  className={`${confirmNewPasswordInputError || passwordMismatchError ? 'border-red-500' : ''}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 translate-y-1/4 text-logoGray hover:text-brightYellow"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
               {confirmNewPasswordInputError && <p className="text-red-500 text-sm mt-1">Confirm password cannot be empty.</p>}
               {passwordMismatchError && <p className="text-red-500 text-sm mt-1">Passwords do not match.</p>}
             <button 

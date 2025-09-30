@@ -5,15 +5,18 @@ import { BACKEND_URL } from "../../utils/config";
 import { showToast } from "../../utils/toastUtil";
 import { ToastContainer } from "react-toastify";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
+import { Eye, EyeOff } from "lucide-react";
 
 const ResetPassword = () => {
-  const { token } = useParams(); 
+  const { token } = useParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidToken, setIsValidToken] = useState(true);
-  const [loadingToken, setLoadingToken] = useState(true); 
+  const [loadingToken, setLoadingToken] = useState(true);
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -26,7 +29,7 @@ const ResetPassword = () => {
 
       try {
         const response = await fetch(`${BACKEND_URL}/api/verify-reset-token`, {
-          method: "POST", 
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
@@ -35,7 +38,10 @@ const ResetPassword = () => {
 
         if (!response.ok) {
           const data = await response.json();
-          showToast("error", data.error || "Invalid or expired password reset link.");
+          showToast(
+            "error",
+            data.error || "Invalid or expired password reset link."
+          );
           setIsValidToken(false);
         }
       } catch (error) {
@@ -60,7 +66,7 @@ const ResetPassword = () => {
       return;
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$^&*])(?=.{8,})/; 
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$^&*])(?=.{8,})/;
     if (!passwordRegex.test(password)) {
       showToast(
         "warn",
@@ -87,7 +93,8 @@ const ResetPassword = () => {
           navigate("/login");
         }, 2000);
       } else {
-        const errorMessage = data.error || "Failed to reset password. Please try again.";
+        const errorMessage =
+          data.error || "Failed to reset password. Please try again.";
         showToast("error", errorMessage);
       }
     } catch (error) {
@@ -101,7 +108,9 @@ const ResetPassword = () => {
   if (loadingToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-customGray p-4">
-        <p className="text-xl font-titillium text-customWhite">Verifying reset link...</p>
+        <p className="text-xl font-titillium text-customWhite">
+          Verifying reset link...
+        </p>
       </div>
     );
   }
@@ -115,7 +124,8 @@ const ResetPassword = () => {
             className="text-3xl md:text-4xl font-bold text-customWhite mb-8 font-higherJump text-center leading-loose tracking-widest"
           />
           <p className="text-center text-logoGray font-titillium">
-            The password reset link is invalid or has expired. Please request a new one.
+            The password reset link is invalid or has expired. Please request a
+            new one.
           </p>
           <Link
             to="/forgot-password"
@@ -124,14 +134,14 @@ const ResetPassword = () => {
             Request New Link
           </Link>
           <p className="mt-1 text-center text-sm text-logoGray font-titillium">
-              Back to{" "}
+            Back to{" "}
             <Link
-                to="/login"
-                className="font-medium text-brightYellow hover:text-hotPink font-titillium"
-                >
-                Login
+              to="/login"
+              className="font-medium text-brightYellow hover:text-hotPink font-titillium"
+            >
+              Login
             </Link>
-        </p>
+          </p>
         </div>
       </div>
     );
@@ -145,25 +155,44 @@ const ResetPassword = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <InputField
-            label="New Password"
-            type="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
-          <InputField
-            label="Confirm New Password"
-            type="password"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
-
+          <div className="relative">
+            <InputField
+              label="New Password"
+              type={showNewPassword ? "text" : "password"}
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+              className="absolute right-3 top-1/2 translate-y-1/4 text-logoGray hover:text-brightYellow"
+              tabIndex={-1}
+            >
+              {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+          <div className="relative">
+            <InputField
+              label="Confirm New Password"
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 translate-y-1/4 text-logoGray hover:text-brightYellow"
+              tabIndex={-1}
+            >
+              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
           <button
             type="submit"
             className="btn-full-colour w-full"
@@ -171,15 +200,15 @@ const ResetPassword = () => {
           >
             {isSubmitting ? "Resetting..." : "Reset Password"}
           </button>
-            <p className="mt-1 text-center text-sm text-logoGray font-titillium">
+          <p className="mt-1 text-center text-sm text-logoGray font-titillium">
             Back to{" "}
             <Link
-                to="/login"
-                className="font-medium text-brightYellow hover:text-hotPink font-titillium"
+              to="/login"
+              className="font-medium text-brightYellow hover:text-hotPink font-titillium"
             >
-                Back to Login
+              Back to Login
             </Link>
-            </p>
+          </p>
         </form>
       </div>
       <ToastContainer />
