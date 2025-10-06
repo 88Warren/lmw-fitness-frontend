@@ -6,6 +6,7 @@ import api from '../../utils/api';
 import { BACKEND_URL } from '../../utils/config';
 import { showToast } from '../../utils/toastUtil';
 import DynamicHeading from '../../components/Shared/DynamicHeading';
+import useAnalytics from '../../hooks/useAnalytics';
 
 const PaymentSuccess = () => {
   const location = useLocation();
@@ -15,6 +16,7 @@ const PaymentSuccess = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [purchasedProductNames, setPurchasedProductNames] = useState([]);
+  const { trackPaymentSuccess } = useAnalytics();
 
   useEffect(() => {
     if (!sessionId) {
@@ -52,6 +54,15 @@ const fetchAuthLink = async (retryCount = 0) => {
       setAuthLink(workoutLink);
       if (productNames && Array.isArray(productNames)) {
         setPurchasedProductNames(productNames);
+        
+        // Track successful payment for each product
+        productNames.forEach(productName => {
+          const planType = productName.includes('beginner') ? 'Beginner Programme' : 
+                          productName.includes('advanced') ? 'Advanced Programme' : 
+                          'Fitness Programme';
+          // Note: You might want to get the actual amount from the response or store it
+          trackPaymentSuccess(planType, 0, sessionId); // Amount would need to come from backend
+        });
       }
       showToast('success', 'Your secure workout link is ready!');
     } else {

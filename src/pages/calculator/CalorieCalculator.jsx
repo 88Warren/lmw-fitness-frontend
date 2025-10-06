@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DynamicHeading from '../../components/Shared/DynamicHeading';
 import { ChevronDown } from '@untitledui/icons';
-import { showToast } from '../../utils/toastUtil'; 
+import { showToast } from '../../utils/toastUtil';
+import useAnalytics from '../../hooks/useAnalytics'; 
 
 const CalorieCalculator = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const CalorieCalculator = () => {
   });
   const navigate = useNavigate();
   const [result, setResult] = useState(null);
+  const { trackCalculatorUse } = useAnalytics();
   const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
   const [isActivityDropdownOpen, setIsActivityDropdownOpen] = useState(false);
   const [isGoalDropdownOpen, setIsGoalDropdownOpen] = useState(false);
@@ -82,7 +84,11 @@ const CalorieCalculator = () => {
     if (goal === 'lose') totalCalories -= 500;
     if (goal === 'gain') totalCalories += 500;
 
-    setResult(Math.round(totalCalories));
+    const finalResult = Math.round(totalCalories);
+    setResult(finalResult);
+    
+    // Track calculator usage
+    trackCalculatorUse('calorie_calculator', finalResult);
   };
 
   return (

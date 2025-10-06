@@ -16,6 +16,7 @@ import DynamicHeading from "../../components/Shared/DynamicHeading";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
+import useAnalytics from "../../hooks/useAnalytics";
 
 const parseDurationToSeconds = (duration) => {
   if (typeof duration === "number") return duration;
@@ -45,6 +46,7 @@ const WorkoutPage = () => {
   const navigate = useNavigate();
   const { programName, dayNumber } = useParams();
   const [searchParams] = useSearchParams();
+  const { trackWorkoutStart, trackWorkoutComplete } = useAnalytics();
   const [workoutData, setWorkoutData] = useState(null);
   const [loadingWorkout, setLoadingWorkout] = useState(true);
   const [error, setError] = useState(null);
@@ -157,6 +159,12 @@ const WorkoutPage = () => {
       navigate(`/workouts/${programName}/${dayNumber}`);
       return;
     }
+    
+    // Track workout start
+    const workoutType = workoutData?.workoutBlocks?.[0]?.blockType || 'General';
+    trackWorkoutStart(workoutType, programName);
+    localStorage.setItem('workoutStartTime', Date.now().toString());
+    
     setShowPreview(false);
     setCurrentBlockIndex(0);
     setCurrentExerciseIndex(0);
@@ -858,6 +866,13 @@ const WorkoutPage = () => {
 
   const completeEntireWorkout = useCallback(async () => {
     localStorage.removeItem("workoutProgress");
+
+    // Track workout completion
+    const workoutType = workoutData?.workoutBlocks?.[0]?.blockType || 'General';
+    const workoutStartTime = localStorage.getItem('workoutStartTime');
+    const duration = workoutStartTime ? Math.round((Date.now() - parseInt(workoutStartTime)) / 60000) : 0; // Duration in minutes
+    trackWorkoutComplete(workoutType, programName, duration);
+    localStorage.removeItem('workoutStartTime');
 
     showToast("success", "Workout completed! Great job!");
 

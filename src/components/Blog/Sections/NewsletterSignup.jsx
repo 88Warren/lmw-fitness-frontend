@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
+import useAnalytics from '../../../hooks/useAnalytics';
 
 const NewsletterSignup = () => {
+  const { trackNewsletterSignup } = useAnalytics();
   useEffect(() => {
     const brevoScriptId = 'brevo-form-main-script'; 
     const existingBrevoScript = document.getElementById(brevoScriptId);
@@ -32,13 +34,25 @@ const NewsletterSignup = () => {
     };
     window.AUTOHIDE = typeof window.AUTOHIDE === 'boolean' ? window.AUTOHIDE : Boolean(0);
 
+    // Listen for successful newsletter signup
+    const handleFormSubmit = (e) => {
+      if (e.target && e.target.id === 'sib-form') {
+        // Track newsletter signup when form is submitted
+        trackNewsletterSignup();
+      }
+    };
+
+    // Add event listener for form submissions
+    document.addEventListener('submit', handleFormSubmit);
+
     return () => {
       const scriptToRemove = document.getElementById(brevoScriptId);
       if (scriptToRemove) {
         scriptToRemove.remove();
       }
+      document.removeEventListener('submit', handleFormSubmit);
     };
-  }, []); 
+  }, [trackNewsletterSignup]); 
 
   return (
     <div className="bg-customGray backdrop-blur-sm rounded-xl py-6 border border-logoGray">
