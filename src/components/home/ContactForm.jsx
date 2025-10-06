@@ -7,6 +7,7 @@ import { InputField, TextAreaField } from "../../controllers/forms/formFields";
 import { showToast } from "../../utils/toastUtil";
 import { motion } from "framer-motion";
 import DynamicHeading from "../Shared/DynamicHeading";
+import useAnalytics from "../../hooks/useAnalytics";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,8 @@ const ContactForm = () => {
   const [captchaValue, setCaptchaValue] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
-  const recaptchaRef = useRef();  
+  const recaptchaRef = useRef();
+  const { trackContactForm } = useAnalytics();  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -98,6 +100,8 @@ const ContactForm = () => {
       const res = await submitWithRetry();
 
       if (res.ok) {
+        // Track successful contact form submission
+        trackContactForm();
         showToast("success", "Message sent successfully!");
         setFormData({ name: "", email: "", subject: "Website Enquiry", message: "" });
         setCaptchaValue(null);

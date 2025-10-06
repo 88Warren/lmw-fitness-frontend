@@ -5,7 +5,8 @@ import useAuth from "../../hooks/useAuth";
 import { BACKEND_URL } from "../../utils/config";
 import { showToast } from "../../utils/toastUtil";
 import { ToastContainer } from "react-toastify";
-import { Eye, EyeOff } from "lucide-react"; 
+import { Eye, EyeOff } from "lucide-react";
+import useAnalytics from "../../hooks/useAnalytics"; 
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -17,6 +18,7 @@ const RegisterPage = () => {
   const [justRegistered, setJustRegistered] = useState(false);   
   const { register, isLoggedIn, loadingAuth, user } = useAuth();
   const navigate = useNavigate();
+  const { trackSignup } = useAnalytics();
 
   useEffect(() => {
     // Only redirect if user was already logged in when component mounted (not from fresh registration)
@@ -64,6 +66,9 @@ const RegisterPage = () => {
     const result = await register((email || '').trim().toLowerCase(), password);
 
     if (result.success) {
+      // Track successful registration
+      trackSignup('email');
+      
       // console.log("Registration result:", result);
       // console.log("User data:", result.user);
       // console.log("Must change password:", result.user?.mustChangePassword);
