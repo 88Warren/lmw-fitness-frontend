@@ -68,7 +68,7 @@ const ChangePasswordFirstLoginPage = () => {
         errorMessage.push("contain at least one capital letter");
       }
       if (!/[!@#$%^&*()_\-+=[{\]};:'",<.>/?\\|`~]/.test(newPassword)) {
-        errorMessage.push("contain at least one special character");
+        errorMessage.push("contain at least one special character (!@#$%^&*()_-+=[]{}\\|;:'\",<.>/?`~)");
       }
       setPasswordComplexityMessage("Password must: " + errorMessage.join(", "));
       hasError = true;

@@ -1,6 +1,4 @@
 // Enhanced Analytics Utility
-import { useCookieConsent } from '../hooks/useCookieConsent';
-
 class Analytics {
   constructor() {
     this.isInitialized = false;
@@ -16,8 +14,17 @@ class Analytics {
 
   // Check if analytics is allowed
   canTrack() {
-    const cookiePrefs = JSON.parse(localStorage.getItem('cookiePreferences') || '{}');
-    return cookiePrefs.analytics === true;
+    // Check the correct localStorage key that your cookie consent system uses
+    const cookieConsent = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
+    const canTrack = cookieConsent.analytics === true;
+    
+    // console.log('Analytics canTrack check:', {
+    //   cookieConsent,
+    //   canTrack,
+    //   hasGtag: !!window.gtag
+    // });
+    
+    return canTrack;
   }
 
   // Track page views
@@ -32,14 +39,33 @@ class Analytics {
 
   // Track custom events
   trackEvent(eventName, parameters = {}) {
-    if (!this.canTrack() || typeof window === 'undefined' || !window.gtag) return;
+    // console.log('Analytics trackEvent called:', {
+    //   eventName,
+    //   parameters,
+    //   canTrack: this.canTrack(),
+    //   hasWindow: typeof window !== 'undefined',
+    //   hasGtag: !!window.gtag
+    // });
+
+    // if (!this.canTrack()) {
+    //   console.log('Analytics tracking blocked by cookie consent');
+    //   return;
+    // }
     
-    window.gtag('event', eventName, {
+    // if (typeof window === 'undefined' || !window.gtag) {
+    //   console.log('Analytics tracking blocked - no gtag available');
+    //   return;
+    // }
+    
+    const eventData = {
       event_category: parameters.category || 'engagement',
       event_label: parameters.label,
       value: parameters.value,
       ...parameters
-    });
+    };
+    
+    // console.log('Sending analytics event:', eventName, eventData);
+    window.gtag('event', eventName, eventData);
   }
 
   // Fitness-specific tracking methods
@@ -117,6 +143,7 @@ class Analytics {
   }
 
   trackCalculatorUse(calculatorType, result) {
+    // console.log('trackCalculatorUse called:', { calculatorType, result });
     this.trackEvent('calculator_use', {
       category: 'tools',
       label: calculatorType,
@@ -126,6 +153,7 @@ class Analytics {
   }
 
   trackContactForm() {
+    // console.log('trackContactForm called');
     this.trackEvent('contact_form_submit', {
       category: 'lead_generation',
       label: 'contact_form'
