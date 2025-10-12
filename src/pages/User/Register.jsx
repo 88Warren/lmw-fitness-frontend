@@ -6,7 +6,7 @@ import { BACKEND_URL } from "../../utils/config";
 import { showToast } from "../../utils/toastUtil";
 import { ToastContainer } from "react-toastify";
 import { Eye, EyeOff } from "lucide-react";
-import useAnalytics from "../../hooks/useAnalytics"; 
+import useAnalytics from "../../hooks/useAnalytics";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -15,7 +15,7 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [justRegistered, setJustRegistered] = useState(false);   
+  const [justRegistered, setJustRegistered] = useState(false);
   const { register, isLoggedIn, loadingAuth, user } = useAuth();
   const navigate = useNavigate();
   const { trackSignup } = useAnalytics();
@@ -25,7 +25,7 @@ const RegisterPage = () => {
     if (!loadingAuth && isLoggedIn && !justRegistered) {
       // console.log("Register useEffect - User data:", user);
       // console.log("Register useEffect - Must change password:", user?.mustChangePassword);
-      
+
       if (user && user.mustChangePassword) {
         // console.log("Register useEffect - Redirecting to change password");
         navigate("/change-password-first-login");
@@ -52,29 +52,30 @@ const RegisterPage = () => {
       return;
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+=[{\]};:'",<.>/?\\|`~])(?=.{8,})/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+=[{\]};:'",<.>/?\\|`~])(?=.{8,})/;
     if (!passwordRegex.test(password)) {
       showToast(
         "warn",
-        "Password must be at least 8 characters long, contain at least one capital letter, and one special character (!@#$%^&*)."
+        "Password must be at least 8 characters long, contain at least one capital letter, and one special character (!@#$%^&*()_-+=[]{}\\|;:'\",<.>/?`~)."
       );
       setIsSubmitting(false);
       return;
     }
 
     setJustRegistered(true);
-    const result = await register((email || '').trim().toLowerCase(), password);
+    const result = await register((email || "").trim().toLowerCase(), password);
 
     if (result.success) {
       // Track successful registration
-      trackSignup('email');
-      
+      trackSignup("email");
+
       // console.log("Registration result:", result);
       // console.log("User data:", result.user);
       // console.log("Must change password:", result.user?.mustChangePassword);
-      
+
       showToast("success", result.message);
-      
+
       // Navigate immediately based on the registration result
       if (result.user && result.user.mustChangePassword) {
         // console.log("Redirecting to change password page");
@@ -92,7 +93,9 @@ const RegisterPage = () => {
   if (loadingAuth || isLoggedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-        <p className="text-xl font-titillium text-brightYellow">Redirecting...</p>
+        <p className="text-xl font-titillium text-brightYellow">
+          Redirecting...
+        </p>
       </div>
     );
   }
@@ -164,7 +167,11 @@ const RegisterPage = () => {
               </button>
             </div>
 
-            <button type="submit" className="btn-full-colour w-full" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="btn-full-colour w-full"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Registering..." : "Register"}
             </button>
           </form>
@@ -179,7 +186,7 @@ const RegisterPage = () => {
           </p>
         </div>
       </div>
-      <ToastContainer /> 
+      <ToastContainer />
     </div>
   );
 };
