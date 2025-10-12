@@ -22,6 +22,7 @@ import ResetPassword from "../pages/User/ResetPassword";
 import WorkoutAuthPage from '../pages/Workouts/WorkoutAuthPage';
 
 import ProtectedRoute from "../components/Shared/ProtectedRoute";
+import AdminRoute from "../components/Admin/AdminRoute";
 
 import WorkoutPage from "../pages/Workouts/WorkoutPage";
 import ProgramDayListPage from "../pages/Workouts/ProgramDayListPage";
@@ -30,6 +31,12 @@ import ChangePasswordFirstLoginPage from "../pages/User/ChangePasswordFirstLogin
 import Profile from "../pages/User/Profile";
 
 import CalorieCalculator from "../pages/calculator/CalorieCalculator";
+
+import AdminDashboard from "../pages/Admin/AdminDashboard";
+import ExerciseManagement from "../pages/Admin/ExerciseManagement";
+import ProgramManagement from "../pages/Admin/ProgramManagement";
+import WorkoutDayManagement from "../pages/Admin/WorkoutDayManagement";
+import WorkoutDayList from "../pages/Admin/WorkoutDayList";
 
 import NotFoundPage from "../pages/errors/NotFoundPage";
 
@@ -73,6 +80,15 @@ const routes = createRoutesFromElements(
       <Route path="/workouts/:programName/:dayNumber" element={<WorkoutPage />} />
       <Route path="/blog/create" element={<BlogPage />} /> 
       <Route path="/blog/edit" element={<BlogPage />} /> 
+    </Route>
+
+    {/* Admin Routes */}
+    <Route element={<AdminRoute />}>
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/exercises" element={<ExerciseManagement />} />
+      <Route path="/admin/programs" element={<ProgramManagement />} />
+      <Route path="/admin/workout-days" element={<WorkoutDayList />} />
+      <Route path="/admin/workout-days/:programId" element={<WorkoutDayManagement />} />
     </Route>
     
     {/* Error */}
