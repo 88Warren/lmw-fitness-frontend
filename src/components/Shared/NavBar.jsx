@@ -288,6 +288,20 @@ const Navbar = () => {
                   >
                     Profile
                   </NavLink>
+                  {isAdmin && (
+                    <NavLink
+                      to="/admin"
+                      className={({ isActive }) =>
+                        `${
+                          isActive ? activeLinkClasses : inactiveLinkClasses
+                        } text-sm px-3 py-2`
+                      }
+                      onClick={() => setIsMenuOpen(false)}
+                      aria-label="Admin"
+                    >
+                      Admin
+                    </NavLink>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="btn-cancel mt-0 text-sm px-3 py-2"
@@ -454,6 +468,19 @@ const Navbar = () => {
               >
                 Profile
               </NavLink>
+              {isAdmin && (
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    isActive
+                      ? `${activeLinkClasses} w-3/4 text-center`
+                      : "text-white text-lg font-titillium py-2 hover:bg-brightYellow hover:text-customGray transition-all rounded-lg w-3/4 text-center"
+                  }
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Admin
+                </NavLink>
+              )}
               <button
                 onClick={handleLogout}
                 className="btn-cancel text-lg font-titillium py-2 w-3/4 text-center rounded font-bold"
