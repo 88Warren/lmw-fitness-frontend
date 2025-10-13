@@ -751,10 +751,10 @@ const ForTimeWorkout = ({
 
           {/* Fullscreen Content */}
           {isFullscreen && (
-            <div className="w-full max-w-md mx-auto flex flex-col flex-1">
+            <div className="w-full flex flex-col flex-1">
               {/* Timer Row */}
               <div className="flex justify-center mb-4 flex-shrink-0">
-                <div className="w-full max-w-md bg-gray-600 rounded-lg text-center relative p-4 sm:p-6">
+                <div className="w-full bg-gray-600 rounded-lg text-center relative p-4 sm:p-6">
                   {/* Fullscreen Toggle Button - Inside timer card */}
                   <button
                     onClick={toggleFullscreen}
@@ -766,7 +766,7 @@ const ForTimeWorkout = ({
                     </svg>
                   </button>
                   <div
-                    className={`text-4xl sm:text-5xl md:text-6xl mb-4 ${
+                    className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-4 ${
                       isResting ? "text-hotPink" : "text-limeGreen"
                     }`}
                   >
@@ -809,8 +809,8 @@ const ForTimeWorkout = ({
 
               {/* Progress Display - Only show for multi-step workouts */}
               {workoutSteps.length > 1 && (
-                <div className="w-full max-w-md bg-gray-600 rounded-lg p-3 sm:p-4 text-center mb-4 flex-shrink-0">
-                  <h3 className="text-lg sm:text-xl font-bold text-customWhite mb-2">
+                <div className="w-full bg-gray-600 rounded-lg p-3 sm:p-4 text-center mb-4 flex-shrink-0">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-2">
                     Progress: {getProgressDisplay()}
                   </h3>
                   <div className="bg-gray-500 rounded-full h-2 mb-2">
@@ -825,9 +825,9 @@ const ForTimeWorkout = ({
               )}
 
               {/* Exercise List - Large height for complex content */}
-              <div className="h-96 sm:h-[28rem] md:h-[32rem] lg:h-[36rem] overflow-hidden w-full max-w-md">
+              <div className="h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[65vh] overflow-hidden w-full">
                 <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">
-                  <h3 className="text-lg font-bold text-customWhite mb-3">Workout Steps</h3>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-3">Workout Steps</h3>
                   <div className="space-y-2">
                     {workoutSteps.map((step, stepIndex) => {
                       const isStepCompleted = completedSteps.has(stepIndex);
@@ -890,7 +890,7 @@ const ForTimeWorkout = ({
 
               {/* Finish Button for completed workouts */}
               {completedSteps.size === workoutSteps.length && (
-                <div className="w-full max-w-md bg-gray-600 rounded-lg p-3 sm:p-4 text-center mt-4 flex-shrink-0">
+                <div className="w-full bg-gray-600 rounded-lg p-3 sm:p-4 text-center mt-4 flex-shrink-0">
                   <button
                     onClick={handleComplete}
                     className="btn-full-colour mt-0 px-6 py-3 text-lg font-bold"
