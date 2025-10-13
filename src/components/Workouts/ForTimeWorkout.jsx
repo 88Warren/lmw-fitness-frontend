@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import ExerciseVideo from "./ExerciseVideo";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
@@ -25,8 +25,9 @@ const ForTimeWorkout = ({
   const [completedSteps, setCompletedSteps] = useState(new Set());
   const [isResting, setIsResting] = useState(false);
   const [restTime, setRestTime] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const intervalRef = useRef(null);
-  const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playStartSound } = useWorkoutAudio();
+  const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType } = useWorkoutAudio();
 
   const workoutSteps = generateWorkoutSteps();
 
@@ -162,6 +163,36 @@ const ForTimeWorkout = ({
     onComplete();
   };
 
+  // Check if fullscreen state exists in sessionStorage (persists across component remounts)
+  useEffect(() => {
+    const savedFullscreenState = sessionStorage.getItem('forTimeWorkoutFullscreen');
+    if (savedFullscreenState === 'true') {
+      setIsFullscreen(true);
+    }
+    
+    // Cleanup function to clear fullscreen state when component unmounts completely
+    return () => {
+      // Only clear if user navigates away from workout (not just exercise change)
+      const isNavigatingAway = !window.location.pathname.includes('/workout/');
+      if (isNavigatingAway) {
+        sessionStorage.removeItem('forTimeWorkoutFullscreen');
+      }
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    const newFullscreenState = !isFullscreen;
+    setIsFullscreen(newFullscreenState);
+    
+    if (newFullscreenState) {
+      // Save fullscreen state to sessionStorage so it persists across component remounts
+      sessionStorage.setItem('forTimeWorkoutFullscreen', 'true');
+    } else {
+      // Clear fullscreen state when user explicitly exits
+      sessionStorage.removeItem('forTimeWorkoutFullscreen');
+    }
+  };
+
   const completeStep = (stepIndex) => {
     const newCompletedSteps = new Set(completedSteps);
     newCompletedSteps.add(stepIndex);
@@ -244,61 +275,111 @@ const ForTimeWorkout = ({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white p-6">
-      <div className="bg-customGray p-6 rounded-lg text-center max-w-6xl w-full min-h-[90vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
-        <div className="flex justify-between items-center">
-          <AudioControl
-            audioEnabled={audioEnabled}
-            volume={volume}
-            startSound={startSound}
-            onToggle={toggleAudio}
-            onVolumeChange={setVolumeLevel}
-            onStartSoundChange={setStartSoundType}
-            className="mt-0"
-          />
-          {canGoBack && (
-            <button onClick={onGoBack} className="btn-cancel mt-0">
-              Back to Overview
-            </button>
-          )}
-        </div>
+    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white ${
+      isFullscreen ? 'fixed inset-0 z-50 p-0' : 'p-6'
+    }`}>
+      <div className={`bg-customGray rounded-lg text-center w-full flex flex-col border-brightYellow border-2 ${
+        isFullscreen 
+          ? 'h-full max-w-none p-6' 
+          : 'p-6 max-w-6xl min-h-[90vh] mt-20 md:mt-26'
+      }`}>
+        {!isFullscreen && (
+          <div className="flex justify-between items-center">
+            <AudioControl
+              audioEnabled={audioEnabled}
+              volume={volume}
+              startSound={startSound}
+              onToggle={toggleAudio}
+              onVolumeChange={setVolumeLevel}
+              onStartSoundChange={setStartSoundType}
+              className="mt-0"
+            />
+            {canGoBack && (
+              <button onClick={onGoBack} className="btn-cancel mt-0">
+                Back to Overview
+              </button>
+            )}
+          </div>
+        )}
+        
+        {/* Audio controls for larger screens in fullscreen */}
+        {isFullscreen && (
+          <div className="hidden lg:flex justify-start items-center mb-2">
+            <AudioControl
+              audioEnabled={audioEnabled}
+              volume={volume}
+              startSound={startSound}
+              onToggle={toggleAudio}
+              onVolumeChange={setVolumeLevel}
+              onStartSoundChange={setStartSoundType}
+              className="mt-0"
+            />
+          </div>
+        )}
 
-        {/* Header */}
-        <div className="flex flex-col mt-4 mb-4 items-center">
-          <DynamicHeading
-            text={title}
-            className="font-higherJump mb-6 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-          />
+        {/* Header - Hidden in fullscreen */}
+        {!isFullscreen && (
+          <div className="flex flex-col mt-4 mb-4 items-center">
+            <DynamicHeading
+              text={title}
+              className="font-higherJump mb-6 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
+            />
 
-          <div className="flex flex-col md:flex-row gap-0 md:gap-6 w-full items-center md:items-stretch">
-            {/* Block Notes */}
-            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 mb-3 md:mb-0 text-center">
-              <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
-                <span className="text-limeGreen font-bold">Notes:</span>{" "}
-                {workoutBlock.blockNotes ||
-                  "No additional notes for this workout."}
-              </p>
-            </div>
+            <div className="flex flex-col md:flex-row gap-0 md:gap-6 w-full items-center md:items-stretch">
+              {/* Block Notes */}
+              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 mb-3 md:mb-0 text-center">
+                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                  <span className="text-limeGreen font-bold">Notes:</span>{" "}
+                  {workoutBlock.blockNotes ||
+                    "No additional notes for this workout."}
+                </p>
+              </div>
 
-            {/* Instructions */}
-            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
-              <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                <span className="text-limeGreen font-bold">Instructions:</span>{" "}
-                {workoutSteps.length === 1
-                  ? "Complete all exercises in this workout with the prescribed reps, you can do the exercises in any order and break up the reps if you need."
-                  : "Complete all exercises in each step with the prescribed reps, then mark the entire step as complete."}
-              </p>
+              {/* Instructions */}
+              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
+                <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                  <span className="text-limeGreen font-bold">Instructions:</span>{" "}
+                  {workoutSteps.length === 1
+                    ? "Complete all exercises in this workout with the prescribed reps, you can do the exercises in any order and break up the reps if you need."
+                    : "Complete all exercises in each step with the prescribed reps, then mark the entire step as complete."}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Main Content */}
-        <div className="flex-grow flex flex-col lg:flex-row gap-6">
-          {/* Left Column: Stopwatch, Progress, and Video (Desktop) */}
-          <div className="w-full lg:w-1/2 flex flex-col space-y-4">
+        <div className={`flex-grow flex ${
+          isFullscreen 
+            ? 'flex-col items-center justify-start gap-2 p-2 sm:gap-4 sm:p-4 h-full' 
+            : 'flex-col lg:flex-row gap-6'
+        }`}>
+          {/* Regular Content - Hidden in fullscreen */}
+          {!isFullscreen && (
+            <>
+              {/* Left Column: Stopwatch, Progress, and Video (Desktop) */}
+              <div className="w-full lg:w-1/2 flex flex-col space-y-4">
             <div className="flex flex-col gap-4">
               {/* Timer */}
-              <div className="w-full bg-gray-600 rounded-lg p-6 text-center">
+              <div className="w-full bg-gray-600 rounded-lg p-6 text-center relative">
+                {/* Fullscreen Toggle Button - Inside timer card */}
+                <button
+                  onClick={toggleFullscreen}
+                  className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
+                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                >
+                  {isFullscreen ? (
+                    // Exit fullscreen icon
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  ) : (
+                    // Enter fullscreen icon
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                  )}
+                </button>
                 <div
                   className={`text-6xl mb-4 ${
                     isResting ? "text-hotPink" : "text-limeGreen"
@@ -556,7 +637,7 @@ const ForTimeWorkout = ({
                           </div>
 
                           {/* Complete Button - Desktop (centered below exercises) */}
-                          <div className="flex justify-center hidden lg:flex mt-3">
+                          <div className="hidden lg:flex justify-center mt-3">
                             <button
                               onClick={() => completeStep(stepIndex)}
                               className="bg-limeGreen text-black px-4 py-2 rounded font-semibold text-sm hover:bg-green-400 transition-colors"
@@ -665,6 +746,161 @@ const ForTimeWorkout = ({
               )}
             </div>
           </div>
+            </>
+          )}
+
+          {/* Fullscreen Content */}
+          {isFullscreen && (
+            <div className="w-full max-w-md mx-auto flex flex-col flex-1">
+              {/* Timer Row */}
+              <div className="flex justify-center mb-4 flex-shrink-0">
+                <div className="w-full max-w-md bg-gray-600 rounded-lg text-center relative p-4 sm:p-6">
+                  {/* Fullscreen Toggle Button - Inside timer card */}
+                  <button
+                    onClick={toggleFullscreen}
+                    className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
+                    title="Exit Fullscreen"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                  <div
+                    className={`text-4xl sm:text-5xl md:text-6xl mb-4 ${
+                      isResting ? "text-hotPink" : "text-limeGreen"
+                    }`}
+                  >
+                    {isResting ? formatTime(restTime) : formatTime(time)}
+                  </div>
+                  {/* Timer Controls */}
+                  <div className="flex justify-center space-x-1 lg:space-x-2">
+                    {!isActive || isPaused ? (
+                      <button
+                        onClick={startTimer}
+                        className="btn-full-colour mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
+                      >
+                        {isPaused ? "Resume" : "Start"}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={pauseTimer}
+                        className="btn-subscribe mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
+                      >
+                        Pause
+                      </button>
+                    )}
+                    <button
+                      onClick={resetTimer}
+                      className="btn-cancel mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
+                    >
+                      Reset
+                    </button>
+                    {isAdmin && isActive && (
+                      <button
+                        onClick={skipToEnd}
+                        className="btn-skip mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
+                      >
+                        End
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Display - Only show for multi-step workouts */}
+              {workoutSteps.length > 1 && (
+                <div className="w-full max-w-md bg-gray-600 rounded-lg p-3 sm:p-4 text-center mb-4 flex-shrink-0">
+                  <h3 className="text-lg sm:text-xl font-bold text-customWhite mb-2">
+                    Progress: {getProgressDisplay()}
+                  </h3>
+                  <div className="bg-gray-500 rounded-full h-2 mb-2">
+                    <div
+                      className="h-full rounded-full transition-all duration-500 bg-limeGreen"
+                      style={{
+                        width: `${getProgressPercentage()}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Exercise List - Large height for complex content */}
+              <div className="h-96 sm:h-[28rem] md:h-[32rem] lg:h-[36rem] overflow-hidden w-full max-w-md">
+                <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">
+                  <h3 className="text-lg font-bold text-customWhite mb-3">Workout Steps</h3>
+                  <div className="space-y-2">
+                    {workoutSteps.map((step, stepIndex) => {
+                      const isStepCompleted = completedSteps.has(stepIndex);
+                      const isCurrentStep = stepIndex === currentStepIndex;
+
+                      return (
+                        <div
+                          key={step.id}
+                          className={`p-2 rounded transition-all duration-300 ${
+                            isStepCompleted
+                              ? "bg-limeGreen text-black"
+                              : isCurrentStep
+                              ? "bg-gray-800 border-2 border-brightYellow text-customWhite"
+                              : "bg-gray-700 text-customWhite"
+                          }`}
+                        >
+                          {isStepCompleted ? (
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-sm">
+                                Step {step.stepNumber} Complete ✓
+                              </span>
+                              <button
+                                onClick={() => uncompleteStep(stepIndex)}
+                                className="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-400 transition-colors"
+                              >
+                                Undo
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {step.exercises.map((exercise, exerciseIndex) => (
+                                <div
+                                  key={exercise.id || exerciseIndex}
+                                  className="flex items-center justify-between text-sm"
+                                >
+                                  <span className="font-medium">
+                                    {getExerciseName(exercise, exerciseIndex)}
+                                  </span>
+                                  <span className="font-bold">
+                                    {getStepReps(step, exercise)}
+                                  </span>
+                                </div>
+                              ))}
+                              <div className="flex justify-center mt-2">
+                                <button
+                                  onClick={() => completeStep(stepIndex)}
+                                  className="bg-limeGreen text-black px-3 py-1 rounded text-sm font-semibold hover:bg-green-400 transition-colors"
+                                >
+                                  {workoutSteps.length === 1 ? "Complete" : `Complete Step ${step.stepNumber}`}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Finish Button for completed workouts */}
+              {completedSteps.size === workoutSteps.length && (
+                <div className="w-full max-w-md bg-gray-600 rounded-lg p-3 sm:p-4 text-center mt-4 flex-shrink-0">
+                  <button
+                    onClick={handleComplete}
+                    className="btn-full-colour mt-0 px-6 py-3 text-lg font-bold"
+                  >
+                    Finish Workout!
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
