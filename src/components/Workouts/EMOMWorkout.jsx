@@ -405,18 +405,20 @@ const EMOMWorkout = ({
         <div
           className={`flex-grow flex gap-0 md:gap-4 p-4 ${
             isFullscreen
-              ? "flex-col items-center justify-center"
+              ? "flex-col items-center justify-start"
               : "flex-col lg:flex-row"
           }`}
         >
           {/* Left Column: Timer and Controls */}
           <div
             className={`flex flex-col space-y-4 ${
-              isFullscreen ? "w-full max-w-4xl" : "w-full lg:w-1/3"
+              isFullscreen ? "w-full" : "w-full lg:w-1/3"
             }`}
           >
             {currentExercise && (
-              <div className="space-y-4 pt-4">
+              <div
+                className={`space-y-4 pt-4 ${isFullscreen ? "order-2" : ""}`}
+              >
                 <div className="p-4 rounded-lg text-center bg-gray-600 text-customWhite">
                   <h4
                     className={`font-bold ${
@@ -535,9 +537,17 @@ const EMOMWorkout = ({
                 </div>
               </div>
             )}
-            <div className="flex flex-col sm:flex-row-reverse lg:flex-col gap-4">
+            <div
+              className={`flex flex-col sm:flex-row-reverse lg:flex-col gap-4 ${
+                isFullscreen ? "order-1" : ""
+              }`}
+            >
               {/* Current Minute Timer */}
-              <div className="w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg p-4 text-center relative">
+              <div
+                className={`bg-gray-600 rounded-lg p-4 text-center relative ${
+                  isFullscreen ? "w-full" : "w-full sm:w-1/2 lg:w-full"
+                }`}
+              >
                 {/* Fullscreen Toggle Button - Inside timer card */}
                 <button
                   onClick={toggleFullscreen}

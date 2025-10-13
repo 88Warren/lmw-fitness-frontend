@@ -692,7 +692,7 @@ const TabataWorkout = ({
 
           {/* Fullscreen Content */}
           {isFullscreen && (
-            <div className="w-full max-w-md mx-auto flex flex-col flex-1">
+            <div className="w-full flex flex-col flex-1">
               {/* Block and Exercise Numbers Heading */}
               <div className="mb-4">
                 <h2 className="text-customWhite text-xl sm:text-2xl md:text-3xl font-titillium font-semibold">
@@ -710,8 +710,8 @@ const TabataWorkout = ({
               </div>
 
               {/* Timer Row */}
-              <div className="flex justify-center mb-4 flex-shrink-0">
-                <div className="w-full max-w-md bg-gray-600 rounded-lg text-center relative p-3 sm:p-4">
+              <div className="flex justify-center mb-6 sm:mb-8 flex-shrink-0">
+                <div className="w-full bg-gray-600 rounded-lg text-center relative p-6 sm:p-8 md:p-10">
                   {/* Fullscreen Toggle Button - Inside timer card */}
                   <button
                     onClick={toggleFullscreen}
@@ -733,14 +733,14 @@ const TabataWorkout = ({
                     </svg>
                   </button>
                   <div
-                    className={`mb-2 lg:mb-4 ${
+                    className={`mb-4 sm:mb-6 md:mb-8 ${
                       isRest ? "text-hotPink" : "text-limeGreen"
-                    } text-3xl sm:text-4xl md:text-5xl lg:text-6xl`}
+                    } text-5xl sm:text-6xl md:text-7xl lg:text-8xl`}
                   >
                     {formatTime(time)}
                   </div>
                   {/* Timer Controls */}
-                  <div className="flex justify-center space-x-1 lg:space-x-2">
+                  <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8">
                     {!isActive || isPaused ? (
                       <button
                         onClick={startTimer}
@@ -779,11 +779,11 @@ const TabataWorkout = ({
               </div>
 
               {/* Current/Next Exercise Display */}
-              <div className="w-full max-w-md bg-gray-600 rounded-lg p-3 sm:p-4 text-center mb-4 flex-shrink-0">
+              <div className="w-full bg-gray-600 rounded-lg p-6 sm:p-8 md:p-10 text-center mb-6 sm:mb-8 flex-shrink-0">
                 {isRest ? (
                   // Show next exercise during rest
                   <>
-                    <h3 className="text-lg sm:text-xl font-bold text-customWhite mb-2">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-4 sm:mb-6">
                       Next Up
                     </h3>
                     {(() => {
@@ -792,13 +792,13 @@ const TabataWorkout = ({
 
                       if (nextInfo.type === "single") {
                         return (
-                          <div className="text-brightYellow text-base sm:text-lg font-bold">
+                          <div className="text-brightYellow text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
                             {getExerciseName(
                               nextInfo.exercise,
                               nextInfo.exerciseIndex
                             )}
                             {nextInfo.blockNumber && (
-                              <div className="text-sm text-logoGray mt-1">
+                              <div className="text-base sm:text-lg md:text-xl text-logoGray mt-2 sm:mt-3">
                                 Block {nextInfo.blockNumber}
                               </div>
                             )}
@@ -806,9 +806,9 @@ const TabataWorkout = ({
                         );
                       } else if (nextInfo.type === "nextBlock") {
                         return (
-                          <div className="text-brightYellow text-base sm:text-lg font-bold">
+                          <div className="text-brightYellow text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
                             <div>Block {nextInfo.blockNumber}</div>
-                            <div className="text-sm text-logoGray mt-1">
+                            <div className="text-base sm:text-lg md:text-xl text-logoGray mt-2 sm:mt-3">
                               {getExerciseName(nextInfo.exercises[0], 0)} &{" "}
                               {getExerciseName(nextInfo.exercises[1], 1)}
                             </div>
@@ -819,12 +819,12 @@ const TabataWorkout = ({
                   </>
                 ) : (
                   <>
-                    <h3 className="text-lg sm:text-xl font-bold text-customWhite mb-2">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-4 sm:mb-6">
                       Current Exercise
                     </h3>
                     {currentExercise && (
                       <>
-                        <div className="text-brightYellow text-base sm:text-lg font-bold mb-2">
+                        <div className="text-brightYellow text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
                           {getExerciseName(
                             currentExercise,
                             currentExerciseIndex
@@ -880,7 +880,7 @@ const TabataWorkout = ({
               </div>
 
               {/* Exercise List - Reduced height */}
-              <div className="h-48 sm:h-56 overflow-hidden w-full max-w-md">
+              <div className="h-[35vh] sm:h-[40vh] md:h-[42vh] lg:h-[45vh] overflow-hidden w-full">
                 {isRest ? (
                   // Show exercise list during rest
                   <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">
@@ -891,20 +891,20 @@ const TabataWorkout = ({
                       if (nextInfo?.type === "nextBlock") {
                         return (
                           <>
-                            <h3 className="text-lg font-bold text-customWhite mb-3">
+                            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-3">
                               Block {nextInfo.blockNumber} Exercises
                             </h3>
-                            <div className="space-y-2">
+                            <div className="space-y-3 sm:space-y-4">
                               {nextInfo.exercises.map((exercise, index) => (
                                 <div
                                   key={index}
-                                  className="flex items-center justify-between p-2 rounded bg-gray-700 text-customWhite"
+                                  className="flex items-center justify-between p-4 sm:p-6 rounded-lg bg-gray-700 text-customWhite"
                                 >
-                                  <span className="font-semibold text-sm sm:text-base">
+                                  <span className="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl">
                                     {getExerciseName(exercise, index)}
                                   </span>
                                   {exercise.exercise.modification && (
-                                    <span className="text-xs text-brightYellow">
+                                    <span className="text-lg sm:text-xl md:text-2xl text-brightYellow">
                                       *
                                     </span>
                                   )}
@@ -921,7 +921,7 @@ const TabataWorkout = ({
                           <div className="flex items-center justify-center h-full">
                             <div className="text-center">
                               <div className="text-4xl mb-4">💪</div>
-                              <h3 className="text-xl font-bold text-customWhite mb-2">
+                              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-customWhite mb-2">
                                 Rest Time
                               </h3>
                               <p className="text-logoGray">
@@ -936,7 +936,7 @@ const TabataWorkout = ({
                 ) : (
                   // Show current block exercise list during work
                   <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">
-                    <h3 className="text-lg font-bold text-customWhite mb-3">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-3">
                       Current Block Exercises
                     </h3>
                     <div className="space-y-2">
@@ -944,18 +944,18 @@ const TabataWorkout = ({
                         (exercise, index) => (
                           <div
                             key={exercise.id || index}
-                            className={`flex items-center justify-between p-2 rounded transition-colors duration-200 ${
+                            className={`flex items-center justify-between p-4 sm:p-6 rounded-lg transition-colors duration-200 ${
                               index === currentExerciseIndex
                                 ? "bg-gray-800 border-2 border-limeGreen text-customWhite"
                                 : "bg-gray-700 text-customWhite"
                             }`}
                           >
                             <div className="flex-1">
-                              <span className="font-semibold text-sm sm:text-base">
+                              <span className="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl">
                                 {getExerciseName(exercise, index)}
                               </span>
                               {exercise.exercise.modification && (
-                                <span className="text-xs text-brightYellow ml-1">
+                                <span className="text-lg sm:text-xl md:text-2xl text-brightYellow ml-2">
                                   *
                                 </span>
                               )}

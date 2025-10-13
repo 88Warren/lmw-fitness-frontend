@@ -106,17 +106,17 @@ const WorkoutTimer = ({
     currentExercise.duration.toLowerCase().includes("max time");
 
   // Temporary debug logging
-  if (currentExercise?.exercise?.name?.toLowerCase().includes("plank")) {
-    console.log("PLANK DEBUG - PRODUCTION TEST:", {
-      exerciseName: currentExercise?.exercise?.name,
-      duration: currentExercise?.duration,
-      isMaxTimeExercise,
-      isRest,
-      isRoundRest,
-      isStopwatch,
-      timestamp: new Date().toISOString(),
-    });
-  }
+  // if (currentExercise?.exercise?.name?.toLowerCase().includes("plank")) {
+  //   console.log("PLANK DEBUG - PRODUCTION TEST:", {
+  //     exerciseName: currentExercise?.exercise?.name,
+  //     duration: currentExercise?.duration,
+  //     isMaxTimeExercise,
+  //     isRest,
+  //     isRoundRest,
+  //     isStopwatch,
+  //     timestamp: new Date().toISOString(),
+  //   });
+  // }
 
   useEffect(() => {
     // console.log("Timer initializing:", {

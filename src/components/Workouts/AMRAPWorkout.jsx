@@ -335,184 +335,176 @@ const AMRAPWorkout = ({
               : "flex-col lg:flex-row gap-6 p-4"
           }`}
         >
-          {/* Left Column: Timer and Round Counter */}
-          <div
-            className={`flex flex-col ${
-              isFullscreen
-                ? "w-full max-w-4xl space-y-2 sm:space-y-4 flex-shrink-0"
-                : "w-full lg:w-1/3 space-y-4"
-            }`}
-          >
-            <div
-              className={`flex flex-col sm:flex-row-reverse lg:flex-col ${
-                isFullscreen ? "gap-2 sm:gap-4" : "gap-4"
-              }`}
-            >
-              {/* Timer */}
-              <div
-                className={`w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg text-center flex flex-col justify-between relative ${
-                  isFullscreen
-                    ? "p-2 sm:p-3 lg:p-4 min-h-[100px] sm:min-h-[120px]"
-                    : "p-4 lg:p-6 min-h-[150px]"
-                }`}
-              >
-                {/* Fullscreen Toggle Button - Inside timer card */}
-                <button
-                  onClick={toggleFullscreen}
-                  className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
-                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          {/* Left Column: Timer and Round Counter - Only show when NOT fullscreen */}
+          {!isFullscreen && (
+            <div className="flex flex-col w-full lg:w-1/3 space-y-4">
+              <div className="flex flex-col sm:flex-row-reverse lg:flex-col gap-4">
+                {/* Timer */}
+                <div
+                  className={`w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg text-center flex flex-col justify-between relative ${
+                    isFullscreen
+                      ? "p-2 sm:p-3 lg:p-4 min-h-[100px] sm:min-h-[120px]"
+                      : "p-4 lg:p-6 min-h-[150px]"
+                  }`}
                 >
-                  {isFullscreen ? (
-                    // Exit fullscreen icon
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  ) : (
-                    // Enter fullscreen icon
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-                      />
-                    </svg>
-                  )}
-                </button>
-                <div className="flex-1 flex flex-col justify-center">
-                  <div
-                    className={`mb-2 lg:mb-4 text-limeGreen ${
-                      isFullscreen
-                        ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
-                        : "text-4xl sm:text-5xl lg:text-6xl"
-                    }`}
+                  {/* Fullscreen Toggle Button - Inside timer card */}
+                  <button
+                    onClick={toggleFullscreen}
+                    className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
+                    title={
+                      isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"
+                    }
                   >
-                    {formatTime(time)}
+                    {isFullscreen ? (
+                      // Exit fullscreen icon
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    ) : (
+                      // Enter fullscreen icon
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                  <div className="flex-1 flex flex-col justify-center">
+                    <div
+                      className={`mb-2 lg:mb-4 text-limeGreen ${
+                        isFullscreen
+                          ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
+                          : "text-4xl sm:text-5xl lg:text-6xl"
+                      }`}
+                    >
+                      {formatTime(time)}
+                    </div>
+                  </div>
+
+                  {/* Timer Controls - Positioned at bottom */}
+                  <div className="flex justify-center space-x-1 lg:space-x-2">
+                    {!isActive || isPaused ? (
+                      <button
+                        onClick={startTimer}
+                        className={`btn-full-colour mt-0 ${
+                          isFullscreen
+                            ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                            : "text-sm px-4 py-2"
+                        }`}
+                      >
+                        {isPaused ? "Resume" : "Start"}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={pauseTimer}
+                        className={`btn-subscribe mt-0 ${
+                          isFullscreen
+                            ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                            : "text-sm px-4 py-2"
+                        }`}
+                      >
+                        Pause
+                      </button>
+                    )}
+                    <button
+                      onClick={resetTimer}
+                      className={`btn-cancel mt-0 ${
+                        isFullscreen
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          : "text-sm px-4 py-2"
+                      }`}
+                    >
+                      Reset
+                    </button>
+                    {isAdmin && isActive && (
+                      <button
+                        onClick={skipToEnd}
+                        className={`btn-skip mt-0 ${
+                          isFullscreen
+                            ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                            : "text-sm px-4 py-2"
+                        }`}
+                      >
+                        End
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                {/* Timer Controls - Positioned at bottom */}
-                <div className="flex justify-center space-x-1 lg:space-x-2">
-                  {!isActive || isPaused ? (
+                {/* Round Counter */}
+                <div
+                  className={`bg-gray-600 w-full sm:w-1/2 lg:w-full rounded-lg text-center flex flex-col justify-between ${
+                    isFullscreen
+                      ? "p-2 sm:p-3 lg:p-4 min-h-[100px] sm:min-h-[120px]"
+                      : "p-4 lg:p-6 min-h-[150px]"
+                  }`}
+                >
+                  <div className="flex-1 flex flex-col justify-center">
+                    <div
+                      className={`text-brightYellow mb-2 lg:mb-4 ${
+                        isFullscreen
+                          ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+                          : "text-4xl sm:text-5xl lg:text-6xl"
+                      }`}
+                    >
+                      {roundsCompleted}
+                    </div>
+                    <div
+                      className={`text-customWhite mb-2 ${
+                        isFullscreen
+                          ? "text-sm sm:text-base md:text-lg"
+                          : "text-sm lg:text-base"
+                      }`}
+                    >
+                      Rounds Completed
+                    </div>
+                  </div>
+
+                  {/* Round Counter Controls - Positioned at bottom */}
+                  <div className="flex justify-center space-x-2">
                     <button
-                      onClick={startTimer}
+                      onClick={decrementRounds}
+                      className={`btn-cancel mt-0 ${
+                        isFullscreen
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          : "text-sm px-4 py-2"
+                      }`}
+                      disabled={roundsCompleted === 0}
+                    >
+                      -1
+                    </button>
+                    <button
+                      onClick={incrementRounds}
                       className={`btn-full-colour mt-0 ${
                         isFullscreen
                           ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
                           : "text-sm px-4 py-2"
                       }`}
                     >
-                      {isPaused ? "Resume" : "Start"}
+                      +1
                     </button>
-                  ) : (
-                    <button
-                      onClick={pauseTimer}
-                      className={`btn-subscribe mt-0 ${
-                        isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
-                          : "text-sm px-4 py-2"
-                      }`}
-                    >
-                      Pause
-                    </button>
-                  )}
-                  <button
-                    onClick={resetTimer}
-                    className={`btn-cancel mt-0 ${
-                      isFullscreen
-                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
-                        : "text-sm px-4 py-2"
-                    }`}
-                  >
-                    Reset
-                  </button>
-                  {isAdmin && isActive && (
-                    <button
-                      onClick={skipToEnd}
-                      className={`btn-skip mt-0 ${
-                        isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
-                          : "text-sm px-4 py-2"
-                      }`}
-                    >
-                      End
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Round Counter */}
-              <div
-                className={`bg-gray-600 w-full sm:w-1/2 lg:w-full rounded-lg text-center flex flex-col justify-between ${
-                  isFullscreen
-                    ? "p-2 sm:p-3 lg:p-4 min-h-[100px] sm:min-h-[120px]"
-                    : "p-4 lg:p-6 min-h-[150px]"
-                }`}
-              >
-                <div className="flex-1 flex flex-col justify-center">
-                  <div
-                    className={`text-brightYellow mb-2 lg:mb-4 ${
-                      isFullscreen
-                        ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
-                        : "text-4xl sm:text-5xl lg:text-6xl"
-                    }`}
-                  >
-                    {roundsCompleted}
-                  </div>
-                  <div
-                    className={`text-customWhite mb-2 ${
-                      isFullscreen
-                        ? "text-sm sm:text-base md:text-lg"
-                        : "text-sm lg:text-base"
-                    }`}
-                  >
-                    Rounds Completed
                   </div>
                 </div>
-
-                {/* Round Counter Controls - Positioned at bottom */}
-                <div className="flex justify-center space-x-2">
-                  <button
-                    onClick={decrementRounds}
-                    className={`btn-cancel mt-0 ${
-                      isFullscreen
-                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
-                        : "text-sm px-4 py-2"
-                    }`}
-                    disabled={roundsCompleted === 0}
-                  >
-                    -1
-                  </button>
-                  <button
-                    onClick={incrementRounds}
-                    className={`btn-full-colour mt-0 ${
-                      isFullscreen
-                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
-                        : "text-sm px-4 py-2"
-                    }`}
-                  >
-                    +1
-                  </button>
-                </div>
               </div>
-            </div>
-            {/* Exercise Details - Hidden on mobile, shown on desktop, hidden in fullscreen */}
-            {!isFullscreen && (
+              {/* Exercise Details - Hidden on mobile, shown on desktop, hidden in fullscreen */}
               <div className="mt-2 space-y-2 hidden lg:block">
                 {/* Show day-specific tips first, then exercise tips */}
                 {(workoutBlock.exercises[selectedExerciseIndex]?.tips ||
@@ -544,8 +536,8 @@ const AMRAPWorkout = ({
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Right Column: Exercise Table and Video */}
           {!isFullscreen && (
@@ -773,85 +765,170 @@ const AMRAPWorkout = ({
             </div>
           )}
 
-          {/* Fullscreen Exercise List - Compact version with better height utilization */}
+          {/* Fullscreen Layout - Timer, Round Counter, Exercise List */}
           {isFullscreen && (
-            <div className="w-full max-w-4xl">
-              <div
-                className="bg-gray-600 rounded-lg p-2 sm:p-3 md:p-4 overflow-y-auto"
-                style={{ maxHeight: "calc(100vh - 250px)" }}
-              >
-                <div className="space-y-1 sm:space-y-2">
-                  {workoutBlock.exercises.map((exercise, index) => (
-                    <div
-                      key={exercise.id || index}
-                      className="flex items-center justify-between p-2 sm:p-3 rounded bg-gray-700 text-customWhite"
+            <div className="w-full flex flex-col flex-1 space-y-4 sm:space-y-6">
+              {/* Timer - First */}
+              <div className="w-full bg-gray-600 rounded-lg text-center relative p-3 sm:p-4 md:p-5">
+                {/* Fullscreen Toggle Button - Inside timer card */}
+                <button
+                  onClick={toggleFullscreen}
+                  className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
+                  title="Exit Fullscreen"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+                <div className="mb-4 sm:mb-6 md:mb-8 text-limeGreen text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
+                  {formatTime(time)}
+                </div>
+                {/* Timer Controls */}
+                <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8">
+                  {!isActive || isPaused ? (
+                    <button
+                      onClick={startTimer}
+                      className="btn-full-colour mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
                     >
-                      <div className="flex-1">
-                        <span className="font-semibold text-sm sm:text-base md:text-lg">
-                          {getExerciseName(exercise, index)}
-                        </span>
-                        {exercise.exercise.modification && (
-                          <span className="text-xs text-brightYellow ml-1">
-                            *
+                      {isPaused ? "Resume" : "Start"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={pauseTimer}
+                      className="btn-subscribe mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                    >
+                      Pause
+                    </button>
+                  )}
+                  <button
+                    onClick={resetTimer}
+                    className="btn-cancel mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  >
+                    Reset
+                  </button>
+                  {isAdmin && isActive && (
+                    <button
+                      onClick={skipToEnd}
+                      className="btn-skip mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                    >
+                      End
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Round Counter - Second */}
+              <div className="w-full bg-gray-600 rounded-lg text-center p-3 sm:p-4 md:p-5">
+                <div className="mb-4 sm:mb-6 text-brightYellow text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
+                  {roundsCompleted}
+                </div>
+                <div className="text-customWhite mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl">
+                  Rounds Completed
+                </div>
+                {/* Round Counter Controls */}
+                <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8">
+                  <button
+                    onClick={decrementRounds}
+                    className="btn-cancel mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                    disabled={roundsCompleted === 0}
+                  >
+                    -1
+                  </button>
+                  <button
+                    onClick={incrementRounds}
+                    className="btn-full-colour mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  >
+                    +1
+                  </button>
+                </div>
+              </div>
+
+              {/* Exercise List - Third */}
+              <div className="flex-1 overflow-hidden">
+                <div className="bg-gray-600 rounded-lg p-3 sm:p-4 md:p-5 h-full overflow-y-auto">
+                  <div className="space-y-2 sm:space-y-3">
+                    {workoutBlock.exercises.map((exercise, index) => (
+                      <div
+                        key={exercise.id || index}
+                        className="flex items-center justify-between p-4 sm:p-6 rounded-lg bg-gray-700 text-customWhite"
+                      >
+                        <div className="flex-1">
+                          <span className="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl">
+                            {getExerciseName(exercise, index)}
                           </span>
-                        )}
-                        {exercise.tips && (
-                          <div className="text-xs sm:text-sm text-logoGray italic mt-0.5 sm:mt-1">
-                            {exercise.tips}
+                          {exercise.exercise.modification && (
+                            <span className="text-lg sm:text-xl md:text-2xl text-brightYellow ml-2">
+                              *
+                            </span>
+                          )}
+                          {exercise.tips && (
+                            <div className="text-sm sm:text-base md:text-lg text-logoGray italic mt-1 sm:mt-2">
+                              {exercise.tips}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {/* Modification toggle for fullscreen */}
+                          {exercise.exercise.modification && (
+                            <div className="flex space-x-1">
+                              {(() => {
+                                const { standardText, modifiedText } =
+                                  getToggleButtonText(exercise);
+                                return (
+                                  <>
+                                    <button
+                                      onClick={() =>
+                                        setShowModified((prev) => ({
+                                          ...prev,
+                                          [index]: false,
+                                        }))
+                                      }
+                                      className={`text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded border ${
+                                        !showModified[index]
+                                          ? "border-limeGreen bg-limeGreen text-black"
+                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                      }`}
+                                    >
+                                      {standardText}
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        setShowModified((prev) => ({
+                                          ...prev,
+                                          [index]: true,
+                                        }))
+                                      }
+                                      className={`text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded border ${
+                                        showModified[index]
+                                          ? "border-limeGreen bg-limeGreen text-black"
+                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                      }`}
+                                    >
+                                      {modifiedText}
+                                    </button>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          )}
+                          {/* Reps badge */}
+                          <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-lg text-sm sm:text-base md:text-lg bg-brightYellow text-black font-semibold">
+                            Reps: {exercise.reps}
                           </div>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {/* Modification toggle for fullscreen */}
-                        {exercise.exercise.modification && (
-                          <div className="flex space-x-1">
-                            {(() => {
-                              const { standardText, modifiedText } =
-                                getToggleButtonText(exercise);
-                              return (
-                                <>
-                                  <button
-                                    onClick={() =>
-                                      setShowModified((prev) => ({
-                                        ...prev,
-                                        [index]: false,
-                                      }))
-                                    }
-                                    className={`text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded border ${
-                                      !showModified[index]
-                                        ? "border-limeGreen bg-limeGreen text-black"
-                                        : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                    }`}
-                                  >
-                                    {standardText}
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      setShowModified((prev) => ({
-                                        ...prev,
-                                        [index]: true,
-                                      }))
-                                    }
-                                    className={`text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded border ${
-                                      showModified[index]
-                                        ? "border-limeGreen bg-limeGreen text-black"
-                                        : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                    }`}
-                                  >
-                                    {modifiedText}
-                                  </button>
-                                </>
-                              );
-                            })()}
-                          </div>
-                        )}
-                        {/* Reps badge */}
-                        <div className="px-2 py-1 sm:px-3 sm:py-1.5 rounded text-xs sm:text-sm bg-brightYellow text-black font-semibold">
-                          {exercise.reps}
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
