@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import ExerciseVideo from "./ExerciseVideo";
 import AudioControl from "../../components/Shared/AudioControl";
@@ -25,8 +25,18 @@ const AMRAPWorkout = ({
   const [currentAMRAPRound, setCurrentAMRAPRound] = useState(1);
   const [isRoundRest, setIsRoundRest] = useState(false);
   const [showModified, setShowModified] = useState({});
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const intervalRef = useRef(null);
-  const { audioEnabled, toggleAudio, playBeep } = useWorkoutAudio();
+  const {
+    audioEnabled,
+    volume,
+    startSound,
+    toggleAudio,
+    setVolumeLevel,
+    setStartSoundType,
+    playBeep,
+    playStartSound,
+  } = useWorkoutAudio();
 
   const extractDuration = () => {
     const notes = workoutBlock.blockNotes || "";
@@ -34,7 +44,7 @@ const AMRAPWorkout = ({
     if (!match) {
       match = notes.match(/\d+\s*x\s*(\d+)\s*min/i);
     }
-    return match ? parseInt(match[1]) * 60 : 720; 
+    return match ? parseInt(match[1]) * 60 : 720;
   };
 
   const totalDuration = extractDuration();
@@ -63,8 +73,13 @@ const AMRAPWorkout = ({
     if (isActive && !isPaused && time > 0) {
       intervalRef.current = setInterval(() => {
         setTime((prev) => {
-          if (prev <= 3 && prev > 0) {
+          if (prev <= 5 && prev > 0) {
             playBeep();
+          }
+
+          // Play start sound when transitioning from rest to work (or at very start)
+          if (prev === 1 && (isRoundRest || currentAMRAPRound === 1)) {
+            setTimeout(() => playStartSound(), 1000); // Play start sound when rest ends and work begins
           }
 
           if (prev <= 1) {
@@ -72,7 +87,7 @@ const AMRAPWorkout = ({
             if (isRoundRest) {
               setIsRoundRest(false);
               setCurrentAMRAPRound(currentAMRAPRound + 1);
-              setRoundsCompleted(0); 
+              setRoundsCompleted(0);
               setTime(totalDuration);
               setIsActive(true);
             } else if (
@@ -165,6 +180,38 @@ const AMRAPWorkout = ({
     onComplete();
   };
 
+  // Check if fullscreen state exists in sessionStorage (persists across component remounts)
+  useEffect(() => {
+    const savedFullscreenState = sessionStorage.getItem(
+      "amrapWorkoutFullscreen"
+    );
+    if (savedFullscreenState === "true") {
+      setIsFullscreen(true);
+    }
+
+    // Cleanup function to clear fullscreen state when component unmounts completely
+    return () => {
+      // Only clear if user navigates away from workout (not just exercise change)
+      const isNavigatingAway = !window.location.pathname.includes("/workout/");
+      if (isNavigatingAway) {
+        sessionStorage.removeItem("amrapWorkoutFullscreen");
+      }
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    const newFullscreenState = !isFullscreen;
+    setIsFullscreen(newFullscreenState);
+
+    if (newFullscreenState) {
+      // Save fullscreen state to sessionStorage so it persists across component remounts
+      sessionStorage.setItem("amrapWorkoutFullscreen", "true");
+    } else {
+      // Clear fullscreen state when user explicitly exits
+      sessionStorage.removeItem("amrapWorkoutFullscreen");
+    }
+  };
+
   const getExerciseName = (exercise, exerciseIndex) => {
     if (!exercise?.exercise) return "";
 
@@ -206,55 +253,155 @@ const AMRAPWorkout = ({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[140vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
-        <div className="flex justify-between items-center">
-          <AudioControl
-            audioEnabled={audioEnabled}
-            onToggle={toggleAudio}
-            className="mt-0"
-          />
-          {canGoBack && (
-            <button onClick={onGoBack} className="btn-cancel mt-0 self-end">
-              Back to Overview
-            </button>
-          )}
-        </div>
+    <div
+      className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white ${
+        isFullscreen ? "fixed inset-0 z-50 p-0" : "p-4"
+      }`}
+    >
+      <div
+        className={`bg-customGray rounded-lg text-center w-full flex flex-col border-brightYellow border-2 ${
+          isFullscreen
+            ? "h-full max-w-none p-6"
+            : "p-4 max-w-6xl h-full lg:max-h-[140vh] mt-20 md:mt-26"
+        }`}
+      >
+        {!isFullscreen && (
+          <div className="flex justify-between items-center">
+            <AudioControl
+              audioEnabled={audioEnabled}
+              volume={volume}
+              startSound={startSound}
+              onToggle={toggleAudio}
+              onVolumeChange={setVolumeLevel}
+              onStartSoundChange={setStartSoundType}
+              className="mt-0"
+            />
+            {canGoBack && (
+              <button onClick={onGoBack} className="btn-cancel mt-0 self-end">
+                Back to Overview
+              </button>
+            )}
+          </div>
+        )}
+        {/* Audio controls for larger screens in fullscreen */}
+        {isFullscreen && (
+          <div className="hidden lg:flex justify-start items-center mb-2">
+            <AudioControl
+              audioEnabled={audioEnabled}
+              volume={volume}
+              startSound={startSound}
+              onToggle={toggleAudio}
+              onVolumeChange={setVolumeLevel}
+              onStartSoundChange={setStartSoundType}
+              className="mt-0"
+            />
+          </div>
+        )}
         {/* Header */}
-        <div className="flex flex-col mt-4 mb-4 items-center">
-          <DynamicHeading
-            text={title}
-            className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-          />
-          <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center md:items-stretch">
-            {/* Description */}
-            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
-              <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
-                <span className="text-limeGreen font-bold">Description:</span>{" "}
-                {description}
-              </p>
-            </div>
+        {!isFullscreen && (
+          <div className="flex flex-col mt-4 mb-4 items-center">
+            <DynamicHeading
+              text={title}
+              className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
+            />
+            <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center md:items-stretch">
+              {/* Description */}
+              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                  <span className="text-limeGreen font-bold">Description:</span>{" "}
+                  {description}
+                </p>
+              </div>
 
-            {/* Instructions */}
-            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
-              <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                <span className="text-limeGreen font-bold">Instructions:</span>{" "}
-                Complete all exercises in order for 1 round. Click exercises to
-                view videos.
-              </p>
+              {/* Instructions */}
+              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
+                <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                  <span className="text-limeGreen font-bold">
+                    Instructions:
+                  </span>{" "}
+                  Complete all exercises in order for 1 round. Click exercises
+                  to view videos.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Main Content */}
-        <div className="flex-grow flex flex-col lg:flex-row gap-6 p-4">
+        <div
+          className={`flex-grow flex ${
+            isFullscreen
+              ? "flex-col items-center justify-start gap-2 p-2 sm:gap-4 sm:p-4 h-full"
+              : "flex-col lg:flex-row gap-6 p-4"
+          }`}
+        >
           {/* Left Column: Timer and Round Counter */}
-          <div className="w-full lg:w-1/3 flex flex-col space-y-4">
-            <div className="flex flex-col sm:flex-row-reverse lg:flex-col gap-4">
+          <div
+            className={`flex flex-col ${
+              isFullscreen
+                ? "w-full max-w-4xl space-y-2 sm:space-y-4 flex-shrink-0"
+                : "w-full lg:w-1/3 space-y-4"
+            }`}
+          >
+            <div
+              className={`flex flex-col sm:flex-row-reverse lg:flex-col ${
+                isFullscreen ? "gap-2 sm:gap-4" : "gap-4"
+              }`}
+            >
               {/* Timer */}
-              <div className="w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg p-4 lg:p-6 text-center flex flex-col justify-between min-h-[150px]">
+              <div
+                className={`w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg text-center flex flex-col justify-between relative ${
+                  isFullscreen
+                    ? "p-2 sm:p-3 lg:p-4 min-h-[100px] sm:min-h-[120px]"
+                    : "p-4 lg:p-6 min-h-[150px]"
+                }`}
+              >
+                {/* Fullscreen Toggle Button - Inside timer card */}
+                <button
+                  onClick={toggleFullscreen}
+                  className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
+                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                >
+                  {isFullscreen ? (
+                    // Exit fullscreen icon
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  ) : (
+                    // Enter fullscreen icon
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                      />
+                    </svg>
+                  )}
+                </button>
                 <div className="flex-1 flex flex-col justify-center">
-                  <div className="text-4xl sm:text-5xl lg:text-6xl mb-2 lg:mb-4 text-limeGreen">
+                  <div
+                    className={`mb-2 lg:mb-4 text-limeGreen ${
+                      isFullscreen
+                        ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
+                        : "text-4xl sm:text-5xl lg:text-6xl"
+                    }`}
+                  >
                     {formatTime(time)}
                   </div>
                 </div>
@@ -264,28 +411,44 @@ const AMRAPWorkout = ({
                   {!isActive || isPaused ? (
                     <button
                       onClick={startTimer}
-                      className="btn-full-colour text-sm px-4 py-2 mt-0"
+                      className={`btn-full-colour mt-0 ${
+                        isFullscreen
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          : "text-sm px-4 py-2"
+                      }`}
                     >
                       {isPaused ? "Resume" : "Start"}
                     </button>
                   ) : (
                     <button
                       onClick={pauseTimer}
-                      className="btn-subscribe text-sm px-4 py-2 mt-0"
+                      className={`btn-subscribe mt-0 ${
+                        isFullscreen
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          : "text-sm px-4 py-2"
+                      }`}
                     >
                       Pause
                     </button>
                   )}
                   <button
                     onClick={resetTimer}
-                    className="btn-cancel text-sm px-4 py-2 mt-0"
+                    className={`btn-cancel mt-0 ${
+                      isFullscreen
+                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                        : "text-sm px-4 py-2"
+                    }`}
                   >
                     Reset
                   </button>
                   {isAdmin && isActive && (
                     <button
                       onClick={skipToEnd}
-                      className="btn-skip text-sm px-4 py-2 mt-0"
+                      className={`btn-skip mt-0 ${
+                        isFullscreen
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          : "text-sm px-4 py-2"
+                      }`}
                     >
                       End
                     </button>
@@ -294,12 +457,30 @@ const AMRAPWorkout = ({
               </div>
 
               {/* Round Counter */}
-              <div className="bg-gray-600 w-full sm:w-1/2 lg:w-full rounded-lg p-4 lg:p-6 text-center flex flex-col justify-between min-h-[150px]">
+              <div
+                className={`bg-gray-600 w-full sm:w-1/2 lg:w-full rounded-lg text-center flex flex-col justify-between ${
+                  isFullscreen
+                    ? "p-2 sm:p-3 lg:p-4 min-h-[100px] sm:min-h-[120px]"
+                    : "p-4 lg:p-6 min-h-[150px]"
+                }`}
+              >
                 <div className="flex-1 flex flex-col justify-center">
-                  <div className="text-4xl sm:text-5xl lg:text-6xl text-brightYellow mb-2 lg:mb-4">
+                  <div
+                    className={`text-brightYellow mb-2 lg:mb-4 ${
+                      isFullscreen
+                        ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+                        : "text-4xl sm:text-5xl lg:text-6xl"
+                    }`}
+                  >
                     {roundsCompleted}
                   </div>
-                  <div className="text-sm lg:text-base text-customWhite mb-2">
+                  <div
+                    className={`text-customWhite mb-2 ${
+                      isFullscreen
+                        ? "text-sm sm:text-base md:text-lg"
+                        : "text-sm lg:text-base"
+                    }`}
+                  >
                     Rounds Completed
                   </div>
                 </div>
@@ -308,148 +489,223 @@ const AMRAPWorkout = ({
                 <div className="flex justify-center space-x-2">
                   <button
                     onClick={decrementRounds}
-                    className="btn-cancel text-sm px-4 py-2 mt-0"
+                    className={`btn-cancel mt-0 ${
+                      isFullscreen
+                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                        : "text-sm px-4 py-2"
+                    }`}
                     disabled={roundsCompleted === 0}
                   >
                     -1
                   </button>
                   <button
                     onClick={incrementRounds}
-                    className="btn-full-colour text-sm px-4 py-2 mt-0"
+                    className={`btn-full-colour mt-0 ${
+                      isFullscreen
+                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                        : "text-sm px-4 py-2"
+                    }`}
                   >
                     +1
                   </button>
                 </div>
               </div>
             </div>
-            {/* Exercise Details - Hidden on mobile, shown on desktop */}
-            <div className="mt-2 space-y-2 hidden lg:block">
-              {/* Show day-specific tips first, then exercise tips */}
-              {(workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                  ?.tips) && (
-                <div className="bg-gray-600 rounded-lg p-3">
-                  <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                    <span className="text-limeGreen font-bold">Tips:</span>{" "}
-                    {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                      workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                        ?.tips}
-                  </p>
-                </div>
-              )}
-              {/* Show day-specific instructions first, then exercise instructions */}
-              {(workoutBlock.exercises[selectedExerciseIndex]?.instructions ||
-                workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                  ?.instructions) && (
-                <div className="bg-gray-600 rounded-lg p-3">
-                  <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                    <span className="text-limeGreen font-bold">
-                      Instructions:
-                    </span>{" "}
-                    {workoutBlock.exercises[selectedExerciseIndex]
-                      ?.instructions ||
-                      workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                        ?.instructions}
-                  </p>
-                </div>
-              )}
-            </div>
+            {/* Exercise Details - Hidden on mobile, shown on desktop, hidden in fullscreen */}
+            {!isFullscreen && (
+              <div className="mt-2 space-y-2 hidden lg:block">
+                {/* Show day-specific tips first, then exercise tips */}
+                {(workoutBlock.exercises[selectedExerciseIndex]?.tips ||
+                  workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                    ?.tips) && (
+                  <div className="bg-gray-600 rounded-lg p-3">
+                    <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                      <span className="text-limeGreen font-bold">Tips:</span>{" "}
+                      {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
+                        workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                          ?.tips}
+                    </p>
+                  </div>
+                )}
+                {/* Show day-specific instructions first, then exercise instructions */}
+                {(workoutBlock.exercises[selectedExerciseIndex]?.instructions ||
+                  workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                    ?.instructions) && (
+                  <div className="bg-gray-600 rounded-lg p-3">
+                    <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                      <span className="text-limeGreen font-bold">
+                        Instructions:
+                      </span>{" "}
+                      {workoutBlock.exercises[selectedExerciseIndex]
+                        ?.instructions ||
+                        workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                          ?.instructions}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Column: Exercise Table and Video */}
-          <div className="w-full lg:w-2/3">
-            <div className="flex-1 space-y-2 overflow-y-auto mb-4">
-              {workoutBlock.exercises.map((exercise, index) => (
-                <div
-                  key={exercise.id || index}
-                  onClick={() => setSelectedExerciseIndex(index)}
-                  className={`p-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
-                    index === selectedExerciseIndex
-                      ? "bg-gray-700 text-black"
-                      : "text-logoGray hover:bg-gray-700"
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row justify-center sm:justify-between font-bold gap-2">
-                    {/* Exercise name with tips and modified label */}
-                    <div className="flex flex-col items-center md:items-start">
-                      <div className="flex items-center">
-                        <span className="text-customWhite text-left">
-                          {getExerciseName(exercise, index)}
-                        </span>
-                        {/* Modified version label */}
-                        {exercise.exercise.modification && (
-                          <span
-                            className={`text-xs align-center ml-1 text-brightYellow`}
-                          >
-                            *
+          {!isFullscreen && (
+            <div className="w-full lg:w-2/3">
+              <div className="flex-1 space-y-2 overflow-y-auto mb-4">
+                {workoutBlock.exercises.map((exercise, index) => (
+                  <div
+                    key={exercise.id || index}
+                    onClick={() => setSelectedExerciseIndex(index)}
+                    className={`p-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
+                      index === selectedExerciseIndex
+                        ? "bg-gray-700 text-black"
+                        : "text-logoGray hover:bg-gray-700"
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row justify-center sm:justify-between font-bold gap-2">
+                      {/* Exercise name with tips and modified label */}
+                      <div className="flex flex-col items-center md:items-start">
+                        <div className="flex items-center">
+                          <span className="text-customWhite text-left">
+                            {getExerciseName(exercise, index)}
                           </span>
+                          {/* Modified version label */}
+                          {exercise.exercise.modification && (
+                            <span
+                              className={`text-xs align-center ml-1 text-brightYellow`}
+                            >
+                              *
+                            </span>
+                          )}
+                        </div>
+                        {/* Exercise tips for rep breakdown */}
+                        {exercise.tips && (
+                          <div className="text-xs text-logoGray italic mt-1">
+                            {exercise.tips}
+                          </div>
                         )}
                       </div>
-                      {/* Exercise tips for rep breakdown */}
-                      {exercise.tips && (
-                        <div className="text-xs text-logoGray italic mt-1">
-                          {exercise.tips}
+
+                      {/* Pills container - all in one line for mobile, separate for desktop */}
+                      <div className="flex flex-wrap gap-2 items-center justify-center md:justify-start mt-2 md:mt-0">
+                        {/* Mobile: All pills in one line */}
+                        <div className="sm:hidden flex items-center space-x-1">
+                          {/* Modification toggle for mobile */}
+                          {exercise.exercise.modification && (
+                            <>
+                              {(() => {
+                                const { standardText, modifiedText } =
+                                  getToggleButtonText(exercise);
+                                return (
+                                  <>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowModified((prev) => ({
+                                          ...prev,
+                                          [index]: false,
+                                        }));
+                                      }}
+                                      className={`text-xs px-2 py-1 rounded border ${
+                                        selectedExerciseIndex === index
+                                          ? !showModified[index]
+                                            ? "border-limeGreen bg-limeGreen text-black"
+                                            : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                          : "border-gray-500"
+                                      }`}
+                                    >
+                                      {standardText}
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowModified((prev) => ({
+                                          ...prev,
+                                          [index]: true,
+                                        }));
+                                      }}
+                                      className={`text-xs px-2 py-1 rounded border ${
+                                        selectedExerciseIndex === index
+                                          ? showModified[index]
+                                            ? "border-limeGreen bg-limeGreen text-black"
+                                            : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                          : "border-gray-500"
+                                      }`}
+                                    >
+                                      {modifiedText}
+                                    </button>
+                                  </>
+                                );
+                              })()}
+                            </>
+                          )}
+
+                          {/* Reps badge for mobile */}
+                          <div
+                            className={`px-2 py-1 rounded text-xs border ${
+                              index === selectedExerciseIndex
+                                ? "bg-brightYellow text-black border-black"
+                                : "bg-brightYellow text-black border-black"
+                            }`}
+                          >
+                            Reps: {exercise.reps}
+                          </div>
                         </div>
-                      )}
-                    </div>
 
-                    {/* Pills container - all in one line for mobile, separate for desktop */}
-                    <div className="flex flex-wrap gap-2 items-center justify-center md:justify-start mt-2 md:mt-0">
-                      {/* Mobile: All pills in one line */}
-                      <div className="sm:hidden flex items-center space-x-1">
-                        {/* Modification toggle for mobile */}
-                        {exercise.exercise.modification && (
-                          <>
-                            {(() => {
-                              const { standardText, modifiedText } =
-                                getToggleButtonText(exercise);
-                              return (
-                                <>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setShowModified((prev) => ({
-                                        ...prev,
-                                        [index]: false,
-                                      }));
-                                    }}
-                                    className={`text-xs px-2 py-1 rounded border ${
-                                      selectedExerciseIndex === index
-                                        ? !showModified[index]
-                                          ? "border-limeGreen bg-limeGreen text-black"
-                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                        : "border-gray-500"
-                                    }`}
-                                  >
-                                    {standardText}
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setShowModified((prev) => ({
-                                        ...prev,
-                                        [index]: true,
-                                      }));
-                                    }}
-                                    className={`text-xs px-2 py-1 rounded border ${
-                                      selectedExerciseIndex === index
-                                        ? showModified[index]
-                                          ? "border-limeGreen bg-limeGreen text-black"
-                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                        : "border-gray-500"
-                                    }`}
-                                  >
-                                    {modifiedText}
-                                  </button>
-                                </>
-                              );
-                            })()}
-                          </>
-                        )}
+                        {/* Desktop: Separate modification toggle and reps badge */}
+                        <div className="hidden sm:flex items-center space-x-1">
+                          {exercise.exercise.modification && (
+                            <div className="flex space-x-2">
+                              {(() => {
+                                const { standardText, modifiedText } =
+                                  getToggleButtonText(exercise);
+                                return (
+                                  <>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowModified((prev) => ({
+                                          ...prev,
+                                          [index]: false,
+                                        }));
+                                      }}
+                                      className={`text-sm px-2 py-1 rounded-lg border ${
+                                        selectedExerciseIndex === index
+                                          ? !showModified[index]
+                                            ? "border-limeGreen bg-limeGreen text-black"
+                                            : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                          : "border-gray-500"
+                                      }`}
+                                    >
+                                      {standardText}
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowModified((prev) => ({
+                                          ...prev,
+                                          [index]: true,
+                                        }));
+                                      }}
+                                      className={`px-2 py-1 rounded-lg text-sm border ${
+                                        selectedExerciseIndex === index
+                                          ? showModified[index]
+                                            ? "border-limeGreen bg-limeGreen text-black"
+                                            : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
+                                          : "border-gray-500"
+                                      }`}
+                                    >
+                                      {modifiedText}
+                                    </button>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          )}
+                        </div>
 
-                        {/* Reps badge for mobile */}
+                        {/* Reps badge for desktop */}
                         <div
-                          className={`px-2 py-1 rounded text-xs border ${
+                          className={`hidden sm:block px-2 py-1 rounded-lg text-sm border ${
                             index === selectedExerciseIndex
                               ? "bg-brightYellow text-black border-black"
                               : "bg-brightYellow text-black border-black"
@@ -458,48 +714,128 @@ const AMRAPWorkout = ({
                           Reps: {exercise.reps}
                         </div>
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-                      {/* Desktop: Separate modification toggle and reps badge */}
-                      <div className="hidden sm:flex items-center space-x-1">
+              {/* Video */}
+              <div className="pt-4">
+                <div className="relative w-full pb-[100%] md:pb-[60%] lg:pb-[80%] overflow-hidden rounded-lg">
+                  <div className="absolute top-0 left-0 w-full h-full">
+                    <ExerciseVideo
+                      exercise={workoutBlock.exercises[selectedExerciseIndex]}
+                      isActive={true}
+                      shouldAutoStart={false}
+                      showModified={
+                        showModified[selectedExerciseIndex] || false
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Exercise Details - Shown on mobile below video, hidden on desktop and fullscreen */}
+              {!isFullscreen && (
+                <div className="mt-4 space-y-2 lg:hidden">
+                  {/* Show day-specific tips first, then exercise tips */}
+                  {(workoutBlock.exercises[selectedExerciseIndex]?.tips ||
+                    workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                      ?.tips) && (
+                    <div className="bg-gray-600 rounded-lg p-3">
+                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                        <span className="text-limeGreen font-bold">Tips:</span>{" "}
+                        {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
+                          workoutBlock.exercises[selectedExerciseIndex]
+                            ?.exercise?.tips}
+                      </p>
+                    </div>
+                  )}
+                  {/* Show day-specific instructions first, then exercise instructions */}
+                  {(workoutBlock.exercises[selectedExerciseIndex]
+                    ?.instructions ||
+                    workoutBlock.exercises[selectedExerciseIndex]?.exercise
+                      ?.instructions) && (
+                    <div className="bg-gray-600 rounded-lg p-3">
+                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                        <span className="text-limeGreen font-bold">
+                          Instructions:
+                        </span>{" "}
+                        {workoutBlock.exercises[selectedExerciseIndex]
+                          ?.instructions ||
+                          workoutBlock.exercises[selectedExerciseIndex]
+                            ?.exercise?.instructions}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Fullscreen Exercise List - Compact version with better height utilization */}
+          {isFullscreen && (
+            <div className="w-full max-w-4xl">
+              <div
+                className="bg-gray-600 rounded-lg p-2 sm:p-3 md:p-4 overflow-y-auto"
+                style={{ maxHeight: "calc(100vh - 250px)" }}
+              >
+                <div className="space-y-1 sm:space-y-2">
+                  {workoutBlock.exercises.map((exercise, index) => (
+                    <div
+                      key={exercise.id || index}
+                      className="flex items-center justify-between p-2 sm:p-3 rounded bg-gray-700 text-customWhite"
+                    >
+                      <div className="flex-1">
+                        <span className="font-semibold text-sm sm:text-base md:text-lg">
+                          {getExerciseName(exercise, index)}
+                        </span>
                         {exercise.exercise.modification && (
-                          <div className="flex space-x-2">
+                          <span className="text-xs text-brightYellow ml-1">
+                            *
+                          </span>
+                        )}
+                        {exercise.tips && (
+                          <div className="text-xs sm:text-sm text-logoGray italic mt-0.5 sm:mt-1">
+                            {exercise.tips}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {/* Modification toggle for fullscreen */}
+                        {exercise.exercise.modification && (
+                          <div className="flex space-x-1">
                             {(() => {
                               const { standardText, modifiedText } =
                                 getToggleButtonText(exercise);
                               return (
                                 <>
                                   <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
+                                    onClick={() =>
                                       setShowModified((prev) => ({
                                         ...prev,
                                         [index]: false,
-                                      }));
-                                    }}
-                                    className={`text-sm px-2 py-1 rounded-lg border ${
-                                      selectedExerciseIndex === index
-                                        ? !showModified[index]
-                                          ? "border-limeGreen bg-limeGreen text-black"
-                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                        : "border-gray-500"
+                                      }))
+                                    }
+                                    className={`text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded border ${
+                                      !showModified[index]
+                                        ? "border-limeGreen bg-limeGreen text-black"
+                                        : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
                                     }`}
                                   >
                                     {standardText}
                                   </button>
                                   <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
+                                    onClick={() =>
                                       setShowModified((prev) => ({
                                         ...prev,
                                         [index]: true,
-                                      }));
-                                    }}
-                                    className={`px-2 py-1 rounded-lg text-sm border ${
-                                      selectedExerciseIndex === index
-                                        ? showModified[index]
-                                          ? "border-limeGreen bg-limeGreen text-black"
-                                          : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                        : "border-gray-500"
+                                      }))
+                                    }
+                                    className={`text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded border ${
+                                      showModified[index]
+                                        ? "border-limeGreen bg-limeGreen text-black"
+                                        : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
                                     }`}
                                   >
                                     {modifiedText}
@@ -509,71 +845,17 @@ const AMRAPWorkout = ({
                             })()}
                           </div>
                         )}
-                      </div>
-
-                      {/* Reps badge for desktop */}
-                      <div
-                        className={`hidden sm:block px-2 py-1 rounded-lg text-sm border ${
-                          index === selectedExerciseIndex
-                            ? "bg-brightYellow text-black border-black"
-                            : "bg-brightYellow text-black border-black"
-                        }`}
-                      >
-                        Reps: {exercise.reps}
+                        {/* Reps badge */}
+                        <div className="px-2 py-1 sm:px-3 sm:py-1.5 rounded text-xs sm:text-sm bg-brightYellow text-black font-semibold">
+                          {exercise.reps}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Video */}
-            <div className="pt-4">
-              <div className="relative w-full pb-[100%] md:pb-[60%] lg:pb-[80%] overflow-hidden rounded-lg">
-                <div className="absolute top-0 left-0 w-full h-full">
-                  <ExerciseVideo
-                    exercise={workoutBlock.exercises[selectedExerciseIndex]}
-                    isActive={true}
-                    shouldAutoStart={false}
-                    showModified={showModified[selectedExerciseIndex] || false}
-                  />
+                  ))}
                 </div>
               </div>
             </div>
-
-            {/* Exercise Details - Shown on mobile below video, hidden on desktop */}
-            <div className="mt-4 space-y-2 lg:hidden">
-              {/* Show day-specific tips first, then exercise tips */}
-              {(workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                  ?.tips) && (
-                <div className="bg-gray-600 rounded-lg p-3">
-                  <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                    <span className="text-limeGreen font-bold">Tips:</span>{" "}
-                    {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
-                      workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                        ?.tips}
-                  </p>
-                </div>
-              )}
-              {/* Show day-specific instructions first, then exercise instructions */}
-              {(workoutBlock.exercises[selectedExerciseIndex]?.instructions ||
-                workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                  ?.instructions) && (
-                <div className="bg-gray-600 rounded-lg p-3">
-                  <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                    <span className="text-limeGreen font-bold">
-                      Instructions:
-                    </span>{" "}
-                    {workoutBlock.exercises[selectedExerciseIndex]
-                      ?.instructions ||
-                      workoutBlock.exercises[selectedExerciseIndex]?.exercise
-                        ?.instructions}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 const WorkoutTimer = ({
   currentExercise,
+  nextExercise,
   onExerciseComplete,
   onGoBack,
   canGoBack,
@@ -18,12 +19,45 @@ const WorkoutTimer = ({
   shouldAutoStart = false,
   isAdmin = false,
   playBeep = () => {},
+  playStartSound = () => {},
 }) => {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [hasResetOnce, setHasResetOnce] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const intervalRef = useRef(null);
+  const timerRef = useRef(null);
+
+  // Check if fullscreen state exists in sessionStorage (persists across component remounts)
+  useEffect(() => {
+    const savedFullscreenState = sessionStorage.getItem('workoutTimerFullscreen');
+    if (savedFullscreenState === 'true') {
+      setIsFullscreen(true);
+    }
+    
+    // Cleanup function to clear fullscreen state when component unmounts completely
+    return () => {
+      // Only clear if user navigates away from workout (not just exercise change)
+      const isNavigatingAway = !window.location.pathname.includes('/workout/');
+      if (isNavigatingAway) {
+        sessionStorage.removeItem('workoutTimerFullscreen');
+      }
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    const newFullscreenState = !isFullscreen;
+    setIsFullscreen(newFullscreenState);
+    
+    if (newFullscreenState) {
+      // Save fullscreen state to sessionStorage so it persists across component remounts
+      sessionStorage.setItem('workoutTimerFullscreen', 'true');
+    } else {
+      // Clear fullscreen state when user explicitly exits
+      sessionStorage.removeItem('workoutTimerFullscreen');
+    }
+  };
 
   const parseDurationToSeconds = (duration) => {
     // console.log("Parsing duration:", duration, "type:", typeof duration);
@@ -80,7 +114,7 @@ const WorkoutTimer = ({
       isRest,
       isRoundRest,
       isStopwatch,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -140,8 +174,13 @@ const WorkoutTimer = ({
           if (isStopwatch || isMaxTimeExercise) {
             return prev + 1;
           } else {
-            if (prev <= 3 && prev > 0) {
+            if (prev <= 5 && prev > 0) {
               playBeep();
+            }
+
+            // Play start sound when transitioning from rest to work (when rest timer ends)
+            if (prev === 1 && isRest) {
+              setTimeout(() => playStartSound(), 1000); // Play start sound when rest ends and work begins
             }
 
             if (prev <= 1) {
@@ -238,7 +277,12 @@ const WorkoutTimer = ({
   const activeExercise = currentExercise?.exercise;
 
   return (
-    <div className="flex flex-col h-full justify-between">
+    <div
+      ref={timerRef}
+      className={`flex flex-col h-full justify-between ${
+        isFullscreen ? "fixed inset-0 z-50 bg-customGray p-8" : ""
+      }`}
+    >
       {/* Round title or placeholder for consistent spacing */}
       <div className="md:min-h-[48px] md:mb-4 flex items-center justify-center">
         {totalRounds > 1 &&
@@ -254,11 +298,60 @@ const WorkoutTimer = ({
           </div>
         )}
       </div>
+
       {/* Timer Section */}
-      <div className="bg-gray-600 rounded-lg p-4">
+      <div
+        className={`bg-gray-600 rounded-lg p-4 relative ${
+          isFullscreen ? "flex-1 flex flex-col justify-center" : ""
+        }`}
+      >
+        {/* Fullscreen Toggle Button - Inside timer card */}
+        <button
+          onClick={toggleFullscreen}
+          className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+        >
+          {isFullscreen ? (
+            // Exit fullscreen icon
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          ) : (
+            // Enter fullscreen icon
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+              />
+            </svg>
+          )}
+        </button>
         <div className="mb-2">
           <div className="flex flex-col items-center mb-2">
-            <h3 className="text-3xl mb-2 font-bold text-customWhite">
+            <h3
+              className={`mb-2 font-bold text-customWhite ${
+                isFullscreen
+                  ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+                  : "text-3xl"
+              }`}
+            >
               {isStopwatch || isMaxTimeExercise
                 ? activeExercise?.name
                 : isRoundRest
@@ -268,20 +361,36 @@ const WorkoutTimer = ({
                 : activeExercise?.name}
             </h3>
             {isMaxTimeExercise && (
-              <p className="text-brightYellow text-sm font-semibold mb-2">
+              <p
+                className={`text-brightYellow font-semibold mb-2 ${
+                  isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
+                }`}
+              >
                 Hold as long as possible - Use Skip/Done when finished
               </p>
             )}
-            <p className="text-logoGray text-xs">
+            <p
+              className={`text-logoGray ${
+                isFullscreen ? "text-xs sm:text-sm md:text-base" : "text-xs"
+              }`}
+            >
               Exercise {currentExerciseNumber} of {totalExercisesInBlock}
             </p>
             {currentBlockType === "AMRAP" && (
-              <p className="text-brightYellow text-sm font-semibold">
+              <p
+                className={`text-brightYellow font-semibold ${
+                  isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
+                }`}
+              >
                 AMRAP - Keep Going!
               </p>
             )}
             {currentBlockType === "EMOM" && (
-              <p className="text-brightYellow text-sm font-semibold">
+              <p
+                className={`text-brightYellow font-semibold ${
+                  isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
+                }`}
+              >
                 EMOM - Every Minute On the Minute!
               </p>
             )}
@@ -291,17 +400,54 @@ const WorkoutTimer = ({
         {/* Timer Display */}
         <div className="mb-2">
           <div
-            className={`text-7xl p-4 ${
-              isRest || isRoundRest ? "text-hotPink" : "text-limeGreen"
-            }`}
+            className={`p-4 ${
+              isFullscreen
+                ? "text-6xl md:text-8xl lg:text-9xl"
+                : "text-7xl"
+            } ${isRest || isRoundRest ? "text-hotPink" : "text-limeGreen"}`}
           >
             {formatTime(time)}
           </div>
         </div>
 
+        {/* Next Exercise Info - Only in fullscreen during rest */}
+        {isFullscreen && (isRest || isRoundRest) && nextExercise && (
+          <div className="mb-6 p-4 bg-gray-700 rounded-lg">
+            <div className="text-center">
+              <h4 className="text-2xl font-semibold text-brightYellow mb-3">
+                Next Exercise
+              </h4>
+              <p className="text-3xl font-bold text-customWhite mb-2">
+                {nextExercise.exercise?.name || "Get Ready!"}
+              </p>
+              {nextExercise.exercise?.modification && (
+                <p className="text-xl text-logoGray mb-3">
+                  or{" "}
+                  <span className="text-brightYellow">
+                    {nextExercise.exercise.modification.name}
+                  </span>
+                </p>
+              )}
+              {nextExercise.reps && (
+                <p className="text-lg text-brightYellow">
+                  {`${nextExercise.reps} ${
+                    nextExercise.duration
+                      ? `(${nextExercise.duration})`
+                      : "reps"
+                  }`}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Overall Progress Bar */}
         <div className="flex justify-center w-full mt-4">
-          <div className="bg-gray-400 rounded-full h-3 w-1/2">
+          <div
+            className={`bg-gray-400 rounded-full ${
+              isFullscreen ? "h-4 w-3/4" : "h-3 w-1/2"
+            }`}
+          >
             <div
               className="bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink h-full rounded-full transition-all duration-500"
               style={{
@@ -312,7 +458,11 @@ const WorkoutTimer = ({
         </div>
 
         {/* Timer Controls */}
-        <div className="flex justify-center space-x-2">
+        <div
+          className={`flex justify-center space-x-2 ${
+            isFullscreen ? "mt-8" : ""
+          }`}
+        >
           {canGoBack && (
             <button
               onClick={() => {
@@ -322,7 +472,11 @@ const WorkoutTimer = ({
                 setIsPaused(false);
                 onGoBack();
               }}
-              className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+              className={`btn-cancel ${
+                isFullscreen
+                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  : "px-3 py-1 md:px-6 md:py-3"
+              }`}
             >
               Back
             </button>
@@ -331,10 +485,14 @@ const WorkoutTimer = ({
           {!isActive || isPaused ? (
             <button
               onClick={resumeTimer}
-              className={`btn-full-colour px-3 py-1 md:px-6 md:py-3 ${
+              className={`btn-full-colour ${
+                isFullscreen
+                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  : "px-3 py-1 md:px-6 md:py-3"
+              } ${
                 (isStopwatch || isMaxTimeExercise) && isActive
-                  ? "btn-subscribe px-3 py-1 md:px-6 md:py-3"
-                  : "px-6 py-2 bg-limeGreen hover:bg-green-600 text-black"
+                  ? "btn-subscribe"
+                  : "bg-limeGreen hover:bg-green-600 text-black"
               }`}
             >
               {isPaused ? "Resume" : "Start"}
@@ -342,7 +500,11 @@ const WorkoutTimer = ({
           ) : (
             <button
               onClick={pauseTimer}
-              className="btn-subscribe px-3 py-1 md:px-6 md:py-3"
+              className={`btn-subscribe ${
+                isFullscreen
+                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  : "px-3 py-1 md:px-6 md:py-3"
+              }`}
             >
               Pause
             </button>
@@ -351,7 +513,11 @@ const WorkoutTimer = ({
           {(isStopwatch || isMaxTimeExercise) && isActive && (
             <button
               onClick={stopAndReset}
-              className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+              className={`btn-cancel ${
+                isFullscreen
+                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  : "px-3 py-1 md:px-6 md:py-3"
+              }`}
             >
               Reset
             </button>
@@ -369,7 +535,11 @@ const WorkoutTimer = ({
                 clearInterval(intervalRef.current);
                 onExerciseComplete();
               }}
-              className="btn-skip px-3 py-1 md:px-6 md:py-3"
+              className={`btn-skip ${
+                isFullscreen
+                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  : "px-3 py-1 md:px-6 md:py-3"
+              }`}
             >
               Done
             </button>
@@ -461,8 +631,14 @@ WorkoutTimer.propTypes = {
     }),
   }),
   nextExercise: PropTypes.shape({
+    reps: PropTypes.string,
+    duration: PropTypes.string,
     exercise: PropTypes.shape({
       name: PropTypes.string,
+      modification: PropTypes.shape({
+        name: PropTypes.string,
+        videoId: PropTypes.string,
+      }),
     }),
   }),
   onExerciseComplete: PropTypes.func.isRequired,
@@ -483,6 +659,7 @@ WorkoutTimer.propTypes = {
   shouldAutoStart: PropTypes.bool,
   isAdmin: PropTypes.bool,
   playBeep: PropTypes.func,
+  playStartSound: PropTypes.func,
 };
 
 export default WorkoutTimer;

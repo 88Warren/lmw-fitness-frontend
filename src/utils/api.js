@@ -35,15 +35,19 @@ const handleResponse = async (response) => {
   const contentType = response.headers.get('content-type');
   let data;
   
-  if (contentType && contentType.includes('application/json')) {
-    data = await response.json();
+  // Handle 204 No Content responses
+  if (response.status === 204) {
+    data = null;
+  } else if (contentType && contentType.includes('application/json')) {
+    const text = await response.text();
+    data = text ? JSON.parse(text) : null;
   } else {
     data = await response.text();
   }
   
   if (!response.ok) {
     throw new ApiError(
-      data.error || data.message || `HTTP ${response.status}: ${response.statusText}`,
+      data?.error || data?.message || `HTTP ${response.status}: ${response.statusText}`,
       response.status,
       data
     );

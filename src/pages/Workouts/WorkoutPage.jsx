@@ -68,7 +68,7 @@ const WorkoutPage = () => {
   const [currentSessionData, setCurrentSessionData] = useState(null);
   const [completedSessions, setCompletedSessions] = useState([]);
   const [showModified, setShowModified] = useState({});
-  const { audioEnabled, toggleAudio, playBeep } = useWorkoutAudio();
+  const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playBeep, playStartSound } = useWorkoutAudio();
 
   useEffect(() => {
     if (!showPreview && !workoutComplete) {
@@ -1327,7 +1327,11 @@ const WorkoutPage = () => {
         <div className="flex justify-between items-center">
           <AudioControl
             audioEnabled={audioEnabled}
+            volume={volume}
+            startSound={startSound}
             onToggle={toggleAudio}
+            onVolumeChange={setVolumeLevel}
+            onStartSoundChange={setStartSoundType}
             className="mt-0"
           />
           <button onClick={handleGoBackToProgram} className="btn-cancel mt-0">
@@ -1393,6 +1397,7 @@ const WorkoutPage = () => {
               shouldAutoStart={shouldAutoStart}
               isAdmin={user?.role === "admin"}
               playBeep={playBeep}
+              playStartSound={playStartSound}
             />
 
             {/* Instructions and Tips - Desktop Only (in timer section) */}
@@ -1479,6 +1484,14 @@ const WorkoutPage = () => {
                           <span className="font-semibold text-white text-xl">
                             {getNextExercise().exercise.name}
                           </span>
+                          {getNextExercise().exercise.modification && (
+                            <span className="text-logoGray text-xl ml-2">
+                              or{" "}
+                              <span className="font-semibold text-brightYellow text-xl">
+                                {getNextExercise().exercise.modification.name}
+                              </span>
+                            </span>
+                          )}
                         </p>
                       )}
                     </div>
@@ -1522,6 +1535,14 @@ const WorkoutPage = () => {
                                 <span className="font-semibold text-white text-xl">
                                   {getNextExercise().exercise.name}
                                 </span>
+                                {getNextExercise().exercise.modification && (
+                                  <span className="text-logoGray text-xl ml-2">
+                                    or{" "}
+                                    <span className="font-semibold text-brightYellow text-xl">
+                                      {getNextExercise().exercise.modification.name}
+                                    </span>
+                                  </span>
+                                )}
                               </p>
                             </div>
                           ) : (
@@ -1530,6 +1551,14 @@ const WorkoutPage = () => {
                               <span className="font-semibold text-white text-xl">
                                 {getNextExercise().exercise.name}
                               </span>
+                              {getNextExercise().exercise.modification && (
+                                <span className="text-logoGray text-xl ml-2">
+                                  or{" "}
+                                  <span className="font-semibold text-brightYellow text-xl">
+                                    {getNextExercise().exercise.modification.name}
+                                  </span>
+                                </span>
+                              )}
                             </p>
                           )}
                         </div>

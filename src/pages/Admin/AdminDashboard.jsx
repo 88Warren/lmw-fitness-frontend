@@ -24,6 +24,12 @@ const AdminDashboard = () => {
       icon: '📅'
     },
     {
+      title: 'Blog Management',
+      description: 'Create, edit, and manage blog posts',
+      link: '/admin/blogs',
+      icon: '📝'
+    },
+    {
       title: 'User Management',
       description: 'View and manage user accounts',
       link: '/admin/users',

@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { BACKEND_URL } from "../../utils/config";
 import LoadingAndErrorDisplay from "../Shared/Errors/LoadingAndErrorDisplay";
-import NewsletterSignup from "./Sections/NewsletterSignup";
 import DynamicHeading from "../Shared/DynamicHeading";
 import { showToast } from "../../utils/toastUtil";
 import PropTypes from "prop-types";
