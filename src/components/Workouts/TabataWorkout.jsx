@@ -28,7 +28,7 @@ const TabataWorkout = ({
   const [showModified, setShowModified] = useState({});
   const [hasResetOnce, setHasResetOnce] = useState(false);
   const intervalRef = useRef(null);
-  const { audioEnabled, toggleAudio, playBeep } = useWorkoutAudio();
+  const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playBeep, playStartSound } = useWorkoutAudio();
 
   const extractTabataConfig = () => {
     const currentBlock = allTabataBlocks?.[currentBlockIndex];
@@ -74,8 +74,13 @@ const TabataWorkout = ({
     if (isActive && !isPaused && time > 0) {
       intervalRef.current = setInterval(() => {
         setTime((prev) => {
-          if (prev <= 3 && prev > 0) {
+          if (prev <= 5 && prev > 0) {
             playBeep();
+          }
+          
+          // Play start sound when transitioning from rest to work
+          if (prev === 1 && isRest) {
+            setTimeout(() => playStartSound(), 1000); // Play start sound when rest ends and work begins
           }
 
           if (prev <= 1) {
@@ -296,7 +301,11 @@ const TabataWorkout = ({
         <div className="flex justify-between items-center">
           <AudioControl
             audioEnabled={audioEnabled}
+            volume={volume}
+            startSound={startSound}
             onToggle={toggleAudio}
+            onVolumeChange={setVolumeLevel}
+            onStartSoundChange={setStartSoundType}
             className="mt-0"
           />
           {canGoBack && (

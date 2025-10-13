@@ -4,6 +4,7 @@ import api from "../utils/api";
 import { showToast } from "../utils/toastUtil";
 import LoadingAndErrorDisplay from "../components/Shared/Errors/LoadingAndErrorDisplay";
 import { isTokenExpired, getTimeUntilExpiry } from "../utils/tokenUtils";
+import { autoSetTimezone } from "../utils/timezone";
 import PropTypes from "prop-types";
 
 export const AuthContext = createContext(null);
@@ -68,7 +69,20 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(true);
     setIsAdmin(userData.role === "admin");
     api.setAuthToken(newToken);
-  }, []);
+    
+    // Auto-detect and set timezone if needed
+    setTimeout(() => {
+      autoSetTimezone(userData).then((success) => {
+        if (success) {
+          console.log('Timezone auto-detected and updated');
+          // Refresh user data to get the updated timezone
+          updateUser();
+        }
+      }).catch((error) => {
+        console.error('Error auto-setting timezone:', error);
+      });
+    }, 1000); // Small delay to ensure everything is set up
+  }, [updateUser]);
 
   const clearAuthData = useCallback(() => {
     // console.log("AuthContext: Clearing auth data");

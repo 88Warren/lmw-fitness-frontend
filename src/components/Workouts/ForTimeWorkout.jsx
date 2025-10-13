@@ -26,7 +26,7 @@ const ForTimeWorkout = ({
   const [isResting, setIsResting] = useState(false);
   const [restTime, setRestTime] = useState(0);
   const intervalRef = useRef(null);
-  const { audioEnabled, toggleAudio } = useWorkoutAudio();
+  const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playStartSound } = useWorkoutAudio();
 
   const workoutSteps = generateWorkoutSteps();
 
@@ -249,7 +249,11 @@ const ForTimeWorkout = ({
         <div className="flex justify-between items-center">
           <AudioControl
             audioEnabled={audioEnabled}
+            volume={volume}
+            startSound={startSound}
             onToggle={toggleAudio}
+            onVolumeChange={setVolumeLevel}
+            onStartSoundChange={setStartSoundType}
             className="mt-0"
           />
           {canGoBack && (

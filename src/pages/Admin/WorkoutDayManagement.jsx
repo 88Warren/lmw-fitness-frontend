@@ -445,7 +445,7 @@ const WorkoutDayManagement = () => {
                                             "
                                             {block.blockNotes ||
                                               block.BlockNotes}
-                                            "
+                                            &quot;
                                           </p>
                                         )}
                                         <div className="flex gap-4 text-sm text-brightYellow font-titillium mt-2">

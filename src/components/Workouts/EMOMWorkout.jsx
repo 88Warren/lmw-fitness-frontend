@@ -26,8 +26,18 @@ const EMOMWorkout = ({
   });
   const [showModified, setShowModified] = useState({});
   const [hasResetOnce, setHasResetOnce] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const intervalRef = useRef(null);
-  const { audioEnabled, toggleAudio, playBeep } = useWorkoutAudio();
+  const {
+    audioEnabled,
+    volume,
+    startSound,
+    toggleAudio,
+    setVolumeLevel,
+    setStartSoundType,
+    playBeep,
+    playStartSound,
+  } = useWorkoutAudio();
 
   const extractWorkoutInfo = () => {
     const notes = workoutBlock.blockNotes || "";
@@ -89,8 +99,13 @@ const EMOMWorkout = ({
         setTimerState((prevState) => {
           const newSeconds = prevState.secondsInCurrentMinute - 1;
 
-          if (newSeconds <= 3 && newSeconds > 0) {
+          if (newSeconds <= 5 && newSeconds > 0) {
             playBeep();
+          }
+
+          // Play start sound when starting each new minute (when rest ends and work begins)
+          if (newSeconds === 60 && prevState.currentMinute > 1) {
+            playStartSound();
           }
 
           if (newSeconds <= 0) {
@@ -146,9 +161,9 @@ const EMOMWorkout = ({
 
   const resetTimer = () => {
     clearInterval(intervalRef.current);
-    
+
     if (!hasResetOnce) {
-      setTimerState(prevState => ({
+      setTimerState((prevState) => ({
         ...prevState,
         secondsInCurrentMinute: 60,
         isActive: false,
@@ -191,6 +206,38 @@ const EMOMWorkout = ({
     onComplete();
   };
 
+  // Check if fullscreen state exists in sessionStorage (persists across component remounts)
+  useEffect(() => {
+    const savedFullscreenState = sessionStorage.getItem(
+      "emomWorkoutFullscreen"
+    );
+    if (savedFullscreenState === "true") {
+      setIsFullscreen(true);
+    }
+
+    // Cleanup function to clear fullscreen state when component unmounts completely
+    return () => {
+      // Only clear if user navigates away from workout (not just exercise change)
+      const isNavigatingAway = !window.location.pathname.includes("/workout/");
+      if (isNavigatingAway) {
+        sessionStorage.removeItem("emomWorkoutFullscreen");
+      }
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    const newFullscreenState = !isFullscreen;
+    setIsFullscreen(newFullscreenState);
+
+    if (newFullscreenState) {
+      // Save fullscreen state to sessionStorage so it persists across component remounts
+      sessionStorage.setItem("emomWorkoutFullscreen", "true");
+    } else {
+      // Clear fullscreen state when user explicitly exits
+      sessionStorage.removeItem("emomWorkoutFullscreen");
+    }
+  };
+
   const getProgressPercentage = () => {
     const totalWorkoutSeconds = totalMinutes * 60;
     return (timerState.totalTime / totalWorkoutSeconds) * 100;
@@ -205,6 +252,39 @@ const EMOMWorkout = ({
     }
     return exercise.exercise.name;
   };
+
+  const getNextExercise = useMemo(() => {
+    if (!workoutBlock.exercises || workoutBlock.exercises.length === 0) {
+      return null;
+    }
+
+    // If only one exercise, there's no "next" exercise
+    if (workoutBlock.exercises.length === 1) {
+      return null;
+    }
+
+    const nextMinute = timerState.currentMinute + 1;
+
+    // If we're at the last minute, there's no next exercise
+    if (nextMinute > totalMinutes) {
+      return null;
+    }
+
+    const exercises = workoutBlock.exercises;
+
+    if (isEveryTwoMinutes) {
+      const exerciseIndex = Math.floor((nextMinute - 1) / 2) % exercises.length;
+      return exercises[exerciseIndex];
+    }
+
+    const exerciseIndex = (nextMinute - 1) % exercises.length;
+    return exercises[exerciseIndex];
+  }, [
+    timerState.currentMinute,
+    workoutBlock.exercises,
+    isEveryTwoMinutes,
+    totalMinutes,
+  ]);
 
   if (timerState.isComplete) {
     return (
@@ -235,54 +315,76 @@ const EMOMWorkout = ({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-4 rounded-lg text-center max-w-xs sm:max-w-2xl md:max-w-6xl w-full h-full lg:max-h-[120vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
-        <div className="flex justify-between items-center">
-          <AudioControl
-            audioEnabled={audioEnabled}
-            onToggle={toggleAudio}
-            className="mt-0"
-          />
-          {canGoBack && (
-            <button onClick={onGoBack} className="btn-cancel mt-0">
-              Back to Overview
-            </button>
-          )}
-        </div>
-        {/* Header */}
-        <div className="flex flex-col mt-4 mb-4 items-center">
-          <DynamicHeading
-            text={title}
-            className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-          />
-          <div className="flex flex-col md:flex-row gap-0 md:gap-4 w-full items-center md:items-stretch">
-            {/* Description */}
-            <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-              <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
-                <span className="text-limeGreen font-bold">Description:</span>{" "}
-                {description}
-              </p>
-            </div>
-
-            {/* Instructions */}
-            {currentExercise && (
-              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                  <span className="text-limeGreen font-bold">
-                    Instructions:
-                  </span>{" "}
-                  Complete {currentExercise.reps} reps of{" "}
-                  {getExerciseName(currentExercise, timerState.currentMinute)}{" "}
-                  within this minute. Use any remaining time to rest before the
-                  next minute begins.
-                </p>
-              </div>
+    <div
+      className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white ${
+        isFullscreen ? "fixed inset-0 z-50 p-0" : "p-4"
+      }`}
+    >
+      <div
+        className={`bg-customGray rounded-lg text-center w-full flex flex-col border-brightYellow border-2 ${
+          isFullscreen
+            ? "h-full max-w-none p-6"
+            : "p-4 max-w-xs sm:max-w-2xl md:max-w-6xl h-full lg:max-h-[120vh] mt-20 md:mt-26"
+        }`}
+      >
+        {!isFullscreen && (
+          <div className="flex justify-between items-center">
+            <AudioControl
+              audioEnabled={audioEnabled}
+              volume={volume}
+              startSound={startSound}
+              onToggle={toggleAudio}
+              onVolumeChange={setVolumeLevel}
+              onStartSoundChange={setStartSoundType}
+              className="mt-0"
+            />
+            {canGoBack && (
+              <button onClick={onGoBack} className="btn-cancel mt-0">
+                Back to Overview
+              </button>
             )}
           </div>
-        </div>
+        )}
+        {/* Header */}
+        {!isFullscreen && (
+          <div className="flex flex-col mt-4 mb-4 items-center">
+            <DynamicHeading
+              text={title}
+              className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
+            />
+            <div className="flex flex-col md:flex-row gap-0 md:gap-4 w-full items-center md:items-stretch">
+              {/* Description */}
+              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
+                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                  <span className="text-limeGreen font-bold">Description:</span>{" "}
+                  {description}
+                </p>
+              </div>
+
+              {/* Instructions */}
+              {currentExercise && (
+                <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
+                  <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                    <span className="text-limeGreen font-bold">
+                      Instructions:
+                    </span>{" "}
+                    Complete {currentExercise.reps} reps of{" "}
+                    {getExerciseName(currentExercise, timerState.currentMinute)}{" "}
+                    within this minute. Use any remaining time to rest before
+                    the next minute begins.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div>
-          <h2 className="text-customWhite text-lg md:text-2xl font-titillium font-semibold lg:mb-2">
+          <h2
+            className={`text-customWhite font-titillium font-semibold lg:mb-2 ${
+              isFullscreen ? "text-4xl mb-6" : "text-lg md:text-2xl"
+            }`}
+          >
             Minute{" "}
             <span className="text-brightYellow">
               {timerState.currentMinute}
@@ -300,13 +402,27 @@ const EMOMWorkout = ({
         </div>
 
         {/* Main Content */}
-        <div className="flex-grow flex flex-col lg:flex-row gap-0 md:gap-4 p-4">
+        <div
+          className={`flex-grow flex gap-0 md:gap-4 p-4 ${
+            isFullscreen
+              ? "flex-col items-center justify-center"
+              : "flex-col lg:flex-row"
+          }`}
+        >
           {/* Left Column: Timer and Controls */}
-          <div className="w-full lg:w-1/3 flex flex-col space-y-4">
+          <div
+            className={`flex flex-col space-y-4 ${
+              isFullscreen ? "w-full max-w-4xl" : "w-full lg:w-1/3"
+            }`}
+          >
             {currentExercise && (
               <div className="space-y-4 pt-4">
                 <div className="p-4 rounded-lg text-center bg-gray-600 text-customWhite">
-                  <h4 className="font-bold text-lg">
+                  <h4
+                    className={`font-bold ${
+                      isFullscreen ? "text-3xl mb-4" : "text-lg"
+                    }`}
+                  >
                     {getExerciseName(currentExercise, timerState.currentMinute)}
                   </h4>
                   {/* Exercise-specific tips (e.g., "2 Jabs = 1 rep") */}
@@ -315,7 +431,11 @@ const EMOMWorkout = ({
                       {currentExercise.tips}
                     </p>
                   )}
-                  <div className="text-4xl font-bold mb-3 text-brightYellow">
+                  <div
+                    className={`font-bold mb-3 text-brightYellow ${
+                      isFullscreen ? "text-6xl" : "text-4xl"
+                    }`}
+                  >
                     {`${currentExercise.reps} ${
                       currentExercise.duration
                         ? `(${currentExercise.duration})`
@@ -323,9 +443,9 @@ const EMOMWorkout = ({
                     }`}
                   </div>
 
-                  {/* Modification Toggle */}
+                  {/* Modification Toggle - moved above next exercise */}
                   {currentExercise.exercise?.modification && (
-                    <div className="flex justify-center space-x-1">
+                    <div className="flex justify-center space-x-1 mb-3">
                       {(() => {
                         const { standardText, modifiedText } =
                           getToggleButtonText(currentExercise);
@@ -366,124 +486,256 @@ const EMOMWorkout = ({
                       })()}
                     </div>
                   )}
+
+                  {/* Next Exercise Preview */}
+                  {getNextExercise && (
+                    <div className="mt-4 pt-3 border-t border-gray-500">
+                      <div
+                        className={`text-logoGray mb-1 ${
+                          isFullscreen ? "text-lg" : "text-sm"
+                        }`}
+                      >
+                        Next minute:
+                      </div>
+                      <div
+                        className={`font-semibold text-customWhite mb-1 ${
+                          isFullscreen ? "text-2xl" : "text-lg"
+                        }`}
+                      >
+                        {getExerciseName(
+                          getNextExercise,
+                          timerState.currentMinute + 1
+                        )}
+                      </div>
+                      {getNextExercise.exercise.modification && (
+                        <div
+                          className={`text-logoGray mb-1 ${
+                            isFullscreen ? "text-xl" : "text-base"
+                          }`}
+                        >
+                          or{" "}
+                          <span className="text-brightYellow">
+                            {getNextExercise.exercise.modification.name}
+                          </span>
+                        </div>
+                      )}
+                      <div
+                        className={`text-brightYellow ${
+                          isFullscreen ? "text-xl" : "text-base"
+                        }`}
+                      >
+                        {`${getNextExercise.reps} ${
+                          getNextExercise.duration
+                            ? `(${getNextExercise.duration})`
+                            : "reps"
+                        }`}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
             <div className="flex flex-col sm:flex-row-reverse lg:flex-col gap-4">
               {/* Current Minute Timer */}
-              <div className="w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg p-4 text-center">
-                <div className="text-6xl mb-4 text-limeGreen">
+              <div className="w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg p-4 text-center relative">
+                {/* Fullscreen Toggle Button - Inside timer card */}
+                <button
+                  onClick={toggleFullscreen}
+                  className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
+                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                >
+                  {isFullscreen ? (
+                    // Exit fullscreen icon
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  ) : (
+                    // Enter fullscreen icon
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                      />
+                    </svg>
+                  )}
+                </button>
+                <div
+                  className={`mb-4 text-limeGreen ${
+                    isFullscreen
+                      ? "text-6xl md:text-8xl lg:text-9xl"
+                      : "text-6xl"
+                  }`}
+                >
                   {formatTime(timerState.secondsInCurrentMinute)}
                 </div>
+
+                {/* Progress Bar - Only in fullscreen mode, directly under timer */}
+                {isFullscreen && (
+                  <div className="mb-4">
+                    <div className="bg-gray-500 rounded-full h-3 sm:h-4 md:h-6">
+                      <div
+                        className="h-full rounded-full transition-all duration-500 bg-brightYellow"
+                        style={{ width: `${getProgressPercentage()}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-customWhite text-xs sm:text-sm mt-2">
+                      Total Time: {formatTotalTime(timerState.totalTime)}
+                    </div>
+                  </div>
+                )}
+
                 {/* Timer Controls */}
                 <div className="flex justify-center space-x-2">
                   {!timerState.isActive || timerState.isPaused ? (
                     <button
                       onClick={startTimer}
-                      className="btn-full-colour mt-3"
+                      className={`btn-full-colour mt-3 ${
+                        isFullscreen
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          : ""
+                      }`}
                     >
                       {timerState.isPaused ? "Resume" : "Start"}
                     </button>
                   ) : (
-                    <button onClick={pauseTimer} className="btn-subscribe mt-3">
+                    <button
+                      onClick={pauseTimer}
+                      className={`btn-subscribe mt-3 ${
+                        isFullscreen
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          : ""
+                      }`}
+                    >
                       Pause
                     </button>
                   )}
-                  <button onClick={resetTimer} className="btn-cancel mt-3">
+                  <button
+                    onClick={resetTimer}
+                    className={`btn-cancel mt-3 ${
+                      isFullscreen
+                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                        : ""
+                    }`}
+                  >
                     {hasResetOnce ? "Reset All" : "Reset"}
                   </button>
                   {isAdmin && timerState.isActive && (
                     <button
                       onClick={skipCurrentMinute}
-                      className="btn-skip mt-3"
+                      className={`btn-skip mt-3 ${
+                        isFullscreen
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          : ""
+                      }`}
                     >
                       Next
                     </button>
                   )}
                 </div>
               </div>
-              {/* Total Time */}
-              <div className="w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg p-4 text-center">
-                <h3 className="text-xl font-bold text-customWhite mb-2">
-                  Total Time
-                </h3>
-                <div className="text-6xl text-brightYellow mb-4">
-                  {formatTotalTime(timerState.totalTime)}
+              {/* Total Time - Hidden in fullscreen */}
+              {!isFullscreen && (
+                <div className="w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg p-4 text-center">
+                  <h3 className="font-bold text-customWhite mb-2 text-xl">
+                    Total Time
+                  </h3>
+                  <div className="text-brightYellow mb-4 text-6xl">
+                    {formatTotalTime(timerState.totalTime)}
+                  </div>
+                  {/* Overall Progress Bar */}
+                  <div className="bg-gray-500 rounded-full h-3">
+                    <div
+                      className="h-full rounded-full transition-all duration-500 bg-brightYellow"
+                      style={{ width: `${getProgressPercentage()}%` }}
+                    ></div>
+                  </div>
                 </div>
-                {/* Overall Progress Bar */}
-                <div className="bg-gray-500 rounded-full h-3">
-                  <div
-                    className="h-full rounded-full transition-all duration-500 bg-brightYellow"
-                    style={{ width: `${getProgressPercentage()}%` }}
-                  ></div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
           {/* Right Column: Current Exercise */}
-          <div className="w-full lg:w-2/3">
-            <div className="h-full">
-              {/* Video */}
-              {currentExercise ? (
-                <div className="pt-4">
-                  <div className="relative w-full pb-[100%] md:pb-[80.25%] overflow-hidden rounded-lg">
-                    <div className="absolute top-0 left-0 w-full h-full">
-                      <ExerciseVideo
-                        exercise={currentExercise}
-                        isActive={true}
-                        shouldAutoStart={false}
-                        showModified={
-                          showModified[timerState.currentMinute] || false
-                        }
-                      />
+          {!isFullscreen && (
+            <div className="w-full lg:w-2/3">
+              <div className="h-full">
+                {/* Video */}
+                {currentExercise ? (
+                  <div className="pt-4">
+                    <div className="relative w-full pb-[100%] md:pb-[80.25%] overflow-hidden rounded-lg">
+                      <div className="absolute top-0 left-0 w-full h-full">
+                        <ExerciseVideo
+                          exercise={currentExercise}
+                          isActive={true}
+                          shouldAutoStart={false}
+                          showModified={
+                            showModified[timerState.currentMinute] || false
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
+                ) : (
+                  <div className="bg-gray-600 rounded-lg p-10 h-full flex flex-col items-center justify-center text-center">
+                    <div className="text-6xl mb-4">⏱️</div>
+                    <h3 className="text-xl font-bold text-customWhite mb-2">
+                      EMOM Ready
+                    </h3>
+                    <p className="text-logoGray text-md">
+                      Start the timer to begin your EMOM workout
+                    </p>
+                  </div>
+                )}
+                {/* Individual Exercise Details */}
+                <div className="mt-2 flex flex-col md:flex-row gap-4">
+                  {/* Show individual exercise tips */}
+                  {currentExercise &&
+                    (currentExercise?.tips ||
+                      currentExercise?.exercise?.tips) && (
+                      <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-2 mt-3 text-center">
+                        <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                          <span className="text-limeGreen font-bold">
+                            Form Tips:
+                          </span>{" "}
+                          {currentExercise?.tips ||
+                            currentExercise?.exercise?.tips}
+                        </p>
+                      </div>
+                    )}
+                  {/* Show individual exercise instructions */}
+                  {currentExercise &&
+                    (currentExercise?.instructions ||
+                      currentExercise?.exercise?.instructions) && (
+                      <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-2 mt-3 text-center">
+                        <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                          <span className="text-limeGreen font-bold">
+                            Instructions:
+                          </span>{" "}
+                          {currentExercise?.instructions ||
+                            currentExercise?.exercise?.instructions}
+                        </p>
+                      </div>
+                    )}
                 </div>
-              ) : (
-                <div className="bg-gray-600 rounded-lg p-10 h-full flex flex-col items-center justify-center text-center">
-                  <div className="text-6xl mb-4">⏱️</div>
-                  <h3 className="text-xl font-bold text-customWhite mb-2">
-                    EMOM Ready
-                  </h3>
-                  <p className="text-logoGray text-md">
-                    Start the timer to begin your EMOM workout
-                  </p>
-                </div>
-              )}
-              {/* Individual Exercise Details */}
-              <div className="mt-2 flex flex-col md:flex-row gap-4">
-                {/* Show individual exercise tips */}
-                {currentExercise &&
-                  (currentExercise?.tips ||
-                    currentExercise?.exercise?.tips) && (
-                    <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-2 mt-3 text-center">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                        <span className="text-limeGreen font-bold">
-                          Form Tips:
-                        </span>{" "}
-                        {currentExercise?.tips ||
-                          currentExercise?.exercise?.tips}
-                      </p>
-                    </div>
-                  )}
-                {/* Show individual exercise instructions */}
-                {currentExercise &&
-                  (currentExercise?.instructions ||
-                    currentExercise?.exercise?.instructions) && (
-                    <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-2 mt-3 text-center">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
-                        <span className="text-limeGreen font-bold">
-                          Instructions:
-                        </span>{" "}
-                        {currentExercise?.instructions ||
-                          currentExercise?.exercise?.instructions}
-                      </p>
-                    </div>
-                  )}
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
