@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 // Mock components for testing
 const MockButton = ({ children, onClick, disabled, className }) => (
@@ -8,6 +9,13 @@ const MockButton = ({ children, onClick, disabled, className }) => (
     {children}
   </button>
 );
+
+MockButton.propTypes = {
+  children: PropTypes.node,
+  onClick: PropTypes.func,
+  disabled: PropTypes.bool,
+  className: PropTypes.string,
+};
 
 const MockNavigation = () => (
   <nav data-testid="navigation">

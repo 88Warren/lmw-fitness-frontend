@@ -1,5 +1,4 @@
-import CategoriesSidebar from './CategoriesSideBar'; 
-import NewsletterSignup from './NewsletterSignup';
+import CategoriesSidebar from './CategoriesSideBar';
 
 const BlogSidebar = () => {
   return (

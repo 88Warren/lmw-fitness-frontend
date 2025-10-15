@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { motion } from "framer-motion";
 import { useCart } from '../../context/CartContext'; 
-import { BEGINNER_PRICE_ID, ADVANCED_PRICE_ID, TAILORED_COACHING_PRICE_ID, ULTIMATE_MINDSET_PACKAGE_PRICE_ID } from '../../utils/config';
+import { BEGINNER_PRICE_ID, ADVANCED_PRICE_ID } from '../../utils/config';
 import { useNavigate } from 'react-router-dom'; 
 
 const Pricing = () => {
@@ -13,10 +13,7 @@ const Pricing = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  const bonusVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.7, delay: 0.3 } },
-  };
+
 
   useEffect(() => {
     const brevoScriptId = 'brevo-form-main-script';

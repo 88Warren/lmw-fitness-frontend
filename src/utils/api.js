@@ -111,7 +111,7 @@ const refreshToken = async () => {
     throw new ApiError('No auth token available for refresh', 401);
   }
   
-  const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'}/api/refresh-token`, {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'}/api/refresh-token`, {
     method: 'POST',
     headers: buildHeaders(),
   });
