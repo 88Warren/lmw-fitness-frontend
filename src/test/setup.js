@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Mock environment variables
 globalThis.import = {
@@ -21,4 +22,14 @@ globalThis.IntersectionObserver = class IntersectionObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
+}
+
+// Mock window.scrollTo
+globalThis.scrollTo = vi.fn()
+
+// Mock console methods to reduce noise in tests
+globalThis.console = {
+  ...console,
+  warn: vi.fn(),
+  error: vi.fn(),
 }

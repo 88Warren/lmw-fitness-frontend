@@ -21,8 +21,10 @@ describe('API Utility', () => {
       ok: true,
       status: 200,
       statusText: 'OK',
-      headers: new Map([['content-type', 'application/json']]),
-      json: () => Promise.resolve({ message: 'success' }),
+      headers: {
+        get: (key) => key === 'content-type' ? 'application/json' : null
+      },
+      text: () => Promise.resolve('{"message":"success"}'),
     };
     mockFetch.mockResolvedValue(mockResponse);
 
@@ -43,8 +45,10 @@ describe('API Utility', () => {
       ok: true,
       status: 201,
       statusText: 'Created',
-      headers: new Map([['content-type', 'application/json']]),
-      json: () => Promise.resolve({ id: 1, name: 'test' }),
+      headers: {
+        get: (key) => key === 'content-type' ? 'application/json' : null
+      },
+      text: () => Promise.resolve('{"id":1,"name":"test"}'),
     };
     mockFetch.mockResolvedValue(mockResponse);
 
@@ -66,8 +70,10 @@ describe('API Utility', () => {
       ok: true,
       status: 200,
       statusText: 'OK',
-      headers: new Map([['content-type', 'application/json']]),
-      json: () => Promise.resolve({ authenticated: true }),
+      headers: {
+        get: (key) => key === 'content-type' ? 'application/json' : null
+      },
+      text: () => Promise.resolve('{"authenticated":true}'),
     };
     mockFetch.mockResolvedValue(mockResponse);
 
@@ -88,8 +94,10 @@ describe('API Utility', () => {
       ok: false,
       status: 400,
       statusText: 'Bad Request',
-      headers: new Map([['content-type', 'application/json']]),
-      json: () => Promise.resolve({ message: 'Invalid data' }),
+      headers: {
+        get: (key) => key === 'content-type' ? 'application/json' : null
+      },
+      text: () => Promise.resolve('{"message":"Invalid data"}'),
     };
     mockFetch.mockResolvedValue(mockResponse);
 
