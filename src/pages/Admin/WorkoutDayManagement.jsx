@@ -442,7 +442,7 @@ const WorkoutDayManagement = () => {
                                         {(block.blockNotes ||
                                           block.BlockNotes) && (
                                           <p className="text-logoGray text-sm font-titillium mt-2 italic">
-                                            "
+                                            &quot;
                                             {block.blockNotes ||
                                               block.BlockNotes}
                                             &quot;
