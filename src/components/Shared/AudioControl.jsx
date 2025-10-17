@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import "./AudioControl.css";
 
-const AudioControl = ({ audioEnabled, onToggle, volume, onVolumeChange, startSound, onStartSoundChange, className = "" }) => {
+const AudioControl = ({ audioEnabled, onToggle, volume, onVolumeChange, startSound, onStartSoundChange, className = "", playStartSound, playBeep }) => {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 
   const soundOptions = [
@@ -88,7 +88,16 @@ const AudioControl = ({ audioEnabled, onToggle, volume, onVolumeChange, startSou
 
             {/* Start Sound Selector */}
             <div className="border-t border-gray-600 pt-3">
-              <span className="text-customWhite text-sm font-medium mb-2 block">Start Sound</span>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-customWhite text-sm font-medium">Start Sound</span>
+                <button
+                  onClick={() => playStartSound && playStartSound()}
+                  className="text-xs bg-brightYellow text-black px-2 py-1 rounded hover:bg-yellow-400 transition-colors"
+                  title="Preview start sound"
+                >
+                  Preview
+                </button>
+              </div>
               <select
                 value={startSound}
                 onChange={(e) => onStartSoundChange && onStartSoundChange(e.target.value)}
@@ -102,6 +111,23 @@ const AudioControl = ({ audioEnabled, onToggle, volume, onVolumeChange, startSou
               </select>
               <p className="text-xs text-gray-400 mt-1">
                 {soundOptions.find(opt => opt.value === startSound)?.description}
+              </p>
+            </div>
+
+            {/* Countdown Beep Preview */}
+            <div className="border-t border-gray-600 pt-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-customWhite text-sm font-medium">Countdown Beep</span>
+                <button
+                  onClick={() => playBeep && playBeep()}
+                  className="text-xs bg-brightYellow text-black px-2 py-1 rounded hover:bg-yellow-400 transition-colors"
+                  title="Preview countdown beep"
+                >
+                  Preview
+                </button>
+              </div>
+              <p className="text-xs text-gray-400">
+                Plays every second for the last 5 seconds of exercise and rest periods
               </p>
             </div>
           </div>
@@ -123,6 +149,8 @@ AudioControl.propTypes = {
   startSound: PropTypes.string.isRequired,
   onStartSoundChange: PropTypes.func.isRequired,
   className: PropTypes.string,
+  playStartSound: PropTypes.func,
+  playBeep: PropTypes.func,
 };
 
 export default AudioControl;

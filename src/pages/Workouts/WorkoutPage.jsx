@@ -1332,6 +1332,8 @@ const WorkoutPage = () => {
             onToggle={toggleAudio}
             onVolumeChange={setVolumeLevel}
             onStartSoundChange={setStartSoundType}
+            playStartSound={playStartSound}
+            playBeep={playBeep}
             className="mt-0"
           />
           <button onClick={handleGoBackToProgram} className="btn-cancel mt-0">
@@ -1370,7 +1372,6 @@ const WorkoutPage = () => {
           {/* Right Column: Timer, Instructions, and Progress */}
           <div className="w-full lg:w-1/2 flex flex-col">
             <WorkoutTimer
-              key={`${currentBlockIndex}-${currentExerciseIndex}-${currentRound}-${hasStartedWorkout}`}
               currentBlockType={
                 workoutData.workoutBlocks[currentBlockIndex].blockType
               }

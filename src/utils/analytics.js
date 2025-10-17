@@ -8,7 +8,7 @@ class Analytics {
   init() {
     if (typeof window !== 'undefined' && window.gtag && !this.isInitialized) {
       this.isInitialized = true;
-      console.log('Analytics initialized');
+      // console.log('Analytics initialized');
     }
   }
 

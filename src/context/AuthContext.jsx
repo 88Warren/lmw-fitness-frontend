@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     setTimeout(() => {
       autoSetTimezone(userData).then((success) => {
         if (success) {
-          console.log('Timezone auto-detected and updated');
+          // console.log('Timezone auto-detected and updated');
           // Refresh user data to get the updated timezone
           updateUser();
         }

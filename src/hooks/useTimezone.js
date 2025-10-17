@@ -14,7 +14,7 @@ const useTimezone = (user, updateUser) => {
       try {
         const success = await autoSetTimezone(user);
         if (success) {
-          console.log('Timezone auto-detected and updated');
+          // console.log('Timezone auto-detected and updated');
           // Refresh user data to get the updated timezone
           updateUser();
         }

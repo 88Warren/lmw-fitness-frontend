@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
 
 const WorkoutTimer = ({
   currentExercise,
@@ -25,39 +26,9 @@ const WorkoutTimer = ({
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [hasResetOnce, setHasResetOnce] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
   const timerRef = useRef(null);
-
-  // Check if fullscreen state exists in sessionStorage (persists across component remounts)
-  useEffect(() => {
-    const savedFullscreenState = sessionStorage.getItem('workoutTimerFullscreen');
-    if (savedFullscreenState === 'true') {
-      setIsFullscreen(true);
-    }
-    
-    // Cleanup function to clear fullscreen state when component unmounts completely
-    return () => {
-      // Only clear if user navigates away from workout (not just exercise change)
-      const isNavigatingAway = !window.location.pathname.includes('/workout/');
-      if (isNavigatingAway) {
-        sessionStorage.removeItem('workoutTimerFullscreen');
-      }
-    };
-  }, []);
-
-  const toggleFullscreen = () => {
-    const newFullscreenState = !isFullscreen;
-    setIsFullscreen(newFullscreenState);
-    
-    if (newFullscreenState) {
-      // Save fullscreen state to sessionStorage so it persists across component remounts
-      sessionStorage.setItem('workoutTimerFullscreen', 'true');
-    } else {
-      // Clear fullscreen state when user explicitly exits
-      sessionStorage.removeItem('workoutTimerFullscreen');
-    }
-  };
 
   const parseDurationToSeconds = (duration) => {
     // console.log("Parsing duration:", duration, "type:", typeof duration);
@@ -174,6 +145,7 @@ const WorkoutTimer = ({
           if (isStopwatch || isMaxTimeExercise) {
             return prev + 1;
           } else {
+            // Play beep for each second in the last 5 seconds
             if (prev <= 5 && prev > 0) {
               playBeep();
             }
@@ -280,7 +252,7 @@ const WorkoutTimer = ({
     <div
       ref={timerRef}
       className={`flex flex-col h-full justify-between ${
-        isFullscreen ? "fixed inset-0 z-50 bg-customGray p-8" : ""
+        isFullscreen ? "workout-fullscreen-container fixed inset-0 z-50 bg-customGray p-8" : ""
       }`}
     >
       {/* Round title or placeholder for consistent spacing */}
@@ -404,10 +376,22 @@ const WorkoutTimer = ({
               isFullscreen
                 ? "text-6xl md:text-8xl lg:text-9xl"
                 : "text-7xl"
-            } ${isRest || isRoundRest ? "text-hotPink" : "text-limeGreen"}`}
+            } ${isRest || isRoundRest ? "text-hotPink" : "text-limeGreen"} ${
+              time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise 
+                ? "animate-pulse" 
+                : ""
+            }`}
           >
             {formatTime(time)}
           </div>
+          {/* Countdown indicator */}
+          {time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && (
+            <div className="text-center">
+              <span className="text-brightYellow font-semibold text-lg animate-bounce">
+                🔔 Get Ready!
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Next Exercise Info - Only in fullscreen during rest */}

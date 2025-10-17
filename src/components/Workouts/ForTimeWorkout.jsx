@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import PropTypes from "prop-types";
 import ExerciseVideo from "./ExerciseVideo";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
+import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 
 const ForTimeWorkout = ({
@@ -25,13 +26,11 @@ const ForTimeWorkout = ({
   const [completedSteps, setCompletedSteps] = useState(new Set());
   const [isResting, setIsResting] = useState(false);
   const [restTime, setRestTime] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
-  const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType } = useWorkoutAudio();
+  const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playStartSound, playBeep } = useWorkoutAudio();
 
-  const workoutSteps = generateWorkoutSteps();
-
-  function generateWorkoutSteps() {
+  const workoutSteps = useMemo(() => {
     const steps = [];
 
     // Check if this is a ladder workout (has comma-separated reps)
@@ -76,7 +75,7 @@ const ForTimeWorkout = ({
     }
 
     return steps;
-  }
+  }, [workoutBlock]);
 
   function getProgressDisplay() {
     const completedStepsCount = completedSteps.size;
@@ -163,35 +162,7 @@ const ForTimeWorkout = ({
     onComplete();
   };
 
-  // Check if fullscreen state exists in sessionStorage (persists across component remounts)
-  useEffect(() => {
-    const savedFullscreenState = sessionStorage.getItem('forTimeWorkoutFullscreen');
-    if (savedFullscreenState === 'true') {
-      setIsFullscreen(true);
-    }
-    
-    // Cleanup function to clear fullscreen state when component unmounts completely
-    return () => {
-      // Only clear if user navigates away from workout (not just exercise change)
-      const isNavigatingAway = !window.location.pathname.includes('/workout/');
-      if (isNavigatingAway) {
-        sessionStorage.removeItem('forTimeWorkoutFullscreen');
-      }
-    };
-  }, []);
 
-  const toggleFullscreen = () => {
-    const newFullscreenState = !isFullscreen;
-    setIsFullscreen(newFullscreenState);
-    
-    if (newFullscreenState) {
-      // Save fullscreen state to sessionStorage so it persists across component remounts
-      sessionStorage.setItem('forTimeWorkoutFullscreen', 'true');
-    } else {
-      // Clear fullscreen state when user explicitly exits
-      sessionStorage.removeItem('forTimeWorkoutFullscreen');
-    }
-  };
 
   const completeStep = (stepIndex) => {
     const newCompletedSteps = new Set(completedSteps);
@@ -292,6 +263,8 @@ const ForTimeWorkout = ({
               onToggle={toggleAudio}
               onVolumeChange={setVolumeLevel}
               onStartSoundChange={setStartSoundType}
+              playStartSound={playStartSound}
+              playBeep={playBeep}
               className="mt-0"
             />
             {canGoBack && (
@@ -312,6 +285,8 @@ const ForTimeWorkout = ({
               onToggle={toggleAudio}
               onVolumeChange={setVolumeLevel}
               onStartSoundChange={setStartSoundType}
+              playStartSound={playStartSound}
+              playBeep={playBeep}
               className="mt-0"
             />
           </div>

@@ -532,6 +532,8 @@ const useWorkoutAudio = () => {
   };
 
   const playStartSound = () => {
+    if (!audioEnabled) return;
+    
     switch (startSound) {
       case 'gong':
         playGong();
