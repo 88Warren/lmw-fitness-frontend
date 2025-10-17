@@ -5,8 +5,6 @@ import { useCart } from "../../context/CartContext";
 import {
   BEGINNER_PRICE_ID,
   ADVANCED_PRICE_ID,
-  TAILORED_COACHING_PRICE_ID,
-  ULTIMATE_MINDSET_PACKAGE_PRICE_ID,
 } from "../../utils/config";
 import { useNavigate } from "react-router-dom";
 
