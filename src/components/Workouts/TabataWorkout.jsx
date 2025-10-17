@@ -4,6 +4,7 @@ import ExerciseVideo from "./ExerciseVideo";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
+import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 
 const TabataWorkout = ({
@@ -27,7 +28,7 @@ const TabataWorkout = ({
   const [isComplete, setIsComplete] = useState(false);
   const [showModified, setShowModified] = useState({});
   const [hasResetOnce, setHasResetOnce] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
   const {
     audioEnabled,
@@ -202,37 +203,7 @@ const TabataWorkout = ({
     onComplete();
   };
 
-  // Check if fullscreen state exists in sessionStorage (persists across component remounts)
-  useEffect(() => {
-    const savedFullscreenState = sessionStorage.getItem(
-      "tabataWorkoutFullscreen"
-    );
-    if (savedFullscreenState === "true") {
-      setIsFullscreen(true);
-    }
 
-    // Cleanup function to clear fullscreen state when component unmounts completely
-    return () => {
-      // Only clear if user navigates away from workout (not just exercise change)
-      const isNavigatingAway = !window.location.pathname.includes("/workout/");
-      if (isNavigatingAway) {
-        sessionStorage.removeItem("tabataWorkoutFullscreen");
-      }
-    };
-  }, []);
-
-  const toggleFullscreen = () => {
-    const newFullscreenState = !isFullscreen;
-    setIsFullscreen(newFullscreenState);
-
-    if (newFullscreenState) {
-      // Save fullscreen state to sessionStorage so it persists across component remounts
-      sessionStorage.setItem("tabataWorkoutFullscreen", "true");
-    } else {
-      // Clear fullscreen state when user explicitly exits
-      sessionStorage.removeItem("tabataWorkoutFullscreen");
-    }
-  };
 
   const getCurrentExercise = () => {
     const currentBlock = allTabataBlocks?.[currentBlockIndex];
@@ -343,6 +314,8 @@ const TabataWorkout = ({
               onToggle={toggleAudio}
               onVolumeChange={setVolumeLevel}
               onStartSoundChange={setStartSoundType}
+              playStartSound={playStartSound}
+              playBeep={playBeep}
               className="mt-0"
             />
             {canGoBack && (
@@ -366,6 +339,8 @@ const TabataWorkout = ({
               onToggle={toggleAudio}
               onVolumeChange={setVolumeLevel}
               onStartSoundChange={setStartSoundType}
+              playStartSound={playStartSound}
+              playBeep={playBeep}
               className="mt-0"
             />
           </div>

@@ -60,7 +60,7 @@ export const autoSetTimezone = async (user) => {
     return false;
   }
 
-  console.log(`Auto-setting timezone to: ${detectedTimezone}`);
+  // console.log(`Auto-setting timezone to: ${detectedTimezone}`);
   return await updateUserTimezone(detectedTimezone);
 };
 

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import ExerciseVideo from "./ExerciseVideo";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
+import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
 import DynamicHeading from "../Shared/DynamicHeading";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 
@@ -25,7 +26,7 @@ const AMRAPWorkout = ({
   const [currentAMRAPRound, setCurrentAMRAPRound] = useState(1);
   const [isRoundRest, setIsRoundRest] = useState(false);
   const [showModified, setShowModified] = useState({});
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
   const {
     audioEnabled,
@@ -180,37 +181,7 @@ const AMRAPWorkout = ({
     onComplete();
   };
 
-  // Check if fullscreen state exists in sessionStorage (persists across component remounts)
-  useEffect(() => {
-    const savedFullscreenState = sessionStorage.getItem(
-      "amrapWorkoutFullscreen"
-    );
-    if (savedFullscreenState === "true") {
-      setIsFullscreen(true);
-    }
 
-    // Cleanup function to clear fullscreen state when component unmounts completely
-    return () => {
-      // Only clear if user navigates away from workout (not just exercise change)
-      const isNavigatingAway = !window.location.pathname.includes("/workout/");
-      if (isNavigatingAway) {
-        sessionStorage.removeItem("amrapWorkoutFullscreen");
-      }
-    };
-  }, []);
-
-  const toggleFullscreen = () => {
-    const newFullscreenState = !isFullscreen;
-    setIsFullscreen(newFullscreenState);
-
-    if (newFullscreenState) {
-      // Save fullscreen state to sessionStorage so it persists across component remounts
-      sessionStorage.setItem("amrapWorkoutFullscreen", "true");
-    } else {
-      // Clear fullscreen state when user explicitly exits
-      sessionStorage.removeItem("amrapWorkoutFullscreen");
-    }
-  };
 
   const getExerciseName = (exercise, exerciseIndex) => {
     if (!exercise?.exercise) return "";
@@ -274,6 +245,8 @@ const AMRAPWorkout = ({
               onToggle={toggleAudio}
               onVolumeChange={setVolumeLevel}
               onStartSoundChange={setStartSoundType}
+              playStartSound={playStartSound}
+              playBeep={playBeep}
               className="mt-0"
             />
             {canGoBack && (
@@ -293,6 +266,8 @@ const AMRAPWorkout = ({
               onToggle={toggleAudio}
               onVolumeChange={setVolumeLevel}
               onStartSoundChange={setStartSoundType}
+              playStartSound={playStartSound}
+              playBeep={playBeep}
               className="mt-0"
             />
           </div>

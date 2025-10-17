@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(({ mode }) => {
   const isProduction = mode === 'production';
-  console.log('Vite Mode:', mode);
+  // console.log('Vite Mode:', mode);
 
   return {
     resolve: {

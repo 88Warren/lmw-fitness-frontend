@@ -323,4 +323,18 @@
   .blog-article th {
     @apply bg-customGray/50 text-customWhite font-semibold;
   }
+}/* F
+ullscreen workout styles */
+body[data-workout-fullscreen="true"] {
+  overflow: hidden;
+}
+
+body[data-workout-fullscreen="true"] .workout-fullscreen-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
+  background: #2a3241 !important;
 }
