@@ -18,4 +18,4 @@ RUN dos2unix /lmw-entrypoint.sh
 RUN chmod +x /lmw-entrypoint.sh
 
 EXPOSE 5052
-ENTRYPOINT ["/lmw-entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/lmw-entrypoint.sh"]
