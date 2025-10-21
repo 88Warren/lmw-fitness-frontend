@@ -3,13 +3,13 @@ set -e
 
 # --- EXPLICITLY SOURCE THE ENVIRONMENT ---
 if [ -f /etc/profile ]; then
-  . /etc/profile
+  source /etc/profile
 fi
 if [ -f /etc/environment ]; then
-  . /etc/environment
+  source /etc/environment
 fi
 if [ -f /root/.profile ]; then
-  . /root/.profile
+  source /root/.profile
 fi
 # --- END ENVIRONMENT SOURCING ---
 
@@ -27,7 +27,7 @@ echo "window._env_ = {" > /usr/share/nginx/html/env-config.js
 # and add them to window._env_
 # Using 'env' command to get current environment variables
 # We need to escape any double quotes within the variable values
-for var in $(env | grep "^VITE_" || true); do
+for var in $(env | grep "^VITE_"); do
   # Extract key and value
   key=$(echo "$var" | cut -d '=' -f 1)
   value=$(echo "$var" | cut -d '=' -f 2-) # Get everything after the first '='
@@ -39,7 +39,7 @@ for var in $(env | grep "^VITE_" || true); do
 done
 
 # Remove the trailing comma from the last line (if any variables were added)
-sed -i '$ s/,$//' /usr/share/nginx/html/env-config.js
+sed -i '$s/,$//' /usr/share/nginx/html/env-config.js
 
 echo "};" >> /usr/share/nginx/html/env-config.js
 
