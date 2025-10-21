@@ -13,9 +13,10 @@ FROM --platform=linux/amd64 nginx:1.28.0-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 COPY entrypoint.sh /lmw-entrypoint.sh
-RUN apk add --no-cache dos2unix
-RUN dos2unix /lmw-entrypoint.sh
-RUN chmod +x /lmw-entrypoint.sh
+RUN apk add --no-cache dos2unix && \
+    dos2unix /lmw-entrypoint.sh && \
+    chmod +x /lmw-entrypoint.sh && \
+    apk del dos2unix
 
 EXPOSE 5052
-ENTRYPOINT ["/bin/sh", "/lmw-entrypoint.sh"]
+ENTRYPOINT ["/lmw-entrypoint.sh"]
