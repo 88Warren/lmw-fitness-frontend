@@ -236,7 +236,7 @@ const WorkoutChoice = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
       <div className="bg-customGray p-6 rounded-lg text-center max-w-6xl w-full border-brightYellow border-2 mt-20 md:mt-26">
         {/* Header */}
         <DynamicHeading
@@ -255,7 +255,7 @@ const WorkoutChoice = ({
         <div className="flex items-center justify-center m-3">
           {workoutData.description && (
             <div className="w-2/3 bg-gray-600 rounded-lg p-3 m-3 text-center">
-              <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+              <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                 <span className="text-limeGreen font-bold">Description:</span>{" "}
                 {workoutData.description}
               </p>
@@ -299,7 +299,7 @@ const WorkoutChoice = ({
                       )}
                     </h3>
                     <p
-                      className={`text-sm mb-4 flex-grow ${
+                      className={`text-sm mb-4 grow ${
                         completedSessions.includes("mobility")
                           ? "text-black"
                           : "text-logoGray"
@@ -349,7 +349,7 @@ const WorkoutChoice = ({
                       )}
                     </h3>
                     <p
-                      className={`text-sm mb-4 flex-grow ${
+                      className={`text-sm mb-4 grow ${
                         completedSessions.includes(`workout-${session.id}`)
                           ? "text-black"
                           : "text-logoGray"
@@ -398,7 +398,7 @@ const WorkoutChoice = ({
                     }}
                   ></div>
                 </div>
-                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">
                     Instructions:{" "}
                   </span>
@@ -424,7 +424,7 @@ const WorkoutChoice = ({
                     <h3 className="text-xl font-bold text-customWhite mb-3">
                       Mobility Session
                     </h3>
-                    <p className="text-logoGray text-sm mb-4 flex-grow">
+                    <p className="text-logoGray text-sm mb-4 grow">
                       Focus on stretching and mobility work to improve
                       flexibility and aid recovery.{" "}
                       <span className="text-limeGreen font-semibold">
@@ -456,7 +456,7 @@ const WorkoutChoice = ({
                         ? "Optional Workout"
                         : "Today's Workout"}
                     </h3>
-                    <p className="text-logoGray text-sm mb-4 flex-grow">
+                    <p className="text-logoGray text-sm mb-4 grow">
                       {hasMobilityBlock ? (
                         <>
                           Challenge yourself with today&apos;s optional workout.
@@ -486,7 +486,7 @@ const WorkoutChoice = ({
               {/* Recovery Day Info */}
               {hasMobilityBlock && workoutSessions.length === 1 && (
                 <div className="bg-gray-600 rounded-lg p-4 mt-6">
-                  <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                  <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                     <span className="text-limeGreen font-bold">
                       Recovery Day:{" "}
                     </span>

@@ -259,7 +259,7 @@ const EMOMWorkout = ({
 
   if (timerState.isComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
         <div className="bg-customGray p-6 rounded-lg text-center max-w-xs md:max-w-2xl w-full border-brightYellow border-2">
           <div className="text-6xl m-6">🎉</div>
           <DynamicHeading
@@ -287,7 +287,7 @@ const EMOMWorkout = ({
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white ${
+      className={`min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white ${
         isFullscreen ? "fixed inset-0 z-50 p-0" : "p-4"
       }`}
     >
@@ -328,7 +328,7 @@ const EMOMWorkout = ({
             <div className="flex flex-col md:flex-row gap-0 md:gap-4 w-full items-center md:items-stretch">
               {/* Description */}
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">Description:</span>{" "}
                   {description}
                 </p>
@@ -337,7 +337,7 @@ const EMOMWorkout = ({
               {/* Instructions */}
               {currentExercise && (
                 <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                  <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                  <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
                     <span className="text-limeGreen font-bold">
                       Instructions:
                     </span>{" "}
@@ -376,7 +376,7 @@ const EMOMWorkout = ({
 
         {/* Main Content */}
         <div
-          className={`flex-grow flex gap-0 md:gap-4 p-4 ${
+          className={`grow flex gap-0 md:gap-4 p-4 ${
             isFullscreen
               ? "flex-col items-center justify-start"
               : "flex-col lg:flex-row"
@@ -384,18 +384,18 @@ const EMOMWorkout = ({
         >
           {/* Left Column: Timer and Controls */}
           <div
-            className={`flex flex-col space-y-4 ${
+            className={`flex flex-col space-y-4 landscape:space-y-2 ${
               isFullscreen ? "w-full" : "w-full lg:w-1/3"
             }`}
           >
             {currentExercise && (
               <div
-                className={`space-y-4 pt-4 ${isFullscreen ? "order-2" : ""}`}
+                className={`space-y-4 landscape:space-y-2 pt-4 landscape:pt-2 ${isFullscreen ? "order-2" : ""}`}
               >
-                <div className="p-4 rounded-lg text-center bg-gray-600 text-customWhite">
+                <div className="p-4 landscape:p-2 rounded-lg text-center bg-gray-600 text-customWhite">
                   <h4
                     className={`font-bold ${
-                      isFullscreen ? "text-3xl mb-4" : "text-lg"
+                      isFullscreen ? "text-3xl landscape:text-xl mb-4 landscape:mb-2" : "text-lg"
                     }`}
                   >
                     {getExerciseName(currentExercise, timerState.currentMinute)}
@@ -407,8 +407,8 @@ const EMOMWorkout = ({
                     </p>
                   )}
                   <div
-                    className={`font-bold mb-3 text-brightYellow ${
-                      isFullscreen ? "text-6xl" : "text-4xl"
+                    className={`font-bold mb-3 landscape:mb-1 text-brightYellow ${
+                      isFullscreen ? "text-6xl landscape:text-4xl" : "text-4xl"
                     }`}
                   >
                     {`${currentExercise.reps} ${
@@ -420,7 +420,7 @@ const EMOMWorkout = ({
 
                   {/* Modification Toggle - moved above next exercise */}
                   {currentExercise.exercise?.modification && (
-                    <div className="flex justify-center space-x-1 mb-3">
+                    <div className="flex justify-center space-x-1 mb-3 landscape:mb-1">
                       {(() => {
                         const { standardText, modifiedText } =
                           getToggleButtonText(currentExercise);
@@ -466,15 +466,15 @@ const EMOMWorkout = ({
                   {getNextExercise && (
                     <div className="mt-4 pt-3 border-t border-gray-500">
                       <div
-                        className={`text-logoGray mb-1 ${
-                          isFullscreen ? "text-lg" : "text-sm"
+                        className={`text-logoGray mb-1 landscape:mb-0 ${
+                          isFullscreen ? "text-lg landscape:text-sm" : "text-sm"
                         }`}
                       >
                         Next minute:
                       </div>
                       <div
-                        className={`font-semibold text-customWhite mb-1 ${
-                          isFullscreen ? "text-2xl" : "text-lg"
+                        className={`font-semibold text-customWhite mb-1 landscape:mb-0 ${
+                          isFullscreen ? "text-2xl landscape:text-lg" : "text-lg"
                         }`}
                       >
                         {getExerciseName(
@@ -484,8 +484,8 @@ const EMOMWorkout = ({
                       </div>
                       {getNextExercise.exercise.modification && (
                         <div
-                          className={`text-logoGray mb-1 ${
-                            isFullscreen ? "text-xl" : "text-base"
+                          className={`text-logoGray mb-1 landscape:mb-0 ${
+                            isFullscreen ? "text-xl landscape:text-base" : "text-base"
                           }`}
                         >
                           or{" "}
@@ -496,7 +496,7 @@ const EMOMWorkout = ({
                       )}
                       <div
                         className={`text-brightYellow ${
-                          isFullscreen ? "text-xl" : "text-base"
+                          isFullscreen ? "text-xl landscape:text-base" : "text-base"
                         }`}
                       >
                         {`${getNextExercise.reps} ${
@@ -517,7 +517,7 @@ const EMOMWorkout = ({
             >
               {/* Current Minute Timer */}
               <div
-                className={`bg-gray-600 rounded-lg p-4 text-center relative ${
+                className={`bg-gray-600 rounded-lg p-4 landscape:p-2 text-center relative ${
                   isFullscreen ? "w-full" : "w-full sm:w-1/2 lg:w-full"
                 }`}
               >
@@ -560,9 +560,9 @@ const EMOMWorkout = ({
                   )}
                 </button>
                 <div
-                  className={`mb-4 text-limeGreen ${
+                  className={`mb-4 landscape:mb-2 text-limeGreen ${
                     isFullscreen
-                      ? "text-6xl md:text-8xl lg:text-9xl"
+                      ? "text-6xl md:text-8xl lg:text-9xl landscape:text-4xl"
                       : "text-6xl"
                   }`}
                 >
@@ -571,7 +571,7 @@ const EMOMWorkout = ({
 
                 {/* Progress Bar - Only in fullscreen mode, directly under timer */}
                 {isFullscreen && (
-                  <div className="mb-4">
+                  <div className="mb-4 landscape:mb-2">
                     <div className="bg-gray-500 rounded-full h-3 sm:h-4 md:h-6">
                       <div
                         className="h-full rounded-full transition-all duration-500 bg-brightYellow"
@@ -591,7 +591,7 @@ const EMOMWorkout = ({
                       onClick={startTimer}
                       className={`btn-full-colour mt-3 ${
                         isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                           : ""
                       }`}
                     >
@@ -602,7 +602,7 @@ const EMOMWorkout = ({
                       onClick={pauseTimer}
                       className={`btn-subscribe mt-3 ${
                         isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                           : ""
                       }`}
                     >
@@ -613,7 +613,7 @@ const EMOMWorkout = ({
                     onClick={resetTimer}
                     className={`btn-cancel mt-3 ${
                       isFullscreen
-                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                         : ""
                     }`}
                   >
@@ -624,7 +624,7 @@ const EMOMWorkout = ({
                       onClick={skipCurrentMinute}
                       className={`btn-skip mt-3 ${
                         isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                           : ""
                       }`}
                     >
@@ -692,7 +692,7 @@ const EMOMWorkout = ({
                     (currentExercise?.tips ||
                       currentExercise?.exercise?.tips) && (
                       <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-2 mt-3 text-center">
-                        <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                        <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
                           <span className="text-limeGreen font-bold">
                             Form Tips:
                           </span>{" "}
@@ -706,7 +706,7 @@ const EMOMWorkout = ({
                     (currentExercise?.instructions ||
                       currentExercise?.exercise?.instructions) && (
                       <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-2 mt-3 text-center">
-                        <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                        <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
                           <span className="text-limeGreen font-bold">
                             Instructions:
                           </span>{" "}

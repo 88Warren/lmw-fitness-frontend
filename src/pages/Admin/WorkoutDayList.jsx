@@ -41,7 +41,7 @@ const WorkoutDayList = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="min-h-screen bg-gradient-to-b from-customGray/30 to-white p-6 pt-24"
+      className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24"
     >
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-center gap-4 mb-12">

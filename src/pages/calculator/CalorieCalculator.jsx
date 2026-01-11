@@ -96,7 +96,7 @@ const CalorieCalculator = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="flex flex-col items-center justify-center min-h-screen mb-20 pt-20 bg-gradient-to-b from-customGray/30 to-white"
+      className="flex flex-col items-center justify-center min-h-screen mb-20 pt-20 bg-linear-to-b from-customGray/30 to-white"
     >
       <div className="bg-customGray p-8 rounded-lg text-center max-w-sm md:max-w-lg w-full border-brightYellow border-2">
         <DynamicHeading 

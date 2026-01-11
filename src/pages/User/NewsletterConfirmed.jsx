@@ -10,7 +10,7 @@ const NewsletterConfirmed = () => {
   }, []);
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center py-20 px-4 sm:px-6 md:px-8 bg-gradient-to-b from-customGray/30 to-white">
+    <div className="min-h-screen w-full flex items-center justify-center py-20 px-4 sm:px-6 md:px-8 bg-linear-to-b from-customGray/30 to-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

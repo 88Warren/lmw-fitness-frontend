@@ -218,7 +218,7 @@ const ForTimeWorkout = ({
 
   if (isComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
         <div className="bg-customGray p-6 rounded-lg text-center max-w-2xl w-full border-brightYellow border-2">
           <div className="text-6xl mb-6">⏱️</div>
           <DynamicHeading
@@ -246,7 +246,7 @@ const ForTimeWorkout = ({
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white ${
+    <div className={`min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white ${
       isFullscreen ? 'fixed inset-0 z-50 p-0' : 'p-6'
     }`}>
       <div className={`bg-customGray rounded-lg text-center w-full flex flex-col border-brightYellow border-2 ${
@@ -303,7 +303,7 @@ const ForTimeWorkout = ({
             <div className="flex flex-col md:flex-row gap-0 md:gap-6 w-full items-center md:items-stretch">
               {/* Block Notes */}
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 mb-3 md:mb-0 text-center">
-                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">Notes:</span>{" "}
                   {workoutBlock.blockNotes ||
                     "No additional notes for this workout."}
@@ -312,7 +312,7 @@ const ForTimeWorkout = ({
 
               {/* Instructions */}
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
-                <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">Instructions:</span>{" "}
                   {workoutSteps.length === 1
                     ? "Complete all exercises in this workout with the prescribed reps, you can do the exercises in any order and break up the reps if you need."
@@ -324,7 +324,7 @@ const ForTimeWorkout = ({
         )}
 
         {/* Main Content */}
-        <div className={`flex-grow flex ${
+        <div className={`grow flex ${
           isFullscreen 
             ? 'flex-col items-center justify-start gap-2 p-2 sm:gap-4 sm:p-4 h-full' 
             : 'flex-col lg:flex-row gap-6'
@@ -509,7 +509,7 @@ const ForTimeWorkout = ({
                     workoutBlock.exercises[selectedExerciseIndex]?.exercise
                       ?.instructions) && (
                     <div className="bg-gray-600 rounded-lg p-3">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                      <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
                         <span className="text-limeGreen font-bold">
                           Instructions:
                         </span>{" "}
@@ -706,7 +706,7 @@ const ForTimeWorkout = ({
                     workoutBlock.exercises[selectedExerciseIndex]?.exercise
                       ?.instructions) && (
                     <div className="bg-gray-600 rounded-lg p-3">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                      <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
                         <span className="text-limeGreen font-bold">
                           Instructions:
                         </span>{" "}
@@ -728,7 +728,7 @@ const ForTimeWorkout = ({
           {isFullscreen && (
             <div className="w-full flex flex-col flex-1">
               {/* Timer Row */}
-              <div className="flex justify-center mb-4 flex-shrink-0">
+              <div className="flex justify-center mb-4 shrink-0">
                 <div className="w-full bg-gray-600 rounded-lg text-center relative p-4 sm:p-6">
                   {/* Fullscreen Toggle Button - Inside timer card */}
                   <button
@@ -784,7 +784,7 @@ const ForTimeWorkout = ({
 
               {/* Progress Display - Only show for multi-step workouts */}
               {workoutSteps.length > 1 && (
-                <div className="w-full bg-gray-600 rounded-lg p-3 sm:p-4 text-center mb-4 flex-shrink-0">
+                <div className="w-full bg-gray-600 rounded-lg p-3 sm:p-4 text-center mb-4 shrink-0">
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-2">
                     Progress: {getProgressDisplay()}
                   </h3>
@@ -800,7 +800,7 @@ const ForTimeWorkout = ({
               )}
 
               {/* Exercise List - Large height for complex content */}
-              <div className="h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[65vh] overflow-hidden w-full">
+              <div className="h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[65vh] landscape:h-[25vh] landscape:sm:h-[28vh] landscape:md:h-[30vh] landscape:lg:h-[32vh] overflow-hidden w-full">
                 <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-3">Workout Steps</h3>
                   <div className="space-y-2">
@@ -865,7 +865,7 @@ const ForTimeWorkout = ({
 
               {/* Finish Button for completed workouts */}
               {completedSteps.size === workoutSteps.length && (
-                <div className="w-full bg-gray-600 rounded-lg p-3 sm:p-4 text-center mt-4 flex-shrink-0">
+                <div className="w-full bg-gray-600 rounded-lg p-3 sm:p-4 text-center mt-4 shrink-0">
                   <button
                     onClick={handleComplete}
                     className="btn-full-colour mt-0 px-6 py-3 text-lg font-bold"

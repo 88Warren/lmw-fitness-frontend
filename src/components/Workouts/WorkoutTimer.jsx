@@ -252,7 +252,7 @@ const WorkoutTimer = ({
     <div
       ref={timerRef}
       className={`flex flex-col h-full justify-between ${
-        isFullscreen ? "workout-fullscreen-container fixed inset-0 z-50 bg-customGray p-8" : ""
+        isFullscreen ? "workout-fullscreen-container fixed inset-0 z-50 bg-customGray p-8 landscape:p-4 landscape:sm:p-5 landscape:md:p-6" : ""
       }`}
     >
       {/* Round title or placeholder for consistent spacing */}
@@ -396,16 +396,16 @@ const WorkoutTimer = ({
 
         {/* Next Exercise Info - Only in fullscreen during rest */}
         {isFullscreen && (isRest || isRoundRest) && nextExercise && (
-          <div className="mb-6 p-4 bg-gray-700 rounded-lg">
+          <div className="mb-6 landscape:mb-3 p-4 landscape:p-2 bg-gray-700 rounded-lg">
             <div className="text-center">
-              <h4 className="text-2xl font-semibold text-brightYellow mb-3">
+              <h4 className="text-2xl landscape:text-lg font-semibold text-brightYellow mb-3 landscape:mb-1">
                 Next Exercise
               </h4>
-              <p className="text-3xl font-bold text-customWhite mb-2">
+              <p className="text-3xl landscape:text-xl font-bold text-customWhite mb-2 landscape:mb-1">
                 {nextExercise.exercise?.name || "Get Ready!"}
               </p>
               {nextExercise.exercise?.modification && (
-                <p className="text-xl text-logoGray mb-3">
+                <p className="text-xl landscape:text-base text-logoGray mb-3 landscape:mb-1">
                   or{" "}
                   <span className="text-brightYellow">
                     {nextExercise.exercise.modification.name}
@@ -413,7 +413,7 @@ const WorkoutTimer = ({
                 </p>
               )}
               {nextExercise.reps && (
-                <p className="text-lg text-brightYellow">
+                <p className="text-lg landscape:text-sm text-brightYellow">
                   {`${nextExercise.reps} ${
                     nextExercise.duration
                       ? `(${nextExercise.duration})`
@@ -433,7 +433,7 @@ const WorkoutTimer = ({
             }`}
           >
             <div
-              className="bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink h-full rounded-full transition-all duration-500"
+              className="bg-linear-to-r from-limeGreen via-brightYellow to-hotPink h-full rounded-full transition-all duration-500"
               style={{
                 width: `${progressPercentage}%`,
               }}

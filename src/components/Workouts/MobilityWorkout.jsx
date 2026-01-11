@@ -28,7 +28,7 @@ const MobilityWorkout = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
       <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[120vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
         {/* Header */}
         <div className="flex flex-col mb-4 items-center">
@@ -67,7 +67,7 @@ const MobilityWorkout = ({
               <div className="flex items-center justify-center mt-4">
                 {workoutBlock.blockNotes && (
                   <div className="w-2/3 bg-gray-600 rounded-lg p-3 m-3 text-center">
-                    <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                    <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                       <span className="text-limeGreen font-bold">Notes:</span>{" "}
                       {workoutBlock.blockNotes}
                     </p>

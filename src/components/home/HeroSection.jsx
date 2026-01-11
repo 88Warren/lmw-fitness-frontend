@@ -17,7 +17,7 @@ const HeroSection = () => {
   return (
     <section
       id="Home"
-      className="min-h-screen flex items-center px-4 md:px-0 bg-gradient-to-br from-customGray to-logoGray"
+      className="min-h-screen flex items-center px-4 md:px-0 bg-linear-to-br from-customGray to-logoGray"
     >
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-6 items-center pt-24">
         {/* Left: Headline, CTA, Newsletter */}

@@ -65,7 +65,7 @@ const RoutinePage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white p-4">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white p-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brightYellow mx-auto mb-4"></div>
           <p className="text-xl font-titillium text-customGray">
@@ -78,7 +78,7 @@ const RoutinePage = () => {
 
   if (!routineData) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-customGray/30 to-white p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-b from-customGray/30 to-white p-4">
         <div className="bg-customGray p-8 rounded-lg text-center max-w-md border-brightYellow border-2">
           <p className="text-xl font-titillium text-brightYellow mb-6">
             {routineTitle} routine not found.
@@ -99,7 +99,7 @@ const RoutinePage = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="flex flex-col items-center justify-center min-h-screen py-8 px-4 bg-gradient-to-b from-customGray/30 to-white"
+      className="flex flex-col items-center justify-center min-h-screen py-8 px-4 bg-linear-to-b from-customGray/30 to-white"
     >
       <div className="bg-customGray p-4 md:p-8 m-20 rounded-lg text-center max-w-md sm:max-w-4xl w-full border-brightYellow border-2 shadow-lg">
         <DynamicHeading

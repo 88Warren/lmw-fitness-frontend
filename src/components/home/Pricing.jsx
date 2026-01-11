@@ -113,7 +113,7 @@ const Pricing = () => {
               <p className="text-xl font-bold text-limeGreen mb-6">
                 £50 <span className="text-base font-normal">One-off fee</span>
               </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
+              <ul className="text-customGray text-left mb-8 space-y-3 text-base grow">
                 <li>
                   <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
                   Starting fitness test
@@ -179,7 +179,7 @@ const Pricing = () => {
               <p className="text-xl font-bold text-limeGreen mb-6">
                 £65 <span className="text-base font-normal">One-off fee</span>
               </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base flex-grow">
+              <ul className="text-customGray text-left mb-8 space-y-3 text-base grow">
                 <li>
                   <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
                   Starting fitness test

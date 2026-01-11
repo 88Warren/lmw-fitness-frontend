@@ -195,7 +195,7 @@ const AMRAPWorkout = ({
 
   if (isComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
         <div className="bg-customGray p-6 rounded-lg text-center max-w-2xl w-full border-brightYellow border-2">
           <div className="text-6xl mb-6">⏰</div>
           <DynamicHeading
@@ -225,7 +225,7 @@ const AMRAPWorkout = ({
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white ${
+      className={`min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white ${
         isFullscreen ? "fixed inset-0 z-50 p-0" : "p-4"
       }`}
     >
@@ -282,7 +282,7 @@ const AMRAPWorkout = ({
             <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center md:items-stretch">
               {/* Description */}
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
-                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-word leading-loose">
                   <span className="text-limeGreen font-bold">Description:</span>{" "}
                   {description}
                 </p>
@@ -290,7 +290,7 @@ const AMRAPWorkout = ({
 
               {/* Instructions */}
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
-                <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                <p className="text-sm text-logoGray whitespace-pre-line wrap-break-word leading-loose">
                   <span className="text-limeGreen font-bold">
                     Instructions:
                   </span>{" "}
@@ -304,7 +304,7 @@ const AMRAPWorkout = ({
 
         {/* Main Content */}
         <div
-          className={`flex-grow flex ${
+          className={`grow flex ${
             isFullscreen
               ? "flex-col items-center justify-start gap-2 p-2 sm:gap-4 sm:p-4 h-full"
               : "flex-col lg:flex-row gap-6 p-4"
@@ -486,7 +486,7 @@ const AMRAPWorkout = ({
                   workoutBlock.exercises[selectedExerciseIndex]?.exercise
                     ?.tips) && (
                   <div className="bg-gray-600 rounded-lg p-3">
-                    <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                    <p className="text-sm text-logoGray whitespace-pre-line wrap-break-word leading-loose">
                       <span className="text-limeGreen font-bold">Tips:</span>{" "}
                       {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
                         workoutBlock.exercises[selectedExerciseIndex]?.exercise
@@ -499,7 +499,7 @@ const AMRAPWorkout = ({
                   workoutBlock.exercises[selectedExerciseIndex]?.exercise
                     ?.instructions) && (
                   <div className="bg-gray-600 rounded-lg p-3">
-                    <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                    <p className="text-sm text-logoGray whitespace-pre-line wrap-break-word leading-loose">
                       <span className="text-limeGreen font-bold">
                         Instructions:
                       </span>{" "}
@@ -710,7 +710,7 @@ const AMRAPWorkout = ({
                     workoutBlock.exercises[selectedExerciseIndex]?.exercise
                       ?.tips) && (
                     <div className="bg-gray-600 rounded-lg p-3">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                      <p className="text-sm text-logoGray whitespace-pre-line wrap-break-word leading-loose">
                         <span className="text-limeGreen font-bold">Tips:</span>{" "}
                         {workoutBlock.exercises[selectedExerciseIndex]?.tips ||
                           workoutBlock.exercises[selectedExerciseIndex]
@@ -724,7 +724,7 @@ const AMRAPWorkout = ({
                     workoutBlock.exercises[selectedExerciseIndex]?.exercise
                       ?.instructions) && (
                     <div className="bg-gray-600 rounded-lg p-3">
-                      <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                      <p className="text-sm text-logoGray whitespace-pre-line wrap-break-word leading-loose">
                         <span className="text-limeGreen font-bold">
                           Instructions:
                         </span>{" "}
@@ -742,9 +742,9 @@ const AMRAPWorkout = ({
 
           {/* Fullscreen Layout - Timer, Round Counter, Exercise List */}
           {isFullscreen && (
-            <div className="w-full flex flex-col flex-1 space-y-4 sm:space-y-6">
+            <div className="w-full flex flex-col flex-1 space-y-4 sm:space-y-6 landscape:space-y-2">
               {/* Timer - First */}
-              <div className="w-full bg-gray-600 rounded-lg text-center relative p-3 sm:p-4 md:p-5">
+              <div className="w-full bg-gray-600 rounded-lg text-center relative p-3 sm:p-4 md:p-5 landscape:p-2">
                 {/* Fullscreen Toggle Button - Inside timer card */}
                 <button
                   onClick={toggleFullscreen}
@@ -765,36 +765,36 @@ const AMRAPWorkout = ({
                     />
                   </svg>
                 </button>
-                <div className="mb-4 sm:mb-6 md:mb-8 text-limeGreen text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
+                <div className="mb-4 sm:mb-6 md:mb-8 landscape:mb-2 text-limeGreen text-5xl sm:text-6xl md:text-7xl lg:text-8xl landscape:text-4xl">
                   {formatTime(time)}
                 </div>
                 {/* Timer Controls */}
-                <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8">
+                <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8 landscape:space-x-2">
                   {!isActive || isPaused ? (
                     <button
                       onClick={startTimer}
-                      className="btn-full-colour mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                      className="btn-full-colour mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                     >
                       {isPaused ? "Resume" : "Start"}
                     </button>
                   ) : (
                     <button
                       onClick={pauseTimer}
-                      className="btn-subscribe mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                      className="btn-subscribe mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                     >
                       Pause
                     </button>
                   )}
                   <button
                     onClick={resetTimer}
-                    className="btn-cancel mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                    className="btn-cancel mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                   >
                     Reset
                   </button>
                   {isAdmin && isActive && (
                     <button
                       onClick={skipToEnd}
-                      className="btn-skip mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                      className="btn-skip mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                     >
                       End
                     </button>
@@ -803,25 +803,25 @@ const AMRAPWorkout = ({
               </div>
 
               {/* Round Counter - Second */}
-              <div className="w-full bg-gray-600 rounded-lg text-center p-3 sm:p-4 md:p-5">
-                <div className="mb-4 sm:mb-6 text-brightYellow text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
+              <div className="w-full bg-gray-600 rounded-lg text-center p-3 sm:p-4 md:p-5 landscape:p-2">
+                <div className="mb-4 sm:mb-6 landscape:mb-2 text-brightYellow text-4xl sm:text-5xl md:text-6xl lg:text-7xl landscape:text-3xl">
                   {roundsCompleted}
                 </div>
-                <div className="text-customWhite mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl">
+                <div className="text-customWhite mb-4 sm:mb-6 landscape:mb-2 text-lg sm:text-xl md:text-2xl landscape:text-base">
                   Rounds Completed
                 </div>
                 {/* Round Counter Controls */}
-                <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8">
+                <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8 landscape:space-x-2">
                   <button
                     onClick={decrementRounds}
-                    className="btn-cancel mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                    className="btn-cancel mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                     disabled={roundsCompleted === 0}
                   >
                     -1
                   </button>
                   <button
                     onClick={incrementRounds}
-                    className="btn-full-colour mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                    className="btn-full-colour mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
                   >
                     +1
                   </button>
@@ -829,25 +829,25 @@ const AMRAPWorkout = ({
               </div>
 
               {/* Exercise List - Third */}
-              <div className="flex-1 overflow-hidden">
-                <div className="bg-gray-600 rounded-lg p-3 sm:p-4 md:p-5 h-full overflow-y-auto">
-                  <div className="space-y-2 sm:space-y-3">
+              <div className="flex-1 overflow-hidden landscape:h-[20vh] landscape:sm:h-[22vh] landscape:md:h-[24vh] landscape:lg:h-[26vh]">
+                <div className="bg-gray-600 rounded-lg p-3 sm:p-4 md:p-5 landscape:p-2 h-full overflow-y-auto">
+                  <div className="space-y-2 sm:space-y-3 landscape:space-y-1">
                     {workoutBlock.exercises.map((exercise, index) => (
                       <div
                         key={exercise.id || index}
-                        className="flex items-center justify-between p-4 sm:p-6 rounded-lg bg-gray-700 text-customWhite"
+                        className="flex items-center justify-between p-4 sm:p-6 landscape:p-2 rounded-lg bg-gray-700 text-customWhite"
                       >
                         <div className="flex-1">
-                          <span className="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl">
+                          <span className="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl landscape:text-base">
                             {getExerciseName(exercise, index)}
                           </span>
                           {exercise.exercise.modification && (
-                            <span className="text-lg sm:text-xl md:text-2xl text-brightYellow ml-2">
+                            <span className="text-lg sm:text-xl md:text-2xl landscape:text-base text-brightYellow ml-2">
                               *
                             </span>
                           )}
                           {exercise.tips && (
-                            <div className="text-sm sm:text-base md:text-lg text-logoGray italic mt-1 sm:mt-2">
+                            <div className="text-sm sm:text-base md:text-lg landscape:text-xs text-logoGray italic mt-1 sm:mt-2 landscape:mt-0">
                               {exercise.tips}
                             </div>
                           )}
