@@ -1063,7 +1063,7 @@ const WorkoutPage = () => {
   // Show exercise preview
   if (showPreview || isPreviewMode) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-customGray/30 to-white">
+      <div className="h-full flex flex-col items-center justify-center p-6 bg-linear-to-b from-customGray/30 to-white">
         <WorkoutPreview
           workoutData={workoutData}
           onStartWorkout={handleStartWorkout}
@@ -1075,7 +1075,7 @@ const WorkoutPage = () => {
 
   if (workoutComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
         <div className="bg-customGray p-4 rounded-lg text-center max-w-3xl lg:max-w-5xl w-full h-full lg:max-h-[90vh] flex flex-col border-brightYellow border-2">
           <div className="text-6xl mb-6">🎉</div>
           <DynamicHeading
@@ -1321,7 +1321,7 @@ const WorkoutPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
       <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[110vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
         {/* Audio Control and Back Button */}
         <div className="flex justify-between items-center">
@@ -1349,7 +1349,7 @@ const WorkoutPage = () => {
           <div className="flex flex-col md:flex-row gap-0 md:gap-4 w-full items-center md:items-stretch">
             {workoutData.description && (
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">Description:</span>{" "}
                   {workoutData.description}
                 </p>
@@ -1358,7 +1358,7 @@ const WorkoutPage = () => {
 
             {workoutData.workoutBlocks[currentBlockIndex]?.blockNotes && (
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">Notes:</span>{" "}
                   {workoutData.workoutBlocks[currentBlockIndex].blockNotes}
                 </p>
@@ -1368,7 +1368,7 @@ const WorkoutPage = () => {
         </div>
 
         {/* Main content grid for video and timer */}
-        <div className="flex-grow flex flex-col lg:flex-row-reverse items-start md:gap-6 overflow-hidden m-2">
+        <div className="grow flex flex-col lg:flex-row-reverse items-start md:gap-6 overflow-hidden m-2">
           {/* Right Column: Timer, Instructions, and Progress */}
           <div className="w-full lg:w-1/2 flex flex-col">
             <WorkoutTimer

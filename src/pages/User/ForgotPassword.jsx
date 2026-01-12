@@ -48,7 +48,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-20 bg-gradient-to-b from-customGray/30 to-white">
+    <div className="min-h-screen flex items-center justify-center py-20 bg-linear-to-b from-customGray/30 to-white">
       <div className="max-w-lg bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2">
         <DynamicHeading
           text="Forgot Password"

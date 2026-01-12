@@ -67,7 +67,7 @@ const BlogManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-customGray/30 to-white p-6 pt-24">
+      <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-customGray"></div>
@@ -78,7 +78,7 @@ const BlogManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-customGray/30 to-white p-6 pt-24">
+    <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

@@ -109,7 +109,7 @@ const About = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-limeGreen via-brightYellow to-hotPink text-white p-12 rounded-2xl shadow-2xl transform transition-all duration-300 hover:shadow-3xl"
+          className="bg-linear-to-r from-limeGreen via-brightYellow to-hotPink text-white p-12 rounded-2xl shadow-2xl transform transition-all duration-300 hover:shadow-3xl"
         >
           <h3 className="text-3xl font-bold mb-6 text-center">
             Start Your Online Personal Training Journey Today!

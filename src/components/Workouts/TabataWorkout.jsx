@@ -265,7 +265,7 @@ const TabataWorkout = ({
 
   if (isComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-customGray/30 to-white">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
         <div className="bg-customGray p-6 rounded-lg text-center max-w-2xl w-full border-brightYellow border-2">
           <div className="text-6xl mb-6">🔥</div>
           <DynamicHeading
@@ -294,7 +294,7 @@ const TabataWorkout = ({
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-customGray/30 to-white ${
+      className={`min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white ${
         isFullscreen ? "fixed inset-0 z-50 p-0" : "p-4"
       }`}
     >
@@ -356,7 +356,7 @@ const TabataWorkout = ({
             <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center md:items-stretch">
               {/* Description */}
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
-                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">Description:</span>{" "}
                   {description}
                 </p>
@@ -364,7 +364,7 @@ const TabataWorkout = ({
 
               {/* Instructions */}
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
-                <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">
                     Instructions:
                   </span>{" "}
@@ -392,7 +392,7 @@ const TabataWorkout = ({
 
         {/* Main Content */}
         <div
-          className={`flex-grow flex ${
+          className={`grow flex ${
             isFullscreen
               ? "flex-col items-center justify-start gap-2 p-2 sm:gap-4 sm:p-4 h-full"
               : "flex-col lg:flex-row gap-6 p-4"
@@ -636,7 +636,7 @@ const TabataWorkout = ({
                       {(currentExercise?.tips ||
                         currentExercise?.exercise?.tips) && (
                         <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
-                          <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                          <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
                             <span className="text-limeGreen font-bold">
                               Tips:
                             </span>{" "}
@@ -649,7 +649,7 @@ const TabataWorkout = ({
                       {(currentExercise?.instructions ||
                         currentExercise?.exercise?.instructions) && (
                         <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
-                          <p className="text-sm text-logoGray whitespace-pre-line break-words leading-loose">
+                          <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
                             <span className="text-limeGreen font-bold">
                               Exercise Instructions:
                             </span>{" "}
@@ -685,7 +685,7 @@ const TabataWorkout = ({
               </div>
 
               {/* Timer Row */}
-              <div className="flex justify-center mb-6 sm:mb-8 flex-shrink-0">
+              <div className="flex justify-center mb-6 sm:mb-8 shrink-0">
                 <div className="w-full bg-gray-600 rounded-lg text-center relative p-6 sm:p-8 md:p-10">
                   {/* Fullscreen Toggle Button - Inside timer card */}
                   <button
@@ -754,7 +754,7 @@ const TabataWorkout = ({
               </div>
 
               {/* Current/Next Exercise Display */}
-              <div className="w-full bg-gray-600 rounded-lg p-6 sm:p-8 md:p-10 text-center mb-6 sm:mb-8 flex-shrink-0">
+              <div className="w-full bg-gray-600 rounded-lg p-6 sm:p-8 md:p-10 text-center mb-6 sm:mb-8 shrink-0">
                 {isRest ? (
                   // Show next exercise during rest
                   <>
@@ -855,7 +855,7 @@ const TabataWorkout = ({
               </div>
 
               {/* Exercise List - Reduced height */}
-              <div className="h-[35vh] sm:h-[40vh] md:h-[42vh] lg:h-[45vh] overflow-hidden w-full">
+              <div className="h-[35vh] sm:h-[40vh] md:h-[42vh] lg:h-[45vh] landscape:h-[20vh] landscape:sm:h-[22vh] landscape:md:h-[24vh] landscape:lg:h-[26vh] overflow-hidden w-full">
                 {isRest ? (
                   // Show exercise list during rest
                   <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">

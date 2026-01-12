@@ -165,7 +165,7 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
   return (
     <div className="bg-customGray p-4 rounded-lg text-center lg:w-6xl flex flex-col border-brightYellow border-2 my-20 overview-hidden">
       {/* Title section */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <div className="flex flex-col items-center text-center">
           <DynamicHeading
             text={`Day ${workoutData.dayNumber} Preview`}
@@ -191,7 +191,7 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
             {/* Workout description */}
             {workoutData.description && (
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">
                     Description:{" "}
                   </span>
@@ -203,7 +203,7 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
             {/* First block notes (if any) */}
             {workoutData.workoutBlocks?.[0]?.blockNotes && (
               <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-logoGray text-sm whitespace-pre-line break-words leading-loose">
+                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
                   <span className="text-limeGreen font-bold">Notes: </span>
                   {workoutData.workoutBlocks[0].blockNotes}
                 </p>
@@ -218,7 +218,7 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
         {/* Left-hand side: Video and Exercise Name only */}
         <div className="w-full lg:w-1/2 flex flex-col items-center min-h-0">
           {/* Toggle between standard and modified - with placeholder for consistent spacing */}
-          <div className="flex space-x-2 mb-4 flex-shrink-0 min-h-[48px] items-center">
+          <div className="flex space-x-2 mb-4 shrink-0 min-h-[48px] items-center">
             {modifiedExercise ? (
               <>
                 <button
@@ -258,7 +258,7 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
               </div>
             )}
           </div>
-          <div className="w-full aspect-video rounded-lg mb-4 overflow-hidden bg-black flex-shrink-0">
+          <div className="w-full aspect-video rounded-lg mb-4 overflow-hidden bg-black shrink-0">
             {displayedExercise?.videoId ? (
               <div
                 ref={iframeRef}

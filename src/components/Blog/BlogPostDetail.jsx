@@ -130,7 +130,7 @@ const BlogPostDetail = ({ handleEditClick, handleDelete }) => {
             className="font-higherJump text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest mb-10"
           />
           {post.excerpt && (
-            <p className="w-5/6 mx-auto text-lg text-logoGray font-titillium text-center whitespace-pre-line break-words leading-loose">
+            <p className="w-5/6 mx-auto text-lg text-logoGray font-titillium text-center whitespace-pre-line wrap-break-words leading-loose">
               {post.excerpt}
             </p>
           )}

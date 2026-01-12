@@ -127,7 +127,7 @@ const UserManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-customGray/30 to-white p-6 pt-24">
+      <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-customGray"></div>
@@ -138,7 +138,7 @@ const UserManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-customGray/30 to-white p-6 pt-24">
+    <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -202,7 +202,7 @@ const UserManagement = () => {
                     <tr key={user.ID} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
+                          <div className="shrink-0 h-10 w-10">
                             <div className="h-10 w-10 rounded-full bg-customGray/10 flex items-center justify-center">
                               <FiUser className="h-5 w-5 text-customGray" />
                             </div>

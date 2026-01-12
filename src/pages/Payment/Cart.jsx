@@ -160,7 +160,7 @@ const Cart = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="min-h-screen pt-32 pb-16 px-6 relative bg-gradient-to-b from-customGray/30 to-white"
+      className="min-h-screen pt-32 pb-16 px-6 relative bg-linear-to-b from-customGray/30 to-white"
     >
       <div className="max-w-7xl w-full mx-auto">
         <div className="max-w-3xl mx-auto bg-customGray p-12 rounded-xl text-gray-700 border-brightYellow border-2 shadow-lg">
@@ -192,7 +192,7 @@ const Cart = () => {
                       key={item.priceId}
                       className="flex justify-between items-center bg-white text-black p-4 rounded-md shadow-sm"
                     >
-                      <div className="flex-grow">
+                      <div className="grow">
                         <span className="font-bold text-lg">
                           {item.name === "beginner-programme"
                             ? "Beginner Programme"
