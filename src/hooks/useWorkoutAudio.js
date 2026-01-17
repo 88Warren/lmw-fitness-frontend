@@ -9,7 +9,7 @@ const useWorkoutAudio = () => {
   const [volume, setVolume] = useState(() => {
     const saved = localStorage.getItem('workoutAudioVolume');
     // Convert old volume scale to new scale (old 2.0 = new 1.0)
-    const savedVolume = saved !== null ? parseFloat(saved) : 1.2;
+    const savedVolume = saved !== null ? parseFloat(saved) : 1.0;
     return savedVolume > 2 ? savedVolume / 2 : savedVolume; // Handle migration from old scale
   });
 

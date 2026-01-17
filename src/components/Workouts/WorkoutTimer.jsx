@@ -130,7 +130,11 @@ const WorkoutTimer = ({
       setIsPaused(false);
     }
   }, [
-    currentExercise,
+    // Only reset timer when actual exercise data changes, not object reference
+    currentExercise?.exercise?.name,
+    currentExercise?.duration,
+    currentExercise?.rest,
+    currentExercise?.modification?.name,
     isRest,
     isRoundRest,
     isStopwatch,
@@ -145,11 +149,6 @@ const WorkoutTimer = ({
           if (isStopwatch || isMaxTimeExercise) {
             return prev + 1;
           } else {
-            // Play beep for each second in the last 5 seconds
-            if (prev <= 5 && prev > 0) {
-              playBeep();
-            }
-
             // Play start sound when transitioning from rest to work (when rest timer ends)
             if (prev === 1 && isRest) {
               setTimeout(() => playStartSound(), 1000); // Play start sound when rest ends and work begins
@@ -162,7 +161,15 @@ const WorkoutTimer = ({
               }, 100);
               return 0;
             }
-            return prev - 1;
+
+            const newTime = prev - 1;
+            
+            // Play beep for each second in the last 5 seconds (after decrementing)
+            if (newTime <= 5 && newTime > 0) {
+              playBeep();
+            }
+
+            return newTime;
           }
         });
       }, 1000);
