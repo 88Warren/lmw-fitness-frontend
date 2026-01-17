@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { motion } from "framer-motion";
@@ -9,6 +9,23 @@ const ProgramDayListPage = () => {
   const { user, loadingAuth, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const { programName } = useParams();
+
+  // Helper function to check if there's existing workout progress for a specific day
+  const hasExistingProgress = useCallback((dayNumber) => {
+    const savedProgress = localStorage.getItem("workoutProgress");
+    if (!savedProgress) return false;
+    
+    try {
+      const progress = JSON.parse(savedProgress);
+      return (
+        progress.programName === programName &&
+        progress.dayNumber === dayNumber &&
+        progress.hasStartedWorkout
+      );
+    } catch (error) {
+      return false;
+    }
+  }, [programName]);
 
   const programDetails = {
     "beginner-program": {
@@ -187,13 +204,20 @@ const ProgramDayListPage = () => {
                   <button
                     onClick={() => {
                       if (!isDayLocked) {
-                        navigate(`/workouts/${programName}/${day}`);
+                        const hasProgress = hasExistingProgress(day);
+                        if (hasProgress) {
+                          // Resume workout - go directly to workout page without ?start=true
+                          navigate(`/workouts/${programName}/${day}`);
+                        } else {
+                          // Start fresh workout
+                          navigate(`/workouts/${programName}/${day}?start=true`);
+                        }
                       }
                     }}
                     className={`${startButtonClass} w-4/5 lg:w-full`}
                     disabled={isDayLocked}
                   >
-                    Start Workout
+                    {hasExistingProgress(day) ? "Resume Workout" : "Start Workout"}
                   </button>
                 </div>
               </div>

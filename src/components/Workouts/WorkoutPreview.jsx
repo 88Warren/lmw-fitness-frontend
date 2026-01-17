@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import DynamicHeading from "../Shared/DynamicHeading";
 
-const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
+const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram, hasExistingProgress = false }) => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [isApiReady, setIsApiReady] = useState(false);
   const [player, setPlayer] = useState(null);
@@ -171,13 +171,20 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram }) => {
             text={`Day ${workoutData.dayNumber} Preview`}
             className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite leading-loose tracking-widest m-4 md:m-6"
           />
+          {hasExistingProgress && (
+            <div className="mb-4 p-3 bg-brightYellow/20 border border-brightYellow rounded-lg">
+              <p className="text-brightYellow font-semibold text-sm">
+                🔄 Workout in progress - You can resume where you left off
+              </p>
+            </div>
+          )}
           {/* Buttons*/}
           <div className="flex flex-row justify-center items-center gap-4 mb-2 md:mb-6">
             <button
               onClick={onStartWorkout}
               className="btn-full-colour mt-0 md:mt-6"
             >
-              Start Workout
+              {hasExistingProgress ? "Resume Workout" : "Start Workout"}
             </button>
             <button
               onClick={onGoBackToProgram}
@@ -394,6 +401,7 @@ WorkoutPreview.propTypes = {
   }).isRequired,
   onStartWorkout: PropTypes.func.isRequired,
   onGoBackToProgram: PropTypes.func.isRequired,
+  hasExistingProgress: PropTypes.bool,
 };
 
 export default WorkoutPreview;

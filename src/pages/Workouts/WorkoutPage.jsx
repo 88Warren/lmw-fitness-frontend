@@ -52,6 +52,7 @@ const WorkoutPage = () => {
   const [error, setError] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const isPreviewMode = searchParams.get("mode") === "preview";
+  const shouldStartImmediately = searchParams.get("start") === "true";
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [currentRound, setCurrentRound] = useState(1);
@@ -61,6 +62,7 @@ const WorkoutPage = () => {
   const [hasStartedWorkout, setHasStartedWorkout] = useState(false);
   const dayNum = dayNumber ? parseInt(dayNumber, 10) : 1;
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [isProgressRestored, setIsProgressRestored] = useState(false);
   const [showModificationModal, setShowModificationModal] = useState(false);
   const [currentModification, setCurrentModification] = useState(null);
   const [workoutChoice, setWorkoutChoice] = useState(null);
@@ -70,28 +72,66 @@ const WorkoutPage = () => {
   const [showModified, setShowModified] = useState({});
   const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playBeep, playStartSound } = useWorkoutAudio();
 
+  // Helper function to check if there's existing workout progress
+  const hasExistingProgress = useCallback(() => {
+    const savedProgress = localStorage.getItem("workoutProgress");
+    if (!savedProgress) return false;
+    
+    try {
+      const progress = JSON.parse(savedProgress);
+      return (
+        progress.programName === programName &&
+        progress.dayNumber === parseInt(dayNumber) &&
+        progress.hasStartedWorkout
+      );
+    } catch (error) {
+      return false;
+    }
+  }, [programName, dayNumber]);
+
   useEffect(() => {
-    if (!showPreview && !workoutComplete) {
-      const progressData = {
-        programName,
-        dayNumber: dayNum,
-        blockIndex: currentBlockIndex,
-        exerciseIndex: currentExerciseIndex,
-        currentRound,
-        isRestPeriod,
-        isRoundRest,
-        hasStartedWorkout,
-      };
-      localStorage.setItem("workoutProgress", JSON.stringify(progressData));
+    // Only save progress after the component has loaded and any existing progress has been restored
+    if (!showPreview && !workoutComplete && isProgressRestored) {
+      // Only save progress if this is the workout in progress, or if we've started this workout
+      const existingProgress = localStorage.getItem("workoutProgress");
+      let shouldSave = hasStartedWorkout; // Always save if this workout has started
+      
+      if (existingProgress && !hasStartedWorkout) {
+        try {
+          const existing = JSON.parse(existingProgress);
+          // Only save if this is the same workout as the one in progress
+          shouldSave = existing.programName === programName && existing.dayNumber === dayNum;
+        } catch (error) {
+          shouldSave = true; // If can't parse, save anyway
+        }
+      }
+      
+      if (shouldSave) {
+        const progressData = {
+          programName,
+          dayNumber: dayNum,
+          blockIndex: currentBlockIndex,
+          exerciseIndex: currentExerciseIndex,
+          currentRound,
+          isRestPeriod,
+          isRoundRest,
+          hasStartedWorkout,
+        };
+        localStorage.setItem("workoutProgress", JSON.stringify(progressData));
+      }
     }
   }, [
     currentBlockIndex,
     currentExerciseIndex,
+    currentRound,
     isRestPeriod,
+    isRoundRest,
+    hasStartedWorkout,
     showPreview,
     workoutComplete,
     programName,
     dayNum,
+    isProgressRestored,
   ]);
 
   useEffect(() => {
@@ -155,27 +195,72 @@ const WorkoutPage = () => {
   }, [setShowModified, currentExerciseIndex]);
 
   const handleStartWorkout = useCallback(() => {
-    if (isPreviewMode) {
+    // Check if there's existing workout progress to resume
+    const savedProgress = localStorage.getItem("workoutProgress");
+    let shouldResumeWorkout = false;
+    
+    if (savedProgress) {
+      try {
+        const progress = JSON.parse(savedProgress);
+        // Check if the saved progress matches current workout and has actually started
+        if (
+          progress.programName === programName &&
+          progress.dayNumber === parseInt(dayNumber) &&
+          progress.hasStartedWorkout
+        ) {
+          shouldResumeWorkout = true;
+        }
+      } catch (error) {
+        console.warn('Error parsing saved workout progress:', error);
+        localStorage.removeItem("workoutProgress");
+      }
+    }
+    
+    // If we're in preview mode, navigate to remove the ?mode=preview parameter
+    // but only if we're not resuming a workout
+    if (isPreviewMode && !shouldResumeWorkout) {
       navigate(`/workouts/${programName}/${dayNumber}`);
       return;
     }
     
-    // Track workout start
-    const workoutType = workoutData?.workoutBlocks?.[0]?.blockType || 'General';
-    trackWorkoutStart(workoutType, programName);
-    localStorage.setItem('workoutStartTime', Date.now().toString());
+    // Track workout start (only for fresh starts)
+    if (!shouldResumeWorkout) {
+      const workoutType = workoutData?.workoutBlocks?.[0]?.blockType || 'General';
+      trackWorkoutStart(workoutType, programName);
+      localStorage.setItem('workoutStartTime', Date.now().toString());
+    }
     
     setShowPreview(false);
-    setCurrentBlockIndex(0);
-    setCurrentExerciseIndex(0);
-    setCurrentRound(1);
-    setIsRestPeriod(false);
-    setIsRoundRest(false);
-    setWorkoutComplete(false);
-    setHasStartedWorkout(false);
-    setWorkoutChoice(null);
-    setCurrentSession(null);
-  }, [isPreviewMode, navigate, programName, dayNumber]);
+    
+    if (shouldResumeWorkout) {
+      // Resume from saved progress - state should already be restored from useEffect
+    } else {
+      // Start fresh workout
+      setCurrentBlockIndex(0);
+      setCurrentExerciseIndex(0);
+      setCurrentRound(1);
+      setIsRestPeriod(false);
+      setIsRoundRest(false);
+      setWorkoutComplete(false);
+      setHasStartedWorkout(true);
+      setWorkoutChoice(null);
+      setCurrentSession(null);
+      setIsProgressRestored(true);
+      
+      // Immediately save progress with hasStartedWorkout: true
+      const progressData = {
+        programName,
+        dayNumber: parseInt(dayNumber),
+        blockIndex: 0,
+        exerciseIndex: 0,
+        currentRound: 1,
+        isRestPeriod: false,
+        isRoundRest: false,
+        hasStartedWorkout: true,
+      };
+      localStorage.setItem("workoutProgress", JSON.stringify(progressData));
+    }
+  }, [isPreviewMode, navigate, programName, dayNumber, workoutData, trackWorkoutStart]);
 
   const handleExerciseComplete = useCallback(() => {
     // console.log("handleExerciseComplete called - current state:", {
@@ -187,9 +272,7 @@ const WorkoutPage = () => {
     //   hasStartedWorkout,
     // });
     if (!workoutData) return;
-    if (!hasStartedWorkout) {
-      setHasStartedWorkout(true);
-    }
+    
     const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
     const blockRounds = currentBlock.blockRounds || 1;
     const isAMRAP = currentBlock.blockType === "AMRAP";
@@ -361,7 +444,9 @@ const WorkoutPage = () => {
     const isRecoveryDay = hasMobilityBlock() && hasRegularWorkout();
     const mobilityCompleted = completedSessions.includes("mobility");
 
-    if (isRecoveryDay && mobilityCompleted && !workoutComplete) {
+    // Only clear progress and mark as complete if this is a recovery day where mobility is the only requirement
+    // and the user has completed the mobility session
+    if (isRecoveryDay && mobilityCompleted && !workoutComplete && !hasStartedWorkout) {
       try {
         localStorage.removeItem("workoutProgress");
 
@@ -399,6 +484,7 @@ const WorkoutPage = () => {
     hasRegularWorkout,
     completedSessions,
     workoutComplete,
+    hasStartedWorkout,
     programName,
     dayNum,
     updateUser,
@@ -975,8 +1061,89 @@ const WorkoutPage = () => {
 
         if (data.workoutBlocks && data.workoutBlocks.length > 0) {
           setWorkoutData(data);
+          
           if (isPreviewMode) {
             setShowPreview(true);
+            setIsProgressRestored(true);
+          } else if (shouldStartImmediately) {
+            // Check if there's existing progress for this workout
+            if (savedProgress) {
+              const progress = JSON.parse(savedProgress);
+              
+              if (
+                progress.programName === programName &&
+                progress.dayNumber === dayNum &&
+                progress.hasStartedWorkout
+              ) {
+                // Restore the existing progress and show preview
+                setCurrentBlockIndex(progress.blockIndex);
+                setCurrentExerciseIndex(progress.exerciseIndex);
+                setCurrentRound(progress.currentRound || 1);
+                setIsRestPeriod(progress.isRestPeriod);
+                setIsRoundRest(progress.isRoundRest || false);
+                setHasStartedWorkout(progress.hasStartedWorkout);
+                setShowPreview(true);
+                setIsProgressRestored(true);
+              } else {
+                // Auto-start the workout from program list
+                setCurrentBlockIndex(0);
+                setCurrentExerciseIndex(0);
+                setCurrentRound(1);
+                setIsRestPeriod(false);
+                setIsRoundRest(false);
+                setWorkoutComplete(false);
+                setHasStartedWorkout(true);
+                setShowPreview(false);
+                setIsProgressRestored(true);
+                
+                // Save progress immediately
+                const progressData = {
+                  programName,
+                  dayNumber: dayNum,
+                  blockIndex: 0,
+                  exerciseIndex: 0,
+                  currentRound: 1,
+                  isRestPeriod: false,
+                  isRoundRest: false,
+                  hasStartedWorkout: true,
+                };
+                localStorage.setItem("workoutProgress", JSON.stringify(progressData));
+                
+                // Track workout start
+                const workoutType = data.workoutBlocks[0]?.blockType || 'General';
+                trackWorkoutStart(workoutType, programName);
+                localStorage.setItem('workoutStartTime', Date.now().toString());
+              }
+            } else {
+              // Auto-start the workout from program list
+              setCurrentBlockIndex(0);
+              setCurrentExerciseIndex(0);
+              setCurrentRound(1);
+              setIsRestPeriod(false);
+              setIsRoundRest(false);
+              setWorkoutComplete(false);
+              setHasStartedWorkout(true);
+              setShowPreview(false);
+              setIsProgressRestored(true);
+              
+              // Save progress immediately
+              const progressData = {
+                programName,
+                dayNumber: dayNum,
+                blockIndex: 0,
+                exerciseIndex: 0,
+                currentRound: 1,
+                isRestPeriod: false,
+                isRoundRest: false,
+                hasStartedWorkout: true,
+              };
+              localStorage.setItem("workoutProgress", JSON.stringify(progressData));
+              
+              // Track workout start
+              const workoutType = data.workoutBlocks[0]?.blockType || 'General';
+              trackWorkoutStart(workoutType, programName);
+              localStorage.setItem('workoutStartTime', Date.now().toString());
+            }
           } else if (savedProgress) {
             const progress = JSON.parse(savedProgress);
             if (
@@ -989,17 +1156,26 @@ const WorkoutPage = () => {
               setIsRestPeriod(progress.isRestPeriod);
               setIsRoundRest(progress.isRoundRest || false);
               setHasStartedWorkout(progress.hasStartedWorkout || false);
-              setShowPreview(false);
+              setIsProgressRestored(true);
+              
+              // If the workout has been started, go directly to workout, otherwise show preview
+              if (progress.hasStartedWorkout) {
+                setShowPreview(false);
+              } else {
+                setShowPreview(true);
+              }
             } else {
               localStorage.removeItem("workoutProgress");
               if (isFirstLoad) {
                 setShowPreview(true);
               }
+              setIsProgressRestored(true);
             }
           } else {
             if (isFirstLoad) {
               setShowPreview(true);
             }
+            setIsProgressRestored(true);
           }
           setIsFirstLoad(false);
         } else {
@@ -1068,6 +1244,7 @@ const WorkoutPage = () => {
           workoutData={workoutData}
           onStartWorkout={handleStartWorkout}
           onGoBackToProgram={handleGoBackToProgram}
+          hasExistingProgress={hasExistingProgress()}
         />
       </div>
     );
