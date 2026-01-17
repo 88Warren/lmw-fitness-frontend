@@ -1322,7 +1322,7 @@ const WorkoutPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[110vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
+      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[125vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
         {/* Audio Control and Back Button */}
         <div className="flex justify-between items-center">
           <AudioControl
@@ -1368,7 +1368,7 @@ const WorkoutPage = () => {
         </div>
 
         {/* Main content grid for video and timer */}
-        <div className="grow flex flex-col lg:flex-row-reverse items-start md:gap-6 overflow-hidden m-2">
+        <div className="grow flex flex-col lg:flex-row-reverse items-start md:gap-6 overflow-y-auto m-2">
           {/* Right Column: Timer, Instructions, and Progress */}
           <div className="w-full lg:w-1/2 flex flex-col">
             <WorkoutTimer
@@ -1400,6 +1400,34 @@ const WorkoutPage = () => {
               playBeep={playBeep}
               playStartSound={playStartSound}
             />
+
+            {/* Next Exercise Info - Show when there's no rest period (non-fullscreen) */}
+            {!isRestPeriod && !isRoundRest && getNextExercise() && 
+             parseDurationToSeconds(currentExerciseData?.rest || "0s") === 0 && (
+              <div className="mt-4 p-4 bg-gray-700 rounded-lg">
+                <div className="text-center">
+                  <h4 className="text-lg md:text-xl font-semibold text-brightYellow mb-2">
+                    Next Exercise
+                  </h4>
+                  <p className="text-xl md:text-2xl font-bold text-customWhite mb-2">
+                    {getNextExercise().exercise?.name || "Get Ready!"}
+                  </p>
+                  {getNextExercise().exercise?.modification && (
+                    <p className="text-base md:text-lg text-logoGray">
+                      or{" "}
+                      <span className="text-brightYellow">
+                        {getNextExercise().exercise.modification.name}
+                      </span>
+                    </p>
+                  )}
+                  {getNextExercise().duration && (
+                    <p className="text-sm md:text-base text-brightYellow mt-1">
+                      {getNextExercise().duration}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Instructions and Tips - Desktop Only (in timer section) */}
             <div className="hidden lg:flex lg:flex-col mt-4 space-y-3">
