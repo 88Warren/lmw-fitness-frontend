@@ -394,37 +394,6 @@ const WorkoutTimer = ({
           )}
         </div>
 
-        {/* Next Exercise Info - Only in fullscreen during rest */}
-        {isFullscreen && (isRest || isRoundRest) && nextExercise && (
-          <div className="mb-6 landscape:mb-3 p-4 landscape:p-2 bg-gray-700 rounded-lg">
-            <div className="text-center">
-              <h4 className="text-2xl landscape:text-lg font-semibold text-brightYellow mb-3 landscape:mb-1">
-                Next Exercise
-              </h4>
-              <p className="text-3xl landscape:text-xl font-bold text-customWhite mb-2 landscape:mb-1">
-                {nextExercise.exercise?.name || "Get Ready!"}
-              </p>
-              {nextExercise.exercise?.modification && (
-                <p className="text-xl landscape:text-base text-logoGray mb-3 landscape:mb-1">
-                  or{" "}
-                  <span className="text-brightYellow">
-                    {nextExercise.exercise.modification.name}
-                  </span>
-                </p>
-              )}
-              {nextExercise.reps && (
-                <p className="text-lg landscape:text-sm text-brightYellow">
-                  {`${nextExercise.reps} ${
-                    nextExercise.duration
-                      ? `(${nextExercise.duration})`
-                      : "reps"
-                  }`}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Overall Progress Bar */}
         <div className="flex justify-center w-full mt-4">
           <div
@@ -440,6 +409,45 @@ const WorkoutTimer = ({
             ></div>
           </div>
         </div>
+
+        {/* Next Exercise Info - Show during rest OR during exercise if no rest period */}
+        {isFullscreen && nextExercise && (
+          (isRest || isRoundRest) || 
+          (!isRest && !isRoundRest && !isStopwatch && !isMaxTimeExercise && 
+           parseDurationToSeconds(currentExercise?.rest || "0s") === 0)
+        ) && (
+          <div className="flex justify-center w-full mt-4">
+            <div className={`p-4 landscape:p-2 bg-gray-700 rounded-lg ${
+              isFullscreen ? "w-3/4" : "w-full"
+            }`}>
+              <div className="text-center">
+                <h4 className="text-2xl landscape:text-lg font-semibold text-brightYellow mb-3 landscape:mb-1">
+                  Next Exercise
+                </h4>
+                <p className="text-3xl landscape:text-xl font-bold text-customWhite mb-2 landscape:mb-1">
+                  {nextExercise.exercise?.name || "Get Ready!"}
+                </p>
+                {nextExercise.exercise?.modification && (
+                  <p className="text-xl landscape:text-base text-logoGray mb-3 landscape:mb-1">
+                    or{" "}
+                    <span className="text-brightYellow">
+                      {nextExercise.exercise.modification.name}
+                    </span>
+                  </p>
+                )}
+                {nextExercise.reps && (
+                  <p className="text-lg landscape:text-sm text-brightYellow">
+                    {`${nextExercise.reps} ${
+                      nextExercise.duration
+                        ? `(${nextExercise.duration})`
+                        : "reps"
+                    }`}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Timer Controls */}
         <div
