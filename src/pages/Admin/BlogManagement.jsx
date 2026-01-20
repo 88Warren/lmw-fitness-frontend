@@ -67,7 +67,7 @@ const BlogManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24">
+      <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-32">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-customGray"></div>
@@ -78,23 +78,23 @@ const BlogManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24">
+    <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-32">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Link 
-              to="/admin" 
+        <div className="text-center mb-8">
+          <div className="flex justify-start mb-4">
+            <Link
+              to="/admin"
               className="flex items-center text-customGray hover:text-logoGray transition-colors"
             >
               <FiArrowLeft className="mr-2" />
-              Back to Dashboard
+              Dashboard
             </Link>
-            <h1 className="text-4xl font-bold text-customGray">Blog Management</h1>
           </div>
+          <h1 className="text-4xl font-bold text-customGray mb-6">Blog Management</h1>
           <Link
             to="/admin/blogs/create"
-            className="bg-customGray text-white px-6 py-3 rounded-lg hover:bg-logoGray transition-colors flex items-center space-x-2"
+            className="bg-customGray text-white px-6 py-3 rounded-lg hover:bg-logoGray transition-colors flex items-center space-x-2 mx-auto w-fit"
           >
             <FiPlus />
             <span>Create New Post</span>

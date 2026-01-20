@@ -20,6 +20,8 @@ const LoginPage = () => {
     if (!loadingAuth && isLoggedIn) {
       if (user && user.mustChangePassword) {
         navigate("/change-password-first-login");
+      } else if (user && user.role === "admin") {
+        navigate("/admin");
       } else {
         navigate("/profile");
       }
@@ -47,6 +49,8 @@ const LoginPage = () => {
       setTimeout(() => {
         if (result.user && result.user.mustChangePassword) {
           navigate("/change-password-first-login");
+        } else if (result.user && result.user.role === "admin") {
+          navigate("/admin");
         } else {
           navigate("/profile");
         }

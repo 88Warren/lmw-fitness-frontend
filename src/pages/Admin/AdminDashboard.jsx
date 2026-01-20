@@ -6,6 +6,12 @@ import DynamicHeading from '../../components/Shared/DynamicHeading';
 const AdminDashboard = () => {
   const adminSections = [
     {
+      title: 'Analytics Dashboard',
+      description: 'View comprehensive analytics and insights',
+      link: '/admin/analytics',
+      icon: '📊'
+    },
+    {
       title: 'Exercise Management',
       description: 'Create, edit, and manage exercises',
       link: '/admin/exercises',
@@ -42,38 +48,32 @@ const AdminDashboard = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24"
+      className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-32"
     >
       <div className="max-w-6xl mx-auto">
-        <DynamicHeading
-          text="Admin Dashboard"
-          className="font-higherJump text-4xl md:text-5xl text-center font-bold text-customGray mb-12 leading-loose tracking-widest"
-        />
+        <h1 className="text-4xl font-bold text-center text-customGray mb-12">
+          Admin Dashboard
+        </h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {adminSections.map((section, index) => (
-            <motion.div
+            <Link
               key={section.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="h-full"
+              to={section.link}
+              className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 p-6"
             >
-              <Link
-                to={section.link}
-                className="flex flex-col h-full bg-customGray p-8 rounded-lg border-2 border-brightYellow hover:border-hotPink transition-colors duration-300 group min-h-[280px]"
-              >
-                <div className="text-center flex-1 flex flex-col justify-center">
-                  <div className="text-6xl mb-4">{section.icon}</div>
-                  <h3 className="text-2xl font-bold text-customWhite mb-4 font-higherJump tracking-wider leading-loose">
-                    {section.title}
-                  </h3>
-                  <p className="text-logoGray font-titillium group-hover:text-customWhite transition-colors duration-300 leading-relaxed">
-                    {section.description}
-                  </p>
+              <div className="text-center">
+                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                  {section.icon}
                 </div>
-              </Link>
-            </motion.div>
+                <h3 className="text-xl font-semibold text-customGray mb-3 group-hover:text-limeGreen transition-colors duration-300">
+                  {section.title}
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {section.description}
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
       </div>

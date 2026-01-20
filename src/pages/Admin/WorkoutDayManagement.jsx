@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
-  Plus,
-  Edit,
-  Trash2,
-  Save,
-  X,
-  ChevronDown,
-  ChevronRight,
-  ArrowLeft,
-} from "lucide-react";
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiSave,
+  FiX,
+  FiChevronDown,
+  FiChevronRight,
+  FiArrowLeft,
+  FiSearch,
+  FiFilter,
+  FiCalendar,
+} from "react-icons/fi";
 import { showToast } from "../../utils/toastUtil";
 import { ToastContainer } from "react-toastify";
 import api from "../../utils/api";
 import { BACKEND_URL } from "../../utils/config";
-import DynamicHeading from "../../components/Shared/DynamicHeading";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 const WorkoutDayManagement = () => {
@@ -23,6 +26,7 @@ const WorkoutDayManagement = () => {
 
   const [program, setProgram] = useState(null);
   const [workoutDays, setWorkoutDays] = useState([]);
+  const [filteredWorkoutDays, setFilteredWorkoutDays] = useState([]);
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +34,22 @@ const WorkoutDayManagement = () => {
   const [editingDay, setEditingDay] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [detailedView, setDetailedView] = useState({});
+
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [blockTypeFilter, setBlockTypeFilter] = useState("all");
+  const [dayNumberFilter, setDayNumberFilter] = useState("all");
+  const [quickDayJump, setQuickDayJump] = useState("");
+  const [sortBy, setSortBy] = useState("dayNumber");
+
+  // Helper function to format program names for display
+  const formatProgramName = (name) => {
+    if (!name) return '';
+    return name
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   const [formData, setFormData] = useState({
     programId: parseInt(programId),
@@ -56,6 +76,10 @@ const WorkoutDayManagement = () => {
     }
   }, [programId]);
 
+  useEffect(() => {
+    applyFilters();
+  }, [workoutDays, searchTerm, blockTypeFilter, dayNumberFilter, sortBy]);
+
   const fetchProgram = async () => {
     try {
       const response = await api.get(
@@ -77,6 +101,88 @@ const WorkoutDayManagement = () => {
       setExercises(response.data);
     } catch (error) {
       console.error("Error fetching exercises:", error);
+    }
+  };
+
+  const applyFilters = () => {
+    let filtered = [...workoutDays];
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(day => {
+        const titleMatch = day.title && day.title.toLowerCase().includes(searchTerm.toLowerCase());
+        const descriptionMatch = day.description && day.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const dayNumberMatch = day.dayNumber && day.dayNumber.toString().includes(searchTerm);
+        
+        // Search in workout blocks
+        const blockMatch = (day.WorkoutBlocks || day.workoutBlocks || []).some(block => {
+          const blockTypeMatch = (block.blockType || block.BlockType || "").toLowerCase().includes(searchTerm.toLowerCase());
+          const blockNotesMatch = (block.blockNotes || block.BlockNotes || "").toLowerCase().includes(searchTerm.toLowerCase());
+          
+          // Search in exercises within blocks
+          const exerciseMatch = (block.Exercises || block.exercises || []).some(exercise => {
+            const exerciseName = exercise.Exercise?.name || exercise.exercise?.name || "";
+            return exerciseName.toLowerCase().includes(searchTerm.toLowerCase());
+          });
+          
+          return blockTypeMatch || blockNotesMatch || exerciseMatch;
+        });
+
+        return titleMatch || descriptionMatch || dayNumberMatch || blockMatch;
+      });
+    }
+
+    // Day number filter
+    if (dayNumberFilter !== "all") {
+      if (dayNumberFilter === "1-10") {
+        filtered = filtered.filter(day => day.dayNumber >= 1 && day.dayNumber <= 10);
+      } else if (dayNumberFilter === "11-20") {
+        filtered = filtered.filter(day => day.dayNumber >= 11 && day.dayNumber <= 20);
+      } else if (dayNumberFilter === "21-30") {
+        filtered = filtered.filter(day => day.dayNumber >= 21 && day.dayNumber <= 30);
+      } else {
+        // Specific day number
+        filtered = filtered.filter(day => day.dayNumber === parseInt(dayNumberFilter));
+      }
+    }
+
+    // Block type filter
+    if (blockTypeFilter !== "all") {
+      filtered = filtered.filter(day => {
+        return (day.WorkoutBlocks || day.workoutBlocks || []).some(block => 
+          (block.blockType || block.BlockType) === blockTypeFilter
+        );
+      });
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "dayNumber":
+          return (a.dayNumber || 0) - (b.dayNumber || 0);
+        case "title":
+          return (a.title || "").localeCompare(b.title || "");
+        case "newest":
+          return new Date(b.CreatedAt || b.createdAt || 0) - new Date(a.CreatedAt || a.createdAt || 0);
+        case "oldest":
+          return new Date(a.CreatedAt || a.createdAt || 0) - new Date(b.CreatedAt || b.createdAt || 0);
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredWorkoutDays(filtered);
+  };
+
+  const handleQuickDayJump = (e) => {
+    const dayNum = e.target.value;
+    setQuickDayJump(dayNum);
+    
+    if (dayNum && !isNaN(dayNum) && dayNum >= 1 && dayNum <= 30) {
+      setDayNumberFilter(dayNum);
+      setSearchTerm(""); // Clear search when jumping to specific day
+    } else if (dayNum === "") {
+      setDayNumberFilter("all");
     }
   };
 
@@ -232,8 +338,8 @@ const WorkoutDayManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-customGray pt-24">
-        <p className="text-xl font-titillium text-customWhite">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white pt-32">
+        <p className="text-xl text-customGray">
           Loading workout days...
         </p>
       </div>
@@ -242,12 +348,12 @@ const WorkoutDayManagement = () => {
 
   if (!program) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-customGray pt-24">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white pt-32">
         <div className="text-center">
-          <p className="text-xl font-titillium text-customWhite mb-4">
+          <p className="text-xl font-titillium text-customGray mb-4">
             Program not found
           </p>
-          <p className="text-logoGray font-titillium">
+          <p className="text-gray-600 font-titillium">
             Program ID: {programId}
           </p>
           <Link
@@ -266,40 +372,189 @@ const WorkoutDayManagement = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24"
+      className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-32"
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link
-            to="/admin/workout-days"
-            className="p-2 bg-customGray text-brightYellow rounded hover:bg-brightYellow hover:text-customGray transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </Link>
-          <DynamicHeading
-            text={`${program.name} - Workout Days`}
-            className="font-higherJump text-3xl md:text-4xl font-bold text-customGray leading-loose tracking-widest"
-          />
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-start mb-4">
+            <Link
+              to="/admin/workout-days"
+              className="flex items-center text-customGray hover:text-logoGray transition-colors"
+            >
+              <FiArrowLeft className="mr-2" />
+              Programs
+            </Link>
+          </div>
+          <h1 className="text-4xl font-bold text-customGray mb-4">
+            {formatProgramName(program.name)}
+          </h1>
+          <div className="flex justify-center items-center space-x-6 text-gray-600">
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">Difficulty:</span>
+              <span className="bg-customGray text-white px-3 py-1 rounded text-sm">
+                {program.difficulty}
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">Duration:</span>
+              <span className="text-customGray font-semibold">
+                {program.duration} days
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex justify-between items-center mb-8">
-          <div className="text-logoGray font-titillium">
-            <p>
-              Difficulty:{" "}
-              <span className="text-brightYellow">{program.difficulty}</span>
-            </p>
-            <p>
-              Duration:{" "}
-              <span className="text-brightYellow">{program.duration} days</span>
-            </p>
+        {/* Action Section */}
+        <div className="flex justify-center mb-8">
+          <div className="flex items-center gap-4">
+            {/* Quick Day Jump */}
+            <div className="flex items-center gap-2">
+              <FiCalendar className="text-customGray" size={20} />
+              <span className="text-customGray text-sm">Jump to Day:</span>
+              <input
+                type="number"
+                min="1"
+                max="30"
+                placeholder="Day #"
+                value={quickDayJump}
+                onChange={handleQuickDayJump}
+                className="w-20 px-2 py-1 rounded border border-gray-300 text-customGray text-center focus:ring-2 focus:ring-customGray focus:border-transparent"
+              />
+            </div>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="bg-customGray text-white px-6 py-3 rounded-lg hover:bg-logoGray transition-colors flex items-center space-x-2"
+            >
+              <FiPlus size={20} />
+              <span>Add Workout Day</span>
+            </button>
           </div>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="btn-full-colour flex items-center gap-2"
-          >
-            <Plus size={20} />
-            Add Workout Day
-          </button>
+        </div>
+
+        {/* Search and Filter Section */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <FiSearch className="text-customGray" size={20} />
+            <h3 className="text-xl font-bold text-customGray">
+              Search & Filter Workout Days ({filteredWorkoutDays.length} of {workoutDays.length})
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <input
+                type="text"
+                placeholder="Search by title, exercises, block types..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded border border-gray-300 text-customGray placeholder-gray-500 focus:ring-2 focus:ring-customGray focus:border-transparent"
+              />
+            </div>
+
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <select
+                value={dayNumberFilter}
+                onChange={(e) => setDayNumberFilter(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded border border-gray-300 text-customGray appearance-none focus:ring-2 focus:ring-customGray focus:border-transparent"
+              >
+                <option value="all">All Days</option>
+                <option value="1-10">Days 1-10</option>
+                <option value="11-20">Days 11-20</option>
+                <option value="21-30">Days 21-30</option>
+                <optgroup label="Specific Days">
+                  {[...Array(30)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>Day {i + 1}</option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+
+            <div className="relative">
+              <FiFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <select
+                value={blockTypeFilter}
+                onChange={(e) => setBlockTypeFilter(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded border border-gray-300 text-customGray appearance-none focus:ring-2 focus:ring-customGray focus:border-transparent"
+              >
+                <option value="all">All Block Types</option>
+                {blockTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
+            >
+              <option value="dayNumber">Sort by Day Number</option>
+              <option value="title">Sort by Title (A-Z)</option>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+
+          {(searchTerm || dayNumberFilter !== "all" || blockTypeFilter !== "all") && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-customGray">Active filters:</span>
+              
+              {searchTerm && (
+                <div className="flex items-center gap-1 bg-customGray text-white px-2 py-1 rounded">
+                  <span>Search: "{searchTerm}"</span>
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="text-white hover:text-red-300 transition-colors ml-1"
+                  >
+                    <FiX size={14} />
+                  </button>
+                </div>
+              )}
+
+              {dayNumberFilter !== "all" && (
+                <div className="flex items-center gap-1 bg-customGray text-white px-2 py-1 rounded">
+                  <span>
+                    {dayNumberFilter.includes("-") 
+                      ? `Days ${dayNumberFilter}` 
+                      : `Day ${dayNumberFilter}`
+                    }
+                  </span>
+                  <button
+                    onClick={() => setDayNumberFilter("all")}
+                    className="text-white hover:text-red-300 transition-colors ml-1"
+                  >
+                    <FiX size={14} />
+                  </button>
+                </div>
+              )}
+
+              {blockTypeFilter !== "all" && (
+                <div className="flex items-center gap-1 bg-customGray text-white px-2 py-1 rounded">
+                  <span>Block: {blockTypeFilter}</span>
+                  <button
+                    onClick={() => setBlockTypeFilter("all")}
+                    className="text-white hover:text-red-300 transition-colors ml-1"
+                  >
+                    <FiX size={14} />
+                  </button>
+                </div>
+              )}
+
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setDayNumberFilter("all");
+                  setBlockTypeFilter("all");
+                }}
+                className="text-red-500 hover:text-red-700 transition-colors text-sm underline"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Create Form */}
@@ -307,9 +562,9 @@ const WorkoutDayManagement = () => {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="bg-customGray p-6 rounded-lg border-2 border-brightYellow mb-8"
+            className="bg-white p-6 rounded-lg shadow-md mb-8"
           >
-            <h3 className="text-xl font-bold text-customWhite mb-4 font-higherJump">
+            <h3 className="text-xl font-bold text-customGray mb-4">
               Create New Workout Day
             </h3>
             <WorkoutDayForm
@@ -325,368 +580,388 @@ const WorkoutDayManagement = () => {
 
         {/* Workout Days List */}
         <div className="grid gap-6">
-          {workoutDays
-            .sort((a, b) => (a.dayNumber || 0) - (b.dayNumber || 0))
-            .map((day) => (
-              <motion.div
-                key={day.ID}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bg-customGray p-6 rounded-lg border-2 border-brightYellow"
-              >
-                {editingDay === day.ID ? (
-                  <WorkoutDayForm
-                    formData={formData}
-                    setFormData={setFormData}
-                    exercises={exercises}
-                    blockTypes={blockTypes}
-                    onSave={() => handleUpdateDay(day.ID)}
-                    onCancel={cancelEdit}
-                  />
-                ) : (
-                  <div>
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => toggleDayExpansion(day.ID)}
-                          className="text-brightYellow hover:text-hotPink transition-colors"
-                        >
-                          {expandedDays[day.ID] ? (
-                            <ChevronDown size={20} />
-                          ) : (
-                            <ChevronRight size={20} />
-                          )}
-                        </button>
-                        <div>
-                          <h3 className="text-xl font-bold text-customWhite font-higherJump">
-                            Day {day.dayNumber}: {day.title}
-                          </h3>
-                          {day.description && (
-                            <p className="text-logoGray font-titillium mt-1">
-                              {day.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => startEdit(day)}
-                          className="p-2 bg-brightYellow text-customGray rounded hover:bg-hotPink transition-colors"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteDay(day.ID)}
-                          className="p-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
+          {filteredWorkoutDays.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg mb-4">
+                {workoutDays.length === 0 
+                  ? "No workout days created yet." 
+                  : searchTerm || blockTypeFilter !== "all" || dayNumberFilter !== "all"
+                    ? "No workout days match your search criteria."
+                    : "No workout days to display."
+                }
+              </p>
+              {workoutDays.length === 0 ? (
+                <p className="text-gray-600">
+                  Click "Add Workout Day" to get started.
+                </p>
+              ) : (searchTerm || blockTypeFilter !== "all" || dayNumberFilter !== "all") && (
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setBlockTypeFilter("all");
+                    setDayNumberFilter("all");
+                  }}
+                  className="bg-customGray text-white px-4 py-2 rounded-lg hover:bg-logoGray transition-colors"
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="grid gap-6">
+              {filteredWorkoutDays.map((day) => (
+                <div
+                  key={day.ID}
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                >
+                  {editingDay === day.ID ? (
+                    <div className="p-6">
+                      <WorkoutDayForm
+                        formData={formData}
+                        setFormData={setFormData}
+                        exercises={exercises}
+                        blockTypes={blockTypes}
+                        onSave={() => handleUpdateDay(day.ID)}
+                        onCancel={cancelEdit}
+                      />
                     </div>
-
-                    {/* Expanded Day Details */}
-                    {expandedDays[day.ID] && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="border-t border-logoGray pt-4 mt-4"
-                      >
-                        {day.warmup && (
-                          <div className="mb-4">
-                            <h4 className="text-lg font-bold text-customWhite mb-2 font-higherJump">
-                              Warmup
-                            </h4>
-                            <p className="text-logoGray font-titillium">
-                              {day.warmup}
-                            </p>
+                  ) : (
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-3 flex-1">
+                          <button
+                            onClick={() => toggleDayExpansion(day.ID)}
+                            className="text-customGray hover:text-logoGray transition-colors"
+                          >
+                            {expandedDays[day.ID] ? (
+                              <FiChevronDown size={20} />
+                            ) : (
+                              <FiChevronRight size={20} />
+                            )}
+                          </button>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-customGray mb-1">
+                              Day {day.dayNumber}: {day.title}
+                            </h3>
+                            {day.description && (
+                              <p className="text-gray-600 text-sm line-clamp-2">
+                                {day.description}
+                              </p>
+                            )}
                           </div>
-                        )}
-
-                        <div className="mb-4">
-                          <div className="flex justify-between items-center mb-3">
-                            <h4 className="text-lg font-bold text-customWhite font-higherJump">
-                              Workout Blocks (
-                              {(day.WorkoutBlocks || day.workoutBlocks)
-                                ?.length || 0}
-                              )
-                            </h4>
-                            {(day.WorkoutBlocks || day.workoutBlocks) &&
-                              (day.WorkoutBlocks || day.workoutBlocks).length >
-                                0 && (
-                                <button
-                                  onClick={() => toggleDetailedView(day.ID)}
-                                  className="text-sm bg-brightYellow text-customGray px-3 py-1 rounded hover:bg-hotPink transition-colors font-titillium"
-                                >
-                                  {detailedView[day.ID]
-                                    ? "Simple View"
-                                    : "Detailed View"}
-                                </button>
-                              )}
-                          </div>
-                          {(day.WorkoutBlocks || day.workoutBlocks) &&
-                          (day.WorkoutBlocks || day.workoutBlocks).length >
-                            0 ? (
-                            <div className="grid gap-4">
-                              {(day.WorkoutBlocks || day.workoutBlocks).map(
-                                (block, blockIndex) => (
-                                  <div
-                                    key={block.ID}
-                                    className="bg-customGray/50 p-4 rounded border border-logoGray"
-                                  >
-                                    <div className="flex justify-between items-start mb-3">
-                                      <div className="flex-1">
-                                        <h5 className="font-bold text-customWhite font-titillium text-lg">
-                                          Block {blockIndex + 1}:{" "}
-                                          {block.blockType || block.BlockType}
-                                        </h5>
-                                        {(block.blockNotes ||
-                                          block.BlockNotes) && (
-                                          <p className="text-logoGray text-sm font-titillium mt-2 italic">
-                                            &quot;
-                                            {block.blockNotes ||
-                                              block.BlockNotes}
-                                            &quot;
-                                          </p>
-                                        )}
-                                        <div className="flex gap-4 text-sm text-brightYellow font-titillium mt-2">
-                                          {(block.blockRounds ||
-                                            block.BlockRounds) && (
-                                            <span>
-                                              Rounds:{" "}
-                                              {block.blockRounds ||
-                                                block.BlockRounds}
-                                            </span>
-                                          )}
-                                          {(block.roundRest ||
-                                            block.RoundRest) && (
-                                            <span>
-                                              Round Rest:{" "}
-                                              {block.roundRest ||
-                                                block.RoundRest}
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs text-brightYellow font-titillium bg-customGray px-2 py-1 rounded">
-                                          {(block.Exercises || block.exercises)
-                                            ?.length || 0}{" "}
-                                          exercises
-                                        </span>
-                                        <button
-                                          onClick={() => {
-                                            /* TODO: Edit block */
-                                          }}
-                                          className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs"
-                                          title="Edit Block"
-                                        >
-                                          <Edit size={12} />
-                                        </button>
-                                      </div>
-                                    </div>
-
-                                    {/* Exercise List */}
-                                    {(block.Exercises || block.exercises) &&
-                                      (block.Exercises || block.exercises)
-                                        .length > 0 && (
-                                        <div className="mt-4">
-                                          <h6 className="font-bold text-customWhite font-titillium mb-2">
-                                            Exercises:
-                                          </h6>
-
-                                          {/* Simple View - Just exercise names */}
-                                          {!detailedView[day.ID] && (
-                                            <div className="flex flex-wrap gap-2">
-                                              {(
-                                                block.Exercises ||
-                                                block.exercises
-                                              ).map(
-                                                (exercise, exerciseIndex) => (
-                                                  <span
-                                                    key={
-                                                      exercise.ID ||
-                                                      exerciseIndex
-                                                    }
-                                                    className="bg-brightYellow text-customGray px-2 py-1 rounded text-sm font-titillium"
-                                                  >
-                                                    {exerciseIndex + 1}.{" "}
-                                                    {exercise.Exercise?.name ||
-                                                      exercise.exercise?.name ||
-                                                      "Exercise Name"}
-                                                  </span>
-                                                )
-                                              )}
-                                            </div>
-                                          )}
-
-                                          {/* Detailed View - Full exercise details */}
-                                          {detailedView[day.ID] && (
-                                            <div className="grid gap-2">
-                                              {(
-                                                block.Exercises ||
-                                                block.exercises
-                                              ).map(
-                                                (exercise, exerciseIndex) => (
-                                                  <div
-                                                    key={
-                                                      exercise.ID ||
-                                                      exerciseIndex
-                                                    }
-                                                    className="bg-customGray/30 p-3 rounded border-l-4 border-brightYellow"
-                                                  >
-                                                    <div className="flex justify-between items-start">
-                                                      <div className="flex-1">
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                          <span className="text-brightYellow font-bold text-sm">
-                                                            {exercise.order ||
-                                                              exercise.Order ||
-                                                              exerciseIndex + 1}
-                                                            .
-                                                          </span>
-                                                          <span className="text-customWhite font-titillium font-bold">
-                                                            {exercise.Exercise
-                                                              ?.name ||
-                                                              exercise.exercise
-                                                                ?.name ||
-                                                              "Exercise Name"}
-                                                          </span>
-                                                        </div>
-
-                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm font-titillium mt-2">
-                                                          {(exercise.reps ||
-                                                            exercise.Reps) && (
-                                                            <div>
-                                                              <span className="text-logoGray">
-                                                                Reps:{" "}
-                                                              </span>
-                                                              <span className="text-customWhite">
-                                                                {exercise.reps ||
-                                                                  exercise.Reps}
-                                                              </span>
-                                                            </div>
-                                                          )}
-                                                          {(exercise.duration ||
-                                                            exercise.Duration) && (
-                                                            <div>
-                                                              <span className="text-logoGray">
-                                                                Duration:{" "}
-                                                              </span>
-                                                              <span className="text-customWhite">
-                                                                {exercise.duration ||
-                                                                  exercise.Duration}
-                                                              </span>
-                                                            </div>
-                                                          )}
-                                                          {(exercise.rest ||
-                                                            exercise.Rest) && (
-                                                            <div>
-                                                              <span className="text-logoGray">
-                                                                Rest:{" "}
-                                                              </span>
-                                                              <span className="text-customWhite">
-                                                                {exercise.rest ||
-                                                                  exercise.Rest}
-                                                              </span>
-                                                            </div>
-                                                          )}
-                                                          {(exercise.workRestRatio ||
-                                                            exercise.WorkRestRatio) && (
-                                                            <div>
-                                                              <span className="text-logoGray">
-                                                                Work/Rest:{" "}
-                                                              </span>
-                                                              <span className="text-customWhite">
-                                                                {exercise.workRestRatio ||
-                                                                  exercise.WorkRestRatio}
-                                                              </span>
-                                                            </div>
-                                                          )}
-                                                        </div>
-
-                                                        {(exercise.tips ||
-                                                          exercise.Tips) && (
-                                                          <div className="mt-2">
-                                                            <span className="text-logoGray text-sm">
-                                                              Tips:{" "}
-                                                            </span>
-                                                            <span className="text-customWhite text-sm italic">
-                                                              &quot;
-                                                              {exercise.tips ||
-                                                                exercise.Tips}
-                                                              &quot;
-                                                            </span>
-                                                          </div>
-                                                        )}
-
-                                                        {(exercise.instructions ||
-                                                          exercise.Instructions) && (
-                                                          <div className="mt-2">
-                                                            <span className="text-logoGray text-sm">
-                                                              Instructions:{" "}
-                                                            </span>
-                                                            <span className="text-customWhite text-sm">
-                                                              {exercise.instructions ||
-                                                                exercise.Instructions}
-                                                            </span>
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                      <button
-                                                        onClick={() => {
-                                                          /* TODO: Edit exercise */
-                                                        }}
-                                                        className="p-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-xs ml-2"
-                                                        title="Edit Exercise"
-                                                      >
-                                                        <Edit size={10} />
-                                                      </button>
-                                                    </div>
-                                                  </div>
-                                                )
-                                              )}
-                                            </div>
-                                          )}
-                                        </div>
-                                      )}
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          ) : (
-                            <p className="text-logoGray font-titillium">
-                              No workout blocks created yet.
-                            </p>
-                          )}
                         </div>
+                        <div className="flex space-x-2 ml-4">
+                          <button
+                            onClick={() => startEdit(day)}
+                            className="text-blue-600 hover:text-blue-800 transition-colors p-2 rounded-lg hover:bg-blue-50"
+                            title="Edit Day"
+                          >
+                            <FiEdit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteDay(day.ID)}
+                            className="text-red-600 hover:text-red-800 transition-colors p-2 rounded-lg hover:bg-red-50"
+                            title="Delete Day"
+                          >
+                            <FiTrash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
 
-                        {day.cooldown && (
-                          <div>
-                            <h4 className="text-lg font-bold text-customWhite mb-2 font-higherJump">
-                              Cooldown
-                            </h4>
-                            <p className="text-logoGray font-titillium">
-                              {day.cooldown}
-                            </p>
+                      {/* Expanded Day Details */}
+                      {expandedDays[day.ID] && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          className="border-t border-gray-200 pt-4 mt-4"
+                        >
+                          {day.warmup && (
+                            <div className="mb-4">
+                              <h4 className="text-lg font-bold text-customGray mb-2">
+                                Warmup
+                              </h4>
+                              <p className="text-gray-600">
+                                {day.warmup}
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="mb-4">
+                            <div className="flex justify-between items-center mb-3">
+                              <h4 className="text-lg font-bold text-customGray">
+                                Workout Blocks (
+                                {(day.WorkoutBlocks || day.workoutBlocks)
+                                  ?.length || 0}
+                                )
+                              </h4>
+                              {(day.WorkoutBlocks || day.workoutBlocks) &&
+                                (day.WorkoutBlocks || day.workoutBlocks).length >
+                                  0 && (
+                                  <button
+                                    onClick={() => toggleDetailedView(day.ID)}
+                                    className="text-sm bg-customGray text-white px-3 py-1 rounded hover:bg-logoGray transition-colors"
+                                  >
+                                    {detailedView[day.ID]
+                                      ? "Simple View"
+                                      : "Detailed View"}
+                                  </button>
+                                )}
+                            </div>
+                            {(day.WorkoutBlocks || day.workoutBlocks) &&
+                            (day.WorkoutBlocks || day.workoutBlocks).length >
+                              0 ? (
+                              <div className="grid gap-4">
+                                {(day.WorkoutBlocks || day.workoutBlocks).map(
+                                  (block, blockIndex) => (
+                                    <div
+                                      key={block.ID}
+                                      className="bg-gray-50 p-4 rounded border border-gray-200"
+                                    >
+                                      <div className="flex justify-between items-start mb-3">
+                                        <div className="flex-1">
+                                          <h5 className="font-bold text-customGray text-lg">
+                                            Block {blockIndex + 1}:{" "}
+                                            {block.blockType || block.BlockType}
+                                          </h5>
+                                          {(block.blockNotes ||
+                                            block.BlockNotes) && (
+                                            <p className="text-gray-600 text-sm mt-2 italic">
+                                              &quot;
+                                              {block.blockNotes ||
+                                                block.BlockNotes}
+                                              &quot;
+                                            </p>
+                                          )}
+                                          <div className="flex gap-4 text-sm text-customGray mt-2">
+                                            {(block.blockRounds ||
+                                              block.BlockRounds) && (
+                                              <span>
+                                                Rounds:{" "}
+                                                {block.blockRounds ||
+                                                  block.BlockRounds}
+                                              </span>
+                                            )}
+                                            {(block.roundRest ||
+                                              block.RoundRest) && (
+                                              <span>
+                                                Round Rest:{" "}
+                                                {block.roundRest ||
+                                                  block.RoundRest}
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs text-white bg-customGray px-2 py-1 rounded">
+                                            {(block.Exercises || block.exercises)
+                                              ?.length || 0}{" "}
+                                            exercises
+                                          </span>
+                                          <button
+                                            onClick={() => {
+                                              /* TODO: Edit block */
+                                            }}
+                                            className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs"
+                                            title="Edit Block"
+                                          >
+                                            <FiEdit2 size={12} />
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      {/* Exercise List */}
+                                      {(block.Exercises || block.exercises) &&
+                                        (block.Exercises || block.exercises)
+                                          .length > 0 && (
+                                          <div className="mt-4">
+                                            <h6 className="font-bold text-customGray mb-2">
+                                              Exercises:
+                                            </h6>
+
+                                            {/* Simple View - Just exercise names */}
+                                            {!detailedView[day.ID] && (
+                                              <div className="flex flex-wrap gap-2">
+                                                {(
+                                                  block.Exercises ||
+                                                  block.exercises
+                                                ).map(
+                                                  (exercise, exerciseIndex) => (
+                                                    <span
+                                                      key={
+                                                        exercise.ID ||
+                                                        exerciseIndex
+                                                      }
+                                                      className="bg-customGray text-white px-2 py-1 rounded text-sm"
+                                                    >
+                                                      {exerciseIndex + 1}.{" "}
+                                                      {exercise.Exercise?.name ||
+                                                        exercise.exercise?.name ||
+                                                        "Exercise Name"}
+                                                    </span>
+                                                  )
+                                                )}
+                                              </div>
+                                            )}
+
+                                            {/* Detailed View - Full exercise details */}
+                                            {detailedView[day.ID] && (
+                                              <div className="grid gap-2">
+                                                {(
+                                                  block.Exercises ||
+                                                  block.exercises
+                                                ).map(
+                                                  (exercise, exerciseIndex) => (
+                                                    <div
+                                                      key={
+                                                        exercise.ID ||
+                                                        exerciseIndex
+                                                      }
+                                                      className="bg-white p-3 rounded border-l-4 border-customGray"
+                                                    >
+                                                      <div className="flex justify-between items-start">
+                                                        <div className="flex-1">
+                                                          <div className="flex items-center gap-2 mb-1">
+                                                            <span className="text-customGray font-bold text-sm">
+                                                              {exercise.order ||
+                                                                exercise.Order ||
+                                                                exerciseIndex + 1}
+                                                              .
+                                                            </span>
+                                                            <span className="text-customGray font-bold">
+                                                              {exercise.Exercise
+                                                                ?.name ||
+                                                                exercise.exercise
+                                                                  ?.name ||
+                                                                "Exercise Name"}
+                                                            </span>
+                                                          </div>
+
+                                                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mt-2">
+                                                            {(exercise.reps ||
+                                                              exercise.Reps) && (
+                                                              <div>
+                                                                <span className="text-gray-600">
+                                                                  Reps:{" "}
+                                                                </span>
+                                                                <span className="text-customGray">
+                                                                  {exercise.reps ||
+                                                                    exercise.Reps}
+                                                                </span>
+                                                              </div>
+                                                            )}
+                                                            {(exercise.duration ||
+                                                              exercise.Duration) && (
+                                                              <div>
+                                                                <span className="text-gray-600">
+                                                                  Duration:{" "}
+                                                                </span>
+                                                                <span className="text-customGray">
+                                                                  {exercise.duration ||
+                                                                    exercise.Duration}
+                                                                </span>
+                                                              </div>
+                                                            )}
+                                                            {(exercise.rest ||
+                                                              exercise.Rest) && (
+                                                              <div>
+                                                                <span className="text-gray-600">
+                                                                  Rest:{" "}
+                                                                </span>
+                                                                <span className="text-customGray">
+                                                                  {exercise.rest ||
+                                                                    exercise.Rest}
+                                                                </span>
+                                                              </div>
+                                                            )}
+                                                            {(exercise.workRestRatio ||
+                                                              exercise.WorkRestRatio) && (
+                                                              <div>
+                                                                <span className="text-gray-600">
+                                                                  Work/Rest:{" "}
+                                                                </span>
+                                                                <span className="text-customGray">
+                                                                  {exercise.workRestRatio ||
+                                                                    exercise.WorkRestRatio}
+                                                                </span>
+                                                              </div>
+                                                            )}
+                                                          </div>
+
+                                                          {(exercise.tips ||
+                                                            exercise.Tips) && (
+                                                            <div className="mt-2">
+                                                              <span className="text-gray-600 text-sm">
+                                                                Tips:{" "}
+                                                              </span>
+                                                              <span className="text-customGray text-sm italic">
+                                                                &quot;
+                                                                {exercise.tips ||
+                                                                  exercise.Tips}
+                                                                &quot;
+                                                              </span>
+                                                            </div>
+                                                          )}
+
+                                                          {(exercise.instructions ||
+                                                            exercise.Instructions) && (
+                                                            <div className="mt-2">
+                                                              <span className="text-gray-600 text-sm">
+                                                                Instructions:{" "}
+                                                              </span>
+                                                              <span className="text-customGray text-sm">
+                                                                {exercise.instructions ||
+                                                                  exercise.Instructions}
+                                                              </span>
+                                                            </div>
+                                                          )}
+                                                        </div>
+                                                        <button
+                                                          onClick={() => {
+                                                            /* TODO: Edit exercise */
+                                                          }}
+                                                          className="p-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-xs ml-2"
+                                                          title="Edit Exercise"
+                                                        >
+                                                          <FiEdit2 size={10} />
+                                                        </button>
+                                                      </div>
+                                                    </div>
+                                                  )
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            ) : (
+                              <p className="text-gray-600">
+                                No workout blocks created yet.
+                              </p>
+                            )}
                           </div>
-                        )}
-                      </motion.div>
-                    )}
-                  </div>
-                )}
-              </motion.div>
-            ))}
-        </div>
 
-        {workoutDays.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-logoGray font-titillium text-lg">
-              No workout days created yet.
-            </p>
-            <p className="text-logoGray font-titillium">
-              Click &quot;Add Workout Day&quot; to get started.
-            </p>
-          </div>
-        )}
+                          {day.cooldown && (
+                            <div>
+                              <h4 className="text-lg font-bold text-customGray mb-2">
+                                Cooldown
+                              </h4>
+                              <p className="text-gray-600">
+                                {day.cooldown}
+                              </p>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       <ToastContainer />
     </motion.div>
@@ -820,7 +1095,7 @@ const WorkoutDayForm = ({
       {/* Basic Day Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-customWhite font-titillium mb-2">
+          <label className="block text-customGray mb-2">
             Day Number *
           </label>
           <input
@@ -829,34 +1104,34 @@ const WorkoutDayForm = ({
             onChange={(e) =>
               handleInputChange("dayNumber", parseInt(e.target.value) || 1)
             }
-            className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
+            className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
             min="1"
             required
           />
         </div>
 
         <div>
-          <label className="block text-customWhite font-titillium mb-2">
+          <label className="block text-customGray mb-2">
             Title *
           </label>
           <input
             type="text"
             value={formData.title}
             onChange={(e) => handleInputChange("title", e.target.value)}
-            className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
+            className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
             placeholder="e.g., Upper Body Strength"
             required
           />
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-customWhite font-titillium mb-2">
+          <label className="block text-customGray mb-2">
             Description
           </label>
           <textarea
             value={formData.description}
             onChange={(e) => handleInputChange("description", e.target.value)}
-            className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
+            className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
             rows="3"
             placeholder="Brief description of this workout day"
           />
@@ -864,17 +1139,17 @@ const WorkoutDayForm = ({
       </div>
 
       {/* Workout Blocks */}
-      <div className="border-t border-logoGray pt-6">
+      <div className="border-t border-gray-200 pt-6">
         <div className="flex justify-between items-center mb-4">
-          <h4 className="text-xl font-bold text-customWhite font-higherJump">
+          <h4 className="text-xl font-bold text-customGray">
             Workout Blocks ({formData.workoutBlocks?.length || 0})
           </h4>
           <button
             type="button"
             onClick={addBlock}
-            className="btn-full-colour flex items-center gap-2"
+            className="bg-customGray text-white px-4 py-2 rounded-lg hover:bg-logoGray transition-colors flex items-center gap-2"
           >
-            <Plus size={16} />
+            <FiPlus size={16} />
             Add Block
           </button>
         </div>
@@ -882,10 +1157,10 @@ const WorkoutDayForm = ({
         {formData.workoutBlocks?.map((block, blockIndex) => (
           <div
             key={blockIndex}
-            className="bg-customGray/30 p-4 rounded-lg border border-logoGray mb-4"
+            className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4"
           >
             <div className="flex justify-between items-center mb-4">
-              <h5 className="text-lg font-bold text-customWhite font-titillium">
+              <h5 className="text-lg font-bold text-customGray">
                 Block {blockIndex + 1}
               </h5>
               <button
@@ -893,13 +1168,13 @@ const WorkoutDayForm = ({
                 onClick={() => removeBlock(blockIndex)}
                 className="p-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
               >
-                <Trash2 size={16} />
+                <FiTrash2 size={16} />
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-customWhite font-titillium mb-2">
+                <label className="block text-customGray mb-2">
                   Block Type *
                 </label>
                 <select
@@ -907,7 +1182,7 @@ const WorkoutDayForm = ({
                   onChange={(e) =>
                     handleBlockChange(blockIndex, "blockType", e.target.value)
                   }
-                  className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
+                  className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                   required
                 >
                   <option value="">Select Block Type</option>
@@ -920,7 +1195,7 @@ const WorkoutDayForm = ({
               </div>
 
               <div>
-                <label className="block text-customWhite font-titillium mb-2">
+                <label className="block text-customGray mb-2">
                   Block Rounds
                 </label>
                 <input
@@ -929,13 +1204,13 @@ const WorkoutDayForm = ({
                   onChange={(e) =>
                     handleBlockChange(blockIndex, "blockRounds", e.target.value)
                   }
-                  className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
+                  className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                   placeholder="e.g., 3, 5, AMRAP"
                 />
               </div>
 
               <div>
-                <label className="block text-customWhite font-titillium mb-2">
+                <label className="block text-customGray mb-2">
                   Round Rest
                 </label>
                 <input
@@ -944,14 +1219,14 @@ const WorkoutDayForm = ({
                   onChange={(e) =>
                     handleBlockChange(blockIndex, "roundRest", e.target.value)
                   }
-                  className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
+                  className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                   placeholder="e.g., 60s, 2 mins"
                 />
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-customWhite font-titillium mb-2">
+              <label className="block text-customGray mb-2">
                 Block Notes
               </label>
               <textarea
@@ -959,24 +1234,24 @@ const WorkoutDayForm = ({
                 onChange={(e) =>
                   handleBlockChange(blockIndex, "blockNotes", e.target.value)
                 }
-                className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
+                className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                 rows="2"
                 placeholder="Instructions for this block"
               />
             </div>
 
             {/* Exercises in this block */}
-            <div className="border-t border-logoGray/50 pt-4">
+            <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between items-center mb-3">
-                <h6 className="text-lg font-bold text-customWhite font-titillium">
+                <h6 className="text-lg font-bold text-customGray">
                   Exercises ({block.exercises?.length || 0})
                 </h6>
                 <button
                   type="button"
                   onClick={() => addExercise(blockIndex)}
-                  className="btn-outline flex items-center gap-2"
+                  className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 transition-colors flex items-center gap-2"
                 >
-                  <Plus size={14} />
+                  <FiPlus size={14} />
                   Add Exercise
                 </button>
               </div>
@@ -984,10 +1259,10 @@ const WorkoutDayForm = ({
               {block.exercises?.map((exercise, exerciseIndex) => (
                 <div
                   key={exerciseIndex}
-                  className="bg-customGray/50 p-3 rounded border border-logoGray/50 mb-3"
+                  className="bg-white p-3 rounded border border-gray-200 mb-3"
                 >
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-brightYellow font-bold">
+                    <span className="text-customGray font-bold">
                       Exercise {exerciseIndex + 1}
                     </span>
                     <button
@@ -995,13 +1270,13 @@ const WorkoutDayForm = ({
                       onClick={() => removeExercise(blockIndex, exerciseIndex)}
                       className="p-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
                     >
-                      <Trash2 size={12} />
+                      <FiTrash2 size={12} />
                     </button>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div className="md:col-span-2 lg:col-span-3">
-                      <label className="block text-customWhite font-titillium mb-2">
+                      <label className="block text-customGray mb-2">
                         Exercise *
                       </label>
                       <select
@@ -1013,7 +1288,7 @@ const WorkoutDayForm = ({
                             e.target.value
                           )
                         }
-                        className="w-full p-2 rounded bg-customWhite text-customGray font-titillium"
+                        className="w-full p-2 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                         required
                       >
                         <option value="">Select Exercise</option>
@@ -1026,7 +1301,7 @@ const WorkoutDayForm = ({
                     </div>
 
                     <div>
-                      <label className="block text-customWhite font-titillium mb-2">
+                      <label className="block text-customGray mb-2">
                         Order
                       </label>
                       <input
@@ -1040,13 +1315,13 @@ const WorkoutDayForm = ({
                             parseInt(e.target.value) || 1
                           )
                         }
-                        className="w-full p-2 rounded bg-customWhite text-customGray font-titillium"
+                        className="w-full p-2 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                         min="1"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-customWhite font-titillium mb-2">
+                      <label className="block text-customGray mb-2">
                         Reps
                       </label>
                       <input
@@ -1060,13 +1335,13 @@ const WorkoutDayForm = ({
                             e.target.value
                           )
                         }
-                        className="w-full p-2 rounded bg-customWhite text-customGray font-titillium"
+                        className="w-full p-2 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                         placeholder="e.g., 10-12, Max Effort"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-customWhite font-titillium mb-2">
+                      <label className="block text-customGray mb-2">
                         Duration
                       </label>
                       <input
@@ -1080,13 +1355,13 @@ const WorkoutDayForm = ({
                             e.target.value
                           )
                         }
-                        className="w-full p-2 rounded bg-customWhite text-customGray font-titillium"
+                        className="w-full p-2 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                         placeholder="e.g., 30s, 1 min"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-customWhite font-titillium mb-2">
+                      <label className="block text-customGray mb-2">
                         Rest
                       </label>
                       <input
@@ -1100,13 +1375,13 @@ const WorkoutDayForm = ({
                             e.target.value
                           )
                         }
-                        className="w-full p-2 rounded bg-customWhite text-customGray font-titillium"
+                        className="w-full p-2 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                         placeholder="e.g., 15s, 2 mins"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-customWhite font-titillium mb-2">
+                      <label className="block text-customGray mb-2">
                         Work/Rest Ratio
                       </label>
                       <input
@@ -1120,13 +1395,13 @@ const WorkoutDayForm = ({
                             e.target.value
                           )
                         }
-                        className="w-full p-2 rounded bg-customWhite text-customGray font-titillium"
+                        className="w-full p-2 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                         placeholder="e.g., 2:1, 30:15"
                       />
                     </div>
 
                     <div className="md:col-span-2 lg:col-span-3">
-                      <label className="block text-customWhite font-titillium mb-2">
+                      <label className="block text-customGray mb-2">
                         Tips
                       </label>
                       <input
@@ -1140,13 +1415,13 @@ const WorkoutDayForm = ({
                             e.target.value
                           )
                         }
-                        className="w-full p-2 rounded bg-customWhite text-customGray font-titillium"
+                        className="w-full p-2 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                         placeholder="e.g., 2 Lunges = 1 rep"
                       />
                     </div>
 
                     <div className="md:col-span-2 lg:col-span-3">
-                      <label className="block text-customWhite font-titillium mb-2">
+                      <label className="block text-customGray mb-2">
                         Instructions
                       </label>
                       <textarea
@@ -1159,7 +1434,7 @@ const WorkoutDayForm = ({
                             e.target.value
                           )
                         }
-                        className="w-full p-2 rounded bg-customWhite text-customGray font-titillium"
+                        className="w-full p-2 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
                         rows="2"
                         placeholder="Specific instructions for this exercise"
                       />
@@ -1172,20 +1447,20 @@ const WorkoutDayForm = ({
         ))}
       </div>
 
-      <div className="flex gap-4 mt-6 pt-6 border-t border-logoGray">
+      <div className="flex gap-4 mt-6 pt-6 border-t border-gray-200">
         <button
           onClick={onSave}
-          className="btn-full-colour flex items-center gap-2"
+          className="bg-customGray text-white px-6 py-3 rounded-lg hover:bg-logoGray transition-colors flex items-center gap-2"
           disabled={!formData.title || !formData.dayNumber}
         >
-          <Save size={16} />
+          <FiSave size={16} />
           Save Workout Day
         </button>
         <button
           onClick={onCancel}
-          className="btn-outline flex items-center gap-2"
+          className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
         >
-          <X size={16} />
+          <FiX size={16} />
           Cancel
         </button>
       </div>

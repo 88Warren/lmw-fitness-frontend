@@ -33,6 +33,7 @@ import Profile from "../pages/User/Profile";
 import CalorieCalculator from "../pages/calculator/CalorieCalculator";
 
 import AdminDashboard from "../pages/Admin/AdminDashboard";
+import AnalyticsDashboard from "../pages/Admin/AnalyticsDashboard";
 import ExerciseManagement from "../pages/Admin/ExerciseManagement";
 import ProgramManagement from "../pages/Admin/ProgramManagement";
 import WorkoutDayManagement from "../pages/Admin/WorkoutDayManagement";
@@ -88,6 +89,7 @@ const routes = createRoutesFromElements(
     {/* Admin Routes */}
     <Route element={<AdminRoute />}>
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/analytics" element={<AnalyticsDashboard />} />
       <Route path="/admin/exercises" element={<ExerciseManagement />} />
       <Route path="/admin/programs" element={<ProgramManagement />} />
       <Route path="/admin/workout-days" element={<WorkoutDayList />} />

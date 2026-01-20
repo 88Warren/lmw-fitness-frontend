@@ -134,7 +134,7 @@ const BlogForm = () => {
 
   if (loading && isEditing) {
     return (
-      <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24">
+      <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-32">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-customGray"></div>
@@ -145,7 +145,7 @@ const BlogForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24">
+    <div className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-32">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -155,7 +155,7 @@ const BlogForm = () => {
               className="flex items-center text-customGray hover:text-logoGray transition-colors"
             >
               <FiArrowLeft className="mr-2" />
-              Back to Blog Management
+              Blog Management
             </Link>
             <h1 className="text-4xl font-bold text-customGray">
               {isEditing ? 'Edit Blog Post' : 'Create New Blog Post'}
