@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { FiArrowLeft } from 'react-icons/fi';
 import { showToast } from '../../utils/toastUtil';
 import { ToastContainer } from 'react-toastify';
 import api from '../../utils/api';
 import { BACKEND_URL } from '../../utils/config';
-import DynamicHeading from '../../components/Shared/DynamicHeading';
 
 const WorkoutDayList = () => {
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Helper function to format program names for display
+  const formatProgramName = (name) => {
+    if (!name) return '';
+    return name
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   useEffect(() => {
     fetchPrograms();
@@ -30,8 +38,8 @@ const WorkoutDayList = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-customGray">
-        <p className="text-xl font-titillium text-customWhite">Loading programs...</p>
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white pt-32">
+        <p className="text-xl font-titillium text-customGray">Loading programs...</p>
       </div>
     );
   }
@@ -41,44 +49,62 @@ const WorkoutDayList = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24"
+      className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-32"
     >
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-center gap-4 mb-12">
-          <Link
-            to="/admin"
-            className="p-2 bg-customGray text-brightYellow rounded hover:bg-brightYellow hover:text-customGray transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </Link>
-          <DynamicHeading
-            text="Select Program to Edit Workout Days"
-            className="font-higherJump text-3xl md:text-4xl text-center font-bold text-customGray leading-loose tracking-widest"
-          />
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-start mb-4">
+            <Link
+              to="/admin"
+              className="flex items-center text-customGray hover:text-logoGray transition-colors"
+            >
+              <FiArrowLeft className="mr-2" />
+              Dashboard
+            </Link>
+          </div>
+          <h1 className="text-4xl font-bold text-customGray mb-4">
+            Workout Day Management
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Select a program to manage its workout days
+          </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {programs.map((program, index) => (
             <motion.div
               key={program.ID}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
             >
               <Link
                 to={`/admin/workout-days/${program.ID}`}
-                className="block bg-customGray p-8 rounded-lg border-2 border-brightYellow hover:border-hotPink transition-colors duration-300 group"
+                className="block p-6 hover:bg-gray-50 transition-colors"
               >
                 <div className="text-center">
-                  <div className="text-6xl mb-4">📅</div>
-                  <h3 className="text-2xl font-bold text-customWhite mb-4 font-higherJump tracking-wider leading-loose">
-                    {program.name}
+                  <div className="text-4xl mb-4">📅</div>
+                  <h3 className="text-xl font-bold text-customGray mb-3">
+                    {formatProgramName(program.name)}
                   </h3>
-                  <div className="text-logoGray font-titillium group-hover:text-customWhite transition-colors duration-300">
-                    <p className="mb-2">{program.difficulty} • {program.duration} days</p>
-                    <p className="text-sm">{(program.Days || program.days)?.length || 0} workout days</p>
+                  <div className="text-gray-600 space-y-2">
+                    <div className="flex justify-center items-center space-x-2">
+                      <span className="bg-customGray text-white px-2 py-1 rounded text-sm">
+                        {program.difficulty}
+                      </span>
+                      <span className="text-sm">
+                        {program.duration} days
+                      </span>
+                    </div>
+                    <p className="text-sm">
+                      {(program.Days || program.days)?.length || 0} workout days created
+                    </p>
                     {program.description && (
-                      <p className="text-sm mt-2 opacity-75">{program.description}</p>
+                      <p className="text-sm text-gray-500 mt-2 line-clamp-2">
+                        {program.description}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -89,10 +115,10 @@ const WorkoutDayList = () => {
 
         {programs.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-logoGray font-titillium text-lg">No programs found.</p>
+            <p className="text-gray-600 text-lg mb-4">No programs found.</p>
             <Link 
               to="/admin/programs" 
-              className="btn-full-colour mt-4 inline-block"
+              className="bg-customGray text-white px-6 py-3 rounded-lg hover:bg-logoGray transition-colors inline-block"
             >
               Create a Program First
             </Link>
