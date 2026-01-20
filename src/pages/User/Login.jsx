@@ -44,13 +44,14 @@ const LoginPage = () => {
 
     if (result.success) {
       showToast("success", result.message);
+      // Allow password managers to detect successful login before redirect
       setTimeout(() => {
         if (result.user && result.user.mustChangePassword) {
           navigate("/change-password-first-login");
         } else {
           navigate("/profile");
         }
-      }, 1500);
+      }, 100); // Reduced timeout to allow password manager detection
     } else {
       showToast("error", `${result.error}`);
     }
@@ -75,7 +76,7 @@ const LoginPage = () => {
             className="text-3xl font-bold text-center text-customWhite mb-8 font-higherJump tracking-widest"
           />
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" method="post" action="#" name="loginForm">
             <InputField
               label="Email Address"
               type="email"
@@ -83,6 +84,7 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Your email address"
+              autoComplete="email"
               required
             />
             <div className="relative">
@@ -93,6 +95,7 @@ const LoginPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="current-password"
                 required
               />
               <button
@@ -100,6 +103,7 @@ const LoginPage = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 translate-y-1/4 text-logoGray hover:text-brightYellow"
                 tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>

@@ -29,6 +29,7 @@ import ProgramDayListPage from "../pages/Workouts/ProgramDayListPage";
 import RoutinePage from "../pages/Workouts/Routine";
 import ChangePasswordFirstLoginPage from "../pages/User/ChangePasswordFirstLogin";
 import Profile from "../pages/User/Profile";
+import FitnessAssessments from "../pages/User/FitnessAssessments";
 
 import CalorieCalculator from "../pages/calculator/CalorieCalculator";
 
@@ -77,6 +78,7 @@ const routes = createRoutesFromElements(
     <Route element={<ProtectedRoute />}>
       <Route path="/change-password-first-login" element={<ChangePasswordFirstLoginPage />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/fitness-assessments" element={<FitnessAssessments />} />
       <Route path="/calorie-calculator" element={<CalorieCalculator />} />
       <Route path="/workouts/:programName/list" element={<ProgramDayListPage />} />
       <Route path="/workouts/:programName/routines/:routineType" element={<RoutinePage />} />

@@ -11,11 +11,13 @@ import MobilityWorkout from "../../components/Workouts/MobilityWorkout";
 import TabataWorkout from "../../components/Workouts/TabataWorkout";
 import ForTimeWorkout from "../../components/Workouts/ForTimeWorkout";
 import WorkoutChoice from "../../components/Workouts/WorkoutChoice";
+import WorkoutAssessmentInput from "../../components/Assessments/WorkoutAssessmentInput";
 import { BACKEND_URL } from "../../utils/config";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
+import useWorkoutAssessment from "../../hooks/useWorkoutAssessment";
 import useAnalytics from "../../hooks/useAnalytics";
 
 const parseDurationToSeconds = (duration) => {
@@ -60,6 +62,7 @@ const WorkoutPage = () => {
   const [isRoundRest, setIsRoundRest] = useState(false);
   const [workoutComplete, setWorkoutComplete] = useState(false);
   const [hasStartedWorkout, setHasStartedWorkout] = useState(false);
+  const [showFinalAssessment, setShowFinalAssessment] = useState(false);
   const dayNum = dayNumber ? parseInt(dayNumber, 10) : 1;
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [isProgressRestored, setIsProgressRestored] = useState(false);
@@ -71,6 +74,15 @@ const WorkoutPage = () => {
   const [completedSessions, setCompletedSessions] = useState([]);
   const [showModified, setShowModified] = useState({});
   const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playBeep, playStartSound } = useWorkoutAudio();
+  
+  // Assessment tracking
+  const { isAssessmentDay, assessmentExercises, getExerciseByOrder } = useWorkoutAssessment(workoutData, programName);
+
+  // Handler for final assessment completion
+  const handleFinalAssessmentComplete = useCallback(() => {
+    setShowFinalAssessment(false);
+    setWorkoutComplete(true);
+  }, []);
 
   // Helper function to check if there's existing workout progress
   const hasExistingProgress = useCallback(() => {
@@ -793,6 +805,12 @@ const WorkoutPage = () => {
 
     const allSessionsComplete = checkAllSessionsComplete(newCompleted);
 
+    // Check if this is an assessment day and we need to show final assessment input
+    if (isAssessmentDay && allSessionsComplete && !showFinalAssessment) {
+      setShowFinalAssessment(true);
+      return;
+    }
+
     if (isRecoveryDay && workoutChoice === "workout" && !allSessionsComplete) {
       handleOptionalWorkoutComplete();
     } else if (allSessionsComplete) {
@@ -807,6 +825,8 @@ const WorkoutPage = () => {
     completedSessions,
     checkAllSessionsComplete,
     handleOptionalWorkoutComplete,
+    isAssessmentDay,
+    showFinalAssessment,
   ]);
 
   const getCurrentExercise = useCallback(() => {
@@ -1246,6 +1266,59 @@ const WorkoutPage = () => {
           onGoBackToProgram={handleGoBackToProgram}
           hasExistingProgress={hasExistingProgress()}
         />
+      </div>
+    );
+  }
+
+  // Show final assessment input for the last exercise on assessment days
+  if (showFinalAssessment) {
+    // Get the last exercise from the last block
+    const lastBlock = workoutData.workoutBlocks[workoutData.workoutBlocks.length - 1];
+    const lastExercise = lastBlock.exercises[lastBlock.exercises.length - 1];
+
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
+        <div className="bg-customGray p-8 rounded-lg text-center max-w-md w-full border-brightYellow border-2">
+          <div className="text-6xl mb-6">💪</div>
+          <DynamicHeading
+            text="Final Assessment"
+            className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite mb-6 leading-loose tracking-widest"
+          />
+          <p className="text-logoGray mb-6 font-titillium">
+            Don&apos;t forget to record your results for the final exercise!
+          </p>
+          
+          {lastExercise?.exercise && (
+            <WorkoutAssessmentInput
+              exercise={{
+                id: lastExercise.exerciseId,
+                name: lastExercise.exercise.name
+              }}
+              programName={programName}
+              dayNumber={dayNum}
+              isVisible={true}
+              onSave={(assessment) => {
+                console.log('Final assessment saved:', assessment);
+                showToast('success', 'Final exercise assessment saved!');
+              }}
+            />
+          )}
+
+          <div className="mt-6 space-y-3">
+            <button
+              onClick={handleFinalAssessmentComplete}
+              className="btn-full-colour w-full"
+            >
+              Complete Workout
+            </button>
+            <button
+              onClick={handleFinalAssessmentComplete}
+              className="text-logoGray hover:text-brightYellow font-titillium text-sm"
+            >
+              Skip (Complete Later)
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1771,6 +1844,32 @@ const WorkoutPage = () => {
                       )}
                     </div>
                   </div>
+                  
+                  {/* Assessment Input for Fitness Assessment Days */}
+                  {isAssessmentDay && isRestPeriod && (() => {
+                    // During rest period, the currentExerciseIndex still points to the exercise that was just completed
+                    // (it gets incremented when the rest period ends, not when it starts)
+                    const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
+                    const completedExercise = currentBlock.exercises[currentExerciseIndex];
+                    
+                    return completedExercise?.exercise ? (
+                      <div className="px-4 pb-4">
+                        <WorkoutAssessmentInput
+                          exercise={{
+                            id: completedExercise.exerciseId,
+                            name: completedExercise.exercise.name
+                          }}
+                          programName={programName}
+                          dayNumber={dayNum}
+                          isVisible={true}
+                          onSave={(assessment) => {
+                            console.log('Assessment saved:', assessment);
+                          }}
+                        />
+                      </div>
+                    ) : null;
+                  })()}
+                  
                   {/* Bottom spacer for balance */}
                   <div className="flex-1"></div>
                 </div>

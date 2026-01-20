@@ -10,7 +10,8 @@ export const InputField = ({
   required,
   infoText,
   children, 
-  checked,  
+  checked,
+  autoComplete,  
 }) => {
 
   const  inputClasses = "mt-1 block w-full px-4 py-3 border border-logoGray rounded-md shadow-sm placeholder-logoGray text-logoGray focus:outline-none focus:border-3 sm:text-m font-titillium bg-gray-700";
@@ -79,6 +80,7 @@ export const InputField = ({
           className={inputClasses}
           placeholder={placeholder}
           required={required}
+          autoComplete={autoComplete}
         />
       )}
 
@@ -102,7 +104,8 @@ InputField.propTypes = {
   className: PropTypes.string,
   required: PropTypes.bool,
   infoText: PropTypes.string,
-  children: PropTypes.node,    
+  children: PropTypes.node,
+  autoComplete: PropTypes.string,    
 };
 
 export const TextAreaField = ({ label, name, value, onChange, rows = 5, placeholder = "", required, infoText  }) => (

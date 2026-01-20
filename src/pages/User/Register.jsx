@@ -118,7 +118,7 @@ const RegisterPage = () => {
             Register
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" method="post" action="#" name="registerForm">
             <InputField
               label="Email Address"
               type="email"
@@ -126,16 +126,18 @@ const RegisterPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Your email address"
+              autoComplete="email"
               required
             />
             <div className="relative">
               <InputField
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="new-password"
                 required
               />
               <button
@@ -143,6 +145,7 @@ const RegisterPage = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 translate-y-1/4 text-logoGray hover:text-brightYellow"
                 tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -150,11 +153,12 @@ const RegisterPage = () => {
             <div className="relative">
               <InputField
                 label="Confirm Password"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 name="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="new-password"
                 required
               />
               <button
@@ -162,6 +166,7 @@ const RegisterPage = () => {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 translate-y-1/4 text-logoGray hover:text-brightYellow"
                 tabIndex={-1}
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
               >
                 {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
