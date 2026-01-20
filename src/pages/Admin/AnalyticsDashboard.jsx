@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import {
   FiArrowLeft,
   FiUsers,
@@ -12,9 +13,7 @@ import {
   FiPieChart,
   FiRefreshCw,
   FiDownload,
-  FiEye,
   FiUserPlus,
-  FiBookOpen,
   FiMail,
   FiDatabase,
   FiClock,
@@ -219,7 +218,7 @@ const AnalyticsDashboard = () => {
               <span className="text-sm text-gray-500">Last 7 days</span>
             </div>
             <div className="space-y-3">
-              {trends.registrationTrends.map((day, index) => (
+              {trends.registrationTrends.map((day) => (
                 <div key={day.date} className="flex items-center justify-between">
                   <span className="text-gray-600">{formatDate(day.date)}</span>
                   <div className="flex items-center gap-2">
@@ -333,12 +332,12 @@ const AnalyticsDashboard = () => {
               Exercise Categories
             </h3>
             <div className="space-y-3">
-              {content.exerciseCategories.map((category, index) => {
+              {content.exerciseCategories.map((category) => {
                 const maxCount = Math.max(...content.exerciseCategories.map(c => c.count));
                 const percentage = maxCount > 0 ? (category.count / maxCount * 100) : 0;
                 
                 return (
-                  <div key={index} className="flex items-center justify-between">
+                  <div key={category.category} className="flex items-center justify-between">
                     <span className="text-gray-700 capitalize">
                       {category.category.replace('_', ' ')}
                     </span>
@@ -481,6 +480,15 @@ const MetricCard = ({ title, value, icon: Icon, color, subtitle, trend }) => {
       </div>
     </motion.div>
   );
+};
+
+MetricCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  icon: PropTypes.elementType.isRequired,
+  color: PropTypes.oneOf(['blue', 'green', 'purple', 'orange', 'red']).isRequired,
+  subtitle: PropTypes.string,
+  trend: PropTypes.oneOf(['up', 'down', 'neutral'])
 };
 
 export default AnalyticsDashboard;
