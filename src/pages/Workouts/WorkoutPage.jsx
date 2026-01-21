@@ -70,7 +70,7 @@ const WorkoutPage = () => {
   const [currentSessionData, setCurrentSessionData] = useState(null);
   const [completedSessions, setCompletedSessions] = useState([]);
   const [showModified, setShowModified] = useState({});
-  const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playBeep, playStartSound } = useWorkoutAudio();
+  const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playBeep, playStartSound, initializeAudioContext } = useWorkoutAudio();
 
   // Helper function to check if there's existing workout progress
   const hasExistingProgress = useCallback(() => {
@@ -1350,7 +1350,7 @@ const WorkoutPage = () => {
   const isMultiSession = workoutSessions.length > 1 || hasMobilityBlock();
   const isFromChoiceScreen = workoutChoice === "workout" && isMultiSession;
   const shouldAutoStart =
-    (hasStartedWorkout || !isFirstExercise) && !isFromChoiceScreen;
+    false; // Never auto-start - always require user interaction for safety
   const needsChoice =
     (hasMobilityBlock() && hasRegularWorkout() && !workoutChoice) ||
     (workoutSessions.length > 1 && !workoutChoice);
@@ -1576,6 +1576,7 @@ const WorkoutPage = () => {
               isAdmin={user?.role === "admin"}
               playBeep={playBeep}
               playStartSound={playStartSound}
+              initializeAudioContext={initializeAudioContext}
             />
 
             {/* Next Exercise Info - Show when there's no rest period (non-fullscreen) */}

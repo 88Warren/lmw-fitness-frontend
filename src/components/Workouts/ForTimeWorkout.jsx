@@ -5,6 +5,7 @@ import DynamicHeading from "../../components/Shared/DynamicHeading";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
 import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
+import usePreparationCountdown from "../../hooks/usePreparationCountdown";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 
 const ForTimeWorkout = ({
@@ -26,9 +27,18 @@ const ForTimeWorkout = ({
   const [completedSteps, setCompletedSteps] = useState(new Set());
   const [isResting, setIsResting] = useState(false);
   const [restTime, setRestTime] = useState(0);
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
   const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
   const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playStartSound, playBeep } = useWorkoutAudio();
+
+  // Use the preparation countdown hook
+  const {
+    isPreparationCountdown,
+    preparationTime,
+    startPreparationCountdown,
+    cancelPreparationCountdown,
+  } = usePreparationCountdown(playBeep, playStartSound);
 
   const workoutSteps = useMemo(() => {
     const steps = [];
@@ -88,10 +98,8 @@ const ForTimeWorkout = ({
   }
 
   useEffect(() => {
-    if (shouldAutoStart) {
-      setIsActive(true);
-    }
-  }, [shouldAutoStart]);
+    // Never auto-start - always require user interaction for safety
+  }, []);
 
   useEffect(() => {
     if (isActive && !isPaused) {
@@ -123,8 +131,20 @@ const ForTimeWorkout = ({
   };
 
   const startTimer = () => {
-    setIsActive(true);
-    setIsPaused(false);
+    // Start with 5-second preparation countdown ONLY for the very first start
+    if (!isActive && !isPaused && !isPreparationCountdown && !hasStartedOnce) {
+      startPreparationCountdown(() => {
+        // After preparation countdown, start the actual workout
+        setIsActive(true);
+        setIsPaused(false);
+        setHasStartedOnce(true);
+      });
+    } else {
+      // Resume from pause
+      setIsActive(true);
+      setIsPaused(false);
+      setHasStartedOnce(true);
+    }
   };
 
   const pauseTimer = () => {
@@ -141,6 +161,7 @@ const ForTimeWorkout = ({
     setCurrentStepIndex(0);
     setIsResting(false);
     setRestTime(0);
+    setHasStartedOnce(false);
   };
 
   const skipToEnd = () => {
@@ -355,21 +376,66 @@ const ForTimeWorkout = ({
                     </svg>
                   )}
                 </button>
-                <div
-                  className={`text-6xl mb-4 ${
-                    isResting ? "text-hotPink" : "text-limeGreen"
-                  }`}
-                >
-                  {isResting ? formatTime(restTime) : formatTime(time)}
-                </div>
+                {!isActive && !isPaused && !isPreparationCountdown && !hasStartedOnce ? (
+                  // Show "Get Ready" view on page load
+                  <div className="text-center mb-4">
+                    <div className="text-brightYellow text-6xl mb-4">
+                      5
+                    </div>
+                    <div className="text-brightYellow font-bold text-lg mb-2">
+                      Get Ready!
+                    </div>
+                    <p className="text-customWhite text-sm mb-2">
+                      Click START for a 5-second countdown to get in position
+                    </p>
+                    <p className="text-logoGray text-xs">
+                      Complete the workout as fast as possible!
+                    </p>
+                  </div>
+                ) : isPreparationCountdown ? (
+                  // Preparation countdown display
+                  <div className="text-center mb-4">
+                    <div className="text-brightYellow animate-pulse text-8xl">
+                      {preparationTime}
+                    </div>
+                    <div className="text-brightYellow font-semibold text-lg mb-2">
+                      Get Ready!
+                    </div>
+                    <div className="text-customWhite text-sm mb-2">
+                      Prepare for your For Time workout
+                    </div>
+                    <div className="text-center">
+                      <span className="text-brightYellow font-semibold text-sm animate-bounce">
+                        🏃‍♀️ Get in position for your workout!
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  // Regular timer display
+                  <div
+                    className={`text-6xl mb-4 ${
+                      isResting ? "text-hotPink" : "text-limeGreen"
+                    }`}
+                  >
+                    {isResting ? formatTime(restTime) : formatTime(time)}
+                  </div>
+                )}
+
                 {/* Timer Controls */}
                 <div className="flex justify-center space-x-2">
-                  {!isActive || isPaused ? (
+                  {(!isActive && !isPreparationCountdown) || isPaused ? (
                     <button
                       onClick={startTimer}
-                      className="btn-full-colour mt-3"
+                      className="btn-full-colour mt-3 bg-limeGreen hover:bg-green-600 text-black"
                     >
                       {isPaused ? "Resume" : "Start"}
+                    </button>
+                  ) : isPreparationCountdown ? (
+                    <button
+                      disabled
+                      className="btn-full-colour opacity-50 cursor-not-allowed mt-3 bg-brightYellow text-black"
+                    >
+                      Get Ready...
                     </button>
                   ) : (
                     <button onClick={pauseTimer} className="btn-subscribe mt-3">
@@ -740,21 +806,63 @@ const ForTimeWorkout = ({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
-                  <div
-                    className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-4 ${
-                      isResting ? "text-hotPink" : "text-limeGreen"
-                    }`}
-                  >
-                    {isResting ? formatTime(restTime) : formatTime(time)}
-                  </div>
+                  {!isActive && !isPaused && !isPreparationCountdown && !hasStartedOnce ? (
+                    // Show "Get Ready" view on page load
+                    <div className="text-center mb-4">
+                      <div className="text-brightYellow text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-4">
+                        5
+                      </div>
+                      <div className="text-brightYellow font-bold text-lg mb-2">
+                        Get Ready!
+                      </div>
+                      <p className="text-customWhite text-sm mb-2">
+                        Click START for a 5-second countdown to get in position
+                      </p>
+                      <p className="text-logoGray text-xs">
+                        Complete the workout as fast as possible!
+                      </p>
+                    </div>
+                  ) : isPreparationCountdown ? (
+                    // Preparation countdown display
+                    <div className="text-center mb-4">
+                      <div className="text-brightYellow animate-pulse text-6xl sm:text-7xl md:text-8xl lg:text-9xl">
+                        {preparationTime}
+                      </div>
+                      <div className="text-brightYellow font-semibold text-lg mb-2">
+                        Get Ready!
+                      </div>
+                      <div className="text-center">
+                        <span className="text-brightYellow font-semibold text-sm animate-bounce">
+                          🏃‍♀️ Get in position for your workout!
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    // Regular timer display
+                    <div
+                      className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-4 ${
+                        isResting ? "text-hotPink" : "text-limeGreen"
+                      }`}
+                    >
+                      {isResting ? formatTime(restTime) : formatTime(time)}
+                    </div>
+                  )}
+
                   {/* Timer Controls */}
                   <div className="flex justify-center space-x-1 lg:space-x-2">
-                    {!isActive || isPaused ? (
+                    {(!isActive && !isPreparationCountdown) || isPaused ? (
                       <button
                         onClick={startTimer}
-                        className="btn-full-colour mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
+                        className="btn-full-colour mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-limeGreen hover:bg-green-600 text-black"
                       >
                         {isPaused ? "Resume" : "Start"}
+                      </button>
+                    ) : isPreparationCountdown ? (
+                      <button
+                        disabled
+                        className="btn-full-colour opacity-50 cursor-not-allowed mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-brightYellow text-black"
+                      >
+                        Get Ready...
                       </button>
                     ) : (
                       <button
