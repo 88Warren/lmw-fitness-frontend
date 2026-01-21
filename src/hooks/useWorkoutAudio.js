@@ -21,13 +21,38 @@ const useWorkoutAudio = () => {
   const audioContextRef = useRef(null);
   const gainNodeRef = useRef(null);
 
+  // Helper function to ensure audio context is ready (iOS compatibility)
+  const ensureAudioContextReady = async () => {
+    if (!audioEnabled || !audioContextRef.current || !gainNodeRef.current) {
+      return false;
+    }
+
+    if (audioContextRef.current.state === 'suspended') {
+      try {
+        await audioContextRef.current.resume();
+      } catch (error) {
+        console.warn('Failed to resume audio context:', error);
+        return false;
+      }
+    }
+    return true;
+  };
+
   useEffect(() => {
     if (audioEnabled && !audioContextRef.current) {
       try {
         audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
         gainNodeRef.current = audioContextRef.current.createGain();
         gainNodeRef.current.connect(audioContextRef.current.destination);
-        gainNodeRef.current.gain.value = volume; 
+        gainNodeRef.current.gain.value = volume;
+        
+        // For iOS: Attempt to resume audio context immediately if possible
+        if (audioContextRef.current.state === 'suspended') {
+          // Try to resume, but don't throw error if it fails (user interaction required)
+          audioContextRef.current.resume().catch(() => {
+            console.log('Audio context resume requires user interaction');
+          });
+        }
       } catch (error) {
         console.warn('Web Audio API not supported:', error);
       }
@@ -53,14 +78,19 @@ const useWorkoutAudio = () => {
     localStorage.setItem('workoutStartSound', startSound);
   }, [startSound]);
 
-  const playBeep = () => {
-    if (!audioEnabled || !audioContextRef.current || !gainNodeRef.current) return;
+  const playBeep = async () => {
+    const isReady = await ensureAudioContextReady();
+    if (!isReady) return;
 
     try {
-      if (audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume();
-      }
+      playBeepInternal();
+    } catch (error) {
+      console.warn('Error playing beep:', error);
+    }
+  };
 
+  const playBeepInternal = () => {
+    try {
       const oscillator = audioContextRef.current.createOscillator();
       const envelope = audioContextRef.current.createGain();
       
@@ -77,7 +107,7 @@ const useWorkoutAudio = () => {
       oscillator.start(audioContextRef.current.currentTime);
       oscillator.stop(audioContextRef.current.currentTime + 0.15); // Match the envelope duration
     } catch (error) {
-      console.warn('Error playing beep:', error);
+      console.warn('Error in playBeepInternal:', error);
     }
   };
 
@@ -207,14 +237,11 @@ const useWorkoutAudio = () => {
     }
   };
 
-  const playWhistle = () => {
-    if (!audioEnabled || !audioContextRef.current || !gainNodeRef.current) return;
+  const playWhistle = async () => {
+    const isReady = await ensureAudioContextReady();
+    if (!isReady) return;
 
     try {
-      if (audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume();
-      }
-
       // Create a whistle sound with two tones
       const oscillator1 = audioContextRef.current.createOscillator();
       const oscillator2 = audioContextRef.current.createOscillator();
@@ -531,9 +558,17 @@ const useWorkoutAudio = () => {
     setStartSound(soundType);
   };
 
-  const playStartSound = () => {
+  const playStartSound = async () => {
     if (!audioEnabled) return;
     
+    // Critical for iOS: Always check and resume audio context before playing start sound
+    const isReady = await ensureAudioContextReady();
+    if (!isReady) return;
+    
+    playStartSoundInternal();
+  };
+
+  const playStartSoundInternal = () => {
     switch (startSound) {
       case 'gong':
         playGong();
@@ -575,6 +610,16 @@ const useWorkoutAudio = () => {
     }
   };
 
+  // Function to initialize audio context on user interaction (for iOS compatibility)
+  const initializeAudioContext = () => {
+    if (audioEnabled && audioContextRef.current && audioContextRef.current.state === 'suspended') {
+      return audioContextRef.current.resume().catch((error) => {
+        console.warn('Failed to initialize audio context:', error);
+      });
+    }
+    return Promise.resolve();
+  };
+
   return {
     audioEnabled,
     volume,
@@ -584,6 +629,7 @@ const useWorkoutAudio = () => {
     setStartSoundType,
     playBeep,
     playStartSound,
+    initializeAudioContext, // New function for iOS compatibility
     // Individual sound functions for testing
     playWhistle,
     playGong,

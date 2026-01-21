@@ -4,6 +4,7 @@ import ExerciseVideo from "./ExerciseVideo";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
 import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
+import usePreparationCountdown from "../../hooks/usePreparationCountdown";
 import DynamicHeading from "../Shared/DynamicHeading";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 
@@ -26,6 +27,7 @@ const AMRAPWorkout = ({
   const [currentAMRAPRound, setCurrentAMRAPRound] = useState(1);
   const [isRoundRest, setIsRoundRest] = useState(false);
   const [showModified, setShowModified] = useState({});
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
   const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
   const {
@@ -38,6 +40,14 @@ const AMRAPWorkout = ({
     playBeep,
     playStartSound,
   } = useWorkoutAudio();
+
+  // Use the preparation countdown hook
+  const {
+    isPreparationCountdown,
+    preparationTime,
+    startPreparationCountdown,
+    cancelPreparationCountdown,
+  } = usePreparationCountdown(playBeep, playStartSound);
 
   const extractDuration = () => {
     const notes = workoutBlock.blockNotes || "";
@@ -65,10 +75,8 @@ const AMRAPWorkout = ({
     } else {
       setTime(totalDuration);
     }
-    if (shouldAutoStart && !isRoundRest && !canGoBack) {
-      setIsActive(true);
-    }
-  }, [totalDuration, shouldAutoStart, isRoundRest, canGoBack]);
+    // Never auto-start - always require user interaction for safety
+  }, [totalDuration, isRoundRest]);
 
   useEffect(() => {
     if (isActive && !isPaused && time > 0) {
@@ -139,8 +147,20 @@ const AMRAPWorkout = ({
   };
 
   const startTimer = () => {
-    setIsActive(true);
-    setIsPaused(false);
+    // Start with 5-second preparation countdown ONLY for the very first start
+    if (!isActive && !isPaused && !isPreparationCountdown && !hasStartedOnce) {
+      startPreparationCountdown(() => {
+        // After preparation countdown, start the actual workout
+        setIsActive(true);
+        setIsPaused(false);
+        setHasStartedOnce(true);
+      });
+    } else {
+      // Resume from pause or start subsequent rounds without preparation countdown
+      setIsActive(true);
+      setIsPaused(false);
+      setHasStartedOnce(true);
+    }
   };
 
   const pauseTimer = () => {
@@ -156,6 +176,7 @@ const AMRAPWorkout = ({
     setIsComplete(false);
     setCurrentAMRAPRound(1);
     setIsRoundRest(false);
+    setHasStartedOnce(false);
   };
 
   const skipToEnd = () => {
@@ -363,36 +384,94 @@ const AMRAPWorkout = ({
                     )}
                   </button>
                   <div className="flex-1 flex flex-col justify-center">
-                    <div
-                      className={`mb-2 lg:mb-4 text-limeGreen ${
-                        isFullscreen
-                          ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
-                          : "text-4xl sm:text-5xl lg:text-6xl"
-                      }`}
-                    >
-                      {formatTime(time)}
-                    </div>
+                    {!isActive && !isPaused && !isPreparationCountdown && !hasStartedOnce ? (
+                      // Show "Get Ready" view on page load (static)
+                      <div className="text-center">
+                        <div className={`mb-2 text-brightYellow ${
+                          isFullscreen
+                            ? "text-6xl sm:text-7xl md:text-8xl lg:text-9xl"
+                            : "text-6xl sm:text-7xl lg:text-8xl"
+                        }`}>
+                          5
+                        </div>
+                        <div className="text-brightYellow font-semibold text-lg mb-2">
+                          Get Ready!
+                        </div>
+                        <div className="text-customWhite text-sm mb-2">
+                          Prepare for your AMRAP workout
+                        </div>
+                        <div className="text-center">
+                          <span className="text-logoGray text-sm">
+                            🏃‍♀️ Click START for a 5-second countdown to get in position
+                          </span>
+                        </div>
+                      </div>
+                    ) : isPreparationCountdown ? (
+                      // Preparation countdown display
+                      <div className="text-center">
+                        <div className={`mb-2 text-brightYellow animate-pulse ${
+                          isFullscreen
+                            ? "text-6xl sm:text-7xl md:text-8xl lg:text-9xl"
+                            : "text-6xl sm:text-7xl lg:text-8xl"
+                        }`}>
+                          {preparationTime}
+                        </div>
+                        <div className="text-brightYellow font-semibold text-lg mb-2">
+                          Get Ready!
+                        </div>
+                        <div className="text-customWhite text-sm mb-2">
+                          Prepare for your AMRAP workout
+                        </div>
+                        <div className="text-center">
+                          <span className="text-brightYellow font-semibold text-sm animate-bounce">
+                            🏃‍♀️ Get in position!
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      // Regular timer display
+                      <div
+                        className={`mb-2 lg:mb-4 text-limeGreen ${
+                          isFullscreen
+                            ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
+                            : "text-4xl sm:text-5xl lg:text-6xl"
+                        }`}
+                      >
+                        {formatTime(time)}
+                      </div>
+                    )}
                   </div>
 
                   {/* Timer Controls - Positioned at bottom */}
                   <div className="flex justify-center space-x-1 lg:space-x-2">
-                    {!isActive || isPaused ? (
+                    {(!isActive && !isPreparationCountdown) || isPaused ? (
                       <button
                         onClick={startTimer}
                         className={`btn-full-colour mt-0 ${
                           isFullscreen
-                            ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                            ? "px-6 py-3 text-base"
                             : "text-sm px-4 py-2"
-                        }`}
+                        } bg-limeGreen hover:bg-green-600 text-black`}
                       >
                         {isPaused ? "Resume" : "Start"}
+                      </button>
+                    ) : isPreparationCountdown ? (
+                      <button
+                        disabled
+                        className={`btn-full-colour opacity-50 cursor-not-allowed mt-0 ${
+                          isFullscreen
+                            ? "px-6 py-3 text-base"
+                            : "text-sm px-4 py-2"
+                        } bg-brightYellow text-black`}
+                      >
+                        Get Ready...
                       </button>
                     ) : (
                       <button
                         onClick={pauseTimer}
                         className={`btn-subscribe mt-0 ${
                           isFullscreen
-                            ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                            ? "px-6 py-3 text-base"
                             : "text-sm px-4 py-2"
                         }`}
                       >
@@ -403,7 +482,7 @@ const AMRAPWorkout = ({
                       onClick={resetTimer}
                       className={`btn-cancel mt-0 ${
                         isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          ? "px-6 py-3 text-base"
                           : "text-sm px-4 py-2"
                       }`}
                     >
@@ -414,7 +493,7 @@ const AMRAPWorkout = ({
                         onClick={skipToEnd}
                         className={`btn-skip mt-0 ${
                           isFullscreen
-                            ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                            ? "px-6 py-3 text-base"
                             : "text-sm px-4 py-2"
                         }`}
                       >
@@ -459,7 +538,7 @@ const AMRAPWorkout = ({
                       onClick={decrementRounds}
                       className={`btn-cancel mt-0 ${
                         isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          ? "px-6 py-3 text-base"
                           : "text-sm px-4 py-2"
                       }`}
                       disabled={roundsCompleted === 0}
@@ -470,7 +549,7 @@ const AMRAPWorkout = ({
                       onClick={incrementRounds}
                       className={`btn-full-colour mt-0 ${
                         isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                          ? "px-6 py-3 text-base"
                           : "text-sm px-4 py-2"
                       }`}
                     >
@@ -765,36 +844,83 @@ const AMRAPWorkout = ({
                     />
                   </svg>
                 </button>
-                <div className="mb-4 sm:mb-6 md:mb-8 landscape:mb-2 text-limeGreen text-5xl sm:text-6xl md:text-7xl lg:text-8xl landscape:text-4xl">
-                  {formatTime(time)}
-                </div>
+                {!isActive && !isPaused && !isPreparationCountdown && !hasStartedOnce ? (
+                  // Show "Get Ready" view on page load (static)
+                  <div className="text-center mb-4 sm:mb-6 md:mb-8 landscape:mb-2">
+                    <div className="text-brightYellow text-6xl sm:text-7xl md:text-8xl lg:text-9xl landscape:text-5xl">
+                      5
+                    </div>
+                    <div className="text-brightYellow font-semibold text-lg mb-2">
+                      Get Ready!
+                    </div>
+                    <div className="text-customWhite text-sm mb-2">
+                      Prepare for your AMRAP workout
+                    </div>
+                    <div className="text-center">
+                      <span className="text-logoGray text-sm">
+                        🏃‍♀️ Click START for a 5-second countdown to get in position
+                      </span>
+                    </div>
+                  </div>
+                ) : isPreparationCountdown ? (
+                  // Preparation countdown display
+                  <div className="text-center mb-4 sm:mb-6 md:mb-8 landscape:mb-2">
+                    <div className="text-brightYellow animate-pulse text-6xl sm:text-7xl md:text-8xl lg:text-9xl landscape:text-5xl">
+                      {preparationTime}
+                    </div>
+                    <div className="text-brightYellow font-semibold text-lg mb-2">
+                      Get Ready!
+                    </div>
+                    <div className="text-customWhite text-sm mb-2">
+                      Prepare for your AMRAP workout
+                    </div>
+                    <div className="text-center">
+                      <span className="text-brightYellow font-semibold text-sm animate-bounce">
+                        🏃‍♀️ Get in position!
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  // Regular timer display
+                  <div className="mb-4 sm:mb-6 md:mb-8 landscape:mb-2 text-limeGreen text-5xl sm:text-6xl md:text-7xl lg:text-8xl landscape:text-4xl">
+                    {formatTime(time)}
+                  </div>
+                )}
+
                 {/* Timer Controls */}
                 <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8 landscape:space-x-2">
-                  {!isActive || isPaused ? (
+                  {(!isActive && !isPreparationCountdown) || isPaused ? (
                     <button
                       onClick={startTimer}
-                      className="btn-full-colour mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                      className="btn-full-colour mt-0 px-6 py-3 text-base bg-limeGreen hover:bg-green-600 text-black"
                     >
                       {isPaused ? "Resume" : "Start"}
+                    </button>
+                  ) : isPreparationCountdown ? (
+                    <button
+                      disabled
+                      className="btn-full-colour opacity-50 cursor-not-allowed mt-0 px-6 py-3 text-base bg-brightYellow text-black"
+                    >
+                      Get Ready...
                     </button>
                   ) : (
                     <button
                       onClick={pauseTimer}
-                      className="btn-subscribe mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                      className="btn-subscribe mt-0 px-6 py-3 text-base"
                     >
                       Pause
                     </button>
                   )}
                   <button
                     onClick={resetTimer}
-                    className="btn-cancel mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                    className="btn-cancel mt-0 px-6 py-3 text-base"
                   >
                     Reset
                   </button>
                   {isAdmin && isActive && (
                     <button
                       onClick={skipToEnd}
-                      className="btn-skip mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                      className="btn-skip mt-0 px-6 py-3 text-base"
                     >
                       End
                     </button>
@@ -814,14 +940,14 @@ const AMRAPWorkout = ({
                 <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8 landscape:space-x-2">
                   <button
                     onClick={decrementRounds}
-                    className="btn-cancel mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                    className="btn-cancel mt-0 px-6 py-3 text-base"
                     disabled={roundsCompleted === 0}
                   >
                     -1
                   </button>
                   <button
                     onClick={incrementRounds}
-                    className="btn-full-colour mt-0 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                    className="btn-full-colour mt-0 px-6 py-3 text-base"
                   >
                     +1
                   </button>
@@ -853,10 +979,10 @@ const AMRAPWorkout = ({
                           )}
                         </div>
                         <div className="flex items-center space-x-2">
-                          {/* Modification toggle for fullscreen */}
-                          {exercise.exercise.modification && (
-                            <div className="flex space-x-1">
-                              {(() => {
+                          {/* Modification toggle for fullscreen - Always reserve space */}
+                          <div className="flex space-x-1 min-w-[80px] justify-end">
+                            {exercise.exercise.modification ? (
+                              (() => {
                                 const { standardText, modifiedText } =
                                   getToggleButtonText(exercise);
                                 return (
@@ -893,9 +1019,12 @@ const AMRAPWorkout = ({
                                     </button>
                                   </>
                                 );
-                              })()}
-                            </div>
-                          )}
+                              })()
+                            ) : (
+                              // Placeholder space for exercises without modifications
+                              <div className="w-[80px]"></div>
+                            )}
+                          </div>
                           {/* Reps badge */}
                           <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-lg text-sm sm:text-base md:text-lg bg-brightYellow text-black font-semibold">
                             Reps: {exercise.reps}

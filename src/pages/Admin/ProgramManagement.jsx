@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Save,
-  X,
-  ChevronDown,
-  ChevronRight,
-  ArrowLeft,
-} from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiSave,
+  FiX,
+  FiChevronDown,
+  FiChevronRight,
+  FiArrowLeft,
+} from "react-icons/fi";
 import { showToast } from "../../utils/toastUtil";
 import { ToastContainer } from "react-toastify";
 import api from "../../utils/api";
 import { BACKEND_URL } from "../../utils/config";
-import DynamicHeading from "../../components/Shared/DynamicHeading";
 import PropTypes from "prop-types";
 
 const ProgramManagement = () => {
@@ -33,6 +32,15 @@ const ProgramManagement = () => {
   });
 
   const difficulties = ["Beginner", "Intermediate", "Advanced"];
+
+  // Helper function to format program names for display
+  const formatProgramName = (name) => {
+    if (!name) return '';
+    return name
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   useEffect(() => {
     fetchPrograms();
@@ -138,8 +146,8 @@ const ProgramManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-customGray">
-        <p className="text-xl font-titillium text-customWhite">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white pt-32">
+        <p className="text-xl font-titillium text-customGray">
           Loading programs...
         </p>
       </div>
@@ -151,29 +159,28 @@ const ProgramManagement = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-24"
+      className="min-h-screen bg-linear-to-b from-customGray/30 to-white p-6 pt-32"
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link
-            to="/admin"
-            className="p-2 bg-customGray text-brightYellow rounded hover:bg-brightYellow hover:text-customGray transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </Link>
-          <div className="flex justify-between items-center w-full">
-            <DynamicHeading
-              text="Program Management"
-              className="font-higherJump text-3xl md:text-4xl font-bold text-customGray leading-loose tracking-widest"
-            />
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="btn-full-colour flex items-center gap-2"
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-start mb-4">
+            <Link
+              to="/admin"
+              className="flex items-center text-customGray hover:text-logoGray transition-colors"
             >
-              <Plus size={20} />
-              Add Program
-            </button>
+              <FiArrowLeft className="mr-2" />
+              Dashboard
+            </Link>
           </div>
+          <h1 className="text-4xl font-bold text-customGray mb-6">Program Management</h1>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-customGray text-white px-6 py-3 rounded-lg hover:bg-logoGray transition-colors flex items-center space-x-2 mx-auto"
+          >
+            <FiPlus size={20} />
+            <span>Add Program</span>
+          </button>
         </div>
 
         {/* Create Form */}
@@ -181,9 +188,9 @@ const ProgramManagement = () => {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="bg-customGray p-6 rounded-lg border-2 border-brightYellow mb-8"
+            className="bg-white p-6 rounded-lg shadow-md mb-8"
           >
-            <h3 className="text-xl font-bold text-customWhite mb-4 font-higherJump">
+            <h3 className="text-xl font-bold text-customGray mb-4">
               Create New Program
             </h3>
             <ProgramForm
@@ -203,7 +210,7 @@ const ProgramManagement = () => {
               key={program.ID}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-customGray p-6 rounded-lg border-2 border-brightYellow"
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
             >
               {editingProgram === program.ID ? (
                 <ProgramForm
@@ -216,33 +223,36 @@ const ProgramManagement = () => {
               ) : (
                 <div>
                   <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1">
                       <button
                         onClick={() => toggleProgramExpansion(program.ID)}
-                        className="text-brightYellow hover:text-hotPink transition-colors"
+                        className="text-customGray hover:text-logoGray transition-colors"
                       >
                         {expandedPrograms[program.ID] ? (
-                          <ChevronDown size={20} />
+                          <FiChevronDown size={20} />
                         ) : (
-                          <ChevronRight size={20} />
+                          <FiChevronRight size={20} />
                         )}
                       </button>
-                      <div>
-                        <h3 className="text-xl font-bold text-customWhite font-higherJump">
-                          {program.name}
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-customGray mb-2">
+                          {formatProgramName(program.name)}
                         </h3>
-                        <div className="flex gap-4 text-sm">
-                          <span className="text-brightYellow font-titillium">
+                        <div className="flex gap-3 text-sm items-center">
+                          <span className="bg-customGray text-white px-2 py-1 rounded text-xs">
                             {program.difficulty}
                           </span>
-                          <span className="text-logoGray font-titillium">
+                          <span className="text-gray-600">
                             {program.duration} days
                           </span>
+                          <span className="text-gray-500 text-xs">
+                            {program.Days?.length || 0} workout days
+                          </span>
                           <span
-                            className={`font-titillium ${
+                            className={`px-2 py-1 rounded text-xs ${
                               program.isActive
-                                ? "text-green-400"
-                                : "text-red-400"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
                             }`}
                           >
                             {program.isActive ? "Active" : "Inactive"}
@@ -260,33 +270,29 @@ const ProgramManagement = () => {
                       </Link>
                       <button
                         onClick={() => startEdit(program)}
-                        className="p-2 bg-brightYellow text-customGray rounded hover:bg-hotPink transition-colors"
+                        className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                        title="Edit Program"
                       >
-                        <Edit size={16} />
+                        <FiEdit2 size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(program.ID)}
                         className="p-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                        title="Delete Program"
                       >
-                        <Trash2 size={16} />
+                        <FiTrash2 size={16} />
                       </button>
                     </div>
                   </div>
-
-                  {program.description && (
-                    <p className="text-logoGray mb-4 font-titillium">
-                      {program.description}
-                    </p>
-                  )}
 
                   {/* Expanded Program Details */}
                   {expandedPrograms[program.ID] && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
-                      className="border-t border-logoGray pt-4 mt-4"
+                      className="border-t border-gray-200 pt-4 mt-4"
                     >
-                      <h4 className="text-lg font-bold text-customWhite mb-3 font-higherJump">
+                      <h4 className="text-lg font-bold text-customGray mb-3">
                         Workout Days ({program.Days?.length || 0})
                       </h4>
                       {program.Days && program.Days.length > 0 ? (
@@ -294,20 +300,20 @@ const ProgramManagement = () => {
                           {program.Days.map((day) => (
                             <div
                               key={day.ID}
-                              className="bg-customGray/50 p-4 rounded border border-logoGray"
+                              className="bg-gray-50 p-4 rounded border border-gray-200"
                             >
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h5 className="font-bold text-customWhite font-titillium">
+                                  <h5 className="font-bold text-customGray">
                                     Day {day.dayNumber}: {day.title}
                                   </h5>
                                   {day.description && (
-                                    <p className="text-logoGray text-sm font-titillium mt-1">
+                                    <p className="text-gray-600 text-sm mt-1">
                                       {day.description}
                                     </p>
                                   )}
                                 </div>
-                                <span className="text-xs text-brightYellow font-titillium">
+                                <span className="text-xs bg-customGray text-white px-2 py-1 rounded">
                                   {day.WorkoutBlocks?.length || 0} blocks
                                 </span>
                               </div>
@@ -315,7 +321,7 @@ const ProgramManagement = () => {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-logoGray font-titillium">
+                        <p className="text-gray-600">
                           No workout days created yet.
                         </p>
                       )}
@@ -346,26 +352,27 @@ const ProgramForm = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label className="block text-customWhite font-titillium mb-2">
+        <label className="block text-customGray mb-2">
           Name *
         </label>
         <input
           type="text"
           value={formData.name}
           onChange={(e) => handleInputChange("name", e.target.value)}
-          className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
+          className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
+          placeholder="Program name"
           required
         />
       </div>
 
       <div>
-        <label className="block text-customWhite font-titillium mb-2">
+        <label className="block text-customGray mb-2">
           Difficulty *
         </label>
         <select
           value={formData.difficulty}
           onChange={(e) => handleInputChange("difficulty", e.target.value)}
-          className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
+          className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
           required
         >
           <option value="">Select Difficulty</option>
@@ -378,8 +385,8 @@ const ProgramForm = ({
       </div>
 
       <div>
-        <label className="block text-customWhite font-titillium mb-2">
-          Duration (days)
+        <label className="block text-customGray mb-2">
+          Duration (days) *
         </label>
         <input
           type="number"
@@ -387,49 +394,51 @@ const ProgramForm = ({
           onChange={(e) =>
             handleInputChange("duration", parseInt(e.target.value) || 0)
           }
-          className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
-          min="0"
+          className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
+          min="1"
+          required
         />
       </div>
 
       <div className="flex items-center">
-        <label className="flex items-center text-customWhite font-titillium">
+        <label className="flex items-center text-customGray">
           <input
             type="checkbox"
             checked={formData.isActive}
             onChange={(e) => handleInputChange("isActive", e.target.checked)}
-            className="mr-2"
+            className="mr-2 rounded focus:ring-2 focus:ring-customGray"
           />
           Active Program
         </label>
       </div>
 
       <div className="md:col-span-2">
-        <label className="block text-customWhite font-titillium mb-2">
+        <label className="block text-customGray mb-2">
           Description
         </label>
         <textarea
           value={formData.description}
           onChange={(e) => handleInputChange("description", e.target.value)}
-          className="w-full p-3 rounded bg-customWhite text-customGray font-titillium"
-          rows="4"
+          className="w-full p-3 rounded border border-gray-300 text-customGray focus:ring-2 focus:ring-customGray focus:border-transparent"
+          rows="3"
+          placeholder="Program description"
         />
       </div>
 
       <div className="md:col-span-2 flex gap-4 mt-4">
         <button
           onClick={onSave}
-          className="btn-full-colour flex items-center gap-2"
+          className="bg-customGray text-white px-6 py-3 rounded-lg hover:bg-logoGray transition-colors flex items-center gap-2"
           disabled={!formData.name || !formData.difficulty}
         >
-          <Save size={16} />
+          <FiSave size={16} />
           Save
         </button>
         <button
           onClick={onCancel}
-          className="btn-outline flex items-center gap-2"
+          className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
         >
-          <X size={16} />
+          <FiX size={16} />
           Cancel
         </button>
       </div>
