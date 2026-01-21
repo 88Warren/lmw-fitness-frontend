@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
+import usePreparationCountdown from "../../hooks/usePreparationCountdown";
 
 const WorkoutTimer = ({
   currentExercise,
@@ -21,14 +22,33 @@ const WorkoutTimer = ({
   isAdmin = false,
   playBeep = () => {},
   playStartSound = () => {},
+  initializeAudioContext = () => Promise.resolve(), // New prop for iOS audio initialization
 }) => {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [hasResetOnce, setHasResetOnce] = useState(false);
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
   const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
   const timerRef = useRef(null);
+  
+  // Use the preparation countdown hook
+  const {
+    isPreparationCountdown,
+    preparationTime,
+    startPreparationCountdown,
+    cancelPreparationCountdown,
+    resetPreparationCountdown,
+  } = usePreparationCountdown(playBeep, playStartSound);
+
+  // Reset hasStartedOnce when exercise changes (except for the first exercise)
+  useEffect(() => {
+    const isFirstExerciseOfWorkout = currentExerciseNumber === 1 && currentRound === 1;
+    if (!isFirstExerciseOfWorkout) {
+      setHasStartedOnce(false);
+    }
+  }, [currentExerciseNumber, currentRound]);
 
   const parseDurationToSeconds = (duration) => {
     // console.log("Parsing duration:", duration, "type:", typeof duration);
@@ -126,7 +146,14 @@ const WorkoutTimer = ({
       const exerciseDuration = parseDurationToSeconds(currentExercise.duration);
       // console.log("Exercise duration parsed:", exerciseDuration);
       setTime(exerciseDuration);
-      setIsActive(shouldAutoStart);
+      
+      // Auto-start subsequent exercises, but not the first exercise
+      const isFirstExerciseOfWorkout = currentExerciseNumber === 1 && currentRound === 1;
+      if (isFirstExerciseOfWorkout) {
+        setIsActive(false); // First exercise requires manual start
+      } else {
+        setIsActive(true); // Subsequent exercises auto-start
+      }
       setIsPaused(false);
     }
   }, [
@@ -140,6 +167,8 @@ const WorkoutTimer = ({
     isStopwatch,
     shouldAutoStart,
     isMaxTimeExercise,
+    currentExerciseNumber, // Add this to dependencies to trigger auto-start
+    currentRound, // Add this to dependencies to trigger auto-start
   ]);
 
   useEffect(() => {
@@ -201,13 +230,54 @@ const WorkoutTimer = ({
   };
 
   const resumeTimer = () => {
-    setIsPaused(false);
-    setIsActive(true);
-    setHasResetOnce(false);
+    // Initialize audio context on user interaction (critical for iOS)
+    initializeAudioContext().then(() => {
+      // Start with 5-second preparation countdown ONLY for the very first exercise of the entire workout
+      const isFirstExerciseOfWorkout = currentExerciseNumber === 1 && currentRound === 1;
+      
+      if (!isActive && !isPaused && isFirstExerciseOfWorkout && !hasStartedOnce) {
+        // First exercise, first time - show preparation countdown
+        startPreparationCountdown(() => {
+          setIsActive(true);
+          setIsPaused(false);
+          setHasResetOnce(false);
+          setHasStartedOnce(true);
+        });
+      } else {
+        // All other cases: subsequent exercises, resume from pause, or first exercise after reset
+        setIsPaused(false);
+        setIsActive(true);
+        setHasResetOnce(false);
+        // Don't set hasStartedOnce for subsequent exercises - let them always auto-start
+        if (isFirstExerciseOfWorkout) {
+          setHasStartedOnce(true);
+        }
+      }
+    }).catch((error) => {
+      console.warn('Audio initialization failed, but continuing with timer:', error);
+      const isFirstExerciseOfWorkout = currentExerciseNumber === 1 && currentRound === 1;
+      
+      if (!isActive && !isPaused && isFirstExerciseOfWorkout && !hasStartedOnce) {
+        startPreparationCountdown(() => {
+          setIsActive(true);
+          setIsPaused(false);
+          setHasResetOnce(false);
+          setHasStartedOnce(true);
+        });
+      } else {
+        setIsPaused(false);
+        setIsActive(true);
+        setHasResetOnce(false);
+        if (isFirstExerciseOfWorkout) {
+          setHasStartedOnce(true);
+        }
+      }
+    });
   };
 
   const stopAndReset = () => {
     clearInterval(intervalRef.current);
+    cancelPreparationCountdown();
     let resetTime = 0;
     if (isStopwatch || isMaxTimeExercise) {
       resetTime = 0;
@@ -221,6 +291,7 @@ const WorkoutTimer = ({
     setTime(resetTime);
     setIsActive(false);
     setIsPaused(false);
+    setHasStartedOnce(false);
   };
 
   const skipRest = () => {
@@ -231,6 +302,7 @@ const WorkoutTimer = ({
 
   const resetCurrentTimer = () => {
     clearInterval(intervalRef.current);
+    cancelPreparationCountdown();
 
     if (!hasResetOnce) {
       let resetTime = 0;
@@ -247,8 +319,10 @@ const WorkoutTimer = ({
       setIsActive(false);
       setIsPaused(false);
       setHasResetOnce(true);
+      setHasStartedOnce(false);
     } else {
       setHasResetOnce(false);
+      setHasStartedOnce(false);
       onGoBack();
     }
   };
@@ -331,7 +405,9 @@ const WorkoutTimer = ({
                   : "text-3xl"
               }`}
             >
-              {isStopwatch || isMaxTimeExercise
+              {isPreparationCountdown
+                ? "Get Ready!"
+                : isStopwatch || isMaxTimeExercise
                 ? activeExercise?.name
                 : isRoundRest
                 ? "Round Rest"
@@ -339,7 +415,16 @@ const WorkoutTimer = ({
                 ? "Rest Time"
                 : activeExercise?.name}
             </h3>
-            {isMaxTimeExercise && (
+            {isPreparationCountdown && (
+              <p
+                className={`text-brightYellow font-semibold mb-2 ${
+                  isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
+                }`}
+              >
+                Prepare for: {activeExercise?.name}
+              </p>
+            )}
+            {isMaxTimeExercise && !isPreparationCountdown && (
               <p
                 className={`text-brightYellow font-semibold mb-2 ${
                   isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
@@ -378,25 +463,77 @@ const WorkoutTimer = ({
 
         {/* Timer Display */}
         <div className="mb-2">
-          <div
-            className={`p-4 ${
-              isFullscreen
-                ? "text-6xl md:text-8xl lg:text-9xl"
-                : "text-7xl"
-            } ${isRest || isRoundRest ? "text-hotPink" : "text-limeGreen"} ${
-              time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise 
-                ? "animate-pulse" 
-                : ""
-            }`}
-          >
-            {formatTime(time)}
-          </div>
-          {/* Countdown indicator */}
-          {time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && (
+          {(() => {
+            const isFirstExerciseOfWorkout = currentExerciseNumber === 1 && currentRound === 1;
+            return !isActive && !isPaused && !isPreparationCountdown && isFirstExerciseOfWorkout && !hasStartedOnce;
+          })() ? (
+            // Show "Get Ready" view on page load (static)
             <div className="text-center">
-              <span className="text-brightYellow font-semibold text-lg animate-bounce">
-                🔔 Get Ready!
-              </span>
+              <div className={`p-4 ${
+                isFullscreen
+                  ? "text-6xl md:text-8xl lg:text-9xl"
+                  : "text-7xl"
+              } text-brightYellow`}>
+                5
+              </div>
+              <div className="text-brightYellow font-semibold text-lg mb-2">
+                Get Ready!
+              </div>
+              <div className="text-customWhite text-sm mb-2">
+                {activeExercise?.name ? `Prepare for: ${activeExercise.name}` : 'Prepare for your exercise'}
+              </div>
+              <div className="text-center">
+                <span className="text-logoGray text-sm">
+                  🏃‍♀️ Click START for a 5-second countdown to get in position
+                </span>
+              </div>
+            </div>
+          ) : (
+            // Regular timer display (including preparation countdown)
+            <div>
+              <div
+                className={`p-4 ${
+                  isFullscreen
+                    ? "text-6xl md:text-8xl lg:text-9xl"
+                    : "text-7xl"
+                } ${
+                  isPreparationCountdown 
+                    ? "text-brightYellow animate-pulse" 
+                    : isRest || isRoundRest 
+                    ? "text-hotPink" 
+                    : "text-limeGreen"
+                } ${
+                  time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && !isPreparationCountdown
+                    ? "animate-pulse" 
+                    : ""
+                }`}
+              >
+                {isPreparationCountdown ? preparationTime : formatTime(time)}
+              </div>
+              
+              {/* Preparation countdown indicator */}
+              {isPreparationCountdown && (
+                <div className="text-center">
+                  <div className="text-brightYellow font-semibold text-lg mb-2">
+                    Get Ready!
+                  </div>
+                  <div className="text-customWhite text-sm mb-2">
+                    {activeExercise?.name ? `Prepare for: ${activeExercise.name}` : 'Prepare for your exercise'}
+                  </div>
+                  <span className="text-brightYellow font-semibold text-sm animate-bounce">
+                    🏃‍♀️ Get in position!
+                  </span>
+                </div>
+              )}
+              
+              {/* Regular countdown indicator */}
+              {!isPreparationCountdown && time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && (
+                <div className="text-center">
+                  <span className="text-brightYellow font-semibold text-lg animate-bounce">
+                    🔔 Get Ready!
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -469,11 +606,12 @@ const WorkoutTimer = ({
                 setTime(0);
                 setIsActive(false);
                 setIsPaused(false);
+                cancelPreparationCountdown();
                 onGoBack();
               }}
               className={`btn-cancel ${
                 isFullscreen
-                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  ? "px-6 py-3 text-base"
                   : "px-3 py-1 md:px-6 md:py-3"
               }`}
             >
@@ -481,12 +619,12 @@ const WorkoutTimer = ({
             </button>
           )}
 
-          {!isActive || isPaused ? (
+          {(!isActive && !isPreparationCountdown) || isPaused ? (
             <button
               onClick={resumeTimer}
               className={`btn-full-colour ${
                 isFullscreen
-                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  ? "px-6 py-3 text-base"
                   : "px-3 py-1 md:px-6 md:py-3"
               } ${
                 (isStopwatch || isMaxTimeExercise) && isActive
@@ -496,12 +634,23 @@ const WorkoutTimer = ({
             >
               {isPaused ? "Resume" : "Start"}
             </button>
+          ) : isPreparationCountdown ? (
+            <button
+              disabled
+              className={`btn-full-colour opacity-50 cursor-not-allowed ${
+                isFullscreen
+                  ? "px-6 py-3 text-base"
+                  : "px-3 py-1 md:px-6 md:py-3"
+              } bg-brightYellow text-black`}
+            >
+              Get Ready...
+            </button>
           ) : (
             <button
               onClick={pauseTimer}
               className={`btn-subscribe ${
                 isFullscreen
-                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  ? "px-6 py-3 text-base"
                   : "px-3 py-1 md:px-6 md:py-3"
               }`}
             >
@@ -514,7 +663,7 @@ const WorkoutTimer = ({
               onClick={stopAndReset}
               className={`btn-cancel ${
                 isFullscreen
-                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  ? "px-6 py-3 text-base"
                   : "px-3 py-1 md:px-6 md:py-3"
               }`}
             >
@@ -536,7 +685,7 @@ const WorkoutTimer = ({
               }}
               className={`btn-skip ${
                 isFullscreen
-                  ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg"
+                  ? "px-6 py-3 text-base"
                   : "px-3 py-1 md:px-6 md:py-3"
               }`}
             >
@@ -659,6 +808,7 @@ WorkoutTimer.propTypes = {
   isAdmin: PropTypes.bool,
   playBeep: PropTypes.func,
   playStartSound: PropTypes.func,
+  initializeAudioContext: PropTypes.func, // New prop for iOS audio initialization
 };
 
 export default WorkoutTimer;

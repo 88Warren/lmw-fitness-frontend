@@ -5,6 +5,7 @@ import DynamicHeading from "../../components/Shared/DynamicHeading";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
 import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
+import usePreparationCountdown from "../../hooks/usePreparationCountdown";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 
 const EMOMWorkout = ({
@@ -27,6 +28,7 @@ const EMOMWorkout = ({
   });
   const [showModified, setShowModified] = useState({});
   const [hasResetOnce, setHasResetOnce] = useState(false);
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
   const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
   const {
@@ -39,6 +41,14 @@ const EMOMWorkout = ({
     playBeep,
     playStartSound,
   } = useWorkoutAudio();
+
+  // Use the preparation countdown hook
+  const {
+    isPreparationCountdown,
+    preparationTime,
+    startPreparationCountdown,
+    cancelPreparationCountdown,
+  } = usePreparationCountdown(playBeep, playStartSound);
 
   const extractWorkoutInfo = () => {
     const notes = workoutBlock.blockNotes || "";
@@ -79,10 +89,8 @@ const EMOMWorkout = ({
   ]);
 
   useEffect(() => {
-    if (shouldAutoStart) {
-      setTimerState((prev) => ({ ...prev, isActive: true }));
-    }
-  }, [shouldAutoStart]);
+    // Never auto-start - always require user interaction for safety
+  }, []);
 
   // useEffect(() => {
   //   console.log(`EMOM: Current minute changed to ${timerState.currentMinute}`);
@@ -152,8 +160,20 @@ const EMOMWorkout = ({
   };
 
   const startTimer = () => {
-    setTimerState((prev) => ({ ...prev, isActive: true, isPaused: false }));
-    setHasResetOnce(false);
+    // Start with 5-second preparation countdown ONLY for the very first start
+    if (!timerState.isActive && !timerState.isPaused && !isPreparationCountdown && !hasStartedOnce) {
+      startPreparationCountdown(() => {
+        // After preparation countdown, start the actual workout
+        setTimerState((prev) => ({ ...prev, isActive: true, isPaused: false }));
+        setHasResetOnce(false);
+        setHasStartedOnce(true);
+      });
+    } else {
+      // Resume from pause
+      setTimerState((prev) => ({ ...prev, isActive: true, isPaused: false }));
+      setHasResetOnce(false);
+      setHasStartedOnce(true);
+    }
   };
 
   const pauseTimer = () => {
@@ -171,6 +191,7 @@ const EMOMWorkout = ({
         isPaused: false,
       }));
       setHasResetOnce(true);
+      setHasStartedOnce(false);
     } else {
       setTimerState({
         totalTime: 0,
@@ -181,6 +202,7 @@ const EMOMWorkout = ({
         isComplete: false,
       });
       setHasResetOnce(false);
+      setHasStartedOnce(false);
     }
   };
 
@@ -559,15 +581,62 @@ const EMOMWorkout = ({
                     </svg>
                   )}
                 </button>
-                <div
-                  className={`mb-4 landscape:mb-2 text-limeGreen ${
-                    isFullscreen
-                      ? "text-6xl md:text-8xl lg:text-9xl landscape:text-4xl"
-                      : "text-6xl"
-                  }`}
-                >
-                  {formatTime(timerState.secondsInCurrentMinute)}
-                </div>
+                {!timerState.isActive && !timerState.isPaused && !isPreparationCountdown && !hasStartedOnce ? (
+                  // Show "Get Ready" view on page load (static)
+                  <div className="text-center mb-4 landscape:mb-2">
+                    <div className={`text-brightYellow ${
+                      isFullscreen
+                        ? "text-8xl md:text-9xl lg:text-[12rem] landscape:text-6xl"
+                        : "text-8xl"
+                    }`}>
+                      5
+                    </div>
+                    <div className="text-brightYellow font-semibold text-lg mb-2">
+                      Get Ready!
+                    </div>
+                    <div className="text-customWhite text-sm mb-2">
+                      Prepare for your EMOM workout
+                    </div>
+                    <div className="text-center">
+                      <span className="text-logoGray text-sm">
+                        🏃‍♀️ Click START for a 5-second countdown to get in position
+                      </span>
+                    </div>
+                  </div>
+                ) : isPreparationCountdown ? (
+                  // Preparation countdown display
+                  <div className="text-center mb-4 landscape:mb-2">
+                    <div className={`text-brightYellow animate-pulse ${
+                      isFullscreen
+                        ? "text-8xl md:text-9xl lg:text-[12rem] landscape:text-6xl"
+                        : "text-8xl"
+                    }`}>
+                      {preparationTime}
+                    </div>
+                    <div className="text-brightYellow font-semibold text-lg mb-2">
+                      Get Ready!
+                    </div>
+                    <div className="text-customWhite text-sm mb-2">
+                      Prepare for your EMOM workout
+                    </div>
+                    <div className="text-center">
+                      <span className="text-brightYellow font-semibold text-sm animate-bounce">
+                        🏃‍♀️ Get in position for EMOM!
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  // Regular timer display
+                  <div
+                    className={`mb-4 landscape:mb-2 text-limeGreen ${
+                      isFullscreen
+                        ? "text-6xl md:text-8xl lg:text-9xl landscape:text-4xl"
+                        : "text-6xl"
+                    }`}
+                  >
+                    {formatTime(timerState.secondsInCurrentMinute)}
+                  </div>
+                )}
 
                 {/* Progress Bar - Only in fullscreen mode, directly under timer */}
                 {isFullscreen && (
@@ -579,30 +648,41 @@ const EMOMWorkout = ({
                       ></div>
                     </div>
                     <div className="text-customWhite text-xs sm:text-sm mt-2">
-                      Total Time: {formatTotalTime(timerState.totalTime)}
+                      Total Time: {formatTotalTime(timerState.totalTime)} / {formatTotalTime(totalMinutes * 60)}
                     </div>
                   </div>
                 )}
 
                 {/* Timer Controls */}
                 <div className="flex justify-center space-x-2">
-                  {!timerState.isActive || timerState.isPaused ? (
+                  {(!timerState.isActive && !isPreparationCountdown) || timerState.isPaused ? (
                     <button
                       onClick={startTimer}
                       className={`btn-full-colour mt-3 ${
                         isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                          ? "px-6 py-3 text-base"
                           : ""
-                      }`}
+                      } bg-limeGreen hover:bg-green-600 text-black`}
                     >
                       {timerState.isPaused ? "Resume" : "Start"}
+                    </button>
+                  ) : isPreparationCountdown ? (
+                    <button
+                      disabled
+                      className={`btn-full-colour opacity-50 cursor-not-allowed mt-3 ${
+                        isFullscreen
+                          ? "px-6 py-3 text-base"
+                          : ""
+                      } bg-brightYellow text-black`}
+                    >
+                      Get Ready...
                     </button>
                   ) : (
                     <button
                       onClick={pauseTimer}
                       className={`btn-subscribe mt-3 ${
                         isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                          ? "px-6 py-3 text-base"
                           : ""
                       }`}
                     >
@@ -613,7 +693,7 @@ const EMOMWorkout = ({
                     onClick={resetTimer}
                     className={`btn-cancel mt-3 ${
                       isFullscreen
-                        ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                        ? "px-6 py-3 text-base"
                         : ""
                     }`}
                   >
@@ -624,7 +704,7 @@ const EMOMWorkout = ({
                       onClick={skipCurrentMinute}
                       className={`btn-skip mt-3 ${
                         isFullscreen
-                          ? "px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-sm sm:text-base md:text-lg landscape:px-2 landscape:py-1 landscape:text-xs"
+                          ? "px-6 py-3 text-base"
                           : ""
                       }`}
                     >
@@ -641,6 +721,9 @@ const EMOMWorkout = ({
                   </h3>
                   <div className="text-brightYellow mb-4 text-6xl">
                     {formatTotalTime(timerState.totalTime)}
+                  </div>
+                  <div className="text-customWhite text-sm mb-4">
+                    {formatTotalTime(timerState.totalTime)} / {formatTotalTime(totalMinutes * 60)}
                   </div>
                   {/* Overall Progress Bar */}
                   <div className="bg-gray-500 rounded-full h-3">
@@ -676,12 +759,15 @@ const EMOMWorkout = ({
                   </div>
                 ) : (
                   <div className="bg-gray-600 rounded-lg p-10 h-full flex flex-col items-center justify-center text-center">
-                    <div className="text-6xl mb-4">⏱️</div>
-                    <h3 className="text-xl font-bold text-customWhite mb-2">
-                      EMOM Ready
+                    <div className="text-6xl mb-4">🎯</div>
+                    <h3 className="text-xl font-bold text-brightYellow mb-2">
+                      Get Ready!
                     </h3>
-                    <p className="text-logoGray text-md">
-                      Start the timer to begin your EMOM workout
+                    <p className="text-customWhite text-sm mb-2">
+                      Click START for a 5-second countdown to get in position
+                    </p>
+                    <p className="text-logoGray text-xs">
+                      Every minute on the minute - be ready to work!
                     </p>
                   </div>
                 )}

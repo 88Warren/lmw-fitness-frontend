@@ -5,6 +5,7 @@ import DynamicHeading from "../../components/Shared/DynamicHeading";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
 import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
+import usePreparationCountdown from "../../hooks/usePreparationCountdown";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 
 const TabataWorkout = ({
@@ -28,6 +29,7 @@ const TabataWorkout = ({
   const [isComplete, setIsComplete] = useState(false);
   const [showModified, setShowModified] = useState({});
   const [hasResetOnce, setHasResetOnce] = useState(false);
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
   const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
   const {
@@ -40,6 +42,22 @@ const TabataWorkout = ({
     playBeep,
     playStartSound,
   } = useWorkoutAudio();
+
+  // Use the preparation countdown hook
+  const {
+    isPreparationCountdown,
+    preparationTime,
+    startPreparationCountdown,
+    cancelPreparationCountdown,
+  } = usePreparationCountdown(playBeep, playStartSound);
+
+  // Reset hasStartedOnce for subsequent blocks/sets (except the very first one)
+  useEffect(() => {
+    const isFirstBlockAndSet = currentBlockIndex === 0 && currentSet === 1;
+    if (!isFirstBlockAndSet) {
+      setHasStartedOnce(false);
+    }
+  }, [currentBlockIndex, currentSet]);
 
   const extractTabataConfig = () => {
     const currentBlock = allTabataBlocks?.[currentBlockIndex];
@@ -75,11 +93,14 @@ const TabataWorkout = ({
     } else {
       setTime(workTime);
     }
-
-    if (shouldAutoStart && !isRest) {
+    
+    // Auto-start subsequent blocks/sets (not the very first one)
+    const isFirstBlockAndSet = currentBlockIndex === 0 && currentSet === 1;
+    if (!isFirstBlockAndSet && !isActive) {
       setIsActive(true);
+      setIsPaused(false);
     }
-  }, [workTime, restTime, shouldAutoStart, isRest]);
+  }, [workTime, restTime, isRest, currentBlockIndex, currentSet, isActive]);
 
   useEffect(() => {
     if (isActive && !isPaused && time > 0) {
@@ -156,9 +177,22 @@ const TabataWorkout = ({
   };
 
   const startTimer = () => {
-    setIsActive(true);
-    setIsPaused(false);
-    setHasResetOnce(false);
+    // Start with 5-second preparation countdown ONLY for the very first start
+    if (!isActive && !isPaused && !isPreparationCountdown && !hasStartedOnce) {
+      startPreparationCountdown(() => {
+        // After preparation countdown, start the actual workout
+        setIsActive(true);
+        setIsPaused(false);
+        setHasResetOnce(false);
+        setHasStartedOnce(true);
+      });
+    } else {
+      // Resume from pause
+      setIsActive(true);
+      setIsPaused(false);
+      setHasResetOnce(false);
+      setHasStartedOnce(true);
+    }
   };
 
   const pauseTimer = () => {
@@ -177,6 +211,7 @@ const TabataWorkout = ({
       setIsActive(false);
       setIsPaused(false);
       setHasResetOnce(true);
+      setHasStartedOnce(false);
     } else {
       setTime(workTime);
       setIsActive(false);
@@ -187,6 +222,7 @@ const TabataWorkout = ({
       setIsRest(false);
       setIsComplete(false);
       setHasResetOnce(false);
+      setHasStartedOnce(false);
     }
   };
 
@@ -428,21 +464,68 @@ const TabataWorkout = ({
                         />
                       </svg>
                     </button>
-                    <div
-                      className={`text-5xl lg:text-6xl mb-2 lg:mb-4 ${
-                        isRest ? "text-hotPink" : "text-limeGreen"
-                      }`}
-                    >
-                      {formatTime(time)}
-                    </div>
+                    {isPreparationCountdown ? (
+                      // Preparation countdown display
+                      <div className="text-center mb-2 lg:mb-4">
+                        <div className="text-brightYellow animate-pulse text-6xl lg:text-7xl">
+                          {preparationTime}
+                        </div>
+                        <div className="text-brightYellow font-semibold text-lg mb-2">
+                          Get Ready!
+                        </div>
+                        <div className="text-center">
+                          <span className="text-brightYellow font-semibold text-sm animate-bounce">
+                            🏃‍♀️ Get in position for Tabata!
+                          </span>
+                        </div>
+                      </div>
+                    ) : (() => {
+                      const isFirstBlockAndSet = currentBlockIndex === 0 && currentSet === 1;
+                      return !isActive && !isPaused && !isPreparationCountdown && isFirstBlockAndSet && !hasStartedOnce;
+                    })() ? (
+                      // Show "Get Ready" view on page load with static timer
+                      <div className="text-center mb-2 lg:mb-4">
+                        <div className="text-brightYellow text-5xl lg:text-6xl mb-2 lg:mb-4">
+                          5
+                        </div>
+                        <div className="text-center">
+                          <div className="text-brightYellow font-bold text-sm mb-1">
+                            Get Ready!
+                          </div>
+                          <p className="text-customWhite text-xs mb-1">
+                            Click START for a 5-second countdown
+                          </p>
+                          <p className="text-logoGray text-xs">
+                            High intensity intervals - be ready!
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      // Regular timer display
+                      <div
+                        className={`text-5xl lg:text-6xl mb-2 lg:mb-4 ${
+                          isRest ? "text-hotPink" : "text-limeGreen"
+                        }`}
+                      >
+                        {formatTime(time)}
+                      </div>
+                    )}
+
                     {/* Timer Controls */}
                     <div className="flex justify-center space-x-1 lg:space-x-2">
-                      {!isActive || isPaused ? (
+                      {(!isActive && !isPreparationCountdown) || isPaused ? (
                         <button
                           onClick={startTimer}
-                          className="btn-full-colour mr-2"
+                          className="btn-full-colour mr-2 bg-limeGreen hover:bg-green-600 text-black"
                         >
                           {isPaused ? "Resume" : "Start"}
+                        </button>
+                      ) : isPreparationCountdown ? (
+                        <button
+                          disabled
+                          className="btn-full-colour opacity-50 cursor-not-allowed mr-2 bg-brightYellow text-black"
+                        >
+                          Get Ready...
                         </button>
                       ) : (
                         <button onClick={pauseTimer} className="btn-subscribe">
@@ -685,8 +768,8 @@ const TabataWorkout = ({
               </div>
 
               {/* Timer Row */}
-              <div className="flex justify-center mb-6 sm:mb-8 shrink-0">
-                <div className="w-full bg-gray-600 rounded-lg text-center relative p-6 sm:p-8 md:p-10">
+              <div className="flex justify-center mb-3 sm:mb-4 shrink-0">
+                <div className="w-full bg-gray-600 rounded-lg text-center relative p-3 sm:p-4 md:p-5">
                   {/* Fullscreen Toggle Button - Inside timer card */}
                   <button
                     onClick={toggleFullscreen}
@@ -707,21 +790,68 @@ const TabataWorkout = ({
                       />
                     </svg>
                   </button>
-                  <div
-                    className={`mb-4 sm:mb-6 md:mb-8 ${
-                      isRest ? "text-hotPink" : "text-limeGreen"
-                    } text-5xl sm:text-6xl md:text-7xl lg:text-8xl`}
-                  >
-                    {formatTime(time)}
-                  </div>
+                  {isPreparationCountdown ? (
+                    // Preparation countdown display
+                    <div className="text-center mb-2 sm:mb-3 md:mb-4">
+                      <div className="text-brightYellow animate-pulse text-6xl sm:text-7xl md:text-8xl lg:text-9xl">
+                        {preparationTime}
+                      </div>
+                      <div className="text-brightYellow font-semibold text-lg mb-2">
+                        Get Ready!
+                      </div>
+                      <div className="text-center">
+                        <span className="text-brightYellow font-semibold text-sm animate-bounce">
+                          🏃‍♀️ Get in position for Tabata!
+                        </span>
+                      </div>
+                    </div>
+                  ) : (() => {
+                    const isFirstBlockAndSet = currentBlockIndex === 0 && currentSet === 1;
+                    return !isActive && !isPaused && !isPreparationCountdown && isFirstBlockAndSet && !hasStartedOnce;
+                  })() ? (
+                    // Show "Get Ready" view on page load with static timer
+                    <div className="text-center mb-2 sm:mb-3 md:mb-4">
+                      <div className="text-brightYellow text-6xl sm:text-7xl md:text-8xl lg:text-9xl mb-2">
+                        5
+                      </div>
+                      <div className="text-center">
+                        <div className="text-brightYellow font-bold text-lg mb-2">
+                          Get Ready!
+                        </div>
+                        <p className="text-customWhite text-sm mb-2">
+                          Click START for a 5-second countdown
+                        </p>
+                        <p className="text-logoGray text-xs">
+                          High intensity intervals - be ready!
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    // Regular timer display
+                    <div
+                      className={`mb-2 sm:mb-3 md:mb-4 ${
+                        isRest ? "text-hotPink" : "text-limeGreen"
+                      } text-5xl sm:text-6xl md:text-7xl lg:text-8xl`}
+                    >
+                      {formatTime(time)}
+                    </div>
+                  )}
+
                   {/* Timer Controls */}
                   <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8">
-                    {!isActive || isPaused ? (
+                    {(!isActive && !isPreparationCountdown) || isPaused ? (
                       <button
                         onClick={startTimer}
-                        className="btn-full-colour mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
+                        className="btn-full-colour mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-limeGreen hover:bg-green-600 text-black"
                       >
                         {isPaused ? "Resume" : "Start"}
+                      </button>
+                    ) : isPreparationCountdown ? (
+                      <button
+                        disabled
+                        className="btn-full-colour opacity-50 cursor-not-allowed mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-brightYellow text-black"
+                      >
+                        Get Ready...
                       </button>
                     ) : (
                       <button
@@ -754,11 +884,11 @@ const TabataWorkout = ({
               </div>
 
               {/* Current/Next Exercise Display */}
-              <div className="w-full bg-gray-600 rounded-lg p-6 sm:p-8 md:p-10 text-center mb-6 sm:mb-8 shrink-0">
+              <div className="w-full bg-gray-600 rounded-lg p-3 sm:p-4 md:p-5 text-center mb-3 sm:mb-4 shrink-0">
                 {isRest ? (
                   // Show next exercise during rest
                   <>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-4 sm:mb-6">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-2 sm:mb-3">
                       Next Up
                     </h3>
                     {(() => {
@@ -773,7 +903,7 @@ const TabataWorkout = ({
                               nextInfo.exerciseIndex
                             )}
                             {nextInfo.blockNumber && (
-                              <div className="text-base sm:text-lg md:text-xl text-logoGray mt-2 sm:mt-3">
+                              <div className="text-base sm:text-lg md:text-xl text-logoGray mt-1 sm:mt-2">
                                 Block {nextInfo.blockNumber}
                               </div>
                             )}
@@ -783,7 +913,7 @@ const TabataWorkout = ({
                         return (
                           <div className="text-brightYellow text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
                             <div>Block {nextInfo.blockNumber}</div>
-                            <div className="text-base sm:text-lg md:text-xl text-logoGray mt-2 sm:mt-3">
+                            <div className="text-base sm:text-lg md:text-xl text-logoGray mt-1 sm:mt-2">
                               {getExerciseName(nextInfo.exercises[0], 0)} &{" "}
                               {getExerciseName(nextInfo.exercises[1], 1)}
                             </div>
@@ -794,12 +924,12 @@ const TabataWorkout = ({
                   </>
                 ) : (
                   <>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-4 sm:mb-6">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-2 sm:mb-3">
                       Current Exercise
                     </h3>
                     {currentExercise && (
                       <>
-                        <div className="text-brightYellow text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
+                        <div className="text-brightYellow text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3">
                           {getExerciseName(
                             currentExercise,
                             currentExerciseIndex
@@ -854,8 +984,8 @@ const TabataWorkout = ({
                 )}
               </div>
 
-              {/* Exercise List - Reduced height */}
-              <div className="h-[35vh] sm:h-[40vh] md:h-[42vh] lg:h-[45vh] landscape:h-[20vh] landscape:sm:h-[22vh] landscape:md:h-[24vh] landscape:lg:h-[26vh] overflow-hidden w-full">
+              {/* Exercise List - Flexible height */}
+              <div className="flex-1 min-h-0 overflow-hidden w-full">
                 {isRest ? (
                   // Show exercise list during rest
                   <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">
@@ -866,20 +996,20 @@ const TabataWorkout = ({
                       if (nextInfo?.type === "nextBlock") {
                         return (
                           <>
-                            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-3">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-customWhite mb-2">
                               Block {nextInfo.blockNumber} Exercises
                             </h3>
-                            <div className="space-y-3 sm:space-y-4">
+                            <div className="space-y-2 sm:space-y-3">
                               {nextInfo.exercises.map((exercise, index) => (
                                 <div
                                   key={index}
-                                  className="flex items-center justify-between p-4 sm:p-6 rounded-lg bg-gray-700 text-customWhite"
+                                  className="flex items-center justify-between p-3 sm:p-4 rounded-lg bg-gray-700 text-customWhite"
                                 >
-                                  <span className="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl">
+                                  <span className="font-semibold text-base sm:text-lg md:text-xl lg:text-2xl">
                                     {getExerciseName(exercise, index)}
                                   </span>
                                   {exercise.exercise.modification && (
-                                    <span className="text-lg sm:text-xl md:text-2xl text-brightYellow">
+                                    <span className="text-base sm:text-lg md:text-xl text-brightYellow">
                                       *
                                     </span>
                                   )}
@@ -895,8 +1025,8 @@ const TabataWorkout = ({
                         return (
                           <div className="flex items-center justify-center h-full">
                             <div className="text-center">
-                              <div className="text-4xl mb-4">💪</div>
-                              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-customWhite mb-2">
+                              <div className="text-3xl mb-3">💪</div>
+                              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-2">
                                 Rest Time
                               </h3>
                               <p className="text-logoGray">
@@ -911,7 +1041,7 @@ const TabataWorkout = ({
                 ) : (
                   // Show current block exercise list during work
                   <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-3">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-customWhite mb-2">
                       Current Block Exercises
                     </h3>
                     <div className="space-y-2">
@@ -919,18 +1049,18 @@ const TabataWorkout = ({
                         (exercise, index) => (
                           <div
                             key={exercise.id || index}
-                            className={`flex items-center justify-between p-4 sm:p-6 rounded-lg transition-colors duration-200 ${
+                            className={`flex items-center justify-between p-3 sm:p-4 rounded-lg transition-colors duration-200 ${
                               index === currentExerciseIndex
                                 ? "bg-gray-800 border-2 border-limeGreen text-customWhite"
                                 : "bg-gray-700 text-customWhite"
                             }`}
                           >
                             <div className="flex-1">
-                              <span className="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl">
+                              <span className="font-semibold text-base sm:text-lg md:text-xl lg:text-2xl">
                                 {getExerciseName(exercise, index)}
                               </span>
                               {exercise.exercise.modification && (
-                                <span className="text-lg sm:text-xl md:text-2xl text-brightYellow ml-2">
+                                <span className="text-base sm:text-lg md:text-xl text-brightYellow ml-2">
                                   *
                                 </span>
                               )}
