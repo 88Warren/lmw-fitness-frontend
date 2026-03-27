@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Save, Clock, Hash } from 'lucide-react';
+import { X, Save, Clock, Hash, Target, TrendingUp } from 'lucide-react';
 import { showToast } from '../../utils/toastUtil';
 import assessmentApi from '../../utils/assessmentApi';
 import DynamicHeading from '../Shared/DynamicHeading';
@@ -23,10 +23,105 @@ const AssessmentInput = ({
   );
   const [notes, setNotes] = useState(existingAssessment?.notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [day1Assessment, setDay1Assessment] = useState(null);
+  const [loadingDay1, setLoadingDay1] = useState(false);
 
   // Determine if this is a time-based exercise (like Plank Hold)
   const isTimeBased = exercise?.name?.toLowerCase().includes('plank hold') || 
                       exercise?.name?.toLowerCase().includes('hold');
+
+  // Check if this is Day 30 to show Day 1 comparison
+  const isDay30 = dayNumber === 30;
+
+  // Load Day 1 assessment when modal opens for Day 30
+  useEffect(() => {
+    if (isOpen && isDay30 && exercise && programName) {
+      loadDay1Assessment();
+    }
+  }, [isOpen, isDay30, exercise, programName]);
+
+  const loadDay1Assessment = async () => {
+    setLoadingDay1(true);
+    const result = await assessmentApi.getDay1Assessment(programName, exercise.id);
+    if (result.success) {
+      setDay1Assessment(result.data);
+    } else {
+      console.log('No Day 1 assessment found for this exercise');
+    }
+    setLoadingDay1(false);
+  };
+
+  const formatDay1Performance = () => {
+    if (!day1Assessment) return null;
+    
+    if (day1Assessment.reps) {
+      return `${day1Assessment.reps} reps`;
+    }
+    
+    if (day1Assessment.timeSeconds) {
+      const mins = Math.floor(day1Assessment.timeSeconds / 60);
+      const secs = day1Assessment.timeSeconds % 60;
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    return null;
+  };
+
+  const getCurrentPerformance = () => {
+    if (isTimeBased) {
+      const totalSeconds = (parseInt(minutes) || 0) * 60 + (parseInt(seconds) || 0);
+      if (totalSeconds > 0) {
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+      }
+    } else {
+      const repsValue = parseInt(reps);
+      if (repsValue > 0) {
+        return `${repsValue} reps`;
+      }
+    }
+    return null;
+  };
+
+  const getImprovementIndicator = () => {
+    if (!day1Assessment) return null;
+    
+    const current = getCurrentPerformance();
+    if (!current) return null;
+    
+    let improvement = 0;
+    
+    if (day1Assessment.reps && reps) {
+      improvement = parseInt(reps) - day1Assessment.reps;
+    } else if (day1Assessment.timeSeconds && minutes && seconds) {
+      const currentSeconds = (parseInt(minutes) || 0) * 60 + (parseInt(seconds) || 0);
+      improvement = currentSeconds - day1Assessment.timeSeconds;
+    }
+    
+    if (improvement > 0) {
+      return (
+        <div className="flex items-center text-green-400 text-sm mt-2">
+          <TrendingUp size={14} className="mr-1" />
+          <span>+{improvement} {isTimeBased ? 'seconds' : 'reps'} improvement!</span>
+        </div>
+      );
+    } else if (improvement < 0) {
+      return (
+        <div className="text-orange-400 text-sm mt-2">
+          <span>{Math.abs(improvement)} {isTimeBased ? 'seconds' : 'reps'} below Day 1</span>
+        </div>
+      );
+    } else if (improvement === 0) {
+      return (
+        <div className="text-brightYellow text-sm mt-2">
+          <span>Same as Day 1 - try to beat it!</span>
+        </div>
+      );
+    }
+    
+    return null;
+  };
 
   const handleSave = async () => {
     setIsSubmitting(true);
@@ -75,6 +170,7 @@ const AssessmentInput = ({
     setMinutes('');
     setSeconds('');
     setNotes('');
+    setDay1Assessment(null);
     onClose();
   };
 
@@ -86,7 +182,7 @@ const AssessmentInput = ({
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-customGray rounded-lg p-6 w-full max-w-md border-2 border-brightYellow"
+        className="bg-customGray rounded-lg p-6 w-full max-w-md border-2 border-brightYellow max-h-[90vh] overflow-y-auto"
       >
         <div className="flex justify-between items-center mb-4">
           <DynamicHeading
@@ -109,6 +205,35 @@ const AssessmentInput = ({
             Day {dayNumber} - {programName.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
           </p>
         </div>
+
+        {/* Day 1 Performance Display for Day 30 */}
+        {isDay30 && (
+          <div className="mb-4 p-3 bg-gray-800 rounded-lg border border-logoGray">
+            <div className="flex items-center mb-2">
+              <Target className="text-brightYellow mr-2" size={16} />
+              <span className="text-customWhite font-titillium text-sm font-semibold">
+                Day 1 Performance to Beat
+              </span>
+            </div>
+            {loadingDay1 ? (
+              <p className="text-logoGray text-xs">Loading Day 1 data...</p>
+            ) : day1Assessment ? (
+              <div className="space-y-1">
+                <p className="text-brightYellow font-titillium text-lg font-bold">
+                  {formatDay1Performance()}
+                </p>
+                <p className="text-logoGray text-xs">
+                  Recorded on {new Date(day1Assessment.recordedDate).toLocaleDateString('en-GB')}
+                </p>
+                {getCurrentPerformance() && getImprovementIndicator()}
+              </div>
+            ) : (
+              <p className="text-logoGray text-xs">
+                No Day 1 assessment found for this exercise
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="space-y-4">
           {isTimeBased ? (

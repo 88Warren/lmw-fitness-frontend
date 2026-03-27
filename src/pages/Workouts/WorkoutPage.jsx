@@ -862,7 +862,9 @@ const WorkoutPage = () => {
     const modifiedExercise = baseExercise?.modification;
 
     const exerciseData = {
+      exerciseId: currentWorkoutExercise.exerciseId, // Add the exercise ID
       exercise: {
+        id: currentWorkoutExercise.exerciseId, // Also add it here for consistency
         name: showModified[currentExerciseIndex] && modifiedExercise 
           ? modifiedExercise.name 
           : baseExercise.name,
@@ -1650,6 +1652,10 @@ const WorkoutPage = () => {
               playBeep={playBeep}
               playStartSound={playStartSound}
               initializeAudioContext={initializeAudioContext}
+              programName={programName}
+              dayNumber={dayNum}
+              isAssessmentDay={isAssessmentDay}
+              completedExercise={isRestPeriod ? workoutData.workoutBlocks[currentBlockIndex].exercises[currentExerciseIndex] : null}
             />
 
             {/* Next Exercise Info - Show when there's no rest period (non-fullscreen) */}
@@ -1848,6 +1854,7 @@ const WorkoutPage = () => {
                   
                   {/* Assessment Input for Fitness Assessment Days */}
                   {isAssessmentDay && isRestPeriod && (() => {
+                    // Show assessment input during rest on both Day 1 and Day 30
                     // During rest period, the currentExerciseIndex still points to the exercise that was just completed
                     // (it gets incremented when the rest period ends, not when it starts)
                     const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
