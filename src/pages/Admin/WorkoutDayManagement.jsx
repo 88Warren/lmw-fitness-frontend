@@ -286,6 +286,7 @@ const WorkoutDayManagement = () => {
               exercise.Exercise?.name || exercise.exercise?.name || "",
             order: exercise.order || exercise.Order || 1,
             reps: exercise.reps || exercise.Reps || "",
+            modifiedReps: exercise.modifiedReps || exercise.ModifiedReps || "",
             duration: exercise.duration || exercise.Duration || "",
             rest: exercise.rest || exercise.Rest || "",
             tips: exercise.tips || exercise.Tips || "",
@@ -791,12 +792,21 @@ const WorkoutDayManagement = () => {
                                                         exercise.ID ||
                                                         exerciseIndex
                                                       }
-                                                      className="bg-customGray text-white px-2 py-1 rounded text-sm"
+                                                      className="bg-customGray text-white px-2 py-1 rounded text-sm flex items-center gap-1"
                                                     >
                                                       {exerciseIndex + 1}.{" "}
                                                       {exercise.Exercise?.name ||
                                                         exercise.exercise?.name ||
                                                         "Exercise Name"}
+                                                      {(exercise.Exercise?.modificationId ||
+                                                        exercise.exercise?.modificationId) && (
+                                                        <span
+                                                          className="bg-orange-400 text-white text-xs px-1 rounded ml-1"
+                                                          title={`Modified: ${exercise.Exercise?.modification?.name || exercise.exercise?.modification?.name || "see exercise library"}`}
+                                                        >
+                                                          MOD
+                                                        </span>
+                                                      )}
                                                     </span>
                                                   )
                                                 )}
@@ -834,7 +844,35 @@ const WorkoutDayManagement = () => {
                                                                   ?.name ||
                                                                 "Exercise Name"}
                                                             </span>
+                                                            {(exercise.Exercise?.modificationId ||
+                                                              exercise.exercise?.modificationId) && (
+                                                              <span
+                                                                className="bg-orange-400 text-white text-xs px-1.5 py-0.5 rounded"
+                                                                title="Has modified version"
+                                                              >
+                                                                MOD
+                                                              </span>
+                                                            )}
                                                           </div>
+                                                          {/* Show standard vs modified names when modification exists */}
+                                                          {(exercise.Exercise?.modificationId || exercise.exercise?.modificationId) && (
+                                                            <div className="grid grid-cols-2 gap-2 mb-2">
+                                                              <div className="bg-blue-50 border border-blue-200 rounded px-2 py-1.5">
+                                                                <p className="text-xs font-bold text-blue-700 uppercase tracking-wide">Standard</p>
+                                                                <p className="text-xs text-blue-900 font-medium">
+                                                                  {exercise.Exercise?.name || exercise.exercise?.name}
+                                                                </p>
+                                                              </div>
+                                                              <div className="bg-orange-50 border border-orange-200 rounded px-2 py-1.5">
+                                                                <p className="text-xs font-bold text-orange-700 uppercase tracking-wide">Modified</p>
+                                                                <p className="text-xs text-orange-900 font-medium">
+                                                                  {exercise.Exercise?.modification?.name ||
+                                                                    exercise.exercise?.modification?.name ||
+                                                                    "See exercise library"}
+                                                                </p>
+                                                              </div>
+                                                            </div>
+                                                          )}
 
                                                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mt-2">
                                                             {(exercise.reps ||
@@ -846,6 +884,18 @@ const WorkoutDayManagement = () => {
                                                                 <span className="text-customGray">
                                                                   {exercise.reps ||
                                                                     exercise.Reps}
+                                                                </span>
+                                                              </div>
+                                                            )}
+                                                            {(exercise.modifiedReps ||
+                                                              exercise.ModifiedReps) && (
+                                                              <div>
+                                                                <span className="text-gray-600">
+                                                                  Modified Reps:{" "}
+                                                                </span>
+                                                                <span className="text-orange-600 font-medium">
+                                                                  {exercise.modifiedReps ||
+                                                                    exercise.ModifiedReps}
                                                                 </span>
                                                               </div>
                                                             )}
@@ -1046,6 +1096,7 @@ const WorkoutDayForm = ({
                   exerciseName: "",
                   order: block.exercises.length + 1,
                   reps: "",
+                  modifiedReps: "",
                   duration: "",
                   rest: "",
                   tips: "",
@@ -1294,11 +1345,36 @@ const WorkoutDayForm = ({
                         <option value="">Select Exercise</option>
                         {exercises.map((ex) => (
                           <option key={ex.ID} value={ex.ID}>
-                            {ex.name}
+                            {ex.name}{ex.modificationId ? " ★" : ""}
                           </option>
                         ))}
                       </select>
                     </div>
+
+                    {/* Standard vs Modified exercise info panel */}
+                    {(() => {
+                      const selectedEx = exercises.find(ex => ex.ID === parseInt(exercise.exerciseId));
+                      if (!selectedEx?.modificationId) return null;
+                      const modEx = exercises.find(ex => ex.ID === selectedEx.modificationId) || selectedEx.modification;
+                      return (
+                        <div className="md:col-span-2 lg:col-span-3 grid grid-cols-2 gap-3">
+                          <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                            <p className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-1">Standard</p>
+                            <p className="text-sm font-semibold text-blue-900">{selectedEx.name}</p>
+                            {selectedEx.description && (
+                              <p className="text-xs text-blue-700 mt-1 line-clamp-2">{selectedEx.description}</p>
+                            )}
+                          </div>
+                          <div className="bg-orange-50 border border-orange-200 rounded p-3">
+                            <p className="text-xs font-bold text-orange-700 uppercase tracking-wide mb-1">Modified</p>
+                            <p className="text-sm font-semibold text-orange-900">{modEx?.name || "Unknown"}</p>
+                            {modEx?.description && (
+                              <p className="text-xs text-orange-700 mt-1 line-clamp-2">{modEx.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     <div>
                       <label className="block text-customGray mb-2">
@@ -1339,6 +1415,30 @@ const WorkoutDayForm = ({
                         placeholder="e.g., 10-12, Max Effort"
                       />
                     </div>
+
+                    {/* Modified Reps - only shown when the selected exercise has a modification */}
+                    {exercises.find(ex => ex.ID === parseInt(exercise.exerciseId))?.modificationId && (
+                      <div>
+                        <label className="flex items-center gap-2 text-customGray mb-2">
+                          Modified Reps
+                          <span className="bg-orange-400 text-white text-xs px-1.5 py-0.5 rounded">MOD</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={exercise.modifiedReps || ""}
+                          onChange={(e) =>
+                            handleExerciseChange(
+                              blockIndex,
+                              exerciseIndex,
+                              "modifiedReps",
+                              e.target.value
+                            )
+                          }
+                          className="w-full p-2 rounded border border-orange-300 text-customGray focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                          placeholder="e.g., 8-10, Easier version"
+                        />
+                      </div>
+                    )}
 
                     <div>
                       <label className="block text-customGray mb-2">

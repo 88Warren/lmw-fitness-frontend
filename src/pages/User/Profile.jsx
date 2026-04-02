@@ -1,12 +1,34 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useAuth from "../../hooks/useAuth";
 import DynamicHeading from "../../components/Shared/DynamicHeading";
+import api from "../../utils/api";
+import { BACKEND_URL } from "../../utils/config";
 
 const ProfilePage = () => {
-  const { user, isLoggedIn, loadingAuth } = useAuth();
+  const { user, isLoggedIn, loadingAuth, updateUser } = useAuth();
   const navigate = useNavigate();
+  const [reminderOptOut, setReminderOptOut] = useState(false);
+  const [reminderSaving, setReminderSaving] = useState(false);
+
+  useEffect(() => {
+    if (user) setReminderOptOut(user.reminderOptOut || false);
+  }, [user]);
+
+  const handleReminderToggle = async () => {
+    const newVal = !reminderOptOut;
+    setReminderOptOut(newVal);
+    setReminderSaving(true);
+    try {
+      await api.put(`${BACKEND_URL}/api/reminder-opt-out`, { optOut: newVal });
+      if (updateUser) updateUser({ ...user, reminderOptOut: newVal });
+    } catch (e) {
+      setReminderOptOut(!newVal); // revert on error
+    } finally {
+      setReminderSaving(false);
+    }
+  };
 
   useEffect(() => {
     if (!loadingAuth && !isLoggedIn) {
@@ -45,10 +67,28 @@ const ProfilePage = () => {
           className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest"
         />
         <div className="space-y-4 text-center">
+          {/* Streak display */}
+          {(user.currentStreak > 0 || user.longestStreak > 0) && (
+            <div className="grid grid-cols-2 gap-3 mb-2">
+              <div className="bg-gray-700 rounded-lg p-3">
+                <p className="text-brightYellow text-2xl font-bold">🔥 {user.currentStreak}</p>
+                <p className="text-logoGray text-xs mt-1">Current Streak</p>
+              </div>
+              <div className="bg-gray-700 rounded-lg p-3">
+                <p className="text-limeGreen text-2xl font-bold">🏆 {user.longestStreak}</p>
+                <p className="text-logoGray text-xs mt-1">Longest Streak</p>
+              </div>
+            </div>
+          )}
+
           {/* Link to programs/workouts */}
           <div className="mt-6">
             <Link to="/fitness-assessments" className="block btn-primary mb-6">
               Fitness Assessments
+            </Link>
+
+            <Link to="/amrap-history" className="block btn-primary mb-6">
+              AMRAP History
             </Link>
             
             <Link to="/calorie-calculator" className="block btn-primary mb-6">
@@ -94,6 +134,31 @@ const ProfilePage = () => {
                 <p className="text-logoGray">No programs purchased yet.</p>
               </div>
             )}
+          </div>
+
+          {/* Reminder preference */}
+          <div className="mt-6 pt-4 border-t border-gray-600">
+            <div className="flex items-center justify-between">
+              <div className="text-left">
+                <p className="text-customWhite text-sm font-medium">Workout reminders</p>
+                <p className="text-logoGray text-xs mt-0.5">
+                  {reminderOptOut ? "Reminders off" : "We'll nudge you if you've been away a while"}
+                </p>
+              </div>
+              <button
+                onClick={handleReminderToggle}
+                disabled={reminderSaving}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                  reminderOptOut ? "bg-gray-600" : "bg-limeGreen"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    reminderOptOut ? "translate-x-1" : "translate-x-6"
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         </div>
       </div>

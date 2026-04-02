@@ -7,7 +7,7 @@ import {
   FaInstagram,
   FaTiktok,
 } from "react-icons/fa";
-import { FiShoppingCart } from "react-icons/fi";
+import { FiShoppingCart, FiUser } from "react-icons/fi";
 import useAuth from "../../hooks/useAuth";
 import { useCart } from "../../context/CartContext";
 
@@ -162,18 +162,29 @@ const Navbar = () => {
               </h1>
             </NavLink>
 
-            {/* Cart Icon */}
-            <NavLink
-              to="/cart"
-              className="relative text-white hover:text-brightYellow transition-colors pl-4"
-            >
-              <FiShoppingCart className="h-7 w-7" aria-label="Shopping Cart" />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-hotPink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartItemCount}
-                </span>
+            {/* User icon + Cart Icon */}
+            <div className="flex items-center gap-3">
+              {isLoggedIn && (
+                <NavLink
+                  to="/profile"
+                  className="relative text-white hover:text-brightYellow transition-colors"
+                  aria-label="Profile"
+                >
+                  <FiUser className="h-7 w-7" />
+                </NavLink>
               )}
-            </NavLink>
+              <NavLink
+                to="/cart"
+                className="relative text-white hover:text-brightYellow transition-colors"
+              >
+                <FiShoppingCart className="h-7 w-7" aria-label="Shopping Cart" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-hotPink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
+              </NavLink>
+            </div>
           </div>
 
           {/* Web Menu */}

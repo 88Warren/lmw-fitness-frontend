@@ -1511,6 +1511,9 @@ const WorkoutPage = () => {
         canGoBack={true}
         shouldAutoStart={shouldAutoStart}
         isAdmin={user?.role === "admin"}
+        programName={programName}
+        dayNumber={dayNum}
+        blockIndex={currentBlockIndex}
       />
     );
   }

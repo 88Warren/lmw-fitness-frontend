@@ -30,6 +30,7 @@ import RoutinePage from "../pages/Workouts/Routine";
 import ChangePasswordFirstLoginPage from "../pages/User/ChangePasswordFirstLogin";
 import Profile from "../pages/User/Profile";
 import FitnessAssessments from "../pages/User/FitnessAssessments";
+import AMRAPHistory from "../pages/User/AMRAPHistory";
 
 import CalorieCalculator from "../pages/calculator/CalorieCalculator";
 
@@ -80,6 +81,7 @@ const routes = createRoutesFromElements(
       <Route path="/change-password-first-login" element={<ChangePasswordFirstLoginPage />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/fitness-assessments" element={<FitnessAssessments />} />
+      <Route path="/amrap-history" element={<AMRAPHistory />} />
       <Route path="/calorie-calculator" element={<CalorieCalculator />} />
       <Route path="/workouts/:programName/list" element={<ProgramDayListPage />} />
       <Route path="/workouts/:programName/routines/:routineType" element={<RoutinePage />} />
