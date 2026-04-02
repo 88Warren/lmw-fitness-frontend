@@ -21,13 +21,13 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: isProduction 
             ? 'https://api.lmwfitness.co.uk' 
-            : 'http://localhost:8082',
+            : 'http://localhost:8083',
           changeOrigin: true,
         },
         '/images': {
           target: isProduction 
             ? 'https://api.lmwfitness.co.uk' 
-            : 'http://localhost:8082',
+            : 'http://localhost:8083',
           changeOrigin: true,
         },
       },

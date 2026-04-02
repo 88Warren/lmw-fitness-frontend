@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
 import usePreparationCountdown from "../../hooks/usePreparationCountdown";
+import Day1MotivationDisplay from "../Assessments/Day1MotivationDisplay";
+import WorkoutAssessmentInput from "../Assessments/WorkoutAssessmentInput";
 
 const WorkoutTimer = ({
   currentExercise,
@@ -23,6 +25,10 @@ const WorkoutTimer = ({
   playBeep = () => {},
   playStartSound = () => {},
   initializeAudioContext = () => Promise.resolve(), // New prop for iOS audio initialization
+  programName = null, // New prop for assessment
+  dayNumber = null, // New prop for assessment
+  isAssessmentDay = false, // New prop for assessment
+  completedExercise = null, // New prop for assessment - the exercise that was just completed
 }) => {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -396,362 +402,521 @@ const WorkoutTimer = ({
             </svg>
           )}
         </button>
-        <div className="mb-2">
-          <div className="flex flex-col items-center mb-2">
-            <h3
-              className={`mb-2 font-bold text-customWhite ${
-                isFullscreen
-                  ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
-                  : "text-3xl"
-              }`}
-            >
-              {isPreparationCountdown
-                ? "Get Ready!"
-                : isStopwatch || isMaxTimeExercise
-                ? activeExercise?.name
-                : isRoundRest
-                ? "Round Rest"
-                : isRest
-                ? "Rest Time"
-                : activeExercise?.name}
-            </h3>
-            {isPreparationCountdown && (
-              <p
-                className={`text-brightYellow font-semibold mb-2 ${
-                  isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
-                }`}
-              >
-                Prepare for: {activeExercise?.name}
+        
+        {/* Smart Layout for Fullscreen Rest Periods */}
+        {isFullscreen && (isRest || isRoundRest) ? (
+          <div className="flex flex-col h-full justify-between min-h-0">
+            {/* Top Section: Title + Exercise Counter */}
+            <div className="text-center mb-2 shrink-0">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-1">
+                {isRoundRest ? "Round Rest" : "Rest Time"}
+              </h3>
+              <p className="text-xs sm:text-sm text-logoGray">
+                Exercise {currentExerciseNumber} of {totalExercisesInBlock}
               </p>
-            )}
-            {isMaxTimeExercise && !isPreparationCountdown && (
-              <p
-                className={`text-brightYellow font-semibold mb-2 ${
-                  isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
-                }`}
-              >
-                Hold as long as possible - Use Skip/Done when finished
-              </p>
-            )}
-            <p
-              className={`text-logoGray ${
-                isFullscreen ? "text-xs sm:text-sm md:text-base" : "text-xs"
-              }`}
-            >
-              Exercise {currentExerciseNumber} of {totalExercisesInBlock}
-            </p>
-            {currentBlockType === "AMRAP" && (
-              <p
-                className={`text-brightYellow font-semibold ${
-                  isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
-                }`}
-              >
-                AMRAP - Keep Going!
-              </p>
-            )}
-            {currentBlockType === "EMOM" && (
-              <p
-                className={`text-brightYellow font-semibold ${
-                  isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
-                }`}
-              >
-                EMOM - Every Minute On the Minute!
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Timer Display */}
-        <div className="mb-2">
-          {(() => {
-            const isFirstExerciseOfWorkout = currentExerciseNumber === 1 && currentRound === 1;
-            return !isActive && !isPaused && !isPreparationCountdown && isFirstExerciseOfWorkout && !hasStartedOnce;
-          })() ? (
-            // Show "Get Ready" view on page load (static)
-            <div className="text-center">
-              <div className={`p-4 ${
-                isFullscreen
-                  ? "text-6xl md:text-8xl lg:text-9xl"
-                  : "text-7xl"
-              } text-brightYellow`}>
-                5
-              </div>
-              <div className="text-brightYellow font-semibold text-lg mb-2">
-                Get Ready!
-              </div>
-              <div className="text-customWhite text-sm mb-2">
-                {activeExercise?.name ? `Prepare for: ${activeExercise.name}` : 'Prepare for your exercise'}
-              </div>
-              <div className="text-center">
-                <span className="text-logoGray text-sm">
-                  🏃‍♀️ Click START for a 5-second countdown to get in position
-                </span>
-              </div>
             </div>
-          ) : (
-            // Regular timer display (including preparation countdown)
-            <div>
-              <div
-                className={`p-4 ${
-                  isFullscreen
-                    ? "text-6xl md:text-8xl lg:text-9xl"
-                    : "text-7xl"
-                } ${
-                  isPreparationCountdown 
-                    ? "text-brightYellow animate-pulse" 
-                    : isRest || isRoundRest 
-                    ? "text-hotPink" 
-                    : "text-limeGreen"
-                } ${
-                  time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && !isPreparationCountdown
-                    ? "animate-pulse" 
-                    : ""
-                }`}
-              >
-                {isPreparationCountdown ? preparationTime : formatTime(time)}
+
+            {/* Middle Section: Timer + Progress Bar */}
+            <div className="flex-1 flex flex-col justify-center min-h-0">
+              <div className="text-center mb-3">
+                <div className="p-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-hotPink">
+                  {formatTime(time)}
+                </div>
+                {time <= 5 && time > 0 && (
+                  <span className="text-brightYellow font-semibold text-base animate-bounce">
+                    🔔 Get Ready!
+                  </span>
+                )}
               </div>
               
-              {/* Preparation countdown indicator */}
-              {isPreparationCountdown && (
+              {/* Compact Progress Bar */}
+              <div className="flex justify-center mb-3">
+                <div className="bg-gray-400 rounded-full h-2 w-2/3">
+                  <div
+                    className="bg-linear-to-r from-limeGreen via-brightYellow to-hotPink h-full rounded-full transition-all duration-500"
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section: Next Exercise + Assessment + Controls */}
+            <div className="space-y-2 shrink-0">
+              {/* Next Exercise Info - Compact */}
+              {nextExercise && (
+                <div className="bg-gray-700 rounded-lg p-2 text-center">
+                  <p className="text-brightYellow text-xs font-semibold mb-1">Next Exercise</p>
+                  <p className="text-customWhite text-sm font-bold">
+                    {nextExercise.exercise?.name || "Get Ready!"}
+                  </p>
+                  {nextExercise.exercise?.modification && (
+                    <p className="text-logoGray text-xs">
+                      or <span className="text-brightYellow">{nextExercise.exercise.modification.name}</span>
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Assessment Input - Inline */}
+              {isAssessmentDay && completedExercise && (
+                <WorkoutAssessmentInput
+                  exercise={{
+                    id: completedExercise.exerciseId,
+                    name: completedExercise.exercise?.name || completedExercise.name
+                  }}
+                  programName={programName}
+                  dayNumber={dayNumber}
+                  isVisible={true}
+                  isFullscreen={true}
+                  onSave={(assessment) => {
+                    console.log('Assessment saved in fullscreen:', assessment);
+                  }}
+                />
+              )}
+
+              {/* Timer Controls - Compact and Responsive */}
+              <div className="flex justify-center flex-wrap gap-2">
+                {canGoBack && (
+                  <button
+                    onClick={() => {
+                      clearInterval(intervalRef.current);
+                      setTime(0);
+                      setIsActive(false);
+                      setIsPaused(false);
+                      cancelPreparationCountdown();
+                      onGoBack();
+                    }}
+                    className="btn-cancel px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
+                  >
+                    Back
+                  </button>
+                )}
+
+                {(!isActive && !isPreparationCountdown) || isPaused ? (
+                  <button
+                    onClick={resumeTimer}
+                    className="btn-full-colour px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm bg-limeGreen hover:bg-green-600 text-black"
+                  >
+                    {isPaused ? "Resume" : "Start"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={pauseTimer}
+                    className="btn-subscribe px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
+                  >
+                    Pause
+                  </button>
+                )}
+
+                <button
+                  onClick={resetCurrentTimer}
+                  className="btn-cancel px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
+                >
+                  {hasResetOnce ? "Go Back" : "Reset"}
+                </button>
+
+                {time > 0 && (
+                  <button
+                    onClick={skipRest}
+                    className="btn-skip px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
+                  >
+                    Skip
+                  </button>
+                )}
+
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      clearInterval(intervalRef.current);
+                      onExerciseComplete();
+                    }}
+                    className="btn-cancel px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
+                  >
+                    Next
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Regular layout for non-rest periods or non-fullscreen
+          <>
+            <div className="mb-2">
+              <div className="flex flex-col items-center mb-2">
+                <h3
+                  className={`mb-2 font-bold text-customWhite ${
+                    isFullscreen
+                      ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+                      : "text-3xl"
+                  }`}
+                >
+                  {isPreparationCountdown
+                    ? "Get Ready!"
+                    : isStopwatch || isMaxTimeExercise
+                    ? activeExercise?.name
+                    : isRoundRest
+                    ? "Round Rest"
+                    : isRest
+                    ? "Rest Time"
+                    : activeExercise?.name}
+                </h3>
+                
+                {/* Day 1 Motivation Display for Day 30 Assessment Exercises */}
+                {!isRest && !isRoundRest && !isPreparationCountdown && isAssessmentDay && activeExercise && (
+                  <div className={`w-full max-w-md ${isFullscreen ? 'mb-4' : 'mb-2'}`}>
+                    <Day1MotivationDisplay
+                      exercise={{
+                        id: currentExercise?.exerciseId || currentExercise?.exercise?.id,
+                        name: activeExercise?.name
+                      }}
+                      programName={programName}
+                      dayNumber={dayNumber}
+                      isVisible={true}
+                    />
+                  </div>
+                )}
+                
+                {isPreparationCountdown && (
+                  <p
+                    className={`text-brightYellow font-semibold mb-2 ${
+                      isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
+                    }`}
+                  >
+                    Prepare for: {activeExercise?.name}
+                  </p>
+                )}
+                {isMaxTimeExercise && !isPreparationCountdown && (
+                  <p
+                    className={`text-brightYellow font-semibold mb-2 ${
+                      isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
+                    }`}
+                  >
+                    Hold as long as possible - Use Skip/Done when finished
+                  </p>
+                )}
+                <p
+                  className={`text-logoGray ${
+                    isFullscreen ? "text-xs sm:text-sm md:text-base" : "text-xs"
+                  }`}
+                >
+                  Exercise {currentExerciseNumber} of {totalExercisesInBlock}
+                </p>
+                {currentBlockType === "AMRAP" && (
+                  <p
+                    className={`text-brightYellow font-semibold ${
+                      isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
+                    }`}
+                  >
+                    AMRAP - Keep Going!
+                  </p>
+                )}
+                {currentBlockType === "EMOM" && (
+                  <p
+                    className={`text-brightYellow font-semibold ${
+                      isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
+                    }`}
+                  >
+                    EMOM - Every Minute On the Minute!
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Timer Display */}
+            <div className={`mb-2 ${isFullscreen && (isRest || isRoundRest) ? 'mb-1' : ''}`}>
+              {(() => {
+                const isFirstExerciseOfWorkout = currentExerciseNumber === 1 && currentRound === 1;
+                return !isActive && !isPaused && !isPreparationCountdown && isFirstExerciseOfWorkout && !hasStartedOnce;
+              })() ? (
+                // Show "Get Ready" view on page load (static)
                 <div className="text-center">
+                  <div className={`p-4 ${
+                    isFullscreen
+                      ? "text-6xl md:text-8xl lg:text-9xl"
+                      : "text-7xl"
+                  } text-brightYellow`}>
+                    5
+                  </div>
                   <div className="text-brightYellow font-semibold text-lg mb-2">
                     Get Ready!
                   </div>
                   <div className="text-customWhite text-sm mb-2">
                     {activeExercise?.name ? `Prepare for: ${activeExercise.name}` : 'Prepare for your exercise'}
                   </div>
-                  <span className="text-brightYellow font-semibold text-sm animate-bounce">
-                    🏃‍♀️ Get in position!
-                  </span>
+                  <div className="text-center">
+                    <span className="text-logoGray text-sm">
+                      🏃‍♀️ Click START for a 5-second countdown to get in position
+                    </span>
+                  </div>
                 </div>
-              )}
-              
-              {/* Regular countdown indicator */}
-              {!isPreparationCountdown && time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && (
-                <div className="text-center">
-                  <span className="text-brightYellow font-semibold text-lg animate-bounce">
-                    🔔 Get Ready!
-                  </span>
+              ) : (
+                // Regular timer display (including preparation countdown)
+                <div>
+                  <div
+                    className={`${
+                      isFullscreen && (isRest || isRoundRest)
+                        ? "p-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl" // Smaller for rest periods
+                        : isFullscreen
+                        ? "p-4 text-6xl md:text-8xl lg:text-9xl" // Full size for exercises
+                        : "p-4 text-7xl"
+                    } ${
+                      isPreparationCountdown 
+                        ? "text-brightYellow animate-pulse" 
+                        : isRest || isRoundRest 
+                        ? "text-hotPink" 
+                        : "text-limeGreen"
+                    } ${
+                      time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && !isPreparationCountdown
+                        ? "animate-pulse" 
+                        : ""
+                    }`}
+                  >
+                    {isPreparationCountdown ? preparationTime : formatTime(time)}
+                  </div>
+                  
+                  {/* Preparation countdown indicator */}
+                  {isPreparationCountdown && (
+                    <div className="text-center">
+                      <div className="text-brightYellow font-semibold text-lg mb-2">
+                        Get Ready!
+                      </div>
+                      <div className="text-customWhite text-sm mb-2">
+                        {activeExercise?.name ? `Prepare for: ${activeExercise.name}` : 'Prepare for your exercise'}
+                      </div>
+                      <span className="text-brightYellow font-semibold text-sm animate-bounce">
+                        🏃‍♀️ Get in position!
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Regular countdown indicator */}
+                  {!isPreparationCountdown && time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && (
+                    <div className="text-center">
+                      <span className="text-brightYellow font-semibold text-lg animate-bounce">
+                        🔔 Get Ready!
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* Overall Progress Bar */}
-        <div className="flex justify-center w-full mt-4">
-          <div
-            className={`bg-gray-400 rounded-full ${
-              isFullscreen ? "h-4 w-3/4" : "h-3 w-1/2"
-            }`}
-          >
-            <div
-              className="bg-linear-to-r from-limeGreen via-brightYellow to-hotPink h-full rounded-full transition-all duration-500"
-              style={{
-                width: `${progressPercentage}%`,
-              }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Next Exercise Info - Show during rest OR during exercise if no rest period */}
-        {isFullscreen && nextExercise && (
-          (isRest || isRoundRest) || 
-          (!isRest && !isRoundRest && !isStopwatch && !isMaxTimeExercise && 
-           parseDurationToSeconds(currentExercise?.rest || "0s") === 0)
-        ) && (
-          <div className="flex justify-center w-full mt-4">
-            <div className={`p-4 landscape:p-2 bg-gray-700 rounded-lg ${
-              isFullscreen ? "w-3/4" : "w-full"
-            }`}>
-              <div className="text-center">
-                <h4 className="text-2xl landscape:text-lg font-semibold text-brightYellow mb-3 landscape:mb-1">
-                  Next Exercise
-                </h4>
-                <p className="text-3xl landscape:text-xl font-bold text-customWhite mb-2 landscape:mb-1">
-                  {nextExercise.exercise?.name || "Get Ready!"}
-                </p>
-                {nextExercise.exercise?.modification && (
-                  <p className="text-xl landscape:text-base text-logoGray mb-3 landscape:mb-1">
-                    or{" "}
-                    <span className="text-brightYellow">
-                      {nextExercise.exercise.modification.name}
-                    </span>
-                  </p>
-                )}
-                {nextExercise.reps && (
-                  <p className="text-lg landscape:text-sm text-brightYellow">
-                    {`${nextExercise.reps} ${
-                      nextExercise.duration
-                        ? `(${nextExercise.duration})`
-                        : "reps"
-                    }`}
-                  </p>
-                )}
+            {/* Overall Progress Bar */}
+            <div className={`flex justify-center w-full ${isFullscreen && (isRest || isRoundRest) ? 'mt-2' : 'mt-4'}`}>
+              <div
+                className={`bg-gray-400 rounded-full ${
+                  isFullscreen ? "h-3 w-3/4" : "h-3 w-1/2"
+                }`}
+              >
+                <div
+                  className="bg-linear-to-r from-limeGreen via-brightYellow to-hotPink h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${progressPercentage}%`,
+                  }}
+                ></div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Timer Controls */}
-        <div
-          className={`flex justify-center space-x-2 ${
-            isFullscreen ? "mt-8" : ""
-          }`}
-        >
-          {canGoBack && (
-            <button
-              onClick={() => {
-                clearInterval(intervalRef.current);
-                setTime(0);
-                setIsActive(false);
-                setIsPaused(false);
-                cancelPreparationCountdown();
-                onGoBack();
-              }}
-              className={`btn-cancel ${
-                isFullscreen
-                  ? "px-6 py-3 text-base"
-                  : "px-3 py-1 md:px-6 md:py-3"
-              }`}
-            >
-              Back
-            </button>
-          )}
-
-          {(!isActive && !isPreparationCountdown) || isPaused ? (
-            <button
-              onClick={resumeTimer}
-              className={`btn-full-colour ${
-                isFullscreen
-                  ? "px-6 py-3 text-base"
-                  : "px-3 py-1 md:px-6 md:py-3"
-              } ${
-                (isStopwatch || isMaxTimeExercise) && isActive
-                  ? "btn-subscribe"
-                  : "bg-limeGreen hover:bg-green-600 text-black"
-              }`}
-            >
-              {isPaused ? "Resume" : "Start"}
-            </button>
-          ) : isPreparationCountdown ? (
-            <button
-              disabled
-              className={`btn-full-colour opacity-50 cursor-not-allowed ${
-                isFullscreen
-                  ? "px-6 py-3 text-base"
-                  : "px-3 py-1 md:px-6 md:py-3"
-              } bg-brightYellow text-black`}
-            >
-              Get Ready...
-            </button>
-          ) : (
-            <button
-              onClick={pauseTimer}
-              className={`btn-subscribe ${
-                isFullscreen
-                  ? "px-6 py-3 text-base"
-                  : "px-3 py-1 md:px-6 md:py-3"
-              }`}
-            >
-              Pause
-            </button>
-          )}
-
-          {(isStopwatch || isMaxTimeExercise) && isActive && (
-            <button
-              onClick={stopAndReset}
-              className={`btn-cancel ${
-                isFullscreen
-                  ? "px-6 py-3 text-base"
-                  : "px-3 py-1 md:px-6 md:py-3"
-              }`}
-            >
-              Reset
-            </button>
-          )}
-
-          {/* Skip button for Max Time exercises - Always show when it's a max time exercise */}
-          {(isMaxTimeExercise ||
-            (currentExercise?.duration &&
-              (currentExercise.duration === "Max Time" ||
-                currentExercise.duration === "Max time")) ||
-            (currentExercise?.exercise?.name?.toLowerCase().includes("plank") &&
-              currentExercise?.duration?.toLowerCase().includes("max"))) && (
-            <button
-              onClick={() => {
-                clearInterval(intervalRef.current);
-                onExerciseComplete();
-              }}
-              className={`btn-skip ${
-                isFullscreen
-                  ? "px-6 py-3 text-base"
-                  : "px-3 py-1 md:px-6 md:py-3"
-              }`}
-            >
-              Done
-            </button>
-          )}
-
-          {(isStopwatch || isMaxTimeExercise) && isAdmin && (
-            <button
-              onClick={() => {
-                clearInterval(intervalRef.current);
-                onExerciseComplete();
-              }}
-              className="btn-cancel px-3 py-1 md:px-6 md:py-3"
-            >
-              Next
-            </button>
-          )}
-
-          {!isStopwatch && !isMaxTimeExercise && (
-            <button
-              onClick={resetCurrentTimer}
-              className="btn-cancel px-3 py-1 md:px-6 md:py-3"
-            >
-              {hasResetOnce
-                ? "Go Back"
-                : isRest || isRoundRest
-                ? "Reset"
-                : "Reset"}
-            </button>
-          )}
-
-          {isMaxTimeExercise && (
-            <button
-              onClick={resetCurrentTimer}
-              className="btn-cancel px-3 py-1 md:px-6 md:py-3"
-            >
-              {hasResetOnce ? "Go Back" : "Reset"}
-            </button>
-          )}
-
-          {!isStopwatch && (isRest || isRoundRest) && time > 0 && (
-            <button
-              onClick={skipRest}
-              className="btn-skip px-3 py-1 md:px-6 md:py-3"
-            >
-              Skip
-            </button>
-          )}
-
-          {!isStopwatch &&
-            !isMaxTimeExercise &&
-            !isRest &&
-            !isRoundRest &&
-            isAdmin && (
-              <button
-                onClick={() => {
-                  clearInterval(intervalRef.current);
-                  onExerciseComplete();
-                }}
-                className="btn-cancel px-3 py-1 md:px-6 md:py-3"
-              >
-                Next
-              </button>
+            {/* Next Exercise Info - Show during rest OR during exercise if no rest period */}
+            {isFullscreen && nextExercise && (
+              (isRest || isRoundRest) || 
+              (!isRest && !isRoundRest && !isStopwatch && !isMaxTimeExercise && 
+               parseDurationToSeconds(currentExercise?.rest || "0s") === 0)
+            ) && (
+              <div className="flex justify-center w-full mt-4">
+                <div className={`p-3 landscape:p-2 bg-gray-700 rounded-lg ${
+                  isFullscreen ? "w-3/4" : "w-full"
+                }`}>
+                  <div className="text-center">
+                    <h4 className="text-lg landscape:text-base font-semibold text-brightYellow mb-2 landscape:mb-1">
+                      Next Exercise
+                    </h4>
+                    <p className="text-xl landscape:text-lg font-bold text-customWhite mb-1 landscape:mb-0">
+                      {nextExercise.exercise?.name || "Get Ready!"}
+                    </p>
+                    {nextExercise.exercise?.modification && (
+                      <p className="text-base landscape:text-sm text-logoGray mb-2 landscape:mb-1">
+                        or{" "}
+                        <span className="text-brightYellow">
+                          {nextExercise.exercise.modification.name}
+                        </span>
+                      </p>
+                    )}
+                    {nextExercise.reps && (
+                      <p className="text-sm landscape:text-xs text-brightYellow">
+                        {`${nextExercise.reps} ${
+                          nextExercise.duration
+                            ? `(${nextExercise.duration})`
+                            : "reps"
+                        }`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
-        </div>
+
+            {/* Timer Controls */}
+            <div
+              className={`flex justify-center space-x-2 ${
+                isFullscreen ? "mt-4" : ""
+              }`}
+            >
+              {canGoBack && (
+                <button
+                  onClick={() => {
+                    clearInterval(intervalRef.current);
+                    setTime(0);
+                    setIsActive(false);
+                    setIsPaused(false);
+                    cancelPreparationCountdown();
+                    onGoBack();
+                  }}
+                  className={`btn-cancel ${
+                    isFullscreen
+                      ? "px-6 py-3 text-base"
+                      : "px-3 py-1 md:px-6 md:py-3"
+                  }`}
+                >
+                  Back
+                </button>
+              )}
+
+              {(!isActive && !isPreparationCountdown) || isPaused ? (
+                <button
+                  onClick={resumeTimer}
+                  className={`btn-full-colour ${
+                    isFullscreen
+                      ? "px-6 py-3 text-base"
+                      : "px-3 py-1 md:px-6 md:py-3"
+                  } ${
+                    (isStopwatch || isMaxTimeExercise) && isActive
+                      ? "btn-subscribe"
+                      : "bg-limeGreen hover:bg-green-600 text-black"
+                  }`}
+                >
+                  {isPaused ? "Resume" : "Start"}
+                </button>
+              ) : isPreparationCountdown ? (
+                <button
+                  disabled
+                  className={`btn-full-colour opacity-50 cursor-not-allowed ${
+                    isFullscreen
+                      ? "px-6 py-3 text-base"
+                      : "px-3 py-1 md:px-6 md:py-3"
+                  } bg-brightYellow text-black`}
+                >
+                  Get Ready...
+                </button>
+              ) : (
+                <button
+                  onClick={pauseTimer}
+                  className={`btn-subscribe ${
+                    isFullscreen
+                      ? "px-6 py-3 text-base"
+                      : "px-3 py-1 md:px-6 md:py-3"
+                  }`}
+                >
+                  Pause
+                </button>
+              )}
+
+              {(isStopwatch || isMaxTimeExercise) && isActive && (
+                <button
+                  onClick={stopAndReset}
+                  className={`btn-cancel ${
+                    isFullscreen
+                      ? "px-6 py-3 text-base"
+                      : "px-3 py-1 md:px-6 md:py-3"
+                  }`}
+                >
+                  Reset
+                </button>
+              )}
+
+              {/* Skip button for Max Time exercises - Always show when it's a max time exercise */}
+              {(isMaxTimeExercise ||
+                (currentExercise?.duration &&
+                  (currentExercise.duration === "Max Time" ||
+                    currentExercise.duration === "Max time")) ||
+                (currentExercise?.exercise?.name?.toLowerCase().includes("plank") &&
+                  currentExercise?.duration?.toLowerCase().includes("max"))) && (
+                <button
+                  onClick={() => {
+                    clearInterval(intervalRef.current);
+                    onExerciseComplete();
+                  }}
+                  className={`btn-skip ${
+                    isFullscreen
+                      ? "px-6 py-3 text-base"
+                      : "px-3 py-1 md:px-6 md:py-3"
+                  }`}
+                >
+                  Done
+                </button>
+              )}
+
+              {(isStopwatch || isMaxTimeExercise) && isAdmin && (
+                <button
+                  onClick={() => {
+                    clearInterval(intervalRef.current);
+                    onExerciseComplete();
+                  }}
+                  className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+                >
+                  Next
+                </button>
+              )}
+
+              {!isStopwatch && !isMaxTimeExercise && (
+                <button
+                  onClick={resetCurrentTimer}
+                  className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+                >
+                  {hasResetOnce
+                    ? "Go Back"
+                    : isRest || isRoundRest
+                    ? "Reset"
+                    : "Reset"}
+                </button>
+              )}
+
+              {isMaxTimeExercise && (
+                <button
+                  onClick={resetCurrentTimer}
+                  className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+                >
+                  {hasResetOnce ? "Go Back" : "Reset"}
+                </button>
+              )}
+
+              {!isStopwatch && (isRest || isRoundRest) && time > 0 && (
+                <button
+                  onClick={skipRest}
+                  className="btn-skip px-3 py-1 md:px-6 md:py-3"
+                >
+                  Skip
+                </button>
+              )}
+
+              {!isStopwatch &&
+                !isMaxTimeExercise &&
+                !isRest &&
+                !isRoundRest &&
+                isAdmin && (
+                  <button
+                    onClick={() => {
+                      clearInterval(intervalRef.current);
+                      onExerciseComplete();
+                    }}
+                    className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+                  >
+                    Next
+                  </button>
+                )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 # Step 1: Build the production react app
-# FROM --platform=linux/amd64 node:22-alpine AS builder
 FROM node:22-alpine AS builder
 
 WORKDIR /app
+
+# Install dependencies with better error handling
 COPY package*.json ./
 RUN npm cache clean --force && \
     npm ci --no-audit --no-fund --prefer-offline || \

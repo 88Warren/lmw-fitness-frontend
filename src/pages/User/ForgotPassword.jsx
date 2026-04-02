@@ -82,6 +82,7 @@ const ForgotPassword = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Your email address"
+              autoComplete="username"
               required
             />
 

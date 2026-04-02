@@ -7,6 +7,8 @@ import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
 import usePreparationCountdown from "../../hooks/usePreparationCountdown";
 import DynamicHeading from "../Shared/DynamicHeading";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
+import api from "../../utils/api";
+import { BACKEND_URL } from "../../utils/config";
 
 const AMRAPWorkout = ({
   workoutBlock,
@@ -17,6 +19,9 @@ const AMRAPWorkout = ({
   canGoBack,
   shouldAutoStart = false,
   isAdmin = false,
+  programName = "",
+  dayNumber = 0,
+  blockIndex = 0,
 }) => {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -28,6 +33,13 @@ const AMRAPWorkout = ({
   const [isRoundRest, setIsRoundRest] = useState(false);
   const [showModified, setShowModified] = useState({});
   const [hasStartedOnce, setHasStartedOnce] = useState(false);
+  // AMRAP score tracking
+  const [scoreRounds, setScoreRounds] = useState("");
+  const [scorePartialReps, setScorePartialReps] = useState("");
+  const [scoreNotes, setScoreNotes] = useState("");
+  const [previousBest, setPreviousBest] = useState(null);
+  const [savedScore, setSavedScore] = useState(null);
+  const [scoreSaving, setScoreSaving] = useState(false);
   const { isFullscreen, toggleFullscreen } = useWorkoutFullscreen();
   const intervalRef = useRef(null);
   const {
@@ -138,8 +150,40 @@ const AMRAPWorkout = ({
     playBeep,
   ]);
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
+  // Load previous best score when workout completes
+  useEffect(() => {
+    const blockId = workoutBlock.ID || workoutBlock.id;
+    if (isComplete && blockId) {
+      api.get(`${BACKEND_URL}/api/amrap/score/${blockId}`)
+        .then(res => setPreviousBest(res.data))
+        .catch(() => setPreviousBest(null));
+    }
+  }, [isComplete, workoutBlock.ID, workoutBlock.id]);
+
+  const handleSaveScore = async () => {
+    if (!scoreRounds) return;
+    const blockId = workoutBlock.ID || workoutBlock.id;
+    setScoreSaving(true);
+    try {
+      const res = await api.post(`${BACKEND_URL}/api/amrap/score`, {
+        blockId: blockId,
+        programName,
+        dayNumber,
+        blockIndex,
+        rounds: parseInt(scoreRounds) || 0,
+        partialReps: parseInt(scorePartialReps) || 0,
+        notes: scoreNotes,
+      });
+      setSavedScore({ ...res.data.score, isNewBest: res.data.isNewBest });
+      setPreviousBest(res.data.score);
+    } catch (e) {
+      console.error("Failed to save AMRAP score", e);
+    } finally {
+      setScoreSaving(false);
+    }
+  };
+
+  const formatTime = (seconds) => {    const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs
       .toString()
@@ -228,6 +272,83 @@ const AMRAPWorkout = ({
               ? `All ${totalAMRAPRounds} AMRAP rounds complete!`
               : `Time's up! You completed ${roundsCompleted} rounds.`}
           </p>
+
+          {/* Previous best */}
+          {previousBest && !savedScore && (
+            <div className="bg-gray-700 rounded-lg p-3 mb-4 text-sm">
+              <p className="text-brightYellow font-bold mb-1">🏆 Your Personal Best</p>
+              <p className="text-customWhite">
+                {previousBest.rounds} round{previousBest.rounds !== 1 ? "s" : ""}
+                {previousBest.partialReps > 0 ? ` + ${previousBest.partialReps} reps` : ""}
+              </p>
+              {previousBest.notes && (
+                <p className="text-logoGray text-xs mt-1 italic">{previousBest.notes}</p>
+              )}
+            </div>
+          )}
+
+          {/* Score saved confirmation */}
+          {savedScore ? (
+            <div className={`rounded-lg p-4 mb-4 ${savedScore.isNewBest ? "bg-limeGreen/20 border border-limeGreen" : "bg-gray-700"}`}>
+              {savedScore.isNewBest ? (
+                <p className="text-limeGreen font-bold text-lg mb-1">🎉 New Personal Best!</p>
+              ) : (
+                <p className="text-logoGray font-bold mb-1">Score recorded</p>
+              )}
+              <p className="text-customWhite">
+                {savedScore.rounds} round{savedScore.rounds !== 1 ? "s" : ""}
+                {savedScore.partialReps > 0 ? ` + ${savedScore.partialReps} reps` : ""}
+              </p>
+              <p className="text-logoGray text-xs mt-1">Saved to your profile — come back and beat it!</p>
+            </div>
+          ) : (
+            /* Score entry form */
+            <div className="bg-gray-700 rounded-lg p-4 mb-6 text-left">
+              <p className="text-customWhite font-bold mb-3 text-center">Record your score</p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className="block text-logoGray text-sm mb-1">Full Rounds</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={scoreRounds}
+                    onChange={e => setScoreRounds(e.target.value)}
+                    placeholder="e.g. 4"
+                    className="w-full p-2 rounded bg-gray-600 text-customWhite border border-gray-500 focus:border-limeGreen focus:outline-none text-center text-lg font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-logoGray text-sm mb-1">+ Partial Reps</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={scorePartialReps}
+                    onChange={e => setScorePartialReps(e.target.value)}
+                    placeholder="e.g. 7"
+                    className="w-full p-2 rounded bg-gray-600 text-customWhite border border-gray-500 focus:border-limeGreen focus:outline-none text-center text-lg font-bold"
+                  />
+                </div>
+              </div>
+              <div className="mb-3">
+                <label className="block text-logoGray text-sm mb-1">Notes (optional)</label>
+                <input
+                  type="text"
+                  value={scoreNotes}
+                  onChange={e => setScoreNotes(e.target.value)}
+                  placeholder="e.g. used modified push-ups"
+                  className="w-full p-2 rounded bg-gray-600 text-customWhite border border-gray-500 focus:border-limeGreen focus:outline-none text-sm"
+                />
+              </div>
+              <button
+                onClick={handleSaveScore}
+                disabled={!scoreRounds || scoreSaving}
+                className="w-full btn-full-colour mt-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {scoreSaving ? "Saving..." : "Save Score"}
+              </button>
+            </div>
+          )}
+
           <div className="space-y-4">
             <button
               onClick={handleComplete}
@@ -1074,6 +1195,9 @@ AMRAPWorkout.propTypes = {
   canGoBack: PropTypes.bool.isRequired,
   shouldAutoStart: PropTypes.bool,
   isAdmin: PropTypes.bool,
+  programName: PropTypes.string,
+  dayNumber: PropTypes.number,
+  blockIndex: PropTypes.number,
 };
 
 export default AMRAPWorkout;

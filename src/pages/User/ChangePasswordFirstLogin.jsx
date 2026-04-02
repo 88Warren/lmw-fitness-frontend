@@ -158,6 +158,7 @@ const ChangePasswordFirstLoginPage = () => {
                   setPasswordComplexityMessage(''); 
                 }}
                 placeholder="••••••••"
+                autoComplete="new-password"
                 required
                 className={`${newPasswordInputError || passwordMismatchError || passwordComplexityMessage ? 'border-red-500' : ''}`}
               />
@@ -185,6 +186,7 @@ const ChangePasswordFirstLoginPage = () => {
                     setPasswordMismatchError(false); 
                   }}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   required
                   className={`${confirmNewPasswordInputError || passwordMismatchError ? 'border-red-500' : ''}`}
                 />
