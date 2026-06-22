@@ -94,8 +94,7 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
-  const inactiveLinkClasses =
-    "btn-cancel mt-0 bg-transparent text-customWhite hover:bg-brightYellow hover:text-black";
+  const inactiveLinkClasses = `btn-cancel mt-0 bg-transparent hover:bg-brightYellow hover:text-black ${isScrolled ? "text-white" : "text-customGray"}`;
   const activeLinkClasses = "btn-full-colour mt-0";
 
   const getNavLinkClasses = (isNavLinkActive, sectionId = null) => {
@@ -127,7 +126,7 @@ const Navbar = () => {
       {/* Navbar */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 flex items-center transition-all duration-300 ${
-          isScrolled ? "bg-customGray opacity-90 text-black" : ""
+          isScrolled ? "bg-customGray opacity-90" : "bg-white/80 backdrop-blur-sm"
         }`}
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-10">
@@ -135,7 +134,7 @@ const Navbar = () => {
           <div className="xl:hidden flex justify-between items-center w-full">
             {/* Hamburger menu icon  */}
             <button
-              className="xl:hidden text-white focus:outline-none p-2 rounded-lg transition-all duration-300 z-50"
+              className={`xl:hidden focus:outline-none p-2 rounded-lg transition-all duration-300 z-50 ${isScrolled ? "text-white" : "text-customGray"}`}
               onClick={() => setIsMenuOpen((prev) => !prev)}
             >
               {isMenuOpen ? (
@@ -167,7 +166,7 @@ const Navbar = () => {
               {isLoggedIn && (
                 <NavLink
                   to="/profile"
-                  className="relative text-white hover:text-brightYellow transition-colors"
+                  className={`relative hover:text-brightYellow transition-colors ${isScrolled ? "text-white" : "text-customGray"}`}
                   aria-label="Profile"
                 >
                   <FiUser className="h-7 w-7" />
@@ -175,7 +174,7 @@ const Navbar = () => {
               )}
               <NavLink
                 to="/cart"
-                className="relative text-white hover:text-brightYellow transition-colors"
+                className={`relative hover:text-brightYellow transition-colors ${isScrolled ? "text-white" : "text-customGray"}`}
               >
                 <FiShoppingCart className="h-7 w-7" aria-label="Shopping Cart" />
                 {cartItemCount > 0 && (
@@ -355,7 +354,7 @@ const Navbar = () => {
               {/* Cart Icon */}
               <NavLink
                 to="/cart"
-                className="relative text-white hover:text-brightYellow transition-colors p-1 ml-2"
+                className={`relative hover:text-brightYellow transition-colors p-1 ml-2 ${isScrolled ? "text-white" : "text-customGray"}`}
               >
                 <FiShoppingCart
                   className="h-6 w-6"

@@ -69,12 +69,22 @@ const BlogList = ({
             {/* All Articles Grid */}
             <div>
               <div className="flex justify-between items-center mb-8">
+                {!categoryFilter && (
+                  <h2 className="text-2xl font-titillium text-customGray leading-loose">
+                    Latest Articles
+                  </h2>
+                )}
+                {categoryFilter && (
+                  <h2 className="text-2xl font-titillium text-customGray leading-loose capitalize">
+                    {categoryFilter === 'all' ? 'All Articles' : categoryFilter}
+                  </h2>
+                )}
                 {!categoryFilter && allSortedPosts.length > 6 && (
                   <button
                     onClick={() => navigate('/blog?category=all')}
-                    className="text-customGray hover:text-customGray/70 font-titillium font-semibold transition-colors duration-300"
+                    className="text-sm font-titillium font-semibold text-customGray/60 hover:text-hotPink transition-colors duration-300"
                   >
-                    View All ({allSortedPosts.length})
+                    View All ({allSortedPosts.length}) →
                   </button>
                 )}
               </div>

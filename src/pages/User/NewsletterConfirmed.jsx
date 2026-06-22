@@ -19,7 +19,7 @@ const NewsletterConfirmed = () => {
       >
         <DynamicHeading
           text="Subscription Confirmed"
-          className="text-xl sm:text-2xl md:text-4xl font-bold text-center text-customWhite mb-8 font-higherJump leading-loose tracking-widest"
+          className="text-xl sm:text-2xl md:text-4xl font-bold text-center text-customWhite mb-8 font-titillium leading-loose tracking-widest"
         />
         <p className="text-md md:text-lg text-customWhite font-titillium mb-4 md:mb-6">
           Thank you for confirming your subscription to the LMW Fitness newsletter.

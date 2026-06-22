@@ -3,10 +3,8 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { BACKEND_URL, RECAPTCHA_SITE_KEY } from "../../utils/config";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { InputField, TextAreaField } from "../../controllers/forms/formFields";
 import { showToast } from "../../utils/toastUtil";
 import { motion } from "framer-motion";
-import DynamicHeading from "../Shared/DynamicHeading";
 import useAnalytics from "../../hooks/useAnalytics";
 
 const ContactForm = () => {
@@ -129,7 +127,7 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="Contact" className="min-h-screen py-20 bg-logoGray">
+    <section id="Contact" className="min-h-screen py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header Section */}
         <motion.div 
@@ -139,11 +137,13 @@ const ContactForm = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <DynamicHeading
-            text="Get in touch with me"
-            className="text-4xl md:text-5xl font-bold mb-6 font-higherJump leading-loose tracking-widest text-white"
-          />
-          <p className="text-lg max-w-2xl mx-auto text-white">
+          <span className="inline-flex items-center gap-2 mb-6 px-5 py-2 rounded-full bg-brightYellow text-black text-sm font-titillium font-bold tracking-widest uppercase shadow-lg shadow-brightYellow/40">
+            <span>✉️</span> Get in Touch
+          </span>
+          {/* <h2 className="text-4xl md:text-5xl font-bold mb-4 font-titillium leading-tight tracking-widest text-customGray">
+            Get in touch with me
+          </h2> */}
+          <p className="text-lg max-w-2xl mx-auto text-customGray/60 font-titillium">
             Have a question or need more info? Drop me a message
           </p>
         </motion.div>
@@ -154,38 +154,53 @@ const ContactForm = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg max-w-2xl mx-auto"
+          className="bg-gray-50 p-8 md:p-12 rounded-2xl border-2 border-brightYellow shadow-sm max-w-2xl mx-auto"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            <InputField
-              label="Name"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Your Name"
-              required
-            />
+            {/* Name */}
+            <div>
+              <label className="block mb-2 text-sm text-customGray font-titillium tracking-wide font-semibold" htmlFor="name">Name</label>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Your Name"
+                required
+                className="mt-1 block w-full px-4 py-3 border border-logoGray rounded-md shadow-sm placeholder-logoGray/60 text-customGray focus:outline-none focus:border-hotPink focus:ring-1 focus:ring-hotPink sm:text-sm font-titillium bg-white"
+              />
+            </div>
 
-            <InputField
-              label="Email Address"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Your email address"
-              required
-            />
+            {/* Email */}
+            <div>
+              <label className="block mb-2 text-sm text-customGray font-titillium tracking-wide font-semibold" htmlFor="email">Email Address</label>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Your email address"
+                required
+                className="mt-1 block w-full px-4 py-3 border border-logoGray rounded-md shadow-sm placeholder-logoGray/60 text-customGray focus:outline-none focus:border-hotPink focus:ring-1 focus:ring-hotPink sm:text-sm font-titillium bg-white"
+              />
+            </div>
 
-            <TextAreaField
-              label="Message"
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              placeholder="Your message..."
-              rows={6}
-              required
-            />
+            {/* Message */}
+            <div>
+              <label className="block mb-2 text-sm text-customGray font-titillium tracking-wide font-semibold" htmlFor="message">Message</label>
+              <textarea
+                name="message"
+                id="message"
+                value={formData.message}
+                onChange={handleChange}
+                placeholder="Your message..."
+                rows={6}
+                required
+                className="mt-1 block w-full px-4 py-3 border border-logoGray rounded-md shadow-sm placeholder-logoGray/60 text-customGray focus:outline-none focus:border-hotPink focus:ring-1 focus:ring-hotPink sm:text-sm font-titillium bg-white resize-y"
+              />
+            </div>
 
             <div className="flex justify-center m-6">
               {!captchaError && RECAPTCHA_SITE_KEY ? (
@@ -195,7 +210,7 @@ const ContactForm = () => {
                   onChange={handleCaptchaChange}
                   onError={handleCaptchaError}
                   size="normal"
-                  theme="dark"
+                  theme="light"
                 />
               ) : (
                 <div className="text-center p-6 bg-gray-50 rounded-xl">

@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Circle, Target } from 'lucide-react';
 import assessmentApi from '../../utils/assessmentApi';
-import DynamicHeading from '../Shared/DynamicHeading';
 
-const AssessmentProgress = ({ 
-  programName, 
-  dayNumber, 
+const AssessmentProgress = ({
+  programName,
+  dayNumber,
   assessmentExercises,
-  isVisible = false 
+  isVisible = false,
 }) => {
   const [recordedAssessments, setRecordedAssessments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,88 +21,85 @@ const AssessmentProgress = ({
   const loadRecordedAssessments = async () => {
     setLoading(true);
     const result = await assessmentApi.getProgramAssessments(programName, dayNumber);
-    if (result.success) {
-      setRecordedAssessments(result.data);
-    }
+    if (result.success) setRecordedAssessments(result.data);
     setLoading(false);
   };
 
-  const isExerciseRecorded = (exerciseId) => {
-    return recordedAssessments.some(assessment => assessment.exerciseId === exerciseId);
-  };
+  const isExerciseRecorded = (exerciseId) =>
+    recordedAssessments.some(a => a.exerciseId === exerciseId);
 
-  const getRecordedCount = () => {
-    return assessmentExercises.filter(exercise => isExerciseRecorded(exercise.id)).length;
-  };
-
-  const getTotalCount = () => {
-    return assessmentExercises.length;
-  };
+  const recordedCount = assessmentExercises.filter(e => isExerciseRecorded(e.id)).length;
+  const totalCount = assessmentExercises.length;
+  const isDay1 = dayNumber === 1;
+  const allDone = recordedCount === totalCount;
 
   if (!isVisible || assessmentExercises.length === 0) return null;
 
-  const recordedCount = getRecordedCount();
-  const totalCount = getTotalCount();
-  const isDay1 = dayNumber === 1;
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className={`bg-customGray rounded-lg p-4 border-2 mb-4 ${
-        isDay1 ? 'border-red-500' : 'border-brightYellow'
+      exit={{ opacity: 0, y: -16 }}
+      className={`rounded-2xl border-2 p-4 mb-4 ${
+        allDone
+          ? 'bg-green-50 border-limeGreen'
+          : isDay1
+          ? 'bg-red-50 border-red-300'
+          : 'bg-yellow-50 border-brightYellow'
       }`}
     >
+      {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center">
-          <Target className={`mr-2 ${isDay1 ? 'text-red-400' : 'text-brightYellow'}`} size={20} />
-          <DynamicHeading
-            text={`${isDay1 ? 'Day 1' : `Day ${dayNumber}`} Assessment Progress`}
-            className="text-lg font-higherJump text-customWhite tracking-wider"
+        <div className="flex items-center gap-2">
+          <Target
+            size={16}
+            className={allDone ? 'text-limeGreen' : isDay1 ? 'text-red-400' : 'text-brightYellow'}
           />
+          <p className="text-sm font-bold text-customGray font-titillium">
+            {isDay1 ? 'Day 1' : `Day ${dayNumber}`} Assessment Progress
+          </p>
         </div>
-        <div className={`text-sm font-titillium px-2 py-1 rounded ${
-          recordedCount === totalCount 
-            ? 'bg-green-900/30 text-green-400 border border-green-500' 
-            : isDay1 
-              ? 'bg-red-900/30 text-red-400 border border-red-500'
-              : 'bg-yellow-900/30 text-yellow-400 border border-yellow-500'
+        <span className={`text-xs font-titillium font-bold px-2.5 py-1 rounded-full ${
+          allDone
+            ? 'bg-limeGreen/20 text-limeGreen'
+            : isDay1
+            ? 'bg-red-100 text-red-500'
+            : 'bg-brightYellow/20 text-customGray'
         }`}>
           {recordedCount}/{totalCount}
-        </div>
+        </span>
       </div>
 
-      {isDay1 && recordedCount < totalCount && (
-        <div className="mb-3 p-2 bg-red-900/20 rounded border border-red-500/50">
-          <p className="text-red-300 text-xs">
-            ⚠️ Record all exercises - you'll need these results for Day 30 comparison!
+      {/* Day 1 warning */}
+      {isDay1 && !allDone && (
+        <div className="mb-3 px-3 py-2 bg-red-100 rounded-xl border border-red-200">
+          <p className="text-red-500 text-xs font-titillium">
+            ⚠️ Record all exercises — you'll need these for your Day 30 comparison!
           </p>
         </div>
       )}
 
+      {/* Exercise list */}
       <div className="space-y-2">
         {loading ? (
-          <p className="text-logoGray text-sm">Loading assessment progress...</p>
+          <p className="text-xs text-customGray/50 font-titillium">Loading progress...</p>
         ) : (
           assessmentExercises.map((exercise) => {
-            const isRecorded = isExerciseRecorded(exercise.id);
+            const recorded = isExerciseRecorded(exercise.id);
             return (
               <div key={exercise.id} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  {isRecorded ? (
-                    <CheckCircle className="text-green-400 mr-2" size={16} />
+                <div className="flex items-center gap-2">
+                  {recorded ? (
+                    <CheckCircle size={15} className="text-limeGreen shrink-0" />
                   ) : (
-                    <Circle className="text-logoGray mr-2" size={16} />
+                    <Circle size={15} className="text-customGray/25 shrink-0" />
                   )}
-                  <span className={`text-sm font-titillium ${
-                    isRecorded ? 'text-customWhite' : 'text-logoGray'
-                  }`}>
+                  <span className={`text-sm font-titillium ${recorded ? 'text-customGray' : 'text-customGray/50'}`}>
                     {exercise.name}
                   </span>
                 </div>
-                {isRecorded && (
-                  <span className="text-xs text-green-400">✓ Recorded</span>
+                {recorded && (
+                  <span className="text-xs text-limeGreen font-titillium font-semibold">✓ Recorded</span>
                 )}
               </div>
             );
@@ -111,10 +107,11 @@ const AssessmentProgress = ({
         )}
       </div>
 
-      {recordedCount === totalCount && (
-        <div className="mt-3 p-2 bg-green-900/30 rounded border border-green-500">
-          <p className="text-green-400 text-sm text-center">
-            🎉 All assessments recorded! Great job!
+      {/* All done banner */}
+      {allDone && (
+        <div className="mt-3 px-3 py-2 bg-limeGreen/20 rounded-xl border border-limeGreen/40 text-center">
+          <p className="text-limeGreen text-xs font-titillium font-semibold">
+            🎉 All assessments recorded — great job!
           </p>
         </div>
       )}

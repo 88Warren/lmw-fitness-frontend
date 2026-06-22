@@ -32,16 +32,16 @@ const handleSubmit = (e) => {
       {/* Form Header */}
       <div className="bg-customGray rounded-2xl flex p-8">
         <div className="w-full mb-8 ">
-          <h1 className="text-3xl md:text-5xl p-8 font-bold text-center text-customWhite mb-8 font-higherJump tracking-widest leading-loose">
+          <h1 className="text-3xl md:text-5xl p-8 font-bold text-center text-customWhite mb-8 font-titillium tracking-widest leading-loose">
             {isEditMode ? (
                 <DynamicHeading
                   text={"Edit Article"}
-                  className="font-higherJump text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest"
+                  className="font-titillium text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest"
                 />
             ) : (
                 <DynamicHeading
                   text={"Create Article"}
-                  className="font-higherJump text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest"
+                  className="font-titillium text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest"
                 />
             )}
           </h1>

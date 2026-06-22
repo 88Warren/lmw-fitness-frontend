@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
 import usePreparationCountdown from "../../hooks/usePreparationCountdown";
@@ -335,11 +335,16 @@ const WorkoutTimer = ({
 
   const activeExercise = currentExercise?.exercise;
 
+  // Shared button size classes
+  const btnSm = "px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm";
+  const btnMd = "px-3 py-1 md:px-5 md:py-2";
+  const btnLg = "px-6 py-3 text-sm";
+
   return (
     <div
       ref={timerRef}
       className={`flex flex-col h-full justify-between ${
-        isFullscreen ? "workout-fullscreen-container fixed inset-0 z-50 bg-customGray p-8 landscape:p-4 landscape:sm:p-5 landscape:md:p-6" : ""
+        isFullscreen ? "workout-fullscreen-container fixed inset-0 z-50 bg-white p-8 landscape:p-4 landscape:sm:p-5 landscape:md:p-6" : ""
       }`}
     >
       {/* Round title or placeholder for consistent spacing */}
@@ -347,7 +352,7 @@ const WorkoutTimer = ({
         {totalRounds > 1 &&
         currentBlockType !== "AMRAP" &&
         currentBlockType !== "EMOM" ? (
-          <h2 className="text-customWhite text-2xl font-titillium font-semibold">
+          <h2 className="text-customGray text-2xl font-titillium font-semibold">
             Round <span className="text-brightYellow">{currentRound}</span> of{" "}
             <span className="text-brightYellow">{totalRounds}</span>
           </h2>
@@ -360,104 +365,80 @@ const WorkoutTimer = ({
 
       {/* Timer Section */}
       <div
-        className={`bg-gray-600 rounded-lg p-4 relative ${
+        className={`bg-white rounded-2xl border border-gray-100 shadow-sm p-4 relative ${
           isFullscreen ? "flex-1 flex flex-col justify-center" : ""
         }`}
       >
-        {/* Fullscreen Toggle Button - Inside timer card */}
+        {/* Fullscreen Toggle */}
         <button
           onClick={toggleFullscreen}
-          className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
+          className="absolute top-2 right-2 text-customGray/30 hover:text-customGray transition-colors p-2 rounded-lg hover:bg-gray-50 z-10"
           title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
         >
           {isFullscreen ? (
-            // Exit fullscreen icon
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           ) : (
-            // Enter fullscreen icon
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-              />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
             </svg>
           )}
         </button>
-        
-        {/* Smart Layout for Fullscreen Rest Periods */}
+
+        {/* ── Fullscreen rest layout ── */}
         {isFullscreen && (isRest || isRoundRest) ? (
           <div className="flex flex-col h-full justify-between min-h-0">
-            {/* Top Section: Title + Exercise Counter */}
+            {/* Title + counter */}
             <div className="text-center mb-2 shrink-0">
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-1">
+              <h3 className={`text-xl sm:text-2xl md:text-3xl font-bold font-titillium mb-1 ${isRoundRest ? "text-brightYellow" : "text-hotPink"}`}>
                 {isRoundRest ? "Round Rest" : "Rest Time"}
               </h3>
-              <p className="text-xs sm:text-sm text-logoGray">
+              <p className="text-xs sm:text-sm text-customGray/50 font-titillium">
                 Exercise {currentExerciseNumber} of {totalExercisesInBlock}
               </p>
             </div>
 
-            {/* Middle Section: Timer + Progress Bar */}
+            {/* Timer + progress */}
             <div className="flex-1 flex flex-col justify-center min-h-0">
               <div className="text-center mb-3">
-                <div className="p-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-hotPink">
+                <div className={`p-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-hotPink ${
+                  time <= 5 && time > 0 ? "animate-pulse" : ""
+                }`}>
                   {formatTime(time)}
                 </div>
                 {time <= 5 && time > 0 && (
-                  <span className="text-brightYellow font-semibold text-base animate-bounce">
+                  <span className="text-brightYellow font-semibold text-base font-titillium animate-bounce">
                     🔔 Get Ready!
                   </span>
                 )}
               </div>
-              
-              {/* Compact Progress Bar */}
               <div className="flex justify-center mb-3">
-                <div className="bg-gray-400 rounded-full h-2 w-2/3">
+                <div className="bg-gray-100 rounded-full h-2 w-2/3">
                   <div
                     className="bg-linear-to-r from-limeGreen via-brightYellow to-hotPink h-full rounded-full transition-all duration-500"
                     style={{ width: `${progressPercentage}%` }}
-                  ></div>
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Bottom Section: Next Exercise + Assessment + Controls */}
+            {/* Next exercise + assessment + controls */}
             <div className="space-y-2 shrink-0">
-              {/* Next Exercise Info - Compact */}
               {nextExercise && (
-                <div className="bg-gray-700 rounded-lg p-2 text-center">
-                  <p className="text-brightYellow text-xs font-semibold mb-1">Next Exercise</p>
-                  <p className="text-customWhite text-sm font-bold">
+                <div className="bg-gray-50 rounded-xl p-2 text-center border border-gray-100">
+                  <p className="text-brightYellow text-xs font-titillium font-semibold mb-1">Next Exercise</p>
+                  <p className="text-customGray text-sm font-bold font-titillium">
                     {nextExercise.exercise?.name || "Get Ready!"}
                   </p>
                   {nextExercise.exercise?.modification && (
-                    <p className="text-logoGray text-xs">
+                    <p className="text-customGray/50 text-xs font-titillium">
                       or <span className="text-brightYellow">{nextExercise.exercise.modification.name}</span>
                     </p>
                   )}
                 </div>
               )}
 
-              {/* Assessment Input - Inline */}
               {isAssessmentDay && completedExercise && (
                 <WorkoutAssessmentInput
                   exercise={{
@@ -468,86 +449,53 @@ const WorkoutTimer = ({
                   dayNumber={dayNumber}
                   isVisible={true}
                   isFullscreen={true}
-                  onSave={(assessment) => {
-                    console.log('Assessment saved in fullscreen:', assessment);
-                  }}
+                  onSave={(assessment) => { console.log('Assessment saved in fullscreen:', assessment); }}
                 />
               )}
 
-              {/* Timer Controls - Compact and Responsive */}
               <div className="flex justify-center flex-wrap gap-2">
                 {canGoBack && (
                   <button
-                    onClick={() => {
-                      clearInterval(intervalRef.current);
-                      setTime(0);
-                      setIsActive(false);
-                      setIsPaused(false);
-                      cancelPreparationCountdown();
-                      onGoBack();
-                    }}
-                    className="btn-cancel px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
+                    onClick={() => { clearInterval(intervalRef.current); setTime(0); setIsActive(false); setIsPaused(false); cancelPreparationCountdown(); onGoBack(); }}
+                    className={`${btnSm} font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors`}
                   >
                     Back
                   </button>
                 )}
-
                 {(!isActive && !isPreparationCountdown) || isPaused ? (
-                  <button
-                    onClick={resumeTimer}
-                    className="btn-full-colour px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm bg-limeGreen hover:bg-green-600 text-black"
-                  >
+                  <button onClick={resumeTimer} className={`${btnSm} font-titillium font-bold bg-limeGreen text-black rounded-xl hover:bg-limeGreen/80 transition-colors`}>
                     {isPaused ? "Resume" : "Start"}
                   </button>
                 ) : (
-                  <button
-                    onClick={pauseTimer}
-                    className="btn-subscribe px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
-                  >
+                  <button onClick={pauseTimer} className={`${btnSm} font-titillium font-bold bg-hotPink text-black rounded-xl hover:bg-hotPink/80 transition-colors`}>
                     Pause
                   </button>
                 )}
-
-                <button
-                  onClick={resetCurrentTimer}
-                  className="btn-cancel px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
-                >
+                <button onClick={resetCurrentTimer} className={`${btnSm} font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors`}>
                   {hasResetOnce ? "Go Back" : "Reset"}
                 </button>
-
                 {time > 0 && (
-                  <button
-                    onClick={skipRest}
-                    className="btn-skip px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
-                  >
+                  <button onClick={skipRest} className={`${btnSm} font-titillium font-semibold bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors`}>
                     Skip
                   </button>
                 )}
-
                 {isAdmin && (
-                  <button
-                    onClick={() => {
-                      clearInterval(intervalRef.current);
-                      onExerciseComplete();
-                    }}
-                    className="btn-cancel px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
-                  >
+                  <button onClick={() => { clearInterval(intervalRef.current); onExerciseComplete(); }} className={`${btnSm} font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors`}>
                     Next
                   </button>
                 )}
               </div>
             </div>
           </div>
+
         ) : (
-          // Regular layout for non-rest periods or non-fullscreen
+          // ── Regular layout (non-fullscreen, or fullscreen work period) ──
           <>
             <div className="mb-2">
               <div className="flex flex-col items-center mb-2">
                 <h3
-                  className={`mb-2 font-bold text-customWhite ${
-                    isFullscreen
-                      ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
-                      : "text-3xl"
+                  className={`mb-2 font-bold text-customGray font-titillium ${
+                    isFullscreen ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl" : "text-3xl"
                   }`}
                 >
                   {isPreparationCountdown
@@ -560,10 +508,10 @@ const WorkoutTimer = ({
                     ? "Rest Time"
                     : activeExercise?.name}
                 </h3>
-                
-                {/* Day 1 Motivation Display for Day 30 Assessment Exercises */}
+
+                {/* Day 1 Motivation Display */}
                 {!isRest && !isRoundRest && !isPreparationCountdown && isAssessmentDay && activeExercise && (
-                  <div className={`w-full max-w-md ${isFullscreen ? 'mb-4' : 'mb-2'}`}>
+                  <div className={`w-full max-w-md ${isFullscreen ? "mb-4" : "mb-2"}`}>
                     <Day1MotivationDisplay
                       exercise={{
                         id: currentExercise?.exerciseId || currentExercise?.exercise?.id,
@@ -575,180 +523,125 @@ const WorkoutTimer = ({
                     />
                   </div>
                 )}
-                
+
                 {isPreparationCountdown && (
-                  <p
-                    className={`text-brightYellow font-semibold mb-2 ${
-                      isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
-                    }`}
-                  >
+                  <p className={`text-brightYellow font-titillium font-semibold mb-2 ${isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"}`}>
                     Prepare for: {activeExercise?.name}
                   </p>
                 )}
                 {isMaxTimeExercise && !isPreparationCountdown && (
-                  <p
-                    className={`text-brightYellow font-semibold mb-2 ${
-                      isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
-                    }`}
-                  >
-                    Hold as long as possible - Use Skip/Done when finished
+                  <p className={`text-brightYellow font-titillium font-semibold mb-2 ${isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"}`}>
+                    Hold as long as possible — use Done when finished
                   </p>
                 )}
-                <p
-                  className={`text-logoGray ${
-                    isFullscreen ? "text-xs sm:text-sm md:text-base" : "text-xs"
-                  }`}
-                >
+                <p className={`text-customGray/50 font-titillium ${isFullscreen ? "text-xs sm:text-sm md:text-base" : "text-xs"}`}>
                   Exercise {currentExerciseNumber} of {totalExercisesInBlock}
                 </p>
                 {currentBlockType === "AMRAP" && (
-                  <p
-                    className={`text-brightYellow font-semibold ${
-                      isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
-                    }`}
-                  >
-                    AMRAP - Keep Going!
+                  <p className={`text-brightYellow font-titillium font-semibold ${isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"}`}>
+                    AMRAP — Keep Going!
                   </p>
                 )}
                 {currentBlockType === "EMOM" && (
-                  <p
-                    className={`text-brightYellow font-semibold ${
-                      isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"
-                    }`}
-                  >
-                    EMOM - Every Minute On the Minute!
+                  <p className={`text-brightYellow font-titillium font-semibold ${isFullscreen ? "text-sm sm:text-base md:text-lg" : "text-sm"}`}>
+                    EMOM — Every Minute On the Minute!
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Timer Display */}
-            <div className={`mb-2 ${isFullscreen && (isRest || isRoundRest) ? 'mb-1' : ''}`}>
+            {/* Timer display */}
+            <div className="mb-2">
               {(() => {
                 const isFirstExerciseOfWorkout = currentExerciseNumber === 1 && currentRound === 1;
                 return !isActive && !isPaused && !isPreparationCountdown && isFirstExerciseOfWorkout && !hasStartedOnce;
               })() ? (
-                // Show "Get Ready" view on page load (static)
                 <div className="text-center">
-                  <div className={`p-4 ${
-                    isFullscreen
-                      ? "text-6xl md:text-8xl lg:text-9xl"
-                      : "text-7xl"
-                  } text-brightYellow`}>
-                    5
+                  <div className={`p-4 text-brightYellow ${isFullscreen ? "text-6xl md:text-8xl lg:text-9xl" : "text-7xl"}`}>5</div>
+                  <div className="text-brightYellow font-titillium font-semibold text-lg mb-2">Get Ready!</div>
+                  <div className="text-customGray/60 font-titillium text-sm mb-1">
+                    {activeExercise?.name ? `Prepare for: ${activeExercise.name}` : "Prepare for your exercise"}
                   </div>
-                  <div className="text-brightYellow font-semibold text-lg mb-2">
-                    Get Ready!
-                  </div>
-                  <div className="text-customWhite text-sm mb-2">
-                    {activeExercise?.name ? `Prepare for: ${activeExercise.name}` : 'Prepare for your exercise'}
-                  </div>
-                  <div className="text-center">
-                    <span className="text-logoGray text-sm">
-                      🏃‍♀️ Click START for a 5-second countdown to get in position
-                    </span>
-                  </div>
+                  <span className="text-customGray/40 font-titillium text-sm">
+                    🏃‍♀️ Click START for a 5-second countdown to get in position
+                  </span>
                 </div>
               ) : (
-                // Regular timer display (including preparation countdown)
                 <div>
                   <div
-                    className={`${
+                    className={`font-bold ${
                       isFullscreen && (isRest || isRoundRest)
-                        ? "p-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl" // Smaller for rest periods
+                        ? "p-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
                         : isFullscreen
-                        ? "p-4 text-6xl md:text-8xl lg:text-9xl" // Full size for exercises
+                        ? "p-4 text-6xl md:text-8xl lg:text-9xl"
                         : "p-4 text-7xl"
                     } ${
-                      isPreparationCountdown 
-                        ? "text-brightYellow animate-pulse" 
-                        : isRest || isRoundRest 
-                        ? "text-hotPink" 
+                      isPreparationCountdown
+                        ? "text-brightYellow animate-pulse"
+                        : isRest || isRoundRest
+                        ? "text-hotPink"
                         : "text-limeGreen"
                     } ${
                       time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && !isPreparationCountdown
-                        ? "animate-pulse" 
+                        ? "animate-pulse"
                         : ""
                     }`}
                   >
                     {isPreparationCountdown ? preparationTime : formatTime(time)}
                   </div>
-                  
-                  {/* Preparation countdown indicator */}
+
                   {isPreparationCountdown && (
                     <div className="text-center">
-                      <div className="text-brightYellow font-semibold text-lg mb-2">
-                        Get Ready!
+                      <div className="text-brightYellow font-titillium font-semibold text-lg mb-2">Get Ready!</div>
+                      <div className="text-customGray/60 font-titillium text-sm mb-2">
+                        {activeExercise?.name ? `Prepare for: ${activeExercise.name}` : "Prepare for your exercise"}
                       </div>
-                      <div className="text-customWhite text-sm mb-2">
-                        {activeExercise?.name ? `Prepare for: ${activeExercise.name}` : 'Prepare for your exercise'}
-                      </div>
-                      <span className="text-brightYellow font-semibold text-sm animate-bounce">
-                        🏃‍♀️ Get in position!
-                      </span>
+                      <span className="text-brightYellow font-titillium font-semibold text-sm animate-bounce">🏃‍♀️ Get in position!</span>
                     </div>
                   )}
-                  
-                  {/* Regular countdown indicator */}
+
                   {!isPreparationCountdown && time <= 5 && time > 0 && !isStopwatch && !isMaxTimeExercise && (
                     <div className="text-center">
-                      <span className="text-brightYellow font-semibold text-lg animate-bounce">
-                        🔔 Get Ready!
-                      </span>
+                      <span className="text-brightYellow font-titillium font-semibold text-lg animate-bounce">🔔 Get Ready!</span>
                     </div>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Overall Progress Bar */}
-            <div className={`flex justify-center w-full ${isFullscreen && (isRest || isRoundRest) ? 'mt-2' : 'mt-4'}`}>
-              <div
-                className={`bg-gray-400 rounded-full ${
-                  isFullscreen ? "h-3 w-3/4" : "h-3 w-1/2"
-                }`}
-              >
+            {/* Progress bar */}
+            <div className={`flex justify-center w-full ${isFullscreen && (isRest || isRoundRest) ? "mt-2" : "mt-4"}`}>
+              <div className={`bg-gray-100 rounded-full ${isFullscreen ? "h-3 w-3/4" : "h-3 w-1/2"}`}>
                 <div
                   className="bg-linear-to-r from-limeGreen via-brightYellow to-hotPink h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${progressPercentage}%`,
-                  }}
-                ></div>
+                  style={{ width: `${progressPercentage}%` }}
+                />
               </div>
             </div>
 
-            {/* Next Exercise Info - Show during rest OR during exercise if no rest period */}
+            {/* Next exercise — fullscreen only */}
             {isFullscreen && nextExercise && (
-              (isRest || isRoundRest) || 
-              (!isRest && !isRoundRest && !isStopwatch && !isMaxTimeExercise && 
+              (isRest || isRoundRest) ||
+              (!isRest && !isRoundRest && !isStopwatch && !isMaxTimeExercise &&
                parseDurationToSeconds(currentExercise?.rest || "0s") === 0)
             ) && (
               <div className="flex justify-center w-full mt-4">
-                <div className={`p-3 landscape:p-2 bg-gray-700 rounded-lg ${
-                  isFullscreen ? "w-3/4" : "w-full"
-                }`}>
+                <div className={`p-3 landscape:p-2 bg-gray-50 rounded-xl border border-gray-100 ${isFullscreen ? "w-3/4" : "w-full"}`}>
                   <div className="text-center">
-                    <h4 className="text-lg landscape:text-base font-semibold text-brightYellow mb-2 landscape:mb-1">
+                    <h4 className="text-base landscape:text-sm font-titillium font-semibold text-brightYellow mb-1 landscape:mb-0.5">
                       Next Exercise
                     </h4>
-                    <p className="text-xl landscape:text-lg font-bold text-customWhite mb-1 landscape:mb-0">
+                    <p className="text-lg landscape:text-base font-bold text-customGray font-titillium mb-1 landscape:mb-0">
                       {nextExercise.exercise?.name || "Get Ready!"}
                     </p>
                     {nextExercise.exercise?.modification && (
-                      <p className="text-base landscape:text-sm text-logoGray mb-2 landscape:mb-1">
-                        or{" "}
-                        <span className="text-brightYellow">
-                          {nextExercise.exercise.modification.name}
-                        </span>
+                      <p className="text-sm landscape:text-xs text-customGray/50 font-titillium mb-1 landscape:mb-0">
+                        or <span className="text-brightYellow">{nextExercise.exercise.modification.name}</span>
                       </p>
                     )}
                     {nextExercise.reps && (
-                      <p className="text-sm landscape:text-xs text-brightYellow">
-                        {`${nextExercise.reps} ${
-                          nextExercise.duration
-                            ? `(${nextExercise.duration})`
-                            : "reps"
-                        }`}
+                      <p className="text-sm landscape:text-xs text-brightYellow font-titillium">
+                        {`${nextExercise.reps}${nextExercise.duration ? ` (${nextExercise.duration})` : " reps"}`}
                       </p>
                     )}
                   </div>
@@ -756,27 +649,12 @@ const WorkoutTimer = ({
               </div>
             )}
 
-            {/* Timer Controls */}
-            <div
-              className={`flex justify-center space-x-2 ${
-                isFullscreen ? "mt-4" : ""
-              }`}
-            >
+            {/* Timer controls */}
+            <div className={`flex justify-center flex-wrap gap-2 ${isFullscreen ? "mt-4" : "mt-3"}`}>
               {canGoBack && (
                 <button
-                  onClick={() => {
-                    clearInterval(intervalRef.current);
-                    setTime(0);
-                    setIsActive(false);
-                    setIsPaused(false);
-                    cancelPreparationCountdown();
-                    onGoBack();
-                  }}
-                  className={`btn-cancel ${
-                    isFullscreen
-                      ? "px-6 py-3 text-base"
-                      : "px-3 py-1 md:px-6 md:py-3"
-                  }`}
+                  onClick={() => { clearInterval(intervalRef.current); setTime(0); setIsActive(false); setIsPaused(false); cancelPreparationCountdown(); onGoBack(); }}
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors`}
                 >
                   Back
                 </button>
@@ -785,37 +663,21 @@ const WorkoutTimer = ({
               {(!isActive && !isPreparationCountdown) || isPaused ? (
                 <button
                   onClick={resumeTimer}
-                  className={`btn-full-colour ${
-                    isFullscreen
-                      ? "px-6 py-3 text-base"
-                      : "px-3 py-1 md:px-6 md:py-3"
-                  } ${
-                    (isStopwatch || isMaxTimeExercise) && isActive
-                      ? "btn-subscribe"
-                      : "bg-limeGreen hover:bg-green-600 text-black"
-                  }`}
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-bold bg-limeGreen text-black rounded-xl hover:bg-limeGreen/80 transition-colors`}
                 >
                   {isPaused ? "Resume" : "Start"}
                 </button>
               ) : isPreparationCountdown ? (
                 <button
                   disabled
-                  className={`btn-full-colour opacity-50 cursor-not-allowed ${
-                    isFullscreen
-                      ? "px-6 py-3 text-base"
-                      : "px-3 py-1 md:px-6 md:py-3"
-                  } bg-brightYellow text-black`}
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-bold bg-brightYellow/50 text-black rounded-xl cursor-not-allowed`}
                 >
                   Get Ready...
                 </button>
               ) : (
                 <button
                   onClick={pauseTimer}
-                  className={`btn-subscribe ${
-                    isFullscreen
-                      ? "px-6 py-3 text-base"
-                      : "px-3 py-1 md:px-6 md:py-3"
-                  }`}
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-bold bg-hotPink text-black rounded-xl hover:bg-hotPink/80 transition-colors`}
                 >
                   Pause
                 </button>
@@ -824,33 +686,18 @@ const WorkoutTimer = ({
               {(isStopwatch || isMaxTimeExercise) && isActive && (
                 <button
                   onClick={stopAndReset}
-                  className={`btn-cancel ${
-                    isFullscreen
-                      ? "px-6 py-3 text-base"
-                      : "px-3 py-1 md:px-6 md:py-3"
-                  }`}
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors`}
                 >
                   Reset
                 </button>
               )}
 
-              {/* Skip button for Max Time exercises - Always show when it's a max time exercise */}
               {(isMaxTimeExercise ||
-                (currentExercise?.duration &&
-                  (currentExercise.duration === "Max Time" ||
-                    currentExercise.duration === "Max time")) ||
-                (currentExercise?.exercise?.name?.toLowerCase().includes("plank") &&
-                  currentExercise?.duration?.toLowerCase().includes("max"))) && (
+                (currentExercise?.duration && (currentExercise.duration === "Max Time" || currentExercise.duration === "Max time")) ||
+                (currentExercise?.exercise?.name?.toLowerCase().includes("plank") && currentExercise?.duration?.toLowerCase().includes("max"))) && (
                 <button
-                  onClick={() => {
-                    clearInterval(intervalRef.current);
-                    onExerciseComplete();
-                  }}
-                  className={`btn-skip ${
-                    isFullscreen
-                      ? "px-6 py-3 text-base"
-                      : "px-3 py-1 md:px-6 md:py-3"
-                  }`}
+                  onClick={() => { clearInterval(intervalRef.current); onExerciseComplete(); }}
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-semibold bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors`}
                 >
                   Done
                 </button>
@@ -858,11 +705,8 @@ const WorkoutTimer = ({
 
               {(isStopwatch || isMaxTimeExercise) && isAdmin && (
                 <button
-                  onClick={() => {
-                    clearInterval(intervalRef.current);
-                    onExerciseComplete();
-                  }}
-                  className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+                  onClick={() => { clearInterval(intervalRef.current); onExerciseComplete(); }}
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors`}
                 >
                   Next
                 </button>
@@ -871,20 +715,16 @@ const WorkoutTimer = ({
               {!isStopwatch && !isMaxTimeExercise && (
                 <button
                   onClick={resetCurrentTimer}
-                  className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors`}
                 >
-                  {hasResetOnce
-                    ? "Go Back"
-                    : isRest || isRoundRest
-                    ? "Reset"
-                    : "Reset"}
+                  {hasResetOnce ? "Go Back" : "Reset"}
                 </button>
               )}
 
               {isMaxTimeExercise && (
                 <button
                   onClick={resetCurrentTimer}
-                  className="btn-cancel px-3 py-1 md:px-6 md:py-3"
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors`}
                 >
                   {hasResetOnce ? "Go Back" : "Reset"}
                 </button>
@@ -893,27 +733,20 @@ const WorkoutTimer = ({
               {!isStopwatch && (isRest || isRoundRest) && time > 0 && (
                 <button
                   onClick={skipRest}
-                  className="btn-skip px-3 py-1 md:px-6 md:py-3"
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-semibold bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors`}
                 >
                   Skip
                 </button>
               )}
 
-              {!isStopwatch &&
-                !isMaxTimeExercise &&
-                !isRest &&
-                !isRoundRest &&
-                isAdmin && (
-                  <button
-                    onClick={() => {
-                      clearInterval(intervalRef.current);
-                      onExerciseComplete();
-                    }}
-                    className="btn-cancel px-3 py-1 md:px-6 md:py-3"
-                  >
-                    Next
-                  </button>
-                )}
+              {!isStopwatch && !isMaxTimeExercise && !isRest && !isRoundRest && isAdmin && (
+                <button
+                  onClick={() => { clearInterval(intervalRef.current); onExerciseComplete(); }}
+                  className={`${isFullscreen ? btnLg : btnMd} font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors`}
+                >
+                  Next
+                </button>
+              )}
             </div>
           </>
         )}

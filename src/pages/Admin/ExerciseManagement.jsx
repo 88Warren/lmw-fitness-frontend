@@ -291,7 +291,7 @@ const ExerciseManagement = () => {
             animate={{ opacity: 1, height: 'auto' }}
             className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8"
           >
-            <h3 className="text-xl font-bold text-customGray mb-4 font-higherJump">Create New Exercise</h3>
+            <h3 className="text-xl font-bold text-customGray mb-4 font-titillium">Create New Exercise</h3>
             <ExerciseForm
               formData={formData}
               setFormData={setFormData}

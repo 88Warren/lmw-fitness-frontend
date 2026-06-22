@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { motion } from "framer-motion";
-import DynamicHeading from "../../components/Shared/DynamicHeading";
 import { showToast } from "../../utils/toastUtil";
 import { BACKEND_URL } from "../../utils/config";
 import api from "../../utils/api";
@@ -15,10 +14,17 @@ const RoutinePage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const validRoutineType =
-    routineType === "warmup" || routineType === "cooldown"
-      ? routineType
-      : "warmup";
-  const routineTitle = validRoutineType === "warmup" ? "Warm Up" : "Cool Down";
+    routineType === "warmup" || routineType === "cooldown" ? routineType : "warmup";
+
+  const isWarmup = validRoutineType === "warmup";
+  const routineTitle = isWarmup ? "Warm Up" : "Cool Down";
+  const routineIcon = isWarmup ? "🔥" : "🧊";
+  const routineSubtitle = isWarmup
+    ? "Prepare your body and mind before training"
+    : "Help your body recover and reduce soreness";
+  const pillStyle = isWarmup
+    ? "bg-brightYellow text-black shadow-brightYellow/40"
+    : "bg-limeGreen text-black shadow-limeGreen/40";
 
   useEffect(() => {
     if (loadingAuth || !isLoggedIn) return;
@@ -26,10 +32,7 @@ const RoutinePage = () => {
     const fetchRoutine = async () => {
       try {
         setIsLoading(true);
-        const endpoint =
-          validRoutineType === "warmup"
-            ? `${BACKEND_URL}/api/workouts/${programName}/routines/warmup`
-            : `${BACKEND_URL}/api/workouts/${programName}/routines/cooldown`;
+        const endpoint = `${BACKEND_URL}/api/workouts/${programName}/routines/${validRoutineType}`;
         const response = await api.get(endpoint);
         setRoutineData(response.data);
       } catch (error) {
@@ -39,10 +42,7 @@ const RoutinePage = () => {
         } else if (error.response?.status === 404) {
           showToast("error", `${routineTitle} routine not found.`);
         } else {
-          showToast(
-            "error",
-            `Failed to load ${validRoutineType} routine. Please try again.`
-          );
+          showToast("error", `Failed to load ${routineTitle}. Please try again.`);
         }
         setRoutineData(null);
       } finally {
@@ -53,69 +53,76 @@ const RoutinePage = () => {
     fetchRoutine();
   }, [programName, validRoutineType, isLoggedIn, loadingAuth, routineTitle]);
 
-  if (loadingAuth || !isLoggedIn) {
+  // ── Loading state ──
+  if (loadingAuth || !isLoggedIn || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-        <p className="text-xl font-titillium text-brightYellow">
-          Authenticating...
-        </p>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white p-4">
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brightYellow mx-auto mb-4"></div>
-          <p className="text-xl font-titillium text-customGray">
-            Loading {validRoutineType} routine...
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brightYellow mx-auto mb-4"></div>
+          <p className="text-base font-titillium text-customGray/60">
+            Loading {routineTitle.toLowerCase()}...
           </p>
         </div>
       </div>
     );
   }
 
+  // ── Not found state ──
   if (!routineData) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-b from-customGray/30 to-white p-4">
-        <div className="bg-customGray p-8 rounded-lg text-center max-w-md border-brightYellow border-2">
-          <p className="text-xl font-titillium text-brightYellow mb-6">
-            {routineTitle} routine not found.
-          </p>
-          <button
-            onClick={() => navigate(`/workouts/${programName}/list`)}
-            className="btn-primary text-black"
-          >
-            Back to Program
-          </button>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-8 text-center">
+        <p className="text-customGray font-titillium text-lg mb-6">{routineTitle} routine not found.</p>
+        <button
+          onClick={() => navigate(`/workouts/${programName}/list`)}
+          className="btn-primary mt-0"
+        >
+          Back to Programme
+        </button>
       </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7 }}
-      className="flex flex-col items-center justify-center min-h-screen py-8 px-4 bg-linear-to-b from-customGray/30 to-white"
-    >
-      <div className="bg-customGray p-4 md:p-8 m-20 rounded-lg text-center max-w-md sm:max-w-4xl w-full border-brightYellow border-2 shadow-lg">
-        <DynamicHeading
-          text={routineTitle}
-          className="font-higherJump text-2xl md:text-4xl font-bold text-customWhite leading-loose tracking-widest mb-6"
-        />
+    <div className="min-h-screen bg-white pt-32 pb-16 px-4">
+      <div className="max-w-3xl mx-auto space-y-6">
 
-        <button
-          onClick={() => navigate(`/workouts/${programName}/list`)}
-          className="btn-primary text-black mb-6 hover:scale-105 transition-transform"
+        {/* ── Header ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
         >
-          Back to Program
-        </button>
+          <button
+            onClick={() => navigate(`/workouts/${programName}/list`)}
+            className="inline-flex items-center gap-2 text-sm font-titillium font-semibold text-customGray/50 hover:text-customGray transition-colors duration-200 mb-4"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Programme
+          </button>
 
-        {/* Video Block */}
-        <div className="w-full mb-6 rounded-lg overflow-hidden border-2 border-brightYellow shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-3xl shrink-0">
+              {routineIcon}
+            </div>
+            <div>
+              <span className={`inline-flex items-center gap-1.5 mb-2 px-3 py-1 rounded-full text-xs font-titillium font-bold tracking-widest uppercase shadow-lg ${pillStyle}`}>
+                {routineTitle}
+              </span>
+              <p className="text-sm text-customGray/50 font-titillium">{routineSubtitle}</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── Video ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="bg-white rounded-2xl border-2 border-brightYellow shadow-sm overflow-hidden"
+        >
           <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
             <iframe
               src={routineData.videoUrl}
@@ -124,39 +131,45 @@ const RoutinePage = () => {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               className="absolute top-0 left-0 w-full h-full"
-            ></iframe>
+            />
           </div>
-        </div>
+        </motion.div>
 
-        {/* Description Section */}
-        <div className="space-y-4 text-left">
-          {/* Main Description */}
-          <div className="bg-gray-800/50 p-4 rounded-lg border border-brightYellow/30">
-            <h3 className="text-brightYellow font-titillium text-lg font-semibold mb-2">
-              Overview
-            </h3>
-            <div className="text-customWhite leading-loose whitespace-pre-line">
-              {routineData.description.split("\n").map((line, idx) =>
-                line.startsWith("-") ? (
-                  <li key={idx} className="ml-6 list-disc">
-                    {line.replace("-", "").trim()}
-                  </li>
-                ) : (
-                  <p key={idx} className="mb-2">
-                    {line}
-                  </p>
-                )
-              )}
+        {/* ── Info cards ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="space-y-4"
+        >
+          {/* Overview */}
+          {routineData.description && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-3">Overview</p>
+              <div className="space-y-2">
+                {routineData.description.split("\n").map((line, idx) =>
+                  line.startsWith("-") ? (
+                    <div key={idx} className="flex items-start gap-2">
+                      <span className="text-limeGreen font-bold mt-0.5 shrink-0">•</span>
+                      <p className="text-sm text-customGray/70 font-titillium leading-relaxed">
+                        {line.replace("-", "").trim()}
+                      </p>
+                    </div>
+                  ) : line.trim() ? (
+                    <p key={idx} className="text-sm text-customGray/70 font-titillium leading-relaxed">
+                      {line}
+                    </p>
+                  ) : null
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Instructions */}
           {routineData.instructions && (
-            <div className="bg-gray-800/50 p-4 rounded-lg border border-brightYellow/30">
-              <h3 className="text-brightYellow font-titillium text-lg font-semibold mb-2">
-                Instructions
-              </h3>
-              <p className="text-customWhite leading-loose whitespace-pre-line">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-3">Instructions</p>
+              <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">
                 {routineData.instructions}
               </p>
             </div>
@@ -164,18 +177,17 @@ const RoutinePage = () => {
 
           {/* Tips */}
           {routineData.tips && (
-            <div className="bg-gray-800/30 p-4 rounded-lg border border-brightYellow/20">
-              <h4 className="text-brightYellow font-titillium text-lg font-semibold mb-2">
-                Tips
-              </h4>
-              <p className="text-customWhite leading-loose whitespace-pre-line">
+            <div className="bg-yellow-50 rounded-2xl border border-brightYellow/30 p-6">
+              <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-3">Top Tips</p>
+              <p className="text-sm text-customGray/70 font-titillium leading-relaxed italic whitespace-pre-line">
                 {routineData.tips}
               </p>
             </div>
           )}
-        </div>
+        </motion.div>
+
       </div>
-    </motion.div>
+    </div>
   );
 };
 

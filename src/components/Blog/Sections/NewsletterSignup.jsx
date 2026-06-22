@@ -57,7 +57,7 @@ const NewsletterSignup = () => {
   return (
     <div className="bg-customGray backdrop-blur-sm rounded-xl py-6 border border-logoGray">
       {/* Title for the newsletter section */}
-      <h3 className="text-lg font-higherJump text-customWhite mb-2 text-center leading-loose tracking-wide">
+      <h3 className="text-lg font-titillium text-customWhite mb-2 text-center leading-loose tracking-wide">
         Stay Updated
       </h3>
 

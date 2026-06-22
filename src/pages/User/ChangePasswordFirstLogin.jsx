@@ -142,7 +142,7 @@ const ChangePasswordFirstLoginPage = () => {
       <div className="bg-customGray p-8 mt-10 rounded-lg max-w-lg w-full border-brightYellow border-2">
         <DynamicHeading
           text="Set your password"
-          className="font-higherJump text-3xl md:text-4xl text-center font-bold text-customWhite mb-8 leading-loose tracking-widest"
+          className="font-titillium text-3xl md:text-4xl text-center font-bold text-customWhite mb-8 leading-loose tracking-widest"
         />
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">

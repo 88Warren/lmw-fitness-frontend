@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import ExerciseVideo from "./ExerciseVideo";
-import DynamicHeading from "../../components/Shared/DynamicHeading";
 
 const MobilityWorkout = ({
   workoutBlock,
@@ -28,20 +27,20 @@ const MobilityWorkout = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[120vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
+    <div className="min-h-screen bg-white pt-32 pb-8 px-4">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col mb-4 items-center">
-          <DynamicHeading
-            text="Mobility Session"
-            className="font-higherJump m-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-          />
+        <div className="flex flex-col items-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-customGray font-titillium">Mobility Session</h1>
 
           {/* Back Button */}
           {canGoBack && (
-            <div className="flex justify-center mb-4">
-              <button onClick={onGoBack} className="btn-cancel">
-                Back to Overview
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={onGoBack}
+                className="inline-flex items-center gap-2 text-sm font-titillium font-semibold text-customGray/50 hover:text-customGray transition-colors duration-200"
+              >
+                ← Back to Overview
               </button>
             </div>
           )}
@@ -51,12 +50,12 @@ const MobilityWorkout = ({
         <div className="flex-1 flex flex-col">
           {!hasStarted ? (
             /* Start Screen */
-            <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
               <div className="text-8xl mb-6">🧘‍♀️</div>
-              <h2 className="text-2xl font-bold text-customWhite mb-4">
+              <h2 className="text-xl font-bold text-customGray font-titillium mb-4">
                 Ready for your mobility session?
               </h2>
-              <p className="text-logoGray mb-6 max-w-md text-center">
+              <p className="text-customGray/60 font-titillium mb-6 max-w-md mx-auto">
                 This is a follow-along mobility session. The video will guide
                 you through the entire routine.
               </p>
@@ -64,63 +63,63 @@ const MobilityWorkout = ({
                 Start Mobility Session
               </button>
               {/* Block Notes */}
-              <div className="flex items-center justify-center mt-4">
-                {workoutBlock.blockNotes && (
-                  <div className="w-2/3 bg-gray-600 rounded-lg p-3 m-3 text-center">
-                    <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
-                      <span className="text-limeGreen font-bold">Notes:</span>{" "}
-                      {workoutBlock.blockNotes}
-                    </p>
-                  </div>
-                )}
-              </div>
+              {workoutBlock.blockNotes && (
+                <div className="mt-6 bg-gray-50 rounded-xl p-4 text-left">
+                  <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Notes</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed">
+                    {workoutBlock.blockNotes}
+                  </p>
+                </div>
+              )}
             </div>
           ) : isComplete ? (
             /* Completion Screen */
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="text-8xl mb-6">✅</div>
-              <h2 className="text-2xl font-bold text-limeGreen mb-4">
-                Mobility Session Complete!
-              </h2>
-              <p className="text-logoGray mb-6 max-w-md text-center">
-                Great job! Your muscles should feel more relaxed and ready for
-                action.
-              </p>
+            <div className="min-h-screen bg-white flex items-center justify-center p-8">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 max-w-lg w-full text-center">
+                <div className="text-8xl mb-6">✅</div>
+                <h2 className="text-2xl font-bold text-limeGreen font-titillium mb-4">
+                  Mobility Session Complete!
+                </h2>
+                <p className="text-customGray/60 font-titillium mb-6 max-w-md mx-auto">
+                  Great job! Your muscles should feel more relaxed and ready for
+                  action.
+                </p>
 
-              {hasOptionalWorkout ? (
-                <div className="space-y-4">
+                {hasOptionalWorkout ? (
+                  <div className="space-y-4">
+                    <button
+                      onClick={onFinishDay || handleFinish}
+                      className="btn-primary mr-4"
+                    >
+                      Finish Day
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleFinish();
+                      }}
+                      className="btn-cancel"
+                    >
+                      Back to Choices
+                    </button>
+                    <p className="text-customGray/60 font-titillium text-sm text-center max-w-md mx-auto">
+                      You&apos;ve completed the required mobility session! You can
+                      finish the day now or go back to try the optional workout.
+                    </p>
+                  </div>
+                ) : (
                   <button
-                    onClick={onFinishDay || handleFinish}
-                    className="btn-primary mr-4"
+                    onClick={handleFinish}
+                    className="btn-primary text-xl px-8 py-4"
                   >
-                    Finish Day
+                    Finish Session
                   </button>
-                  <button
-                    onClick={() => {
-                      handleFinish();
-                    }}
-                    className="btn-cancel"
-                  >
-                    Back to Choices
-                  </button>
-                  <p className="text-logoGray text-sm text-center max-w-md">
-                    You&apos;ve completed the required mobility session! You can
-                    finish the day now or go back to try the optional workout.
-                  </p>
-                </div>
-              ) : (
-                <button
-                  onClick={handleFinish}
-                  className="btn-primary text-xl px-8 py-4"
-                >
-                  Finish Session
-                </button>
-              )}
+                )}
+              </div>
             </div>
           ) : (
             /* Video Screen */
-            <div className="flex-1 flex flex-col">
-              <div className="flex-1 bg-gray-700 rounded-lg p-4 mb-4">
+            <div className="flex-1 flex flex-col space-y-4">
+              <div className="bg-gray-50 rounded-2xl p-4">
                 <ExerciseVideo
                   exercise={mobilityExercise}
                   isActive={true}
@@ -131,7 +130,7 @@ const MobilityWorkout = ({
               </div>
 
               {/* Controls */}
-              <div className="flex justify-center space-x-4 mb-4">
+              <div className="flex justify-center gap-3 mb-4">
                 <button
                   onClick={handleComplete}
                   className="btn-primary px-6 py-3"

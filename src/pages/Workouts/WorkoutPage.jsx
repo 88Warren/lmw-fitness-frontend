@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { showToast } from "../../utils/toastUtil";
@@ -13,7 +13,6 @@ import ForTimeWorkout from "../../components/Workouts/ForTimeWorkout";
 import WorkoutChoice from "../../components/Workouts/WorkoutChoice";
 import WorkoutAssessmentInput from "../../components/Assessments/WorkoutAssessmentInput";
 import { BACKEND_URL } from "../../utils/config";
-import DynamicHeading from "../../components/Shared/DynamicHeading";
 import { getToggleButtonText } from "../../utils/exerciseUtils";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
@@ -76,7 +75,7 @@ const WorkoutPage = () => {
   const { audioEnabled, volume, startSound, toggleAudio, setVolumeLevel, setStartSoundType, playBeep, playStartSound, initializeAudioContext } = useWorkoutAudio();
   
   // Assessment tracking
-  const { isAssessmentDay, assessmentExercises, getExerciseByOrder } = useWorkoutAssessment(workoutData, programName);
+  const { isAssessmentDay } = useWorkoutAssessment(workoutData, programName);
 
   // Handler for final assessment completion
   const handleFinalAssessmentComplete = useCallback(() => {
@@ -1218,9 +1217,9 @@ const WorkoutPage = () => {
 
   if (loadingAuth || !isLoggedIn || (user && user.mustChangePassword)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-        <p className="text-xl font-titillium text-brightYellow">
-          Loading workout or redirecting...
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <p className="text-base font-titillium text-customGray/60">
+          Loading workout...
         </p>
       </div>
     );
@@ -1228,18 +1227,19 @@ const WorkoutPage = () => {
 
   if (loadingWorkout) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-        <p className="text-xl font-titillium text-limeGreen">
-          Loading workout details...
-        </p>
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brightYellow mx-auto mb-3"></div>
+          <p className="text-base font-titillium text-customGray/60">Loading workout details...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-        <p className="text-xl font-titillium text-red-500">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <p className="text-base font-titillium text-red-400">{error}</p>
       </div>
     );
   }
@@ -1250,10 +1250,8 @@ const WorkoutPage = () => {
     workoutData.workoutBlocks.length === 0
   ) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-        <p className="text-xl font-titillium text-logoGray">
-          No workout data available.
-        </p>
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <p className="text-base font-titillium text-customGray/50">No workout data available.</p>
       </div>
     );
   }
@@ -1261,7 +1259,7 @@ const WorkoutPage = () => {
   // Show exercise preview
   if (showPreview || isPreviewMode) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-6 bg-linear-to-b from-customGray/30 to-white">
+      <div className="min-h-screen bg-white">
         <WorkoutPreview
           workoutData={workoutData}
           onStartWorkout={handleStartWorkout}
@@ -1274,22 +1272,20 @@ const WorkoutPage = () => {
 
   // Show final assessment input for the last exercise on assessment days
   if (showFinalAssessment) {
-    // Get the last exercise from the last block
     const lastBlock = workoutData.workoutBlocks[workoutData.workoutBlocks.length - 1];
     const lastExercise = lastBlock.exercises[lastBlock.exercises.length - 1];
 
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
-        <div className="bg-customGray p-8 rounded-lg text-center max-w-md w-full border-brightYellow border-2">
-          <div className="text-6xl mb-6">💪</div>
-          <DynamicHeading
-            text="Final Assessment"
-            className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite mb-6 leading-loose tracking-widest"
-          />
-          <p className="text-logoGray mb-6 font-titillium">
+      <div className="min-h-screen bg-white flex items-center justify-center p-8">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 max-w-md w-full text-center">
+          <div className="text-5xl mb-5">💪</div>
+          <h2 className="text-2xl md:text-3xl font-bold text-customGray font-titillium mb-4">
+            Final Assessment
+          </h2>
+          <p className="text-customGray/60 font-titillium mb-6 text-sm leading-relaxed">
             Don&apos;t forget to record your results for the final exercise!
           </p>
-          
+
           {lastExercise?.exercise && (
             <WorkoutAssessmentInput
               exercise={{
@@ -1309,13 +1305,13 @@ const WorkoutPage = () => {
           <div className="mt-6 space-y-3">
             <button
               onClick={handleFinalAssessmentComplete}
-              className="btn-full-colour w-full"
+              className="w-full py-3 bg-brightYellow text-black font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200"
             >
               Complete Workout
             </button>
             <button
               onClick={handleFinalAssessmentComplete}
-              className="text-logoGray hover:text-brightYellow font-titillium text-sm"
+              className="text-customGray/40 hover:text-customGray font-titillium text-sm transition-colors duration-200"
             >
               Skip (Complete Later)
             </button>
@@ -1327,24 +1323,22 @@ const WorkoutPage = () => {
 
   if (workoutComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
-        <div className="bg-customGray p-4 rounded-lg text-center max-w-3xl lg:max-w-5xl w-full h-full lg:max-h-[90vh] flex flex-col border-brightYellow border-2">
+      <div className="min-h-screen bg-white flex items-center justify-center p-8">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 max-w-lg w-full text-center">
           <div className="text-6xl mb-6">🎉</div>
-          <DynamicHeading
-            text="Workout Complete"
-            className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-          />
-          <p className="text-md md-text-xl text-logoGray m-6">
-            Great job completing today&apos;s workout! <br /> You are another
-            step closer to your fitness goals.
+          <h2 className="text-2xl md:text-3xl font-bold text-customGray font-titillium mb-4">
+            Workout Complete!
+          </h2>
+          <p className="text-customGray/60 font-titillium mb-8 leading-relaxed">
+            Great job completing today&apos;s workout!<br />
+            You&apos;re another step closer to your fitness goals.
           </p>
-
-          <div className="space-y-4">
+          <div className="space-y-3">
             <button
               onClick={handleGoBackToProgram}
-              className="btn-full-colour sm:mr-4"
+              className="w-full py-3 bg-brightYellow text-black font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200"
             >
-              Back to Program
+              Back to Programme
             </button>
             <button
               onClick={() => {
@@ -1357,7 +1351,7 @@ const WorkoutPage = () => {
                 setIsRestPeriod(false);
                 setIsRoundRest(false);
               }}
-              className="btn-cancel mt-2 md:mt-6"
+              className="w-full py-3 bg-gray-50 text-customGray/60 font-titillium font-semibold rounded-xl hover:bg-gray-100 transition-colors duration-200 border border-gray-100"
             >
               Restart Workout
             </button>
@@ -1576,9 +1570,10 @@ const WorkoutPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[125vh] flex flex-col border-brightYellow border-2 mt-20 md:mt-26">
-        {/* Audio Control and Back Button */}
+    <div className="min-h-screen bg-white pt-32 pb-8 px-4">
+      <div className="max-w-6xl mx-auto space-y-4">
+
+        {/* Top bar: audio + back */}
         <div className="flex justify-between items-center">
           <AudioControl
             audioEnabled={audioEnabled}
@@ -1591,30 +1586,35 @@ const WorkoutPage = () => {
             playBeep={playBeep}
             className="mt-0"
           />
-          <button onClick={handleGoBackToProgram} className="btn-cancel mt-0">
+          <button
+            onClick={handleGoBackToProgram}
+            className="inline-flex items-center gap-2 text-sm font-titillium font-semibold text-customGray/50 hover:text-customGray transition-colors duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
             Back to Overview
           </button>
         </div>
-        {/* Workout Title and Buttons at the top */}
-        <div className="flex flex-col mt-4 mb-4 items-center">
-          <DynamicHeading
-            text={workoutData.title}
-            className="font-higherJump m-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-          />
-          <div className="flex flex-col md:flex-row gap-0 md:gap-4 w-full items-center md:items-stretch">
+
+        {/* Header card */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <h1 className="text-lg md:text-2xl font-bold text-customGray font-titillium mb-3 text-center">
+            {workoutData.title}
+          </h1>
+          <div className="flex flex-col md:flex-row gap-3">
             {workoutData.description && (
-              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
-                  <span className="text-limeGreen font-bold">Description:</span>{" "}
+              <div className="flex-1 bg-gray-50 rounded-xl p-4">
+                <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Description</p>
+                <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">
                   {workoutData.description}
                 </p>
               </div>
             )}
-
             {workoutData.workoutBlocks[currentBlockIndex]?.blockNotes && (
-              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
-                  <span className="text-limeGreen font-bold">Notes:</span>{" "}
+              <div className="flex-1 bg-gray-50 rounded-xl p-4">
+                <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-1">Notes</p>
+                <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">
                   {workoutData.workoutBlocks[currentBlockIndex].blockNotes}
                 </p>
               </div>
@@ -1622,22 +1622,17 @@ const WorkoutPage = () => {
           </div>
         </div>
 
-        {/* Main content grid for video and timer */}
-        <div className="grow flex flex-col lg:flex-row-reverse items-start md:gap-6 overflow-y-auto m-2">
-          {/* Right Column: Timer, Instructions, and Progress */}
-          <div className="w-full lg:w-1/2 flex flex-col">
+        {/* Main content: timer (right) + video (left) */}
+        <div className="flex flex-col lg:flex-row-reverse gap-4">
+
+          {/* Timer column */}
+          <div className="w-full lg:w-1/2 flex flex-col gap-4">
             <WorkoutTimer
-              currentBlockType={
-                workoutData.workoutBlocks[currentBlockIndex].blockType
-              }
+              currentBlockType={workoutData.workoutBlocks[currentBlockIndex].blockType}
               currentExerciseNumber={currentExerciseIndex + 1}
-              totalExercisesInBlock={
-                workoutData.workoutBlocks[currentBlockIndex].exercises.length
-              }
+              totalExercisesInBlock={workoutData.workoutBlocks[currentBlockIndex].exercises.length}
               currentRound={currentRound}
-              totalRounds={
-                workoutData.workoutBlocks[currentBlockIndex].blockRounds || 1
-              }
+              totalRounds={workoutData.workoutBlocks[currentBlockIndex].blockRounds || 1}
               currentExercise={currentExerciseData}
               nextExercise={getNextExercise()}
               onExerciseComplete={handleExerciseComplete}
@@ -1661,79 +1656,55 @@ const WorkoutPage = () => {
               completedExercise={isRestPeriod ? workoutData.workoutBlocks[currentBlockIndex].exercises[currentExerciseIndex] : null}
             />
 
-            {/* Next Exercise Info - Show when there's no rest period (non-fullscreen) */}
-            {!isRestPeriod && !isRoundRest && getNextExercise() && 
+            {/* Next exercise preview (no rest period) */}
+            {!isRestPeriod && !isRoundRest && getNextExercise() &&
              parseDurationToSeconds(currentExerciseData?.rest || "0s") === 0 && (
-              <div className="mt-4 p-4 bg-gray-700 rounded-lg">
-                <div className="text-center">
-                  <h4 className="text-lg md:text-xl font-semibold text-brightYellow mb-2">
-                    Next Exercise
-                  </h4>
-                  <p className="text-xl md:text-2xl font-bold text-customWhite mb-2">
-                    {getNextExercise().exercise?.name || "Get Ready!"}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 text-center">
+                <p className="text-xs font-titillium font-semibold text-customGray/50 uppercase tracking-wide mb-2">Next Exercise</p>
+                <p className="text-lg font-bold text-customGray font-titillium mb-1">
+                  {getNextExercise().exercise?.name || "Get Ready!"}
+                </p>
+                {getNextExercise().exercise?.modification && (
+                  <p className="text-sm text-customGray/50 font-titillium">
+                    or <span className="text-brightYellow">{getNextExercise().exercise.modification.name}</span>
                   </p>
-                  {getNextExercise().exercise?.modification && (
-                    <p className="text-base md:text-lg text-logoGray">
-                      or{" "}
-                      <span className="text-brightYellow">
-                        {getNextExercise().exercise.modification.name}
-                      </span>
-                    </p>
-                  )}
-                  {getNextExercise().duration && (
-                    <p className="text-sm md:text-base text-brightYellow mt-1">
-                      {getNextExercise().duration}
-                    </p>
-                  )}
-                </div>
+                )}
+                {getNextExercise().duration && (
+                  <p className="text-sm text-brightYellow font-titillium mt-1">{getNextExercise().duration}</p>
+                )}
               </div>
             )}
 
-            {/* Instructions and Tips - Desktop Only (in timer section) */}
-            <div className="hidden lg:flex lg:flex-col mt-4 space-y-3">
+            {/* Instructions & tips — desktop */}
+            <div className="hidden lg:flex lg:flex-col gap-3">
               {currentExerciseData?.instructions && (
-                <div className="bg-gray-600 rounded-lg p-3 text-left">
-                  <p>
-                    <span className="text-limeGreen text-sm font-bold mb-2">
-                      Instructions:{" "}
-                    </span>
-                    <span className="text-logoGray text-sm">
-                      {currentExerciseData.instructions}
-                    </span>
-                  </p>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Instructions</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed">{currentExerciseData.instructions}</p>
                 </div>
               )}
-
               {currentExerciseData?.tips && (
-                <div className="bg-gray-600 rounded-lg p-3 text-left">
-                  <p>
-                    <span className="text-limeGreen font-bold text-sm mb-2">
-                      Form Tips:{" "}
-                    </span>
-                    <span className="text-logoGray text-sm">
-                      {currentExerciseData.tips}
-                    </span>
-                  </p>
+                <div className="bg-yellow-50 rounded-xl p-4 border border-brightYellow/20">
+                  <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-1">Form Tips</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed">{currentExerciseData.tips}</p>
                 </div>
               )}
             </div>
 
+            {/* Modification modal */}
             {showModificationModal && currentModification && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 p-4">
-                <div className="bg-customGray p-6 rounded-lg max-w-xl w-full text-center">
-                  <h3 className="text-2xl font-bold text-customWhite mb-4">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-6 max-w-xl w-full text-center">
+                  <h3 className="text-lg font-bold text-customGray font-titillium mb-4">
                     Modification: {currentModification.name}
                   </h3>
-                  <ExerciseVideo
-                    exercise={{ exercise: currentModification }}
-                    isActive={true}
-                  />
-                  <p className="text-logoGray my-4">
+                  <ExerciseVideo exercise={{ exercise: currentModification }} isActive={true} />
+                  <p className="text-customGray/60 font-titillium text-sm my-4">
                     {currentModification.description}
                   </p>
                   <button
                     onClick={() => setShowModificationModal(false)}
-                    className="btn-primary"
+                    className="px-6 py-2.5 bg-brightYellow text-black font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200"
                   >
                     Back to Workout
                   </button>
@@ -1742,176 +1713,118 @@ const WorkoutPage = () => {
             )}
           </div>
 
-          {/* Left Column: Video */}
+          {/* Video column */}
           <div className="w-full lg:w-1/2">
             {isRoundRest ? (
               <div className="h-full flex flex-col">
-                {/* Header placeholder to match WorkoutTimer header spacing exactly */}
                 <div className="md:min-h-[48px] md:mb-4 flex items-center justify-center">
-                  <div className="opacity-0 md:text-2xl font-titillium font-semibold">
-                    Placeholder
-                  </div>
+                  <div className="opacity-0 md:text-2xl font-titillium font-semibold">Placeholder</div>
                 </div>
-
-                <div className="bg-gray-600 rounded-lg p-6 flex-1 flex flex-col justify-center text-center">
-                  {/* Top spacer for better vertical alignment */}
+                <div className="bg-gray-50 rounded-2xl border border-gray-100 p-8 flex-1 flex flex-col justify-center text-center">
                   <div className="flex-1 flex flex-col justify-center">
-                    <div className="text-8xl mb-6">⏰</div>
-                    <h3 className="text-2xl font-bold text-hotPink mb-4">
-                      Round Rest
-                    </h3>
-                    <div className="space-y-3">
-                      <p className="text-logoGray text-lg">
-                        Next:{" "}
-                        <span className="font-semibold text-white text-xl">
-                           Starting Round {currentRound + 1}
-                        </span>
+                    <div className="text-6xl mb-4">⏰</div>
+                    <h3 className="text-xl font-bold text-hotPink font-titillium mb-4">Round Rest</h3>
+                    <div className="space-y-2">
+                      <p className="text-customGray/60 font-titillium">
+                        Next: <span className="font-semibold text-customGray">Starting Round {currentRound + 1}</span>
                       </p>
                       {getNextExercise() && (
-                        <p className="text-logoGray text-lg mb-5">
-                          First exercise:{" "}
-                          <span className="font-semibold text-white text-xl">
-                            {getNextExercise().exercise.name}
-                          </span>
+                        <p className="text-customGray/60 font-titillium">
+                          First exercise: <span className="font-semibold text-customGray">{getNextExercise().exercise.name}</span>
                           {getNextExercise().exercise.modification && (
-                            <span className="text-logoGray text-xl ml-2">
-                              or{" "}
-                              <span className="font-semibold text-brightYellow text-xl">
-                                {getNextExercise().exercise.modification.name}
-                              </span>
+                            <span className="text-customGray/50 ml-1">
+                              or <span className="text-brightYellow">{getNextExercise().exercise.modification.name}</span>
                             </span>
                           )}
                         </p>
                       )}
                     </div>
                   </div>
-                  {/* Bottom spacer for balance */}
                   <div className="flex-1"></div>
                 </div>
               </div>
             ) : isRestPeriod ? (
               <div className="h-full flex flex-col">
-                {/* Header placeholder to match WorkoutTimer header spacing exactly */}
                 <div className="md:min-h-[48px] md:mb-4 flex items-center justify-center">
-                  <div className="opacity-0 md:text-2xl font-titillium font-semibold">
-                    Placeholder
-                  </div>
+                  <div className="opacity-0 md:text-2xl font-titillium font-semibold">Placeholder</div>
                 </div>
-
-                <div className="bg-gray-600 rounded-lg p-6 flex-1 flex flex-col justify-center text-center">
-                  {/* Top spacer for better vertical alignment */}
+                <div className="bg-gray-50 rounded-2xl border border-gray-100 p-8 flex-1 flex flex-col justify-center text-center">
                   <div className="flex-1 flex flex-col justify-center">
-                    <div className="text-8xl mb-6">🧘</div>
-                    <h3 className="text-2xl font-bold text-brightYellow mb-4">
-                      Rest Period
-                    </h3>
-                    <div className="space-y-3">
-                      <p className="text-logoGray text-lg">
-                        Get ready for the next exercise
-                      </p>
-                      {getNextExercise() && (
-                        <div>
-                          {getNextExercise().isNextRound ? (
-                            <div className="space-y-2">
-                              <p className="text-logoGray text-lg">
-                                <span className="font-semibold text-brightYellow text-xl">
-                                  Round {getNextExercise().nextRoundNumber}{" "}
-                                  starts next
-                                </span>
-                              </p>
-                              <p className="text-logoGray text-lg">
-                                First exercise:{" "}
-                                <span className="font-semibold text-white text-xl">
-                                  {getNextExercise().exercise.name}
-                                </span>
-                                {getNextExercise().exercise.modification && (
-                                  <span className="text-logoGray text-xl ml-2">
-                                    or{" "}
-                                    <span className="font-semibold text-brightYellow text-xl">
-                                      {getNextExercise().exercise.modification.name}
-                                    </span>
-                                  </span>
-                                )}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-logoGray text-lg mb-4">
-                              Next up:{" "}
-                              <span className="font-semibold text-white text-xl">
-                                {getNextExercise().exercise.name}
-                              </span>
+                    <div className="text-6xl mb-4">🧘</div>
+                    <h3 className="text-xl font-bold text-brightYellow font-titillium mb-4">Rest Period</h3>
+                    <p className="text-customGray/60 font-titillium mb-3">Get ready for the next exercise</p>
+                    {getNextExercise() && (
+                      <div>
+                        {getNextExercise().isNextRound ? (
+                          <div className="space-y-1">
+                            <p className="font-semibold text-brightYellow font-titillium">
+                              Round {getNextExercise().nextRoundNumber} starts next
+                            </p>
+                            <p className="text-customGray/60 font-titillium text-sm">
+                              First: <span className="text-customGray font-semibold">{getNextExercise().exercise.name}</span>
                               {getNextExercise().exercise.modification && (
-                                <span className="text-logoGray text-xl ml-2">
-                                  or{" "}
-                                  <span className="font-semibold text-brightYellow text-xl">
-                                    {getNextExercise().exercise.modification.name}
-                                  </span>
-                                </span>
+                                <span> or <span className="text-brightYellow">{getNextExercise().exercise.modification.name}</span></span>
                               )}
                             </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                          </div>
+                        ) : (
+                          <p className="text-customGray/60 font-titillium">
+                            Next: <span className="font-semibold text-customGray">{getNextExercise().exercise.name}</span>
+                            {getNextExercise().exercise.modification && (
+                              <span> or <span className="text-brightYellow">{getNextExercise().exercise.modification.name}</span></span>
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  
-                  {/* Assessment Input for Fitness Assessment Days */}
+
+                  {/* Assessment input during rest */}
                   {isAssessmentDay && isRestPeriod && (() => {
-                    // Show assessment input during rest on both Day 1 and Day 30
-                    // During rest period, the currentExerciseIndex still points to the exercise that was just completed
-                    // (it gets incremented when the rest period ends, not when it starts)
                     const currentBlock = workoutData.workoutBlocks[currentBlockIndex];
                     const completedExercise = currentBlock.exercises[currentExerciseIndex];
-                    
                     return completedExercise?.exercise ? (
                       <div className="px-4 pb-4">
                         <WorkoutAssessmentInput
-                          exercise={{
-                            id: completedExercise.exerciseId,
-                            name: completedExercise.exercise.name
-                          }}
+                          exercise={{ id: completedExercise.exerciseId, name: completedExercise.exercise.name }}
                           programName={programName}
                           dayNumber={dayNum}
                           isVisible={true}
-                          onSave={(assessment) => {
-                            console.log('Assessment saved:', assessment);
-                          }}
+                          onSave={(assessment) => { console.log('Assessment saved:', assessment); }}
                         />
                       </div>
                     ) : null;
                   })()}
-                  
-                  {/* Bottom spacer for balance */}
+
                   <div className="flex-1"></div>
                 </div>
               </div>
             ) : (
               <div className="h-full flex flex-col">
-                {/* Single placeholder area to match WorkoutTimer - either toggle buttons or placeholder */}
+                {/* Standard/Modified toggle or spacer */}
                 <div className="md:min-h-[48px] md:mb-4 flex items-center justify-center">
                   {currentExerciseData?.modification ? (
-                    <div className="flex space-x-2">
+                    <div className="flex gap-2">
                       {(() => {
-                        const { standardText, modifiedText } =
-                          getToggleButtonText(currentExerciseData);
+                        const { standardText, modifiedText } = getToggleButtonText(currentExerciseData);
                         return (
                           <>
                             <button
                               onClick={handleOriginalClick}
-                              className={`${
+                              className={`px-4 py-2 text-sm font-titillium font-semibold rounded-lg transition-colors duration-200 mt-2 md:mt-0 ${
                                 !showModified[currentExerciseIndex]
-                                  ? "btn-primary px-4 py-2 mt-2 md:mt-0"
-                                  : "btn-cancel px-4 py-2 mt-2 md:mt-0"
+                                  ? "bg-brightYellow text-black"
+                                  : "bg-gray-100 text-customGray hover:bg-gray-200"
                               }`}
                             >
                               {standardText}
                             </button>
                             <button
                               onClick={handleModifiedClick}
-                              className={`${
+                              className={`px-4 py-2 text-sm font-titillium font-semibold rounded-lg transition-colors duration-200 mt-2 md:mt-0 ${
                                 showModified[currentExerciseIndex]
-                                  ? "btn-primary px-4 py-2 mt-2 md:mt-0"
-                                  : "btn-cancel px-4 py-2 mt-2 md:mt-0"
+                                  ? "bg-brightYellow text-black"
+                                  : "bg-gray-100 text-customGray hover:bg-gray-200"
                               }`}
                             >
                               {modifiedText}
@@ -1921,13 +1834,9 @@ const WorkoutPage = () => {
                       })()}
                     </div>
                   ) : (
-                    // Invisible placeholder to match timer height exactly
-                    <div className="opacity-0 md:text-2xl font-titillium font-semibold">
-                      Placeholder
-                    </div>
+                    <div className="opacity-0 md:text-2xl font-titillium font-semibold">Placeholder</div>
                   )}
                 </div>
-
                 <div className="flex-1">
                   <ExerciseVideo
                     exercise={currentExerciseData}
@@ -1939,36 +1848,24 @@ const WorkoutPage = () => {
               </div>
             )}
           </div>
-
-          {/* Instructions and Tips - Mobile Only (below video) */}
-          <div className="lg:hidden mt-4 flex flex-col space-y-3">
-            {currentExerciseData?.instructions && (
-              <div className="bg-gray-600 rounded-lg p-3 text-left">
-                <p>
-                  <span className="text-limeGreen text-sm font-bold mb-2">
-                    Instructions:{" "}
-                  </span>
-                  <span className="text-logoGray text-sm">
-                    {currentExerciseData.instructions}
-                  </span>
-                </p>
-              </div>
-            )}
-
-            {currentExerciseData?.tips && (
-              <div className="bg-gray-600 rounded-lg p-3 text-left">
-                <p>
-                  <span className="text-limeGreen font-bold text-sm mb-2">
-                    Form Tips:{" "}
-                  </span>
-                  <span className="text-logoGray text-sm">
-                    {currentExerciseData.tips}
-                  </span>
-                </p>
-              </div>
-            )}
-          </div>
         </div>
+
+        {/* Instructions & tips — mobile */}
+        <div className="lg:hidden flex flex-col gap-3">
+          {currentExerciseData?.instructions && (
+            <div className="bg-gray-50 rounded-xl p-4">
+              <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Instructions</p>
+              <p className="text-sm text-customGray/70 font-titillium leading-relaxed">{currentExerciseData.instructions}</p>
+            </div>
+          )}
+          {currentExerciseData?.tips && (
+            <div className="bg-yellow-50 rounded-xl p-4 border border-brightYellow/20">
+              <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-1">Form Tips</p>
+              <p className="text-sm text-customGray/70 font-titillium leading-relaxed">{currentExerciseData.tips}</p>
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );

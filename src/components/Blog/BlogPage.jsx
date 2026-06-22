@@ -76,8 +76,8 @@ const BlogPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen pt-30 pb-14 bg-linear-to-b from-customGray/30 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col items-center justify-center min-h-screen pt-30 pb-14 bg-white">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
         <LoadingAndErrorDisplay
           loading={loading}
           error={error}

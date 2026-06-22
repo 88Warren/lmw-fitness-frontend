@@ -75,73 +75,82 @@ const Pricing = () => {
   return (
     <>
       {/* Pricing Section */}
-      <section id="Pricing" className="py-16 px-6 bg-white">
+      <section id="Pricing" className="py-24 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto text-center">
-          <motion.h2
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-higherJump text-black/80 mb-10 leading-loose"
+            className="mb-4"
+          >
+            <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-hotPink text-white text-sm font-titillium font-bold tracking-widest uppercase shadow-lg shadow-hotPink/30">
+              <span>🎯</span> Programmes
+            </span>
+          </motion.div>
+          {/* <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-titillium text-customGray mb-6 leading-tight"
           >
             Choose Your P<span className="l">l</span>an
-          </motion.h2>
+          </motion.h2> */}
           <motion.p
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
             viewport={{ once: true }}
-            className="text-lg text-customGray max-w-3xl mx-auto mb-12"
+            className="text-lg text-customGray/70 max-w-2xl mx-auto mb-14 font-titillium"
           >
-            Whether you are looking for a focused fitness package or a tailored
-            coaching program,
-            <br className="hidden md:block" /> I have the perfect solution to
-            support your fitness journey.
+            Whether you&apos;re just starting out or ready to push harder — I have the perfect programme to support your fitness journey.
           </motion.p>
-          <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl gap-8 md:gap-14 mx-auto justify-items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl gap-6 md:gap-10 mx-auto justify-items-center">
             {/* Beginner Training Programs */}
             <motion.div
               variants={cardVariants}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
-              className="p-8 bg-white border border-brightYellow rounded-xl flex flex-col"
+              className="w-full p-8 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 flex flex-col"
             >
-              <h3 className="text-2xl font-bold text-black mb-4 min-h-[60px] flex items-center justify-center text-center">
+              <h3 className="text-xl font-bold text-customGray mb-2 min-h-[56px] flex items-center justify-center text-center font-titillium">
                 Beginner 30-day programme
               </h3>
-              <p className="text-xl font-bold text-limeGreen mb-6">
-                £50 <span className="text-base font-normal">One-off fee</span>
-              </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base grow">
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+              <div className="flex items-baseline justify-center gap-1 mb-6">
+                <span className="text-3xl font-bold text-customGray font-titillium">£50</span>
+                <span className="text-sm text-customGray/50 font-titillium">one-off fee</span>
+              </div>
+              <ul className="text-customGray/70 text-left mb-8 space-y-3 text-sm grow font-titillium">
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
                   Starting fitness test
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
                   Measurement guide
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
                   30-day fitness journal
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span> 30 x
-                  daily advice & support emails
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
+                  30 x daily advice & support emails
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span> 30 x
-                  daily videos
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
+                  30 x daily videos
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
                   Finishing fitness test
                 </li>
               </ul>
               {isItemInCart(BEGINNER_PRICE_ID) ? (
                 <button
-                  className="bg-white w-full py-3 mt-auto font-bold border border-brightYellow hover:bg-brightYellow"
+                  className="w-full py-3 mt-auto font-bold font-titillium border-2 border-brightYellow rounded-lg hover:bg-brightYellow transition-colors duration-300"
                   onClick={() => navigate("/cart")}
                 >
                   View Basket
@@ -168,46 +177,47 @@ const Pricing = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
-              className="p-8 bg-white border border-brightYellow rounded-xl relative overflow-hidden flex flex-col"
+              className="w-full p-8 bg-white rounded-2xl shadow-sm border-2 border-brightYellow hover:shadow-md transition-shadow duration-300 relative overflow-hidden flex flex-col"
             >
-              <div className="absolute top-0 right-0 bg-hotPink text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+              <div className="absolute top-0 right-0 bg-hotPink text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl font-titillium tracking-wide">
                 Most Popular
               </div>
-              <h3 className="text-2xl font-bold text-black mb-4 min-h-[60px] flex items-center justify-center text-center">
+              <h3 className="text-xl font-bold text-customGray mb-2 min-h-[56px] flex items-center justify-center text-center font-titillium">
                 Advanced 30-day programme
               </h3>
-              <p className="text-xl font-bold text-limeGreen mb-6">
-                £65 <span className="text-base font-normal">One-off fee</span>
-              </p>
-              <ul className="text-customGray text-left mb-8 space-y-3 text-base grow">
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+              <div className="flex items-baseline justify-center gap-1 mb-6">
+                <span className="text-3xl font-bold text-customGray font-titillium">£65</span>
+                <span className="text-sm text-customGray/50 font-titillium">one-off fee</span>
+              </div>
+              <ul className="text-customGray/70 text-left mb-8 space-y-3 text-sm grow font-titillium">
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
                   Starting fitness test
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
                   Measurement guide
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
                   30-day fitness journal
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span> 30 x
-                  advanced daily advice & support emails
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
+                  30 x advanced daily advice & support emails
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span> 30 x
-                  advanced daily videos
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
+                  30 x advanced daily videos
                 </li>
-                <li>
-                  <span className="text-limeGreen font-bold mr-2">✔</span>{" "}
+                <li className="flex items-start gap-2">
+                  <span className="text-limeGreen font-bold mt-0.5 shrink-0">✔</span>
                   Finishing fitness test
                 </li>
               </ul>
               {isItemInCart(ADVANCED_PRICE_ID) ? (
                 <button
-                  className="bg-white w-full py-3 mt-auto font-bold border border-brightYellow hover:bg-brightYellow"
+                  className="w-full py-3 mt-auto font-bold font-titillium border-2 border-brightYellow rounded-lg hover:bg-brightYellow transition-colors duration-300"
                   onClick={() => navigate("/cart")}
                 >
                   View Basket

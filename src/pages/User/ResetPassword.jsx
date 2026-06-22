@@ -121,7 +121,7 @@ const ResetPassword = () => {
         <div className="max-w-lg bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg">
           <DynamicHeading
             text="Invalid Link"
-            className="text-3xl md:text-4xl font-bold text-customWhite mb-8 font-higherJump text-center leading-loose tracking-widest"
+            className="text-3xl md:text-4xl font-bold text-customWhite mb-8 font-titillium text-center leading-loose tracking-widest"
           />
           <p className="text-center text-logoGray font-titillium">
             The password reset link is invalid or has expired. Please request a
@@ -150,7 +150,7 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center py-20 bg-linear-to-b from-white via-customGray/20 to-customGray/70">
       <div className="max-w-md bg-customGray p-8 md:p-12 rounded-2xl border-brightYellow border-2 shadow-lg">
-        <h2 className="text-3xl md:text-4xl font-bold text-customWhite mb-12 font-higherJump text-center leading-loose tracking-widest">
+        <h2 className="text-3xl md:text-4xl font-bold text-customWhite mb-12 font-titillium text-center leading-loose tracking-widest">
           Set Ne<span className="w">w</span> Pass<span className="w">w</span>ord
         </h2>
 
