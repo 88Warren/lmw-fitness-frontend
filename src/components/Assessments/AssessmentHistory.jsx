@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Hash, Trash2, Edit, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { showToast } from '../../utils/toastUtil';
 import assessmentApi from '../../utils/assessmentApi';
 import AssessmentInput from './AssessmentInput';
-import DynamicHeading from '../Shared/DynamicHeading';
 
 const AssessmentHistory = ({ initialTab = 'history' }) => {
   const [assessments, setAssessments] = useState([]);
@@ -20,44 +19,30 @@ const AssessmentHistory = ({ initialTab = 'history' }) => {
 
   const loadAssessmentData = async () => {
     setLoading(true);
-    
-    // Load assessment history
     const historyResult = await assessmentApi.getAssessmentHistory();
     if (historyResult.success) {
       setAssessments(historyResult.data);
-      
-      // Load comparisons for each program
       const programs = [...new Set(historyResult.data.map(a => a.programName))];
-      const comparisonPromises = programs.map(program => 
-        assessmentApi.getAssessmentComparison(program)
+      const comparisonResults = await Promise.all(
+        programs.map(p => assessmentApi.getAssessmentComparison(p))
       );
-      
-      const comparisonResults = await Promise.all(comparisonPromises);
       const comparisonsData = {};
-      
-      programs.forEach((program, index) => {
-        if (comparisonResults[index].success) {
-          comparisonsData[program] = comparisonResults[index].data;
-        }
+      programs.forEach((program, i) => {
+        if (comparisonResults[i].success) comparisonsData[program] = comparisonResults[i].data;
       });
-      
       setComparisons(comparisonsData);
     } else {
       showToast('error', historyResult.error);
     }
-    
     setLoading(false);
   };
 
   const handleDeleteAssessment = async (assessmentId) => {
-    if (!window.confirm('Are you sure you want to delete this assessment?')) {
-      return;
-    }
-
+    if (!window.confirm('Are you sure you want to delete this assessment?')) return;
     const result = await assessmentApi.deleteAssessment(assessmentId);
     if (result.success) {
       showToast('success', 'Assessment deleted successfully');
-      loadAssessmentData(); // Reload data
+      loadAssessmentData();
     } else {
       showToast('error', result.error);
     }
@@ -71,7 +56,7 @@ const AssessmentHistory = ({ initialTab = 'history' }) => {
   const handleSaveEdit = () => {
     setShowEditModal(false);
     setEditingAssessment(null);
-    loadAssessmentData(); // Reload data
+    loadAssessmentData();
   };
 
   const formatTime = (seconds) => {
@@ -80,95 +65,87 @@ const AssessmentHistory = ({ initialTab = 'history' }) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric',
     });
-  };
+
+  const programLabel = (name) =>
+    name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   const getImprovementIcon = (improvement) => {
-    if (!improvement) return <Minus className="text-logoGray" size={16} />;
-    
-    const value = improvement.repsDifference || improvement.timeDifference || 0;
-    if (value > 0) return <TrendingUp className="text-green-400" size={16} />;
-    if (value < 0) return <TrendingDown className="text-red-400" size={16} />;
-    return <Minus className="text-logoGray" size={16} />;
+    if (!improvement) return <Minus className="text-customGray/30" size={15} />;
+    const value = improvement.repsDifference ?? improvement.timeDifference ?? 0;
+    if (value > 0) return <TrendingUp className="text-limeGreen" size={15} />;
+    if (value < 0) return <TrendingDown className="text-hotPink" size={15} />;
+    return <Minus className="text-customGray/30" size={15} />;
   };
 
   const getImprovementText = (improvement) => {
     if (!improvement) return 'No Day 30 data';
-    
     const repsDiff = improvement.repsDifference;
     const timeDiff = improvement.timeDifference;
     const percent = improvement.percentImproved;
-    
     if (repsDiff !== undefined) {
       const sign = repsDiff > 0 ? '+' : '';
-      const percentText = percent ? ` (${sign}${percent.toFixed(1)}%)` : '';
-      return `${sign}${repsDiff} reps${percentText}`;
+      return `${sign}${repsDiff} reps${percent ? ` (${sign}${percent.toFixed(1)}%)` : ''}`;
     }
-    
     if (timeDiff !== undefined) {
       const sign = timeDiff > 0 ? '+' : '';
-      const percentText = percent ? ` (${sign}${percent.toFixed(1)}%)` : '';
-      return `${sign}${timeDiff}s${percentText}`;
+      return `${sign}${timeDiff}s${percent ? ` (${sign}${percent.toFixed(1)}%)` : ''}`;
     }
-    
     return 'No change';
   };
 
   const groupedAssessments = assessments.reduce((groups, assessment) => {
     const key = `${assessment.programName}-${assessment.dayNumber}`;
-    if (!groups[key]) {
-      groups[key] = [];
-    }
+    if (!groups[key]) groups[key] = [];
     groups[key].push(assessment);
     return groups;
   }, {});
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-customWhite font-titillium">Loading assessment data...</div>
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brightYellow mx-auto mb-3"></div>
+          <p className="text-sm text-customGray/50 font-titillium">Loading assessment data...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Tab Navigation */}
-      <div className="flex space-x-4 border-b border-logoGray">
-        <button
-          onClick={() => setActiveTab('history')}
-          className={`pb-2 px-1 font-titillium transition-colors ${
-            activeTab === 'history'
-              ? 'text-brightYellow border-b-2 border-brightYellow'
-              : 'text-logoGray hover:text-customWhite'
-          }`}
-        >
-          Assessment History
-        </button>
-        <button
-          onClick={() => setActiveTab('progress')}
-          className={`pb-2 px-1 font-titillium transition-colors ${
-            activeTab === 'progress'
-              ? 'text-brightYellow border-b-2 border-brightYellow'
-              : 'text-logoGray hover:text-customWhite'
-          }`}
-        >
-          Progress Comparison
-        </button>
+    <div className="space-y-5">
+      {/* Tab navigation */}
+      <div className="flex gap-1 bg-gray-50 rounded-xl p-1 border border-gray-100">
+        {[
+          { key: 'history', label: 'History' },
+          { key: 'progress', label: 'Progress' },
+        ].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-titillium font-semibold transition-all duration-200 ${
+              activeTab === tab.key
+                ? 'bg-white text-customGray shadow-sm border border-gray-100'
+                : 'text-customGray/50 hover:text-customGray'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
+      {/* History tab */}
       {activeTab === 'history' && (
         <div className="space-y-4">
           {Object.keys(groupedAssessments).length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-logoGray font-titillium">No assessment results recorded yet.</p>
-              <p className="text-sm text-logoGray font-titillium mt-2">
-                Complete Day 1 of a program to start tracking your fitness progress!
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
+              <div className="text-4xl mb-3">📋</div>
+              <p className="text-sm font-bold text-customGray font-titillium mb-1">No results yet</p>
+              <p className="text-xs text-customGray/50 font-titillium">
+                Complete Day 1 of a programme to start tracking your fitness progress.
               </p>
             </div>
           ) : (
@@ -177,64 +154,71 @@ const AssessmentHistory = ({ initialTab = 'history' }) => {
               return (
                 <motion.div
                   key={key}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-gray-800 rounded-lg p-4 border border-logoGray"
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <DynamicHeading
-                      text={`${programName.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} - Day ${dayNumber}`}
-                      className="text-lg font-higherJump text-customWhite tracking-wider"
-                    />
-                    <div className="flex items-center text-logoGray text-sm font-titillium">
-                      <Calendar size={14} className="mr-1" />
-                      {formatDate(groupAssessments[0].recordedDate)}
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm font-bold text-customGray font-titillium">
+                        {programLabel(programName)}
+                      </p>
+                      <p className="text-xs text-customGray/50 font-titillium">Day {dayNumber}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-customGray/40 text-xs font-titillium">
+                      <Calendar size={12} />
+                      <span>{formatDate(groupAssessments[0].recordedDate)}</span>
                     </div>
                   </div>
-                  
-                  <div className="grid gap-3">
+
+                  <div className="space-y-2">
                     {groupAssessments.map((assessment) => (
-                      <div key={assessment.id} className="flex items-center justify-between bg-gray-700 rounded p-3">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3">
-                            <span className="text-customWhite font-titillium">
-                              {assessment.exerciseName}
-                            </span>
-                            <div className="flex items-center text-brightYellow">
-                              {assessment.reps ? (
-                                <>
-                                  <Hash size={14} className="mr-1" />
+                      <div
+                        key={assessment.id}
+                        className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-customGray font-titillium truncate">
+                            {assessment.exerciseName}
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {assessment.reps ? (
+                              <>
+                                <Hash size={11} className="text-brightYellow shrink-0" />
+                                <span className="text-xs text-brightYellow font-titillium font-semibold">
                                   {assessment.reps} reps
-                                </>
-                              ) : (
-                                <>
-                                  <Clock size={14} className="mr-1" />
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <Clock size={11} className="text-brightYellow shrink-0" />
+                                <span className="text-xs text-brightYellow font-titillium font-semibold">
                                   {formatTime(assessment.timeSeconds)}
-                                </>
-                              )}
-                            </div>
+                                </span>
+                              </>
+                            )}
                           </div>
                           {assessment.notes && (
-                            <p className="text-sm text-logoGray mt-1 font-titillium">
+                            <p className="text-xs text-customGray/40 font-titillium italic mt-0.5">
                               {assessment.notes}
                             </p>
                           )}
                         </div>
-                        
-                        <div className="flex items-center space-x-2">
+
+                        <div className="flex items-center gap-2 shrink-0 ml-3">
                           <button
                             onClick={() => handleEditAssessment(assessment)}
-                            className="text-logoGray hover:text-brightYellow transition-colors"
-                            title="Edit assessment"
+                            className="p-1.5 text-customGray/30 hover:text-brightYellow transition-colors rounded-lg hover:bg-yellow-50"
+                            title="Edit"
                           >
-                            <Edit size={16} />
+                            <Edit size={14} />
                           </button>
                           <button
                             onClick={() => handleDeleteAssessment(assessment.id)}
-                            className="text-logoGray hover:text-red-400 transition-colors"
-                            title="Delete assessment"
+                            className="p-1.5 text-customGray/30 hover:text-red-400 transition-colors rounded-lg hover:bg-red-50"
+                            title="Delete"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </div>
@@ -247,63 +231,62 @@ const AssessmentHistory = ({ initialTab = 'history' }) => {
         </div>
       )}
 
+      {/* Progress tab */}
       {activeTab === 'progress' && (
         <div className="space-y-4">
           {Object.keys(comparisons).length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-logoGray font-titillium">No progress comparisons available yet.</p>
-              <p className="text-sm text-logoGray font-titillium mt-2">
-                Complete both Day 1 and Day 30 assessments to see your progress!
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
+              <div className="text-4xl mb-3">📈</div>
+              <p className="text-sm font-bold text-customGray font-titillium mb-1">No comparisons yet</p>
+              <p className="text-xs text-customGray/50 font-titillium">
+                Complete both Day 1 and Day 30 assessments to see your progress.
               </p>
             </div>
           ) : (
             Object.entries(comparisons).map(([programName, programComparisons]) => (
               <motion.div
                 key={programName}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gray-800 rounded-lg p-4 border border-logoGray"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
               >
-                <DynamicHeading
-                  text={`${programName.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} Progress`}
-                  className="text-lg font-higherJump text-customWhite mb-4 tracking-wider"
-                />
-                
-                <div className="grid gap-3">
+                <p className="text-sm font-bold text-customGray font-titillium mb-4">
+                  {programLabel(programName)} — Progress
+                </p>
+
+                <div className="space-y-3">
                   {programComparisons.map((comparison, index) => (
-                    <div key={index} className="bg-gray-700 rounded p-3">
+                    <div key={index} className="px-4 py-3 bg-gray-50 rounded-xl">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-customWhite font-titillium">
+                        <p className="text-sm font-semibold text-customGray font-titillium">
                           {comparison.exerciseName}
-                        </span>
-                        <div className="flex items-center space-x-2">
+                        </p>
+                        <div className="flex items-center gap-1.5">
                           {getImprovementIcon(comparison.improvement)}
-                          <span className="text-sm text-logoGray font-titillium">
+                          <span className="text-xs font-titillium text-customGray/60">
                             {getImprovementText(comparison.improvement)}
                           </span>
                         </div>
                       </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-logoGray">Day 1: </span>
-                          <span className="text-brightYellow">
-                            {comparison.day1?.reps ? 
-                              `${comparison.day1.reps} reps` : 
-                              `${formatTime(comparison.day1?.timeSeconds || 0)}`
-                            }
-                          </span>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white rounded-lg px-3 py-2 border border-gray-100">
+                          <p className="text-xs text-customGray/40 font-titillium mb-0.5">Day 1</p>
+                          <p className="text-sm font-bold text-brightYellow font-titillium">
+                            {comparison.day1?.reps
+                              ? `${comparison.day1.reps} reps`
+                              : formatTime(comparison.day1?.timeSeconds || 0)}
+                          </p>
                         </div>
-                        <div>
-                          <span className="text-logoGray">Day 30: </span>
-                          <span className="text-brightYellow">
-                            {comparison.day30?.reps ? 
-                              `${comparison.day30.reps} reps` : 
-                              comparison.day30?.timeSeconds ? 
-                                formatTime(comparison.day30.timeSeconds) : 
-                                'Not completed'
-                            }
-                          </span>
+                        <div className="bg-white rounded-lg px-3 py-2 border border-gray-100">
+                          <p className="text-xs text-customGray/40 font-titillium mb-0.5">Day 30</p>
+                          <p className="text-sm font-bold text-limeGreen font-titillium">
+                            {comparison.day30?.reps
+                              ? `${comparison.day30.reps} reps`
+                              : comparison.day30?.timeSeconds
+                              ? formatTime(comparison.day30.timeSeconds)
+                              : 'Not completed'}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -315,20 +298,14 @@ const AssessmentHistory = ({ initialTab = 'history' }) => {
         </div>
       )}
 
-      {/* Edit Assessment Modal */}
+      {/* Edit modal */}
       {editingAssessment && (
         <AssessmentInput
-          exercise={{
-            id: editingAssessment.exerciseId,
-            name: editingAssessment.exerciseName
-          }}
+          exercise={{ id: editingAssessment.exerciseId, name: editingAssessment.exerciseName }}
           programName={editingAssessment.programName}
           dayNumber={editingAssessment.dayNumber}
           isOpen={showEditModal}
-          onClose={() => {
-            setShowEditModal(false);
-            setEditingAssessment(null);
-          }}
+          onClose={() => { setShowEditModal(false); setEditingAssessment(null); }}
           onSave={handleSaveEdit}
           existingAssessment={editingAssessment}
         />

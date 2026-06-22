@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { showToast } from '../../utils/toastUtil';
 import AssessmentInput from './AssessmentInput';
-import DynamicHeading from '../Shared/DynamicHeading';
 
 const ManualAssessmentEntry = () => {
   const [showForm, setShowForm] = useState(false);
@@ -12,7 +11,6 @@ const ManualAssessmentEntry = () => {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [showAssessmentInput, setShowAssessmentInput] = useState(false);
 
-  // Assessment exercises for both programs (Day 1 and Day 30)
   const assessmentExercises = [
     { id: 1, name: 'Press Ups' },
     { id: 2, name: 'Squat Jumps' },
@@ -21,23 +19,24 @@ const ManualAssessmentEntry = () => {
     { id: 5, name: 'Explosive Starjumps' },
     { id: 6, name: 'Sit Ups' },
     { id: 7, name: 'Jump Lunge' },
-    { id: 8, name: 'Tricep Dips (with Chair)' }
+    { id: 8, name: 'Tricep Dips (with Chair)' },
   ];
 
-  // Additional exercises for advanced program
   const advancedExercises = [
     { id: 9, name: 'Straddle Sit Ups' },
-    { id: 10, name: 'Thrusters' }
+    { id: 10, name: 'Thrusters' },
   ];
 
   const getExercisesForProgram = (program) => {
     if (program === 'advanced-program') {
-      return [...assessmentExercises.slice(0, 1), // Press Ups
-              ...advancedExercises.slice(0, 1), // Straddle Sit Ups
-              ...assessmentExercises.slice(2, 5), // Plank Hold, Squat Jumps, Burpees
-              ...assessmentExercises.slice(6, 7), // Jump Lunge
-              ...assessmentExercises.slice(4, 5), // Explosive Starjumps
-              ...advancedExercises.slice(1, 2)]; // Thrusters
+      return [
+        ...assessmentExercises.slice(0, 1),
+        ...advancedExercises.slice(0, 1),
+        ...assessmentExercises.slice(2, 5),
+        ...assessmentExercises.slice(6, 7),
+        ...assessmentExercises.slice(4, 5),
+        ...advancedExercises.slice(1, 2),
+      ];
     }
     return assessmentExercises;
   };
@@ -60,126 +59,128 @@ const ManualAssessmentEntry = () => {
     setShowForm(false);
   };
 
+  const selectClass = "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-customGray font-titillium text-sm focus:outline-none focus:ring-2 focus:ring-brightYellow focus:border-brightYellow transition-colors duration-200";
+  const labelClass = "block text-sm font-titillium font-semibold text-customGray mb-2";
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Add button */}
       <div className="flex items-center justify-between">
-        <DynamicHeading
-          text="Manual Assessment Entry"
-          className="text-lg font-higherJump text-customWhite tracking-wider"
-        />
+        <div>
+          <p className="text-sm font-bold text-customGray font-titillium">Add a result</p>
+          <p className="text-xs text-customGray/50 font-titillium">Record a result you forgot to log during a workout</p>
+        </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center space-x-2 px-4 py-2 bg-brightYellow text-customGray rounded font-titillium hover:bg-yellow-400 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-brightYellow text-black text-sm font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200 shrink-0"
         >
-          <Plus size={16} />
-          <span>Add Assessment</span>
+          <Plus size={15} />
+          Add Entry
         </button>
       </div>
 
+      {/* Form */}
       {showForm && (
         <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="bg-gray-800 rounded-lg p-4 border border-logoGray"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4"
         >
-          <div className="space-y-4">
+          {/* Programme select */}
+          <div>
+            <label className={labelClass}>Programme</label>
+            <select
+              value={selectedProgram}
+              onChange={(e) => { setSelectedProgram(e.target.value); setSelectedDay(''); }}
+              className={selectClass}
+            >
+              <option value="">Choose a programme...</option>
+              <option value="beginner-program">30-Day Beginner Programme</option>
+              <option value="advanced-program">30-Day Advanced Programme</option>
+            </select>
+          </div>
+
+          {/* Day select */}
+          {selectedProgram && (
             <div>
-              <label className="block text-customWhite font-titillium mb-2">
-                Select Program
-              </label>
+              <label className={labelClass}>Assessment Day</label>
               <select
-                value={selectedProgram}
-                onChange={(e) => {
-                  setSelectedProgram(e.target.value);
-                  setSelectedDay(''); // Reset day when program changes
-                }}
-                className="w-full px-3 py-2 bg-gray-700 border border-logoGray rounded text-customWhite font-titillium focus:border-brightYellow focus:outline-none"
+                value={selectedDay}
+                onChange={(e) => setSelectedDay(e.target.value)}
+                className={selectClass}
               >
-                <option value="">Choose a program...</option>
-                <option value="beginner-program">30-Day Beginner Programme</option>
-                <option value="advanced-program">30-Day Advanced Programme</option>
+                <option value="">Choose a day...</option>
+                <option value="1">Day 1 — Initial Assessment</option>
+                <option value="30">Day 30 — Final Assessment</option>
               </select>
             </div>
+          )}
 
-            {selectedProgram && (
-              <div>
-                <label className="block text-customWhite font-titillium mb-2">
-                  Select Assessment Day
-                </label>
-                <select
-                  value={selectedDay}
-                  onChange={(e) => setSelectedDay(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 border border-logoGray rounded text-customWhite font-titillium focus:border-brightYellow focus:outline-none"
-                >
-                  <option value="">Choose a day...</option>
-                  <option value="1">Day 1 - Initial Assessment</option>
-                  <option value="30">Day 30 - Final Assessment</option>
-                </select>
+          {/* Exercise list */}
+          {selectedProgram && selectedDay && (
+            <div>
+              <label className={labelClass}>Select Exercise</label>
+              <div className="space-y-2">
+                {getExercisesForProgram(selectedProgram).map((exercise) => (
+                  <button
+                    key={exercise.id}
+                    onClick={() => handleExerciseSelect(exercise)}
+                    className="w-full text-left px-4 py-3 bg-gray-50 rounded-xl border border-transparent hover:border-brightYellow hover:bg-yellow-50 text-sm font-titillium text-customGray transition-all duration-200"
+                  >
+                    {exercise.name}
+                  </button>
+                ))}
               </div>
-            )}
-
-            {selectedProgram && selectedDay && (
-              <div>
-                <label className="block text-customWhite font-titillium mb-2">
-                  Select Exercise
-                </label>
-                <div className="grid gap-2">
-                  {getExercisesForProgram(selectedProgram).map((exercise) => (
-                    <button
-                      key={exercise.id}
-                      onClick={() => handleExerciseSelect(exercise)}
-                      className="text-left px-3 py-2 bg-gray-700 border border-logoGray rounded text-customWhite font-titillium hover:border-brightYellow hover:bg-gray-600 transition-colors"
-                    >
-                      {exercise.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex space-x-3 pt-4">
-              <button
-                onClick={resetForm}
-                className="flex-1 px-4 py-2 bg-gray-600 text-customWhite rounded font-titillium hover:bg-gray-500 transition-colors"
-              >
-                Cancel
-              </button>
             </div>
-          </div>
+          )}
+
+          {/* Cancel */}
+          <button
+            onClick={resetForm}
+            className="w-full py-2.5 bg-gray-50 text-customGray/60 text-sm font-titillium font-semibold rounded-xl hover:bg-gray-100 transition-colors duration-200 border border-gray-100"
+          >
+            Cancel
+          </button>
         </motion.div>
       )}
 
-      <div className="bg-gray-800 rounded-lg p-4 border border-logoGray">
-        <h4 className="text-customWhite font-titillium mb-2">About Manual Entry</h4>
-        <div className="text-sm text-logoGray font-titillium space-y-2">
-          <p>
-            Use this feature if you&apos;ve already started a program and want to record your Day 1 results retroactively.
-          </p>
-          <p>
-            <strong className="text-customWhite">Assessment Exercises:</strong>
-          </p>
-          <ul className="list-disc list-inside ml-4 space-y-1">
-            <li><strong>Beginner Program:</strong> Press Ups, Squat Jumps, Plank Hold, Burpees, Explosive Starjumps, Sit Ups, Jump Lunge, Tricep Dips</li>
-            <li><strong>Advanced Program:</strong> Press Ups, Straddle Sit Ups, Plank Hold, Squat Jumps, Burpees, Jump Lunge, Explosive Starjumps, Thrusters</li>
-          </ul>
-          <p>
-            Each exercise is performed for 1 minute (except Plank Hold which is max time), with 2 minutes rest between exercises.
+      {/* About card */}
+      <div className="bg-gray-50 rounded-2xl border border-gray-100 p-5 space-y-3">
+        <p className="text-xs font-titillium font-bold text-customGray uppercase tracking-wide">About Manual Entry</p>
+        <p className="text-sm text-customGray/60 font-titillium leading-relaxed">
+          Use this if you've already started a programme and want to record your Day 1 results retroactively.
+        </p>
+        <div className="space-y-2">
+          <p className="text-xs font-titillium font-semibold text-customGray">Assessment Exercises</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="bg-white rounded-xl border border-gray-100 p-3">
+              <p className="text-xs font-titillium font-bold text-customGray mb-1.5">🌱 Beginner</p>
+              <p className="text-xs text-customGray/60 font-titillium leading-relaxed">
+                Press Ups, Squat Jumps, Plank Hold, Burpees, Explosive Starjumps, Sit Ups, Jump Lunge, Tricep Dips
+              </p>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 p-3">
+              <p className="text-xs font-titillium font-bold text-customGray mb-1.5">⚡ Advanced</p>
+              <p className="text-xs text-customGray/60 font-titillium leading-relaxed">
+                Press Ups, Straddle Sit Ups, Plank Hold, Squat Jumps, Burpees, Jump Lunge, Explosive Starjumps, Thrusters
+              </p>
+            </div>
+          </div>
+          <p className="text-xs text-customGray/50 font-titillium">
+            Each exercise is 1 minute (Plank Hold is max time), with 2 minutes rest between exercises.
           </p>
         </div>
       </div>
 
-      {/* Assessment Input Modal */}
+      {/* Assessment input modal */}
       {selectedExercise && (
         <AssessmentInput
           exercise={selectedExercise}
           programName={selectedProgram}
           dayNumber={parseInt(selectedDay)}
           isOpen={showAssessmentInput}
-          onClose={() => {
-            setShowAssessmentInput(false);
-            setSelectedExercise(null);
-          }}
+          onClose={() => { setShowAssessmentInput(false); setSelectedExercise(null); }}
           onSave={handleSaveAssessment}
         />
       )}

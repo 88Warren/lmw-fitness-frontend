@@ -72,7 +72,7 @@ const WorkoutAuthPage = () => {
             <div className="bg-customGray p-8 rounded-lg text-center max-w-lg w-full border-brightYellow border-2">
                 <DynamicHeading
                     text="Workout Link"
-                    className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest"
+                    className="font-titillium text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest"
                 />
                 <p className="text-lg text-customWhite mb-6">
                     {message}

@@ -1,7 +1,6 @@
 import { HashLink } from "react-router-hash-link";
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import DynamicHeading from "../Shared/DynamicHeading";
 
 const Testimonials = () => {
   const testimonials = [
@@ -84,7 +83,7 @@ const Testimonials = () => {
   }, [currentSlide, expanded, testimonials.length, isMobile]);
 
   return (
-    <section id="Testimonials" className="py-20 px-6 bg-customGray">
+    <section id="Testimonials" className="py-24 px-6 bg-white">
       <div className="max-w-7xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -93,10 +92,12 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <DynamicHeading
-            text="What my clients say..."
-            className="text-4xl md:text-5xl font-higherJump text-white mb-12 leading-loose"
-          />
+          <span className="inline-flex items-center gap-2 mb-6 px-5 py-2 rounded-full bg-limeGreen text-black text-sm font-titillium font-bold tracking-widest uppercase shadow-lg shadow-limeGreen/40">
+            <span>⭐</span> Client Results
+          </span>
+          {/* <h2 className="text-4xl md:text-5xl font-titillium text-customGray leading-tight">
+            What my clients say...
+          </h2> */}
         </motion.div>
 
         <motion.div
@@ -118,10 +119,10 @@ const Testimonials = () => {
                 transition={{ duration: 0.5 }}
                 className={`${
                   index === currentSlide ? "block" : "hidden"
-                } bg-customWhite backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl`}
+                } bg-gray-50 p-8 md:p-12 rounded-2xl border border-gray-100 shadow-sm`}
               >
                 <div className="flex flex-col relative">
-                  <span className="absolute -top-4 left-0 md:-left-4 text-4xl md:text-6xl lg:text-7xl text-limeGreen opacity-50">
+                  <span className="absolute -top-4 left-0 md:-left-4 text-4xl md:text-6xl lg:text-7xl text-limeGreen opacity-40">
                     &ldquo;
                   </span>
 
@@ -136,13 +137,13 @@ const Testimonials = () => {
                       ref={(el) => {
                         textRefs.current[index] = el;
                       }}
-                      className={`text-md md:text-lg text-customGray leading-relaxed ${
+                      className={`text-base md:text-lg text-customGray/80 leading-relaxed font-titillium ${
                         expanded ? "" : "md:line-clamp-none line-clamp-5"
                       }`}
                     >
                       {testimonial.text}
                     </p>
-                    <span className="absolute -bottom-4 right-0 md:-right-4 text-4xl md:text-6xl lg:text-7xl text-hotPink opacity-50">
+                    <span className="absolute -bottom-4 right-0 md:-right-4 text-4xl md:text-6xl lg:text-7xl text-hotPink opacity-40">
                       &rdquo;
                     </span>
                   </div>
@@ -151,19 +152,19 @@ const Testimonials = () => {
                     <div className="mt-3 mb-4">
                       <button
                         onClick={() => setExpanded((prev) => !prev)}
-                        className="text-brightYellow text-sm font-medium hover:text-limeGreen transition-colors duration-200 bg-transparent border-none p-0 m-0"
+                        className="text-brightYellow text-sm font-medium hover:text-limeGreen transition-colors duration-200 bg-transparent border-none p-0 m-0 font-titillium"
                       >
                         {expanded ? "Show Less" : "Read More"}
                       </button>
                     </div>
                   )}
 
-                  <div className="text-right">
-                    <p className="text-sm md:text-lg text-customGray font-higherJump">
+                  <div className="text-right mt-6 pt-6 border-t border-gray-200">
+                    <p className="text-sm md:text-base text-customGray font-titillium">
                       <span className="m pr-1">{testimonial.author[0]}</span>
                       {testimonial.author.slice(1)}
                     </p>
-                    <p className="text-sm text-customWhite mt-2">
+                    <p className="text-sm text-customGray/50 mt-1 font-titillium">
                       {testimonial.program}
                     </p>
                   </div>
@@ -173,40 +174,20 @@ const Testimonials = () => {
           </div>
 
           {/* Navigation Dots */}
-          <div className="flex justify-end mt-4 mr-4 space-x-2">
+          <div className="flex justify-center mt-6 space-x-2">
             {testimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   index === currentSlide
                     ? "bg-limeGreen scale-125"
-                    : "bg-white hover:border-2 border-brightYellow"
+                    : "bg-gray-300 hover:bg-brightYellow"
                 }`}
                 aria-label={`Go to testimonial ${index + 1}`}
               />
             ))}
           </div>
-
-          {/* Navigation Arrows */}
-          {/* <button
-            onClick={() => setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-customGray/80 hover:bg-white transition-colors duration-300"
-            aria-label="Previous testimonial"
-          >
-            <svg className="w-4 h-4 text-white hover:text-customGray transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={() => setCurrentSlide((prev) => (prev + 1) % testimonials.length)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-customGray/80 hover:bg-white transition-colors duration-300"
-            aria-label="Next testimonial"
-          >
-            <svg className="w-4 h-4 text-white hover:text-customGray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button> */}
         </motion.div>
 
         <motion.div

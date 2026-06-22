@@ -1,6 +1,4 @@
-import React from "react";
 import PropTypes from "prop-types";
-import DynamicHeading from "../Shared/DynamicHeading";
 
 const WorkoutChoice = ({
   workoutData,
@@ -155,15 +153,6 @@ const WorkoutChoice = ({
 
   const workoutSessions = getWorkoutSessions();
 
-  // Debug logging
-  // console.log("WorkoutChoice Debug:", {
-  //   title: workoutData.title,
-  //   totalBlocks: workoutData.workoutBlocks?.length,
-  //   blockTypes: workoutData.workoutBlocks?.map((b) => b.blockType),
-  //   detectedSessions: workoutSessions.length,
-  //   sessions: workoutSessions,
-  // });
-
   const forceMultiWorkout = () => {
     const title = workoutData.title?.toLowerCase() || "";
     const description = workoutData.description?.toLowerCase() || "";
@@ -236,38 +225,36 @@ const WorkoutChoice = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
-      <div className="bg-customGray p-6 rounded-lg text-center max-w-6xl w-full border-brightYellow border-2 mt-20 md:mt-26">
+    <div className="min-h-screen bg-white pt-32 pb-8 px-4">
+      <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
-        <DynamicHeading
-          text={workoutData.title}
-          className="font-higherJump m-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-        />
+        <h1 className="text-xl md:text-2xl font-bold text-customGray font-titillium text-center">{workoutData.title}</h1>
 
         {/* Back Button */}
-        <div className="flex justify-center mb-6">
-          <button onClick={onGoBack} className="btn-cancel">
-            Back to Overview
+        <div className="flex justify-center">
+          <button
+            onClick={onGoBack}
+            className="inline-flex items-center gap-2 text-sm font-titillium font-semibold text-customGray/50 hover:text-customGray transition-colors duration-200"
+          >
+            ← Back to Overview
           </button>
         </div>
 
         {/* Description */}
-        <div className="flex items-center justify-center m-3">
-          {workoutData.description && (
-            <div className="w-2/3 bg-gray-600 rounded-lg p-3 m-3 text-center">
-              <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
-                <span className="text-limeGreen font-bold">Description:</span>{" "}
-                {workoutData.description}
-              </p>
-            </div>
-          )}
-        </div>
+        {workoutData.description && (
+          <div className="bg-gray-50 rounded-xl p-4">
+            <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Description</p>
+            <p className="text-sm text-customGray/70 font-titillium leading-relaxed">
+              {workoutData.description}
+            </p>
+          </div>
+        )}
 
         {/* Choice Options */}
         <div className="space-y-6">
           {isMultiWorkoutDay ? (
             <>
-              <h2 className="text-xl font-bold text-customWhite mb-6">
+              <h2 className="text-lg font-bold text-customGray font-titillium mb-4">
                 {workoutSessions.length === 0
                   ? "Today's Mobility - Complete to finish the day"
                   : hasMobilityBlock && workoutSessions.length === 1
@@ -285,26 +272,20 @@ const WorkoutChoice = ({
                 {/* Mobility */}
                 {hasMobilityBlock && (
                   <div
-                    className={`rounded-lg p-6 transition-colors flex flex-col ${
+                    className={`rounded-2xl p-6 flex flex-col ${
                       completedSessions.includes("mobility")
-                        ? "bg-limeGreen text-black"
-                        : "bg-gray-600 hover:bg-gray-500"
+                        ? "bg-limeGreen/10 border-2 border-limeGreen"
+                        : "bg-white border border-gray-100 shadow-sm hover:border-brightYellow hover:shadow-md transition-all duration-200"
                     }`}
                   >
                     <div className="text-4xl mb-4">🧘‍♀️</div>
-                    <h3 className="text-lg font-bold mb-2">
+                    <h3 className={`text-base font-bold font-titillium mb-2 ${completedSessions.includes("mobility") ? "text-limeGreen" : "text-customGray"}`}>
                       Mobility Session
                       {completedSessions.includes("mobility") && (
                         <span className="ml-2 text-lg">✓</span>
                       )}
                     </h3>
-                    <p
-                      className={`text-sm mb-4 grow ${
-                        completedSessions.includes("mobility")
-                          ? "text-black"
-                          : "text-logoGray"
-                      }`}
-                    >
+                    <p className="text-sm text-customGray/60 font-titillium mb-4 grow">
                       Stretching and mobility work for flexibility and recovery.
                       {workoutSessions.length === 0 && (
                         <span className="block mt-1 font-semibold text-limeGreen">
@@ -313,18 +294,21 @@ const WorkoutChoice = ({
                       )}
                     </p>
                     <div className="mt-auto">
-                      <button
-                        onClick={() => handleChoice("mobility")}
-                        className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                          completedSessions.includes("mobility")
-                            ? "bg-black text-limeGreen hover:bg-gray-800"
-                            : "btn-primary"
-                        }`}
-                      >
-                        {completedSessions.includes("mobility")
-                          ? "Redo Mobility"
-                          : "Start Mobility"}
-                      </button>
+                      {completedSessions.includes("mobility") ? (
+                        <button
+                          onClick={() => handleChoice("mobility")}
+                          className="w-full py-2.5 px-4 bg-white text-limeGreen text-sm font-titillium font-bold rounded-xl border-2 border-limeGreen hover:bg-limeGreen/10 transition-colors duration-200"
+                        >
+                          Redo Mobility
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleChoice("mobility")}
+                          className="w-full py-2.5 px-4 bg-brightYellow text-black text-sm font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200"
+                        >
+                          Start Mobility
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -333,59 +317,56 @@ const WorkoutChoice = ({
                 {workoutSessions.map((session) => (
                   <div
                     key={session.id}
-                    className={`rounded-lg p-6 transition-colors flex flex-col ${
+                    className={`rounded-2xl p-6 flex flex-col ${
                       completedSessions.includes(`workout-${session.id}`)
-                        ? "bg-limeGreen text-black"
-                        : "bg-gray-600 hover:bg-gray-500"
+                        ? "bg-limeGreen/10 border-2 border-limeGreen"
+                        : "bg-white border border-gray-100 shadow-sm hover:border-brightYellow hover:shadow-md transition-all duration-200"
                     }`}
                   >
                     <div className="text-4xl mb-4">
                       {getSessionIcon(session.name, session.blocks)}
                     </div>
-                    <h3 className="text-lg font-bold mb-2">
+                    <h3 className={`text-base font-bold font-titillium mb-2 ${completedSessions.includes(`workout-${session.id}`) ? "text-limeGreen" : "text-customGray"}`}>
                       {session.name}
                       {completedSessions.includes(`workout-${session.id}`) && (
                         <span className="ml-2 text-lg">✓</span>
                       )}
                     </h3>
-                    <p
-                      className={`text-sm mb-4 grow ${
-                        completedSessions.includes(`workout-${session.id}`)
-                          ? "text-black"
-                          : "text-logoGray"
-                      }`}
-                    >
+                    <p className="text-sm text-customGray/60 font-titillium mb-4 grow">
                       {getSessionDescription(session.blocks)}
                     </p>
                     <div className="mt-auto">
-                      <button
-                        onClick={() => handleChoice("workout", session)}
-                        className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                          completedSessions.includes(`workout-${session.id}`)
-                            ? "bg-black text-limeGreen hover:bg-gray-800"
-                            : "btn-primary"
-                        }`}
-                      >
-                        {completedSessions.includes(`workout-${session.id}`)
-                          ? `Redo ${session.name}`
-                          : `Start ${session.name}`}
-                      </button>
+                      {completedSessions.includes(`workout-${session.id}`) ? (
+                        <button
+                          onClick={() => handleChoice("workout", session)}
+                          className="w-full py-2.5 px-4 bg-white text-limeGreen text-sm font-titillium font-bold rounded-xl border-2 border-limeGreen hover:bg-limeGreen/10 transition-colors duration-200"
+                        >
+                          Redo {session.name}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleChoice("workout", session)}
+                          className="w-full py-2.5 px-4 bg-brightYellow text-black text-sm font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200"
+                        >
+                          Start {session.name}
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Progress and Instructions */}
-              <div className="bg-gray-600 rounded-lg p-4 mt-6">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-limeGreen font-bold">Progress:</span>
-                  <span className="text-customWhite">
+                  <span className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide">Progress</span>
+                  <span className="text-sm text-customGray/70 font-titillium">
                     {completedSessions.length} /{" "}
                     {(hasMobilityBlock ? 1 : 0) + workoutSessions.length}{" "}
                     completed
                   </span>
                 </div>
-                <div className="bg-gray-500 rounded-full h-3 mb-3">
+                <div className="bg-gray-100 rounded-full h-3 mb-3">
                   <div
                     className="h-full rounded-full transition-all duration-500 bg-limeGreen"
                     style={{
@@ -398,10 +379,7 @@ const WorkoutChoice = ({
                     }}
                   ></div>
                 </div>
-                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
-                  <span className="text-limeGreen font-bold">
-                    Instructions:{" "}
-                  </span>
+                <p className="text-sm text-customGray/70 font-titillium leading-relaxed">
                   {workoutSessions.length === 0
                     ? "Complete the mobility session to finish today's training."
                     : hasMobilityBlock && workoutSessions.length === 1
@@ -412,19 +390,19 @@ const WorkoutChoice = ({
             </>
           ) : (
             <>
-              <h2 className="text-xl font-bold text-customWhite mb-6">
+              <h2 className="text-lg font-bold text-customGray font-titillium mb-4">
                 What would you like to do today?
               </h2>
 
               <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
                 {/* Mobility */}
                 {hasMobilityBlock && (
-                  <div className="bg-gray-600 rounded-lg p-6 hover:bg-gray-500 transition-colors flex flex-col">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-brightYellow hover:shadow-md transition-all duration-200 p-6 flex flex-col">
                     <div className="text-5xl mb-4">🧘‍♀️</div>
-                    <h3 className="text-xl font-bold text-customWhite mb-3">
+                    <h3 className="text-base font-bold text-customGray font-titillium mb-2">
                       Mobility Session
                     </h3>
-                    <p className="text-logoGray text-sm mb-4 grow">
+                    <p className="text-sm text-customGray/60 font-titillium mb-4 grow">
                       Focus on stretching and mobility work to improve
                       flexibility and aid recovery.{" "}
                       <span className="text-limeGreen font-semibold">
@@ -434,7 +412,7 @@ const WorkoutChoice = ({
                     <div className="mt-auto">
                       <button
                         onClick={() => handleChoice("mobility")}
-                        className="btn-primary w-full"
+                        className="w-full py-2.5 px-4 bg-brightYellow text-black text-sm font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200"
                       >
                         Start Mobility
                       </button>
@@ -444,19 +422,19 @@ const WorkoutChoice = ({
 
                 {/* Single Workout */}
                 {workoutSessions.length === 1 && (
-                  <div className="bg-gray-600 rounded-lg p-6 hover:bg-gray-500 transition-colors flex flex-col">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-brightYellow hover:shadow-md transition-all duration-200 p-6 flex flex-col">
                     <div className="text-5xl mb-4">
                       {getSessionIcon(
                         workoutSessions[0].name,
                         workoutSessions[0].blocks
                       )}
                     </div>
-                    <h3 className="text-xl font-bold text-customWhite mb-3">
+                    <h3 className="text-base font-bold text-customGray font-titillium mb-2">
                       {hasMobilityBlock
                         ? "Optional Workout"
                         : "Today's Workout"}
                     </h3>
-                    <p className="text-logoGray text-sm mb-4 grow">
+                    <p className="text-sm text-customGray/60 font-titillium mb-4 grow">
                       {hasMobilityBlock ? (
                         <>
                           Challenge yourself with today&apos;s optional workout.
@@ -474,7 +452,7 @@ const WorkoutChoice = ({
                         onClick={() =>
                           handleChoice("workout", workoutSessions[0])
                         }
-                        className="btn-primary w-full"
+                        className="w-full py-2.5 px-4 bg-brightYellow text-black text-sm font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200"
                       >
                         Start Workout
                       </button>
@@ -485,11 +463,9 @@ const WorkoutChoice = ({
 
               {/* Recovery Day Info */}
               {hasMobilityBlock && workoutSessions.length === 1 && (
-                <div className="bg-gray-600 rounded-lg p-4 mt-6">
-                  <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
-                    <span className="text-limeGreen font-bold">
-                      Recovery Day:{" "}
-                    </span>
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                  <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Recovery Day</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed">
                     Choose mobility for recovery and flexibility, or add the
                     optional workout for extra challenge. You can do them in any
                     order or just one - it&apos;s up to you!

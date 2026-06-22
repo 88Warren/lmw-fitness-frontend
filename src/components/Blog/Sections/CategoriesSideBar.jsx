@@ -25,15 +25,15 @@ const CategoriesSidebar = () => {
   };
 
   return (
-    <div className="bg-customGray backdrop-blur-sm rounded-xl p-4 border border-logoGray">
-      <h3 className="text-lg font-higherJump text-customWhite mb-4 text-center leading-loose tracking-wide">
-        Exp<span className="l">l</span>ore Categories
+    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+      <h3 className="text-base font-titillium text-customGray mb-4 text-center leading-loose tracking-wide">
+        Explore Categories
       </h3>
       
       {/* All Articles Button */}
       <button
         onClick={() => navigate('/blog?category=all')}
-        className="w-full mb-2 text-customWhite  hover:text-logoGray font-titillium font-semibold"
+        className="w-full mb-3 py-2 text-sm text-customGray/70 hover:text-hotPink font-titillium font-semibold transition-colors duration-200 border border-gray-200 rounded-lg hover:border-hotPink"
       >
         View All Articles
       </button>
@@ -43,10 +43,10 @@ const CategoriesSidebar = () => {
           <button
             key={index}
             onClick={() => handleCategoryClick(category.name)}
-            className="group flex flex-col items-center p-2 rounded-lg transition-all duration-300"
+            className="group flex flex-col items-center p-2 rounded-xl transition-all duration-300 hover:bg-gray-50"
             aria-label={`View ${category.name} articles`}
           >
-            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-transparent group-hover:border-brightYellow transition-all duration-300 mb-3">
+            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-200 group-hover:border-brightYellow transition-all duration-300 mb-2">
               <video
                 src={category.videoSrc}
                 muted
@@ -57,7 +57,7 @@ const CategoriesSidebar = () => {
                 preload="auto"
               />
             </div>
-            <span className="text-xs text-customWhite font-titillium text-center leading-tight group-hover:text-brightYellow transition-colors duration-300">
+            <span className="text-xs text-customGray/70 font-titillium text-center leading-tight group-hover:text-customGray transition-colors duration-300">
               {category.name}
             </span>
           </button>

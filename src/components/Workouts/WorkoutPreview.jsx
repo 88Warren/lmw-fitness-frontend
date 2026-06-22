@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import DynamicHeading from "../Shared/DynamicHeading";
 
 const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram, hasExistingProgress = false }) => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
@@ -8,24 +7,21 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram, hasExi
   const [player, setPlayer] = useState(null);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const hasStartedPlayingRef = useRef(false);
-  const allExercises =
-    workoutData?.workoutBlocks?.flatMap((block) => block.exercises) || [];
-  const totalExercises = allExercises.length;
-  const currentExercise = allExercises[currentExerciseIndex];
   const iframeRef = useRef(null);
   const [showModified, setShowModified] = useState({});
 
-  useEffect(() => {
-    const onYouTubeIframeAPIReady = () => {
-      setIsApiReady(true);
-    };
+  const allExercises = workoutData?.workoutBlocks?.flatMap((block) => block.exercises) || [];
+  const totalExercises = allExercises.length;
+  const currentExercise = allExercises[currentExerciseIndex];
 
+  // ── YouTube API setup ──
+  useEffect(() => {
     if (!window.YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       const firstScriptTag = document.getElementsByTagName("script")[0];
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => setIsApiReady(true);
     } else {
       setIsApiReady(true);
     }
@@ -33,15 +29,13 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram, hasExi
 
   useEffect(() => {
     const videoToPlay =
-      showModified[currentExerciseIndex] &&
-      currentExercise?.exercise?.modification
+      showModified[currentExerciseIndex] && currentExercise?.exercise?.modification
         ? currentExercise.exercise.modification.videoId
         : currentExercise?.exercise?.videoId;
 
     if (isApiReady && videoToPlay) {
-      if (player) {
-        player.destroy();
-      }
+      if (player) player.destroy();
+
       const playerDiv = document.createElement("div");
       playerDiv.id = `youtube-player-${currentExerciseIndex}`;
 
@@ -54,321 +48,262 @@ const WorkoutPreview = ({ workoutData, onStartWorkout, onGoBackToProgram, hasExi
         width: "100%",
         height: "100%",
         videoId: videoToPlay,
-        playerVars: {
-          controls: 1,
-          modestbranding: 1,
-          rel: 0,
-          autoplay: hasStartedPlaying ? 1 : 0,
-          mute: 0,
-        },
+        playerVars: { controls: 1, modestbranding: 1, rel: 0, autoplay: hasStartedPlaying ? 1 : 0, mute: 0 },
         events: {
           onReady: (event) => {
-            // console.log('YouTube player ready');
-            if (hasStartedPlayingRef.current && currentExerciseIndex > 0) {
-              // console.log('Auto-starting video for exercise:', currentExerciseIndex);
-              event.target.playVideo();
-            }
+            if (hasStartedPlayingRef.current && currentExerciseIndex > 0) event.target.playVideo();
           },
           onStateChange: (event) => {
-            // console.log('Player state changed:', event.data);
-            if (
-              event.data === window.YT.PlayerState.PLAYING &&
-              !hasStartedPlayingRef.current
-            ) {
-              // console.log('Setting hasStartedPlaying to true');
+            if (event.data === window.YT.PlayerState.PLAYING && !hasStartedPlayingRef.current) {
               setHasStartedPlaying(true);
               hasStartedPlayingRef.current = true;
             }
-
             if (event.data === window.YT.PlayerState.ENDED) {
-              // console.log('Video ended, moving to next exercise');
               hasStartedPlayingRef.current = true;
               setHasStartedPlaying(true);
-
               setCurrentExerciseIndex((prev) => {
-                const nextIndex = prev + 1;
-                return nextIndex < totalExercises ? nextIndex : prev;
+                const next = prev + 1;
+                return next < totalExercises ? next : prev;
               });
             }
           },
-          onError: (event) => {
-            console.error("YouTube player error:", event.data);
-          },
+          onError: (event) => console.error("YouTube player error:", event.data),
         },
       });
 
       setPlayer(newPlayer);
     }
-  }, [
-    isApiReady,
-    currentExerciseIndex,
-    totalExercises,
-    showModified,
-    currentExercise,
-    hasStartedPlaying,
-  ]);
+  }, [isApiReady, currentExerciseIndex, totalExercises, showModified, currentExercise, hasStartedPlaying]);
 
   useEffect(() => {
-    return () => {
-      if (player) {
-        player.destroy();
-      }
-    };
+    return () => { if (player) player.destroy(); };
   }, [player]);
 
-  const handleExerciseClick = (index) => {
-    // console.log('Exercise clicked:', index);
-    setCurrentExerciseIndex(index);
-  };
-
+  // ── Helpers ──
   const getExerciseName = (exercise, exerciseIndex) => {
     if (!exercise?.exercise) return "";
-
-    const isModified = showModified[exerciseIndex] || false;
-    if (isModified && exercise.exercise.modification) {
-      return exercise.exercise.modification.name;
-    }
+    if (showModified[exerciseIndex] && exercise.exercise.modification) return exercise.exercise.modification.name;
     return exercise.exercise.name;
   };
 
-  const getModifiedExercise = (exercise) => {
-    return exercise?.modification || null;
-  };
-
-  const modifiedExercise = getModifiedExercise(currentExercise?.exercise);
+  const modifiedExercise = currentExercise?.exercise?.modification || null;
   const displayedExercise =
     showModified[currentExerciseIndex] && modifiedExercise
       ? modifiedExercise
       : currentExercise?.exercise;
 
-  const getMetricsString = (exercise) => {
-    const metrics = [];
-    if (exercise?.reps) metrics.push(`Reps: ${exercise.reps}`);
-    if (exercise?.duration) metrics.push(`Duration: ${exercise.duration}`);
-    if (exercise?.rest) metrics.push(`Rest: ${exercise.rest}`);
-    return metrics.join(" • ");
+  const getMetrics = (exercise) => {
+    const m = [];
+    if (exercise?.reps) m.push({ label: "Reps", value: exercise.reps });
+    if (exercise?.duration) m.push({ label: "Duration", value: exercise.duration });
+    if (exercise?.rest) m.push({ label: "Rest", value: exercise.rest });
+    return m;
   };
 
   if (totalExercises === 0) {
     return (
-      <div className="bg-customGray p-4 rounded-lg text-center max-w-6xl w-full h-full lg:max-h-[100vh] flex flex-col border-brightYellow border-2 mt-10 justify-center items-center">
-        <p className="text-customWhite text-xl font-bold">
-          No exercises found for this workout.
-        </p>
-        <button onClick={onGoBackToProgram} className="btn-cancel">
-          Back to Overview
-        </button>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 text-center">
+        <p className="text-customGray font-titillium text-lg mb-6">No exercises found for this workout.</p>
+        <button onClick={onGoBackToProgram} className="btn-cancel mt-0">Back to Overview</button>
       </div>
     );
   }
 
   return (
-    <div className="bg-customGray p-4 rounded-lg text-center lg:w-6xl flex flex-col border-brightYellow border-2 my-20 overview-hidden">
-      {/* Title section */}
-      <div className="shrink-0">
-        <div className="flex flex-col items-center text-center">
-          <DynamicHeading
-            text={`Day ${workoutData.dayNumber} Preview`}
-            className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite leading-loose tracking-widest m-4 md:m-6"
-          />
-          {hasExistingProgress && (
-            <div className="mb-4 p-3 bg-brightYellow/20 border border-brightYellow rounded-lg">
-              <p className="text-brightYellow font-semibold text-sm">
-                🔄 Workout in progress - You can resume where you left off
+    <div className="min-h-screen bg-white pt-32 pb-16 px-4">
+      <div className="max-w-6xl mx-auto space-y-6">
+
+        {/* ── Header ── */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <button
+                onClick={onGoBackToProgram}
+                className="inline-flex items-center gap-2 text-sm font-titillium font-semibold text-customGray/50 hover:text-customGray transition-colors duration-200 mb-3"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Overview
+              </button>
+              <h1 className="text-xl md:text-2xl font-bold text-customGray font-titillium">
+                Day {workoutData.dayNumber} — Preview
+              </h1>
+              <p className="text-sm text-customGray/50 font-titillium mt-1">
+                {workoutData.title} &bull; {totalExercises} exercises
               </p>
             </div>
-          )}
-          {/* Buttons*/}
-          <div className="flex flex-row justify-center items-center gap-4 mb-2 md:mb-6">
-            <button
-              onClick={onStartWorkout}
-              className="btn-full-colour mt-0 md:mt-6"
-            >
-              {hasExistingProgress ? "Resume Workout" : "Start Workout"}
-            </button>
-            <button
-              onClick={onGoBackToProgram}
-              className="btn-cancel mt-0 md:mt-6"
-            >
-              Back to Overview
-            </button>
-          </div>
 
-          <div className="flex flex-col md:flex-row gap-0 md:gap-4 w-full items-center md:items-stretch">
-            {/* Workout description */}
-            {workoutData.description && (
-              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
-                  <span className="text-limeGreen font-bold">
-                    Description:{" "}
-                  </span>
-                  {workoutData.description}
-                </p>
-              </div>
-            )}
-
-            {/* First block notes (if any) */}
-            {workoutData.workoutBlocks?.[0]?.blockNotes && (
-              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center flex-1 min-h-[80px]">
-                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
-                  <span className="text-limeGreen font-bold">Notes: </span>
-                  {workoutData.workoutBlocks[0].blockNotes}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Main content container for the two-column layout */}
-      <div className="flex-1 flex flex-col-reverse lg:flex-row md:gap-6 overflow-hidden m-2">
-        {/* Left-hand side: Video and Exercise Name only */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center min-h-0">
-          {/* Toggle between standard and modified - with placeholder for consistent spacing */}
-          <div className="flex space-x-2 mb-4 shrink-0 min-h-[48px] items-center">
-            {modifiedExercise ? (
-              <>
-                <button
-                  onClick={() =>
-                    setShowModified((prev) => ({
-                      ...prev,
-                      [currentExerciseIndex]: false,
-                    }))
-                  }
-                  className={`${
-                    !showModified[currentExerciseIndex]
-                      ? "btn-primary mt-2"
-                      : "btn-cancel mt-2"
-                  }`}
-                >
-                  Standard
-                </button>
-                <button
-                  onClick={() =>
-                    setShowModified((prev) => ({
-                      ...prev,
-                      [currentExerciseIndex]: true,
-                    }))
-                  }
-                  className={`${
-                    showModified[currentExerciseIndex]
-                      ? "btn-primary mt-2"
-                      : "btn-cancel mt-2"
-                  }`}
-                >
-                  Modified
-                </button>
-              </>
-            ) : (
-              <div className="hidden lg:block opacity-0 mt-2 px-6 py-3">
-                Placeholder
-              </div>
-            )}
-          </div>
-          <div className="w-full aspect-video rounded-lg mb-4 overflow-hidden bg-black shrink-0">
-            {displayedExercise?.videoId ? (
-              <div
-                ref={iframeRef}
-                className="w-full h-full"
-                style={{ minHeight: "200px" }}
-              />
-            ) : (
-              <div className="w-full h-full bg-black flex items-center justify-center">
-                <p className="text-logoGray text-sm">Video not available</p>
-              </div>
-            )}
-          </div>
-
-          <div className="flex-1 overflow-y-auto w-full max-w-5xl space-y-3">
-            {/* Display instructions for current exercise */}
-            {displayedExercise?.instructions && (
-              <div className="w-full bg-gray-600 rounded-lg p-3 text-center">
-                <p className="text-logoGray text-sm">
-                  <span className="text-limeGreen font-bold">
-                    Instructions:
-                  </span>{" "}
-                  {displayedExercise.instructions}
-                </p>
-              </div>
-            )}
-
-            {/* Display tips for current exercise */}
-            {displayedExercise?.tips && (
-              <div className="bg-gray-600 rounded-lg p-3 text-center">
-                <p className="text-logoGray text-xs italic">
-                  <span className="text-limeGreen font-bold">Top Tip: </span>
-                  {displayedExercise.tips}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right-hand side: Exercise List with Duration and Rest */}
-        <div className="w-full lg:w-1/2 flex flex-col min-h-0">
-          <div className="flex-1 space-y-2 overflow-y-auto">
-            {/* Title + exercise count */}
-            <p className="text-customWhite text-base font-bold md:text-base">
-              {workoutData.title} • {totalExercises} exercises
-            </p>
-
-            <p className="text-logoGray text-xs italic mb-4">
-              * Modified version available
-            </p>
-
-            {allExercises.map((exercise, index) => (
-              <div
-                key={index}
-                onClick={() => handleExerciseClick(index)}
-                className={`p-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
-                  index === currentExerciseIndex
-                    ? "bg-gray-700 text-black"
-                    : "text-logoGray hover:bg-gray-700"
-                }`}
+            <div className="flex gap-3 shrink-0">
+              {hasExistingProgress && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 border border-brightYellow text-brightYellow text-xs font-titillium font-bold">
+                  🔄 In progress
+                </span>
+              )}
+              <button
+                onClick={onStartWorkout}
+                className="px-5 py-2.5 bg-brightYellow text-black text-sm font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200"
               >
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start font-bold gap-2">
-                  {/* Left side: name + tips + modified label */}
-                  <div className="flex flex-col items-center md:items-start">
-                    <div className="flex">
-                      <span className="text-customWhite text-left">
-                        {getExerciseName(exercise, index)}
-                      </span>
-
-                      {/* Modified version label */}
-                      {exercise.exercise.modificationId && (
-                        <span
-                          className={`text-xs align-center ml-1 text-brightYellow`}
-                        >
-                          *
-                        </span>
-                      )}
-                    </div>
-                    {/* Exercise tips for rep breakdown */}
-                    {exercise.tips && (
-                      <div className="text-xs text-logoGray italic mt-1">
-                        {exercise.tips}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right side: metrics */}
-                  <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                    {getMetricsString(exercise) && (
-                      <div
-                        className={`px-2 py-1 rounded-lg text-sm border ${
-                          index === currentExerciseIndex
-                            ? "bg-brightYellow text-black border-black"
-                            : "bg-customGray text-logoGray border-gray-500"
-                        }`}
-                      >
-                        {getMetricsString(exercise)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+                {hasExistingProgress ? "Resume Workout" : "Start Workout"}
+              </button>
+            </div>
           </div>
+
+          {/* Description + Notes */}
+          {(workoutData.description || workoutData.workoutBlocks?.[0]?.blockNotes) && (
+            <div className="flex flex-col md:flex-row gap-3 mt-5 pt-5 border-t border-gray-100">
+              {workoutData.description && (
+                <div className="flex-1 bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Description</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">{workoutData.description}</p>
+                </div>
+              )}
+              {workoutData.workoutBlocks?.[0]?.blockNotes && (
+                <div className="flex-1 bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-1">Notes</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">{workoutData.workoutBlocks[0].blockNotes}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── Main two-column layout ── */}
+        <div className="flex flex-col-reverse lg:flex-row gap-6">
+
+          {/* ── Left: Video + instructions ── */}
+          <div className="w-full lg:w-1/2 space-y-4">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+
+              {/* Standard / Modified toggle */}
+              {modifiedExercise && (
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={() => setShowModified((prev) => ({ ...prev, [currentExerciseIndex]: false }))}
+                    className={`px-4 py-1.5 text-sm font-titillium font-semibold rounded-lg transition-colors duration-200 ${
+                      !showModified[currentExerciseIndex]
+                        ? "bg-brightYellow text-black"
+                        : "bg-gray-100 text-customGray hover:bg-gray-200"
+                    }`}
+                  >
+                    Standard
+                  </button>
+                  <button
+                    onClick={() => setShowModified((prev) => ({ ...prev, [currentExerciseIndex]: true }))}
+                    className={`px-4 py-1.5 text-sm font-titillium font-semibold rounded-lg transition-colors duration-200 ${
+                      showModified[currentExerciseIndex]
+                        ? "bg-brightYellow text-black"
+                        : "bg-gray-100 text-customGray hover:bg-gray-200"
+                    }`}
+                  >
+                    Modified
+                  </button>
+                </div>
+              )}
+
+              {/* Video */}
+              <div className="w-full aspect-video rounded-xl overflow-hidden bg-gray-100 mb-4">
+                {displayedExercise?.videoId ? (
+                  <div ref={iframeRef} className="w-full h-full" style={{ minHeight: "200px" }} />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <p className="text-customGray/40 text-sm font-titillium">Video not available</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Exercise name */}
+              <h2 className="text-base font-bold text-customGray font-titillium mb-3">
+                {getExerciseName(currentExercise, currentExerciseIndex)}
+              </h2>
+
+              {/* Instructions */}
+              {displayedExercise?.instructions && (
+                <div className="bg-gray-50 rounded-xl p-4 mb-3">
+                  <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Instructions</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed">{displayedExercise.instructions}</p>
+                </div>
+              )}
+
+              {/* Tips */}
+              {displayedExercise?.tips && (
+                <div className="bg-yellow-50 rounded-xl p-4 border border-brightYellow/30">
+                  <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-1">Top Tip</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed italic">{displayedExercise.tips}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── Right: Exercise list ── */}
+          <div className="w-full lg:w-1/2">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-bold text-customGray font-titillium">Exercises</h2>
+                <span className="text-xs text-customGray/40 font-titillium">* = modified version available</span>
+              </div>
+
+              <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                {allExercises.map((exercise, index) => {
+                  const isActive = index === currentExerciseIndex;
+                  const metrics = getMetrics(exercise);
+
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentExerciseIndex(index)}
+                      className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 border ${
+                        isActive
+                          ? "bg-yellow-50 border-brightYellow"
+                          : "bg-gray-50 border-transparent hover:border-gray-200 hover:bg-white"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        {/* Index + name */}
+                        <div className="flex items-start gap-3 min-w-0">
+                          <span className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-titillium mt-0.5 ${
+                            isActive ? "bg-brightYellow text-black" : "bg-gray-200 text-customGray/60"
+                          }`}>
+                            {index + 1}
+                          </span>
+                          <div className="min-w-0">
+                            <p className={`text-sm font-semibold font-titillium truncate ${isActive ? "text-customGray" : "text-customGray/80"}`}>
+                              {getExerciseName(exercise, index)}
+                              {exercise.exercise?.modificationId && (
+                                <span className="ml-1 text-brightYellow text-xs">*</span>
+                              )}
+                            </p>
+                            {exercise.tips && (
+                              <p className="text-xs text-customGray/40 font-titillium mt-0.5 italic">{exercise.tips}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Metrics */}
+                        {metrics.length > 0 && (
+                          <div className="flex flex-wrap gap-1 shrink-0">
+                            {metrics.map(({ label, value }) => (
+                              <span
+                                key={label}
+                                className={`px-2 py-0.5 rounded-lg text-xs font-titillium font-semibold ${
+                                  isActive
+                                    ? "bg-brightYellow/20 text-customGray"
+                                    : "bg-gray-200 text-customGray/60"
+                                }`}
+                              >
+                                {value}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

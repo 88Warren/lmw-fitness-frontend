@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import ExerciseVideo from "./ExerciseVideo";
-import DynamicHeading from "../../components/Shared/DynamicHeading";
 import AudioControl from "../../components/Shared/AudioControl";
 import useWorkoutAudio from "../../hooks/useWorkoutAudio";
 import useWorkoutFullscreen from "../../hooks/useWorkoutFullscreen";
@@ -43,7 +42,6 @@ const TabataWorkout = ({
     playStartSound,
   } = useWorkoutAudio();
 
-  // Use the preparation countdown hook
   const {
     isPreparationCountdown,
     preparationTime,
@@ -51,41 +49,34 @@ const TabataWorkout = ({
     cancelPreparationCountdown,
   } = usePreparationCountdown(playBeep, playStartSound);
 
-  // Reset hasStartedOnce for subsequent blocks/sets (except the very first one)
+  // Suppress unused lint warnings
+  void shouldAutoStart;
+  void cancelPreparationCountdown;
+
+  // Reset hasStartedOnce for subsequent blocks/sets
   useEffect(() => {
     const isFirstBlockAndSet = currentBlockIndex === 0 && currentSet === 1;
-    if (!isFirstBlockAndSet) {
-      setHasStartedOnce(false);
-    }
+    if (!isFirstBlockAndSet) setHasStartedOnce(false);
   }, [currentBlockIndex, currentSet]);
 
   const extractTabataConfig = () => {
     const currentBlock = allTabataBlocks?.[currentBlockIndex];
     const notes = currentBlock?.blockNotes || "";
-
     let workTime = 20;
     let restTime = 10;
     let setsPerBlock = 8;
 
     let match = notes.match(/(\d+)\s*(?:seconds?|secs?|s)\s+work/i);
     if (match) workTime = parseInt(match[1]);
-
     match = notes.match(/(\d+)\s*(?:seconds?|secs?|s)\s+rest/i);
     if (match) restTime = parseInt(match[1]);
-
     match = notes.match(/(\d+)\s+(?:sets?|rounds?)/i);
     if (match) setsPerBlock = parseInt(match[1]);
 
-    return {
-      workTime,
-      restTime,
-      setsPerBlock,
-      totalBlocks: allTabataBlocks?.length || 0,
-    };
+    return { workTime, restTime, setsPerBlock, totalBlocks: allTabataBlocks?.length || 0 };
   };
 
-  const { workTime, restTime, setsPerBlock, totalBlocks } =
-    extractTabataConfig();
+  const { workTime, restTime, setsPerBlock, totalBlocks } = extractTabataConfig();
 
   useEffect(() => {
     if (isRest) {
@@ -93,8 +84,6 @@ const TabataWorkout = ({
     } else {
       setTime(workTime);
     }
-    
-    // Auto-start subsequent blocks/sets (not the very first one)
     const isFirstBlockAndSet = currentBlockIndex === 0 && currentSet === 1;
     if (!isFirstBlockAndSet && !isActive) {
       setIsActive(true);
@@ -106,15 +95,8 @@ const TabataWorkout = ({
     if (isActive && !isPaused && time > 0) {
       intervalRef.current = setInterval(() => {
         setTime((prev) => {
-          if (prev <= 5 && prev > 0) {
-            playBeep();
-          }
-
-          // Play start sound when transitioning from rest to work
-          if (prev === 1 && isRest) {
-            setTimeout(() => playStartSound(), 1000); // Play start sound when rest ends and work begins
-          }
-
+          if (prev <= 5 && prev > 0) playBeep();
+          if (prev === 1 && isRest) setTimeout(() => playStartSound(), 1000);
           if (prev <= 1) {
             clearInterval(intervalRef.current);
             handleTimerComplete();
@@ -136,12 +118,9 @@ const TabataWorkout = ({
     if (isRest) {
       setIsRest(false);
       setTime(workTime);
-
       if (currentSet < setsPerBlock) {
         setCurrentSet(currentSet + 1);
-        const nextExerciseIndex =
-          (currentExerciseIndex + 1) % currentBlock.exercises.length;
-        setCurrentExerciseIndex(nextExerciseIndex);
+        setCurrentExerciseIndex((currentExerciseIndex + 1) % currentBlock.exercises.length);
       } else {
         if (currentBlockIndex < totalBlocks - 1) {
           setCurrentBlockIndex(currentBlockIndex + 1);
@@ -171,23 +150,18 @@ const TabataWorkout = ({
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const startTimer = () => {
-    // Start with 5-second preparation countdown ONLY for the very first start
     if (!isActive && !isPaused && !isPreparationCountdown && !hasStartedOnce) {
       startPreparationCountdown(() => {
-        // After preparation countdown, start the actual workout
         setIsActive(true);
         setIsPaused(false);
         setHasResetOnce(false);
         setHasStartedOnce(true);
       });
     } else {
-      // Resume from pause
       setIsActive(true);
       setIsPaused(false);
       setHasResetOnce(false);
@@ -195,19 +169,12 @@ const TabataWorkout = ({
     }
   };
 
-  const pauseTimer = () => {
-    setIsPaused(true);
-  };
+  const pauseTimer = () => setIsPaused(true);
 
   const resetTimer = () => {
     clearInterval(intervalRef.current);
-
     if (!hasResetOnce) {
-      if (isRest) {
-        setTime(restTime);
-      } else {
-        setTime(workTime);
-      }
+      setTime(isRest ? restTime : workTime);
       setIsActive(false);
       setIsPaused(false);
       setHasResetOnce(true);
@@ -228,7 +195,6 @@ const TabataWorkout = ({
 
   const skipCurrent = () => {
     if (!isAdmin) return;
-
     clearInterval(intervalRef.current);
     setTime(0);
     handleTimerComplete();
@@ -239,87 +205,69 @@ const TabataWorkout = ({
     onComplete();
   };
 
-
-
   const getCurrentExercise = () => {
     const currentBlock = allTabataBlocks?.[currentBlockIndex];
-    if (!currentBlock?.exercises || currentBlock.exercises.length === 0) {
-      return null;
-    }
-    const safeIndex = currentExerciseIndex % currentBlock.exercises.length;
-    return currentBlock.exercises[safeIndex];
+    if (!currentBlock?.exercises || currentBlock.exercises.length === 0) return null;
+    return currentBlock.exercises[currentExerciseIndex % currentBlock.exercises.length];
   };
 
   const currentExercise = getCurrentExercise();
 
   const getExerciseName = (exercise, exerciseIndex) => {
     if (!exercise?.exercise) return "";
-
     const isModified = showModified[exerciseIndex] || false;
-    if (isModified && exercise.exercise.modification) {
-      return exercise.exercise.modification.name;
-    }
+    if (isModified && exercise.exercise.modification) return exercise.exercise.modification.name;
     return exercise.exercise.name;
   };
 
   const getNextExerciseInfo = () => {
     if (!isRest) return null;
-
     const currentBlock = allTabataBlocks?.[currentBlockIndex];
     if (!currentBlock) return null;
-    if (currentSet < setsPerBlock) {
-      const nextExerciseIndex =
-        (currentExerciseIndex + 1) % currentBlock.exercises.length;
-      const nextExercise = currentBlock.exercises[nextExerciseIndex];
 
+    if (currentSet < setsPerBlock) {
+      const nextExerciseIndex = (currentExerciseIndex + 1) % currentBlock.exercises.length;
       return {
         type: "single",
-        exercise: nextExercise,
+        exercise: currentBlock.exercises[nextExerciseIndex],
         exerciseIndex: nextExerciseIndex,
         setNumber: currentSet + 1,
       };
     } else if (currentBlockIndex < totalBlocks - 1) {
       const nextBlock = allTabataBlocks[currentBlockIndex + 1];
       if (nextBlock?.exercises?.length >= 2) {
-        return {
-          type: "nextBlock",
-          exercises: [nextBlock.exercises[0], nextBlock.exercises[1]],
-          blockNumber: currentBlockIndex + 2,
-        };
+        return { type: "nextBlock", exercises: [nextBlock.exercises[0], nextBlock.exercises[1]], blockNumber: currentBlockIndex + 2 };
       } else if (nextBlock?.exercises?.length === 1) {
-        return {
-          type: "single",
-          exercise: nextBlock.exercises[0],
-          exerciseIndex: 0,
-          blockNumber: currentBlockIndex + 2,
-        };
+        return { type: "single", exercise: nextBlock.exercises[0], exerciseIndex: 0, blockNumber: currentBlockIndex + 2 };
       }
     }
-
     return null;
   };
 
+  const isFirstBlockAndSet = currentBlockIndex === 0 && currentSet === 1;
+
   if (isComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-b from-customGray/30 to-white">
-        <div className="bg-customGray p-6 rounded-lg text-center max-w-2xl w-full border-brightYellow border-2">
-          <div className="text-6xl mb-6">🔥</div>
-          <DynamicHeading
-            className="font-higherJump text-2xl md:text-3xl font-bold text-customWhite mb-4 leading-loose"
-            text="Tabata Complete!"
-          />
-          <p className="text-lg text-logoGray mt-6 mb-2">
-            Incredible work! You completed {totalBlocks} blocks of Tabata
-            training.
+      <div className="min-h-screen bg-white flex items-center justify-center p-8">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 max-w-lg w-full text-center">
+          <div className="text-5xl mb-5">🔥</div>
+          <h2 className="text-2xl md:text-3xl font-bold text-customGray font-titillium mb-3">
+            Tabata Complete!
+          </h2>
+          <p className="text-customGray/60 font-titillium mb-8">
+            Incredible work! You completed {totalBlocks} block{totalBlocks !== 1 ? "s" : ""} of Tabata training.
           </p>
-          <div className="space-y-4">
+          <div className="space-y-3">
             <button
               onClick={handleComplete}
-              className="btn-full-colour sm:mr-4"
+              className="w-full py-3 bg-brightYellow text-black font-titillium font-bold rounded-xl hover:bg-brightYellow/80 transition-colors duration-200"
             >
-              Back to Program
+              Back to Programme
             </button>
-            <button onClick={resetTimer} className="btn-cancel mt-0 md:mt-6">
+            <button
+              onClick={resetTimer}
+              className="w-full py-3 bg-gray-50 text-customGray/60 font-titillium font-semibold rounded-xl hover:bg-gray-100 transition-colors duration-200 border border-gray-100"
+            >
               Restart Tabata
             </button>
           </div>
@@ -329,43 +277,84 @@ const TabataWorkout = ({
   }
 
   return (
-    <div
-      className={`min-h-screen flex items-center justify-center bg-linear-to-b from-customGray/30 to-white ${
-        isFullscreen ? "fixed inset-0 z-50 p-0" : "p-4"
-      }`}
-    >
-      <div
-        className={`bg-customGray rounded-lg text-center w-full flex flex-col border-brightYellow border-2 ${
-          isFullscreen
-            ? "h-full max-w-none p-6"
-            : "p-4 max-w-6xl h-full lg:max-h-[140vh] mt-20 md:mt-26"
-        }`}
-      >
+    <div className={`${isFullscreen ? "fixed inset-0 z-50 p-0" : "min-h-screen bg-white pt-32 pb-8 px-4"}`}>
+      <div className={`${isFullscreen ? "bg-white h-full max-w-none p-6 flex flex-col" : "max-w-6xl mx-auto space-y-4"}`}>
+
         {!isFullscreen && (
-          <div className="flex justify-between items-center">
-            <AudioControl
-              audioEnabled={audioEnabled}
-              volume={volume}
-              startSound={startSound}
-              onToggle={toggleAudio}
-              onVolumeChange={setVolumeLevel}
-              onStartSoundChange={setStartSoundType}
-              playStartSound={playStartSound}
-              playBeep={playBeep}
-              className="mt-0"
-            />
-            {canGoBack && (
-              <button
-                onClick={onGoBack}
-                className="btn-cancel mt-0 py-2 md:py-3 px-3 md:px-6"
-              >
-                Back to Overview
-              </button>
-            )}
-          </div>
+          <>
+            {/* Top bar */}
+            <div className="flex justify-between items-center">
+              <AudioControl
+                audioEnabled={audioEnabled}
+                volume={volume}
+                startSound={startSound}
+                onToggle={toggleAudio}
+                onVolumeChange={setVolumeLevel}
+                onStartSoundChange={setStartSoundType}
+                playStartSound={playStartSound}
+                playBeep={playBeep}
+                className="mt-0"
+              />
+              {canGoBack && (
+                <button
+                  onClick={onGoBack}
+                  className="inline-flex items-center gap-2 text-sm font-titillium font-semibold text-customGray/50 hover:text-customGray transition-colors duration-200"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back to Overview
+                </button>
+              )}
+            </div>
+
+            {/* Header card */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+              <h1 className="text-lg md:text-2xl font-bold text-customGray font-titillium mb-3 text-center">{title}</h1>
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="flex-1 bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Description</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">{description}</p>
+                </div>
+                <div className="flex-1 bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-1">Instructions</p>
+                  <p className="text-sm text-customGray/70 font-titillium leading-relaxed">
+                    {workTime}s work · {restTime}s rest · {setsPerBlock} sets per block
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Block / set progress header */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 text-center">
+              <p className="text-base md:text-lg font-bold text-customGray font-titillium">
+                Block{" "}
+                <span className="text-brightYellow">{currentBlockIndex + 1}</span>{" "}
+                of <span className="text-brightYellow">{totalBlocks}</span>
+                <span className="text-customGray/30 mx-2">·</span>
+                Set <span className="text-limeGreen">{currentSet}</span> of{" "}
+                <span className="text-limeGreen">{setsPerBlock}</span>
+              </p>
+              {/* Set progress dots */}
+              <div className="flex justify-center gap-1.5 mt-2">
+                {Array.from({ length: setsPerBlock }, (_, i) => (
+                  <div
+                    key={i}
+                    className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                      i < currentSet - 1
+                        ? "bg-limeGreen"
+                        : i === currentSet - 1
+                        ? isRest ? "bg-hotPink" : "bg-limeGreen"
+                        : "bg-gray-200"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
-        {/* Audio controls for larger screens in fullscreen */}
+        {/* Audio controls for fullscreen */}
         {isFullscreen && (
           <div className="hidden lg:flex justify-start items-center mb-2">
             <AudioControl
@@ -382,636 +371,451 @@ const TabataWorkout = ({
           </div>
         )}
 
-        {/* Header */}
-        {!isFullscreen && (
-          <div className="flex flex-col mt-4 mb-4 items-center">
-            <DynamicHeading
-              text={title}
-              className="font-higherJump mb-4 text-xl md:text-3xl font-bold text-customWhite text-center leading-loose tracking-widest"
-            />
-            <div className="flex flex-col md:flex-row gap-0 md:gap-2 w-full items-center md:items-stretch">
-              {/* Description */}
-              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
-                <p className="text-logoGray text-sm whitespace-pre-line wrap-break-words leading-loose">
-                  <span className="text-limeGreen font-bold">Description:</span>{" "}
-                  {description}
-                </p>
-              </div>
+        {/* Main content */}
+        <div className={`flex gap-4 ${isFullscreen ? "flex-col items-center flex-1" : "flex-col lg:flex-row"}`}>
 
-              {/* Instructions */}
-              <div className="flex items-start justify-center w-5/6 lg:w-1/2 bg-gray-600 rounded-lg p-3 m-3 text-center">
-                <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
-                  <span className="text-limeGreen font-bold">
-                    Instructions:
-                  </span>{" "}
-                  {workTime}s work, {restTime}s rest. Complete {setsPerBlock}{" "}
-                  sets per block.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+          {/* Left column: timer + current/next exercise */}
+          <div className={`flex flex-col gap-4 ${isFullscreen ? "w-full" : "w-full lg:w-1/3"}`}>
+            <div className="flex flex-col sm:flex-row-reverse lg:flex-col gap-4">
 
-        {/* Round and Set Progress */}
-        {!isFullscreen && (
-          <div className="">
-            <h2 className="text-customWhite text-2xl font-titillium font-semibold mb-2">
-              Block{" "}
-              <span className="text-brightYellow">{currentBlockIndex + 1}</span>{" "}
-              of <span className="text-brightYellow">{totalBlocks}</span>
-              {" • "}
-              Set <span className="text-limeGreen">{currentSet}</span> of{" "}
-              <span className="text-limeGreen">{setsPerBlock}</span>
-            </h2>
-          </div>
-        )}
-
-        {/* Main Content */}
-        <div
-          className={`grow flex ${
-            isFullscreen
-              ? "flex-col items-center justify-start gap-2 p-2 sm:gap-4 sm:p-4 h-full"
-              : "flex-col lg:flex-row gap-6 p-4"
-          }`}
-        >
-          {/* Regular Content - Hidden in fullscreen */}
-          {!isFullscreen && (
-            <>
-              {/* Left Column: Timer and Status */}
-              <div className="w-full lg:w-1/3 flex flex-col space-y-4">
-                <div className="flex flex-col sm:flex-row-reverse lg:flex-col gap-4">
-                  {/* Timer - First on mobile */}
-                  <div className="w-full sm:w-1/2 lg:w-full bg-gray-600 rounded-lg p-4 lg:p-6 text-center relative">
-                    {/* Fullscreen Toggle Button - Inside timer card */}
-                    <button
-                      onClick={toggleFullscreen}
-                      className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
-                      title={
-                        isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"
-                      }
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-                        />
-                      </svg>
-                    </button>
-                    {isPreparationCountdown ? (
-                      // Preparation countdown display
-                      <div className="text-center mb-2 lg:mb-4">
-                        <div className="text-brightYellow animate-pulse text-6xl lg:text-7xl">
-                          {preparationTime}
-                        </div>
-                        <div className="text-brightYellow font-semibold text-lg mb-2">
-                          Get Ready!
-                        </div>
-                        <div className="text-center">
-                          <span className="text-brightYellow font-semibold text-sm animate-bounce">
-                            🏃‍♀️ Get in position for Tabata!
-                          </span>
-                        </div>
-                      </div>
-                    ) : (() => {
-                      const isFirstBlockAndSet = currentBlockIndex === 0 && currentSet === 1;
-                      return !isActive && !isPaused && !isPreparationCountdown && isFirstBlockAndSet && !hasStartedOnce;
-                    })() ? (
-                      // Show "Get Ready" view on page load with static timer
-                      <div className="text-center mb-2 lg:mb-4">
-                        <div className="text-brightYellow text-5xl lg:text-6xl mb-2 lg:mb-4">
-                          5
-                        </div>
-                        <div className="text-center">
-                          <div className="text-brightYellow font-bold text-sm mb-1">
-                            Get Ready!
-                          </div>
-                          <p className="text-customWhite text-xs mb-1">
-                            Click START for a 5-second countdown
-                          </p>
-                          <p className="text-logoGray text-xs">
-                            High intensity intervals - be ready!
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      // Regular timer display
-                      <div
-                        className={`text-5xl lg:text-6xl mb-2 lg:mb-4 ${
-                          isRest ? "text-hotPink" : "text-limeGreen"
-                        }`}
-                      >
-                        {formatTime(time)}
-                      </div>
-                    )}
-
-                    {/* Timer Controls */}
-                    <div className="flex justify-center space-x-1 lg:space-x-2">
-                      {(!isActive && !isPreparationCountdown) || isPaused ? (
-                        <button
-                          onClick={startTimer}
-                          className="btn-full-colour mr-2 bg-limeGreen hover:bg-green-600 text-black"
-                        >
-                          {isPaused ? "Resume" : "Start"}
-                        </button>
-                      ) : isPreparationCountdown ? (
-                        <button
-                          disabled
-                          className="btn-full-colour opacity-50 cursor-not-allowed mr-2 bg-brightYellow text-black"
-                        >
-                          Get Ready...
-                        </button>
-                      ) : (
-                        <button onClick={pauseTimer} className="btn-subscribe">
-                          Pause
-                        </button>
-                      )}
-                      <button onClick={resetTimer} className="btn-cancel">
-                        {hasResetOnce
-                          ? "Reset All"
-                          : isRest
-                          ? "Reset Rest"
-                          : "Reset Work"}
-                      </button>
-                      {isAdmin && isActive && (
-                        <button onClick={skipCurrent} className="btn-skip">
-                          Next
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Current/Next Exercise - Second on mobile */}
-                  <div className="bg-gray-600 w-full sm:w-1/2 lg:w-full rounded-lg p-4 lg:p-6 text-center">
-                    {isRest ? (
-                      // Show next exercise during rest
-                      <>
-                        <h3 className="text-lg lg:text-xl font-bold text-customWhite mb-2">
-                          Next Up
-                        </h3>
-                        {(() => {
-                          const nextInfo = getNextExerciseInfo();
-                          if (!nextInfo) return null;
-
-                          if (nextInfo.type === "single") {
-                            return (
-                              <div className="text-brightYellow text-base lg:text-lg font-bold">
-                                {getExerciseName(
-                                  nextInfo.exercise,
-                                  nextInfo.exerciseIndex
-                                )}
-                                {nextInfo.blockNumber && (
-                                  <div className="text-sm text-logoGray mt-1">
-                                    Block {nextInfo.blockNumber}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          } else if (nextInfo.type === "nextBlock") {
-                            return (
-                              <div className="text-brightYellow text-base lg:text-lg font-bold">
-                                <div>Block {nextInfo.blockNumber}</div>
-                                <div className="text-sm text-logoGray mt-1">
-                                  {getExerciseName(nextInfo.exercises[0], 0)} &{" "}
-                                  {getExerciseName(nextInfo.exercises[1], 1)}
-                                </div>
-                              </div>
-                            );
-                          }
-                        })()}
-                      </>
-                    ) : (
-                      <>
-                        <h3 className="text-lg lg:text-xl font-bold text-customWhite mb-2">
-                          Current Exercise
-                        </h3>
-                        {currentExercise && (
-                          <div className="text-brightYellow text-base lg:text-lg font-bold">
-                            {getExerciseName(
-                              currentExercise,
-                              currentExerciseIndex
-                            )}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column: Exercise List and Video */}
-              <div className="w-full lg:w-2/3">
-                {/* Exercise Table */}
-                <div className="flex-1 space-y-2 overflow-y-auto mb-4">
-                  {allTabataBlocks?.[currentBlockIndex]?.exercises?.map(
-                    (exercise, index) => (
-                      <div
-                        key={exercise.id || index}
-                        onClick={() => setCurrentExerciseIndex(index)}
-                        className={`p-3 rounded-lg text-sm transition-colors duration-200 cursor-pointer ${
-                          index === currentExerciseIndex
-                            ? "bg-gray-700 text-black"
-                            : "text-logoGray hover:bg-gray-700"
-                        }`}
-                      >
-                        <div className="flex flex-row justify-between font-bold gap-2">
-                          {/* Left side: exercise name */}
-                          <div className="flex flex-row items-start">
-                            <span className="text-customWhite text-left">
-                              {getExerciseName(exercise, index)}
-                            </span>
-                            {/* Modified version label */}
-                            {exercise.exercise.modification && (
-                              <span
-                                className={`text-xs align-center ml-1 text-brightYellow`}
-                              >
-                                *
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Right side: standard/modified toggle for both mobile and desktop */}
-                          <div className="flex flex-wrap gap-2 items-center">
-                            {exercise.exercise.modification && (
-                              <div className="flex items-center space-x-1">
-                                {(() => {
-                                  const { standardText, modifiedText } =
-                                    getToggleButtonText(exercise);
-                                  return (
-                                    <>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setShowModified((prev) => ({
-                                            ...prev,
-                                            [index]: false,
-                                          }));
-                                        }}
-                                        className={`text-xs sm:text-sm px-2 py-1 rounded sm:rounded-lg border ${
-                                          currentExerciseIndex === index
-                                            ? !showModified[index]
-                                              ? "border-limeGreen bg-limeGreen text-black"
-                                              : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                            : "border-gray-500"
-                                        }`}
-                                      >
-                                        {standardText}
-                                      </button>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setShowModified((prev) => ({
-                                            ...prev,
-                                            [index]: true,
-                                          }));
-                                        }}
-                                        className={`text-xs sm:text-sm px-2 py-1 rounded sm:rounded-lg border ${
-                                          currentExerciseIndex === index
-                                            ? showModified[index]
-                                              ? "border-limeGreen bg-limeGreen text-black"
-                                              : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                            : "border-gray-500"
-                                        }`}
-                                      >
-                                        {modifiedText}
-                                      </button>
-                                    </>
-                                  );
-                                })()}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  )}
-                </div>
-
-                {/* Video */}
-                {currentExercise && (
-                  <div className="pt-4">
-                    <div className="relative w-full pb-[70%] md:pb-[75%] overflow-hidden rounded-lg">
-                      <div className="absolute top-0 left-0 w-full h-full">
-                        <ExerciseVideo
-                          exercise={currentExercise}
-                          isActive={true}
-                          shouldAutoStart={false}
-                          showModified={
-                            showModified[currentExerciseIndex] || false
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Exercise Details - Side by side on desktop, stacked on mobile */}
-                <div className="mt-2 flex flex-col md:flex-row gap-4 w-full">
-                  {currentExercise && (
-                    <>
-                      {/* Show individual exercise tips */}
-                      {(currentExercise?.tips ||
-                        currentExercise?.exercise?.tips) && (
-                        <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
-                          <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
-                            <span className="text-limeGreen font-bold">
-                              Tips:
-                            </span>{" "}
-                            {currentExercise?.tips ||
-                              currentExercise?.exercise?.tips}
-                          </p>
-                        </div>
-                      )}
-                      {/* Show individual exercise instructions */}
-                      {(currentExercise?.instructions ||
-                        currentExercise?.exercise?.instructions) && (
-                        <div className="flex items-center justify-center w-full md:w-1/2 bg-gray-600 rounded-lg p-3 text-center">
-                          <p className="text-sm text-logoGray whitespace-pre-line wrap-break-words leading-loose">
-                            <span className="text-limeGreen font-bold">
-                              Exercise Instructions:
-                            </span>{" "}
-                            {currentExercise?.instructions ||
-                              currentExercise?.exercise?.instructions}
-                          </p>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Fullscreen Content */}
-          {isFullscreen && (
-            <div className="w-full flex flex-col flex-1">
-              {/* Block and Exercise Numbers Heading */}
-              <div className="mb-4">
-                <h2 className="text-customWhite text-xl sm:text-2xl md:text-3xl font-titillium font-semibold">
-                  Block{" "}
-                  <span className="text-brightYellow">
-                    {currentBlockIndex + 1}
-                  </span>{" "}
-                  of <span className="text-brightYellow">{totalBlocks}</span>
-                  {" • "}
-                  Set <span className="text-limeGreen">
-                    {currentSet}
-                  </span> of{" "}
-                  <span className="text-limeGreen">{setsPerBlock}</span>
-                </h2>
-              </div>
-
-              {/* Timer Row */}
-              <div className="flex justify-center mb-3 sm:mb-4 shrink-0">
-                <div className="w-full bg-gray-600 rounded-lg text-center relative p-3 sm:p-4 md:p-5">
-                  {/* Fullscreen Toggle Button - Inside timer card */}
-                  <button
-                    onClick={toggleFullscreen}
-                    className="absolute top-2 right-2 text-customWhite hover:text-brightYellow transition-colors p-2 rounded-lg hover:bg-gray-700 z-10"
-                    title="Exit Fullscreen"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
+              {/* Timer card */}
+              <div className={`bg-white rounded-2xl border shadow-sm text-center flex flex-col justify-between relative p-5 min-h-[160px] ${
+                isRest ? "border-hotPink/30" : "border-gray-100"
+              } ${isFullscreen ? "w-full" : "w-full sm:w-1/2 lg:w-full"}`}>
+                <button
+                  onClick={toggleFullscreen}
+                  className="absolute top-2 right-2 text-customGray/30 hover:text-customGray transition-colors p-2 rounded-lg hover:bg-gray-50 z-10"
+                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                >
+                  {isFullscreen ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                  </button>
-                  {isPreparationCountdown ? (
-                    // Preparation countdown display
-                    <div className="text-center mb-2 sm:mb-3 md:mb-4">
-                      <div className="text-brightYellow animate-pulse text-6xl sm:text-7xl md:text-8xl lg:text-9xl">
-                        {preparationTime}
-                      </div>
-                      <div className="text-brightYellow font-semibold text-lg mb-2">
-                        Get Ready!
-                      </div>
-                      <div className="text-center">
-                        <span className="text-brightYellow font-semibold text-sm animate-bounce">
-                          🏃‍♀️ Get in position for Tabata!
-                        </span>
-                      </div>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                  )}
+                </button>
+
+                {/* Phase label */}
+                <p className={`text-xs font-titillium font-bold uppercase tracking-wide mb-1 ${isRest ? "text-hotPink" : "text-limeGreen"}`}>
+                  {isRest ? "Rest" : "Work"}
+                </p>
+
+                <div className="flex-1 flex flex-col justify-center">
+                  {!isActive && !isPaused && !isPreparationCountdown && isFirstBlockAndSet && !hasStartedOnce ? (
+                    <div className="text-center">
+                      <div className="text-6xl text-brightYellow mb-2">5</div>
+                      <p className="text-sm font-titillium font-semibold text-brightYellow mb-1">Get Ready!</p>
+                      <p className="text-xs text-customGray/50 font-titillium">Click START for a 5-second countdown</p>
                     </div>
-                  ) : (() => {
-                    const isFirstBlockAndSet = currentBlockIndex === 0 && currentSet === 1;
-                    return !isActive && !isPaused && !isPreparationCountdown && isFirstBlockAndSet && !hasStartedOnce;
-                  })() ? (
-                    // Show "Get Ready" view on page load with static timer
-                    <div className="text-center mb-2 sm:mb-3 md:mb-4">
-                      <div className="text-brightYellow text-6xl sm:text-7xl md:text-8xl lg:text-9xl mb-2">
-                        5
-                      </div>
-                      <div className="text-center">
-                        <div className="text-brightYellow font-bold text-lg mb-2">
-                          Get Ready!
-                        </div>
-                        <p className="text-customWhite text-sm mb-2">
-                          Click START for a 5-second countdown
-                        </p>
-                        <p className="text-logoGray text-xs">
-                          High intensity intervals - be ready!
-                        </p>
-                      </div>
+                  ) : isPreparationCountdown ? (
+                    <div className="text-center">
+                      <div className="text-6xl text-brightYellow animate-pulse mb-2">{preparationTime}</div>
+                      <p className="text-sm font-titillium font-semibold text-brightYellow animate-bounce">🏃‍♀️ Get in position!</p>
                     </div>
                   ) : (
-                    // Regular timer display
-                    <div
-                      className={`mb-2 sm:mb-3 md:mb-4 ${
-                        isRest ? "text-hotPink" : "text-limeGreen"
-                      } text-5xl sm:text-6xl md:text-7xl lg:text-8xl`}
-                    >
+                    <div className={`text-5xl lg:text-6xl font-bold mb-1 ${isRest ? "text-hotPink" : "text-limeGreen"}`}>
                       {formatTime(time)}
                     </div>
                   )}
+                </div>
 
-                  {/* Timer Controls */}
-                  <div className="flex justify-center space-x-3 sm:space-x-4 md:space-x-6 lg:space-x-8">
-                    {(!isActive && !isPreparationCountdown) || isPaused ? (
-                      <button
-                        onClick={startTimer}
-                        className="btn-full-colour mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-limeGreen hover:bg-green-600 text-black"
-                      >
-                        {isPaused ? "Resume" : "Start"}
-                      </button>
-                    ) : isPreparationCountdown ? (
-                      <button
-                        disabled
-                        className="btn-full-colour opacity-50 cursor-not-allowed mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-brightYellow text-black"
-                      >
-                        Get Ready...
-                      </button>
-                    ) : (
-                      <button
-                        onClick={pauseTimer}
-                        className="btn-subscribe mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
-                      >
-                        Pause
-                      </button>
-                    )}
-                    <button
-                      onClick={resetTimer}
-                      className="btn-cancel mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
-                    >
-                      {hasResetOnce
-                        ? "Reset All"
-                        : isRest
-                        ? "Reset Rest"
-                        : "Reset Work"}
+                <div className="flex justify-center gap-2">
+                  {(!isActive && !isPreparationCountdown) || isPaused ? (
+                    <button onClick={startTimer} className="px-4 py-2 text-sm font-titillium font-bold bg-limeGreen text-black rounded-xl hover:bg-limeGreen/80 transition-colors">
+                      {isPaused ? "Resume" : "Start"}
                     </button>
-                    {isAdmin && isActive && (
-                      <button
-                        onClick={skipCurrent}
-                        className="btn-skip mt-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base"
-                      >
-                        Next
-                      </button>
-                    )}
-                  </div>
+                  ) : isPreparationCountdown ? (
+                    <button disabled className="px-4 py-2 text-sm font-titillium font-bold bg-brightYellow/50 text-black rounded-xl cursor-not-allowed">
+                      Get Ready...
+                    </button>
+                  ) : (
+                    <button onClick={pauseTimer} className="px-4 py-2 text-sm font-titillium font-bold bg-hotPink text-black rounded-xl hover:bg-hotPink/80 transition-colors">
+                      Pause
+                    </button>
+                  )}
+                  <button onClick={resetTimer} className="px-4 py-2 text-sm font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors">
+                    {hasResetOnce ? "Reset All" : isRest ? "Reset Rest" : "Reset Work"}
+                  </button>
+                  {isAdmin && isActive && (
+                    <button onClick={skipCurrent} className="px-4 py-2 text-sm font-titillium font-semibold bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors">
+                      Next
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Current/Next Exercise Display */}
-              <div className="w-full bg-gray-600 rounded-lg p-3 sm:p-4 md:p-5 text-center mb-3 sm:mb-4 shrink-0">
+              {/* Current / Next exercise card */}
+              <div className={`bg-white rounded-2xl border border-gray-100 shadow-sm p-5 text-center ${isFullscreen ? "w-full" : "w-full sm:w-1/2 lg:w-full"}`}>
                 {isRest ? (
-                  // Show next exercise during rest
                   <>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-2 sm:mb-3">
-                      Next Up
-                    </h3>
+                    <p className="text-xs font-titillium font-bold text-hotPink uppercase tracking-wide mb-2">Next Up</p>
                     {(() => {
                       const nextInfo = getNextExerciseInfo();
                       if (!nextInfo) return null;
-
                       if (nextInfo.type === "single") {
                         return (
-                          <div className="text-brightYellow text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
-                            {getExerciseName(
-                              nextInfo.exercise,
-                              nextInfo.exerciseIndex
-                            )}
+                          <>
+                            <p className="text-base font-bold text-customGray font-titillium">
+                              {getExerciseName(nextInfo.exercise, nextInfo.exerciseIndex)}
+                            </p>
                             {nextInfo.blockNumber && (
-                              <div className="text-base sm:text-lg md:text-xl text-logoGray mt-1 sm:mt-2">
-                                Block {nextInfo.blockNumber}
-                              </div>
+                              <p className="text-xs text-customGray/50 font-titillium mt-1">Block {nextInfo.blockNumber}</p>
                             )}
-                          </div>
+                          </>
                         );
                       } else if (nextInfo.type === "nextBlock") {
                         return (
-                          <div className="text-brightYellow text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
-                            <div>Block {nextInfo.blockNumber}</div>
-                            <div className="text-base sm:text-lg md:text-xl text-logoGray mt-1 sm:mt-2">
-                              {getExerciseName(nextInfo.exercises[0], 0)} &{" "}
-                              {getExerciseName(nextInfo.exercises[1], 1)}
-                            </div>
-                          </div>
+                          <>
+                            <p className="text-xs text-customGray/50 font-titillium mb-1">Block {nextInfo.blockNumber}</p>
+                            <p className="text-base font-bold text-customGray font-titillium">
+                              {getExerciseName(nextInfo.exercises[0], 0)} &amp; {getExerciseName(nextInfo.exercises[1], 1)}
+                            </p>
+                          </>
                         );
                       }
                     })()}
                   </>
                 ) : (
                   <>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-2 sm:mb-3">
-                      Current Exercise
-                    </h3>
+                    <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-2">Current Exercise</p>
                     {currentExercise && (
                       <>
-                        <div className="text-brightYellow text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3">
-                          {getExerciseName(
-                            currentExercise,
-                            currentExerciseIndex
-                          )}
-                        </div>
-                        {/* Modification toggle for current exercise */}
-                        {currentExercise.exercise.modification && (
-                          <div className="flex justify-center space-x-2">
-                            {(() => {
-                              const { standardText, modifiedText } =
-                                getToggleButtonText(currentExercise);
-                              return (
-                                <>
-                                  <button
-                                    onClick={() =>
-                                      setShowModified((prev) => ({
-                                        ...prev,
-                                        [currentExerciseIndex]: false,
-                                      }))
-                                    }
-                                    className={`text-sm px-2 py-1 rounded border ${
-                                      !showModified[currentExerciseIndex]
-                                        ? "border-limeGreen bg-limeGreen text-black"
-                                        : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                    }`}
-                                  >
-                                    {standardText}
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      setShowModified((prev) => ({
-                                        ...prev,
-                                        [currentExerciseIndex]: true,
-                                      }))
-                                    }
-                                    className={`text-sm px-2 py-1 rounded border ${
-                                      showModified[currentExerciseIndex]
-                                        ? "border-limeGreen bg-limeGreen text-black"
-                                        : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                    }`}
-                                  >
-                                    {modifiedText}
-                                  </button>
-                                </>
-                              );
-                            })()}
-                          </div>
+                        <p className="text-base font-bold text-customGray font-titillium mb-3">
+                          {getExerciseName(currentExercise, currentExerciseIndex)}
+                        </p>
+                        {currentExercise.exercise?.modification && (() => {
+                          const { standardText, modifiedText } = getToggleButtonText(currentExercise);
+                          return (
+                            <div className="flex justify-center gap-2">
+                              <button
+                                onClick={() => setShowModified((prev) => ({ ...prev, [currentExerciseIndex]: false }))}
+                                className={`text-xs px-2 py-1 rounded-lg border font-titillium transition-colors ${
+                                  !showModified[currentExerciseIndex]
+                                    ? "border-limeGreen bg-limeGreen text-black"
+                                    : "border-gray-200 bg-gray-100 text-customGray hover:bg-gray-200"
+                                }`}
+                              >
+                                {standardText}
+                              </button>
+                              <button
+                                onClick={() => setShowModified((prev) => ({ ...prev, [currentExerciseIndex]: true }))}
+                                className={`text-xs px-2 py-1 rounded-lg border font-titillium transition-colors ${
+                                  showModified[currentExerciseIndex]
+                                    ? "border-limeGreen bg-limeGreen text-black"
+                                    : "border-gray-200 bg-gray-100 text-customGray hover:bg-gray-200"
+                                }`}
+                              >
+                                {modifiedText}
+                              </button>
+                            </div>
+                          );
+                        })()}
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Tips & instructions — desktop */}
+            {!isFullscreen && (
+              <div className="hidden lg:flex flex-col gap-3">
+                {(currentExercise?.tips || currentExercise?.exercise?.tips) && (
+                  <div className="bg-yellow-50 rounded-xl p-4 border border-brightYellow/20">
+                    <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-1">Form Tips</p>
+                    <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">
+                      {currentExercise?.tips || currentExercise?.exercise?.tips}
+                    </p>
+                  </div>
+                )}
+                {(currentExercise?.instructions || currentExercise?.exercise?.instructions) && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Instructions</p>
+                    <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">
+                      {currentExercise?.instructions || currentExercise?.exercise?.instructions}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right column: exercise list + video */}
+          {!isFullscreen && (
+            <div className="w-full lg:w-2/3 flex flex-col gap-3">
+
+              {/* Exercise list */}
+              <div className="space-y-2">
+                {allTabataBlocks?.[currentBlockIndex]?.exercises?.map((exercise, index) => (
+                  <div
+                    key={exercise.id || index}
+                    onClick={() => setCurrentExerciseIndex(index)}
+                    className={`p-3 rounded-xl text-sm transition-colors duration-200 cursor-pointer border ${
+                      index === currentExerciseIndex
+                        ? "bg-gray-50 border-limeGreen/40 shadow-sm"
+                        : "bg-white border-gray-100 hover:bg-gray-50 hover:border-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1">
+                        {index === currentExerciseIndex && !isRest && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-limeGreen shrink-0" />
                         )}
+                        <span className="font-bold text-customGray font-titillium">
+                          {getExerciseName(exercise, index)}
+                        </span>
+                        {exercise.exercise.modification && (
+                          <span className="text-xs text-brightYellow">*</span>
+                        )}
+                      </div>
+
+                      {exercise.exercise.modification && (() => {
+                        const { standardText, modifiedText } = getToggleButtonText(exercise);
+                        return (
+                          <div className="flex gap-1 shrink-0">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setShowModified((prev) => ({ ...prev, [index]: false })); }}
+                              className={`text-xs px-2 py-1 rounded-lg border font-titillium transition-colors ${
+                                !showModified[index]
+                                  ? "border-limeGreen bg-limeGreen text-black"
+                                  : "border-gray-200 bg-gray-100 text-customGray hover:bg-gray-200"
+                              }`}
+                            >
+                              {standardText}
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setShowModified((prev) => ({ ...prev, [index]: true })); }}
+                              className={`text-xs px-2 py-1 rounded-lg border font-titillium transition-colors ${
+                                showModified[index]
+                                  ? "border-limeGreen bg-limeGreen text-black"
+                                  : "border-gray-200 bg-gray-100 text-customGray hover:bg-gray-200"
+                              }`}
+                            >
+                              {modifiedText}
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Video */}
+              {currentExercise && !isRest && (
+                <div className="relative w-full pb-[70%] md:pb-[75%] overflow-hidden rounded-2xl border border-gray-100">
+                  <div className="absolute top-0 left-0 w-full h-full">
+                    <ExerciseVideo
+                      exercise={currentExercise}
+                      isActive={true}
+                      shouldAutoStart={false}
+                      showModified={showModified[currentExerciseIndex] || false}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Rest period placeholder */}
+              {isRest && (
+                <div className="bg-gray-50 rounded-2xl border border-gray-100 p-8 flex flex-col items-center justify-center text-center">
+                  <div className="text-5xl mb-3">🧘</div>
+                  <h3 className="text-lg font-bold text-hotPink font-titillium mb-1">Rest Period</h3>
+                  <p className="text-sm text-customGray/60 font-titillium">Get ready for the next exercise</p>
+                </div>
+              )}
+
+              {/* Tips & instructions — mobile */}
+              <div className="lg:hidden flex flex-col gap-3">
+                {(currentExercise?.tips || currentExercise?.exercise?.tips) && (
+                  <div className="bg-yellow-50 rounded-xl p-4 border border-brightYellow/20">
+                    <p className="text-xs font-titillium font-bold text-brightYellow uppercase tracking-wide mb-1">Form Tips</p>
+                    <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">
+                      {currentExercise?.tips || currentExercise?.exercise?.tips}
+                    </p>
+                  </div>
+                )}
+                {(currentExercise?.instructions || currentExercise?.exercise?.instructions) && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-1">Instructions</p>
+                    <p className="text-sm text-customGray/70 font-titillium leading-relaxed whitespace-pre-line">
+                      {currentExercise?.instructions || currentExercise?.exercise?.instructions}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Fullscreen layout */}
+          {isFullscreen && (
+            <div className="w-full flex flex-col flex-1 gap-3 sm:gap-4">
+              {/* Block / set progress */}
+              <div className="shrink-0 text-center">
+                <h2 className="text-customGray text-xl sm:text-2xl md:text-3xl font-titillium font-semibold">
+                  Block <span className="text-brightYellow">{currentBlockIndex + 1}</span> of <span className="text-brightYellow">{totalBlocks}</span>
+                  <span className="text-customGray/30 mx-2">·</span>
+                  Set <span className="text-limeGreen">{currentSet}</span> of <span className="text-limeGreen">{setsPerBlock}</span>
+                </h2>
+                <div className="flex justify-center gap-1.5 mt-2">
+                  {Array.from({ length: setsPerBlock }, (_, i) => (
+                    <div key={i} className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                      i < currentSet - 1 ? "bg-limeGreen" : i === currentSet - 1 ? (isRest ? "bg-hotPink" : "bg-limeGreen") : "bg-gray-200"
+                    }`} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Timer */}
+              <div className="shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm text-center relative p-4 sm:p-5">
+                <button
+                  onClick={toggleFullscreen}
+                  className="absolute top-2 right-2 text-customGray/30 hover:text-customGray transition-colors p-2 rounded-lg hover:bg-gray-50 z-10"
+                  title="Exit Fullscreen"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <p className={`text-xs font-titillium font-bold uppercase tracking-wide mb-2 ${isRest ? "text-hotPink" : "text-limeGreen"}`}>
+                  {isRest ? "Rest" : "Work"}
+                </p>
+                {!isActive && !isPaused && !isPreparationCountdown && isFirstBlockAndSet && !hasStartedOnce ? (
+                  <div className="text-center mb-3">
+                    <div className="text-brightYellow text-6xl sm:text-7xl md:text-8xl lg:text-9xl">5</div>
+                    <div className="text-brightYellow font-semibold text-lg mt-1">Get Ready!</div>
+                    <p className="text-customGray/50 text-sm font-titillium">Click START for a 5-second countdown</p>
+                  </div>
+                ) : isPreparationCountdown ? (
+                  <div className="text-center mb-3">
+                    <div className="text-brightYellow animate-pulse text-6xl sm:text-7xl md:text-8xl lg:text-9xl">{preparationTime}</div>
+                    <div className="text-brightYellow font-semibold text-lg mt-1">Get Ready!</div>
+                    <span className="text-brightYellow font-semibold text-sm animate-bounce">🏃‍♀️ Get in position!</span>
+                  </div>
+                ) : (
+                  <div className={`mb-3 font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl ${isRest ? "text-hotPink" : "text-limeGreen"}`}>
+                    {formatTime(time)}
+                  </div>
+                )}
+                <div className="flex justify-center gap-2 sm:gap-4">
+                  {(!isActive && !isPreparationCountdown) || isPaused ? (
+                    <button onClick={startTimer} className="px-6 py-3 text-sm font-titillium font-bold bg-limeGreen text-black rounded-xl hover:bg-limeGreen/80 transition-colors">
+                      {isPaused ? "Resume" : "Start"}
+                    </button>
+                  ) : isPreparationCountdown ? (
+                    <button disabled className="px-6 py-3 text-sm font-titillium font-bold bg-brightYellow/50 text-black rounded-xl cursor-not-allowed">
+                      Get Ready...
+                    </button>
+                  ) : (
+                    <button onClick={pauseTimer} className="px-6 py-3 text-sm font-titillium font-bold bg-hotPink text-black rounded-xl hover:bg-hotPink/80 transition-colors">
+                      Pause
+                    </button>
+                  )}
+                  <button onClick={resetTimer} className="px-6 py-3 text-sm font-titillium font-semibold bg-gray-100 text-customGray rounded-xl hover:bg-gray-200 transition-colors">
+                    {hasResetOnce ? "Reset All" : isRest ? "Reset Rest" : "Reset Work"}
+                  </button>
+                  {isAdmin && isActive && (
+                    <button onClick={skipCurrent} className="px-6 py-3 text-sm font-titillium font-semibold bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors">
+                      Next
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Current / Next exercise */}
+              <div className="shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 text-center">
+                {isRest ? (
+                  <>
+                    <p className="text-xs font-titillium font-bold text-hotPink uppercase tracking-wide mb-2">Next Up</p>
+                    {(() => {
+                      const nextInfo = getNextExerciseInfo();
+                      if (!nextInfo) return null;
+                      if (nextInfo.type === "single") {
+                        return (
+                          <>
+                            <p className="text-xl sm:text-2xl md:text-3xl font-bold text-customGray font-titillium">
+                              {getExerciseName(nextInfo.exercise, nextInfo.exerciseIndex)}
+                            </p>
+                            {nextInfo.blockNumber && (
+                              <p className="text-sm text-customGray/50 font-titillium mt-1">Block {nextInfo.blockNumber}</p>
+                            )}
+                          </>
+                        );
+                      } else if (nextInfo.type === "nextBlock") {
+                        return (
+                          <>
+                            <p className="text-sm text-customGray/50 font-titillium mb-1">Block {nextInfo.blockNumber}</p>
+                            <p className="text-xl sm:text-2xl md:text-3xl font-bold text-customGray font-titillium">
+                              {getExerciseName(nextInfo.exercises[0], 0)} &amp; {getExerciseName(nextInfo.exercises[1], 1)}
+                            </p>
+                          </>
+                        );
+                      }
+                    })()}
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs font-titillium font-bold text-limeGreen uppercase tracking-wide mb-2">Current Exercise</p>
+                    {currentExercise && (
+                      <>
+                        <p className="text-xl sm:text-2xl md:text-3xl font-bold text-customGray font-titillium mb-3">
+                          {getExerciseName(currentExercise, currentExerciseIndex)}
+                        </p>
+                        {currentExercise.exercise?.modification && (() => {
+                          const { standardText, modifiedText } = getToggleButtonText(currentExercise);
+                          return (
+                            <div className="flex justify-center gap-2">
+                              <button
+                                onClick={() => setShowModified((prev) => ({ ...prev, [currentExerciseIndex]: false }))}
+                                className={`text-xs px-3 py-1.5 rounded-lg border font-titillium transition-colors ${
+                                  !showModified[currentExerciseIndex]
+                                    ? "border-limeGreen bg-limeGreen text-black"
+                                    : "border-gray-200 bg-gray-100 text-customGray hover:bg-gray-200"
+                                }`}
+                              >
+                                {standardText}
+                              </button>
+                              <button
+                                onClick={() => setShowModified((prev) => ({ ...prev, [currentExerciseIndex]: true }))}
+                                className={`text-xs px-3 py-1.5 rounded-lg border font-titillium transition-colors ${
+                                  showModified[currentExerciseIndex]
+                                    ? "border-limeGreen bg-limeGreen text-black"
+                                    : "border-gray-200 bg-gray-100 text-customGray hover:bg-gray-200"
+                                }`}
+                              >
+                                {modifiedText}
+                              </button>
+                            </div>
+                          );
+                        })()}
                       </>
                     )}
                   </>
                 )}
               </div>
 
-              {/* Exercise List - Flexible height */}
-              <div className="flex-1 min-h-0 overflow-hidden w-full">
+              {/* Exercise list for fullscreen */}
+              <div className="flex-1 min-h-0 overflow-hidden">
                 {isRest ? (
-                  // Show exercise list during rest
-                  <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 h-full overflow-y-auto">
                     {(() => {
                       const nextInfo = getNextExerciseInfo();
-
-                      // If transitioning to next block, show that block's exercises
                       if (nextInfo?.type === "nextBlock") {
                         return (
                           <>
-                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-customWhite mb-2">
+                            <p className="text-xs font-titillium font-bold text-customGray/50 uppercase tracking-wide mb-3">
                               Block {nextInfo.blockNumber} Exercises
-                            </h3>
-                            <div className="space-y-2 sm:space-y-3">
+                            </p>
+                            <div className="space-y-2">
                               {nextInfo.exercises.map((exercise, index) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center justify-between p-3 sm:p-4 rounded-lg bg-gray-700 text-customWhite"
-                                >
-                                  <span className="font-semibold text-base sm:text-lg md:text-xl lg:text-2xl">
+                                <div key={index} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 bg-gray-50">
+                                  <span className="font-semibold font-titillium text-customGray">
                                     {getExerciseName(exercise, index)}
                                   </span>
                                   {exercise.exercise.modification && (
-                                    <span className="text-base sm:text-lg md:text-xl text-brightYellow">
-                                      *
-                                    </span>
+                                    <span className="text-brightYellow text-xs ml-1">*</span>
                                   )}
                                 </div>
                               ))}
@@ -1019,98 +823,70 @@ const TabataWorkout = ({
                           </>
                         );
                       }
-
-                      // If staying in current block, show rest message instead of exercises
-                      else {
-                        return (
-                          <div className="flex items-center justify-center h-full">
-                            <div className="text-center">
-                              <div className="text-3xl mb-3">💪</div>
-                              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-customWhite mb-2">
-                                Rest Time
-                              </h3>
-                              <p className="text-logoGray">
-                                Get ready for the next exercise
-                              </p>
-                            </div>
+                      return (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center">
+                            <div className="text-4xl mb-3">💪</div>
+                            <h3 className="text-lg font-bold text-customGray font-titillium mb-1">Rest Time</h3>
+                            <p className="text-sm text-customGray/60 font-titillium">Get ready for the next exercise</p>
                           </div>
-                        );
-                      }
+                        </div>
+                      );
                     })()}
                   </div>
                 ) : (
-                  // Show current block exercise list during work
-                  <div className="bg-gray-600 rounded-lg p-3 sm:p-4 h-full overflow-y-auto">
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-customWhite mb-2">
-                      Current Block Exercises
-                    </h3>
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 h-full overflow-y-auto">
+                    <p className="text-xs font-titillium font-bold text-customGray/50 uppercase tracking-wide mb-3">Current Block</p>
                     <div className="space-y-2">
-                      {allTabataBlocks?.[currentBlockIndex]?.exercises?.map(
-                        (exercise, index) => (
-                          <div
-                            key={exercise.id || index}
-                            className={`flex items-center justify-between p-3 sm:p-4 rounded-lg transition-colors duration-200 ${
-                              index === currentExerciseIndex
-                                ? "bg-gray-800 border-2 border-limeGreen text-customWhite"
-                                : "bg-gray-700 text-customWhite"
-                            }`}
-                          >
-                            <div className="flex-1">
-                              <span className="font-semibold text-base sm:text-lg md:text-xl lg:text-2xl">
-                                {getExerciseName(exercise, index)}
-                              </span>
-                              {exercise.exercise.modification && (
-                                <span className="text-base sm:text-lg md:text-xl text-brightYellow ml-2">
-                                  *
-                                </span>
-                              )}
-                            </div>
-                            {/* Modification toggle for each exercise */}
+                      {allTabataBlocks?.[currentBlockIndex]?.exercises?.map((exercise, index) => (
+                        <div
+                          key={exercise.id || index}
+                          className={`flex items-center justify-between p-3 rounded-xl border transition-colors duration-200 ${
+                            index === currentExerciseIndex
+                              ? "bg-gray-50 border-limeGreen/40"
+                              : "bg-white border-gray-100"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            {index === currentExerciseIndex && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-limeGreen shrink-0" />
+                            )}
+                            <span className="font-semibold font-titillium text-customGray text-sm sm:text-base md:text-lg">
+                              {getExerciseName(exercise, index)}
+                            </span>
                             {exercise.exercise.modification && (
-                              <div className="flex space-x-1">
-                                {(() => {
-                                  const { standardText, modifiedText } =
-                                    getToggleButtonText(exercise);
-                                  return (
-                                    <>
-                                      <button
-                                        onClick={() =>
-                                          setShowModified((prev) => ({
-                                            ...prev,
-                                            [index]: false,
-                                          }))
-                                        }
-                                        className={`text-xs px-1.5 py-0.5 rounded border ${
-                                          !showModified[index]
-                                            ? "border-limeGreen bg-limeGreen text-black"
-                                            : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                        }`}
-                                      >
-                                        {standardText}
-                                      </button>
-                                      <button
-                                        onClick={() =>
-                                          setShowModified((prev) => ({
-                                            ...prev,
-                                            [index]: true,
-                                          }))
-                                        }
-                                        className={`text-xs px-1.5 py-0.5 rounded border ${
-                                          showModified[index]
-                                            ? "border-limeGreen bg-limeGreen text-black"
-                                            : "border-logoGray bg-logoGray text-black hover:bg-gray-400"
-                                        }`}
-                                      >
-                                        {modifiedText}
-                                      </button>
-                                    </>
-                                  );
-                                })()}
-                              </div>
+                              <span className="text-brightYellow text-xs">*</span>
                             )}
                           </div>
-                        )
-                      )}
+                          {exercise.exercise.modification && (() => {
+                            const { standardText, modifiedText } = getToggleButtonText(exercise);
+                            return (
+                              <div className="flex gap-1 shrink-0">
+                                <button
+                                  onClick={() => setShowModified((prev) => ({ ...prev, [index]: false }))}
+                                  className={`text-xs px-2 py-1 rounded-lg border font-titillium transition-colors ${
+                                    !showModified[index]
+                                      ? "border-limeGreen bg-limeGreen text-black"
+                                      : "border-gray-200 bg-gray-100 text-customGray hover:bg-gray-200"
+                                  }`}
+                                >
+                                  {standardText}
+                                </button>
+                                <button
+                                  onClick={() => setShowModified((prev) => ({ ...prev, [index]: true }))}
+                                  className={`text-xs px-2 py-1 rounded-lg border font-titillium transition-colors ${
+                                    showModified[index]
+                                      ? "border-limeGreen bg-limeGreen text-black"
+                                      : "border-gray-200 bg-gray-100 text-customGray hover:bg-gray-200"
+                                  }`}
+                                >
+                                  {modifiedText}
+                                </button>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

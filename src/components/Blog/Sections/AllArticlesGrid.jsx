@@ -16,12 +16,12 @@ const AllArticlesGrid = ({
         {gridBlogPosts.map((post) => (
           <article
             key={post.ID}
-            className="group bg-customGray backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-logoGray hover:border-brightYellow relative"
+            className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-brightYellow relative"
           >
             {/* Main clickable area - entire card */}
             <Link
               to={`/blog/${post.ID}`} 
-              className="block w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brightYellow rounded-xl"
+              className="block w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brightYellow rounded-2xl"
               aria-label={`Read article: ${post.title}`}
             >
               <div className="relative overflow-hidden">
@@ -31,36 +31,26 @@ const AllArticlesGrid = ({
                     `${BACKEND_URL}/images/LMW_fitness_Hero_Image3.jpg`
                   }
                   alt={post.title}
-                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
 
               <div className="p-6">
-                <h3 className="text-xl font-titillium text-customWhite font-bold mb-3 line-clamp-2 transition-colors duration-300">
+                <h3 className="text-lg font-titillium text-customGray font-bold mb-3 line-clamp-2 group-hover:text-hotPink transition-colors duration-300">
                   {post.title}
                 </h3>
-                <p className="text-logoGray font-titillium text-xs mb-4 line-clamp-3 leading-relaxed">
+                <p className="text-customGray/60 font-titillium text-sm mb-4 line-clamp-3 leading-relaxed">
                   {post.excerpt}
                 </p>
 
-                <div className="flex items-center justify-between">
-                  <div className="text-customWhite group-hover:text-xl group-hover:text-brightYellow font-titillium font-semibold transition-colors duration-300 inline-flex items-center space-x-1 mt-6">
-                    <span>Read More</span>
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 5l7 7-7 7"
-                      />
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <span className="text-sm font-titillium font-semibold text-brightYellow group-hover:text-hotPink transition-colors duration-300 inline-flex items-center gap-1">
+                    Read More
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
-                  </div>
+                  </span>
                 </div>
               </div>
             </Link>

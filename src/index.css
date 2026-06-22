@@ -229,35 +229,35 @@
 
   /* Blog Article Styles */
   .blog-article {
-    @apply font-titillium text-logoGray leading-relaxed;
+    @apply font-titillium text-customGray/70 leading-relaxed;
   }
 
   .blog-article h1 {
-    @apply font-higherJump text-4xl text-customWhite font-bold tracking-wide mt-12 mb-10 border-b-2 border-brightYellow;
+    @apply font-titillium text-4xl text-customGray font-bold tracking-wide mt-12 mb-10 border-b-2 border-brightYellow;
   }
 
   .blog-article h2 {
-    @apply font-higherJump text-3xl text-customWhite font-bold tracking-wide mt-12 mb-10 pl-4 border-l-4 border-limeGreen;
+    @apply font-titillium text-3xl text-customGray font-bold tracking-wide mt-12 mb-10 pl-4 border-l-4 border-limeGreen;
   }
 
   .blog-article h3 {
-    @apply font-higherJump text-2xl text-customWhite font-semibold tracking-wide mt-10 mb-8;
+    @apply font-titillium text-2xl text-customGray font-semibold tracking-wide mt-10 mb-8;
   }
 
   .blog-article h4 {
-    @apply font-higherJump text-xl text-customWhite font-semibold tracking-wide mt-10 mb-8;
+    @apply font-titillium text-xl text-customGray font-semibold tracking-wide mt-10 mb-8;
   }
 
   .blog-article h5 {
-    @apply font-higherJump text-lg text-customWhite font-semibold tracking-wide mt-8 mb-6;
+    @apply font-titillium text-lg text-customGray font-semibold tracking-wide mt-8 mb-6;
   }
 
   .blog-article h6 {
-    @apply font-higherJump text-base text-customWhite font-semibold tracking-wide mt-8 mb-6;
+    @apply font-titillium text-base text-customGray font-semibold tracking-wide mt-8 mb-6;
   }
 
   .blog-article p {
-    @apply font-titillium text-logoGray text-base leading-loose mb-6;
+    @apply font-titillium text-customGray/70 text-base leading-loose mb-6;
   }
 
   .blog-article a {
@@ -265,15 +265,15 @@
   }
 
   .blog-article strong {
-    @apply text-limeGreen font-bold tracking-wide;
+    @apply text-customGray font-bold;
   }
 
   .blog-article em {
-    @apply text-brightYellow italic;
+    @apply text-customGray/80 italic;
   }
 
   .blog-article ul, .blog-article ol {
-    @apply text-logoGray my-6 pl-6;
+    @apply text-customGray/70 my-6 pl-6;
   }
 
   .blog-article li {
@@ -289,39 +289,39 @@
   }
 
   .blog-article blockquote {
-    @apply border-l-4 border-brightYellow pl-6 py-4 my-8 italic text-logoGray bg-customGray/30 rounded-r-lg;
+    @apply border-l-4 border-brightYellow pl-6 py-4 my-8 italic text-customGray/70 bg-yellow-50 rounded-r-lg;
   }
 
   .blog-article code {
-    @apply text-limeGreen bg-customGray/80 px-2 py-1 rounded text-sm font-mono;
+    @apply text-hotPink bg-gray-100 px-2 py-1 rounded text-sm font-mono;
   }
 
   .blog-article pre {
-    @apply bg-customGray/80 border border-logoGray rounded-lg p-4 my-6 overflow-x-auto;
+    @apply bg-gray-50 border border-gray-200 rounded-xl p-4 my-6 overflow-x-auto;
   }
 
   .blog-article pre code {
-    @apply bg-transparent p-0 text-sm;
+    @apply bg-transparent p-0 text-sm text-customGray;
   }
 
   .blog-article hr {
-    @apply border-logoGray my-10;
+    @apply border-gray-200 my-10;
   }
 
   .blog-article img {
-    @apply rounded-lg border-2 border-brightYellow my-8 max-w-full h-auto;
+    @apply rounded-xl border-2 border-brightYellow my-8 max-w-full h-auto;
   }
 
   .blog-article table {
-    @apply w-full border-collapse border border-logoGray my-6;
+    @apply w-full border-collapse border border-gray-200 my-6;
   }
 
   .blog-article th, .blog-article td {
-    @apply border border-logoGray px-4 py-2 text-left;
+    @apply border border-gray-200 px-4 py-2 text-left;
   }
 
   .blog-article th {
-    @apply bg-customGray/50 text-customWhite font-semibold;
+    @apply bg-gray-50 text-customGray font-semibold;
   }
 }/* Fullscreen workout styles */
 body[data-workout-fullscreen="true"] {

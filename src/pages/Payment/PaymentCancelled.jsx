@@ -1,54 +1,68 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import DynamicHeading from '../../components/Shared/DynamicHeading';
+import { FiXCircle, FiShoppingCart, FiHome } from 'react-icons/fi';
 
 const PaymentCancelled = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7 }}
-      className="flex flex-col items-center justify-center min-h-screen bg-customGray/30 p-6"
-    >
-      <div className="bg-customGray p-8 rounded-lg text-center max-w-lg w-full border-brightYellow border-2">
-        <svg
-          className="w-24 h-24 text-hotPink mx-auto mb-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
-        </svg>
-        <DynamicHeading
-          text="Payment Cancelled"
-          className="font-higherJump text-3xl md:text-4xl font-bold text-customWhite mb-8 leading-loose tracking-widest"
-        />
-        <p className="text-lg text-customWhite mb-6">
-          Your payment was cancelled. <br/>
-          You can try again or return to the home page.
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4"> 
-          <Link
-            to="/cart" 
-            className="btn-full-colour inline-block px-8 py-3 rounded-md text-lg transition duration-300 ease-in-out"
+    <div className="min-h-screen flex items-center justify-center px-4 bg-linear-to-br from-white via-pink-50 to-yellow-50">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-lg"
+      >
+        {/* Icon + heading */}
+        <div className="text-center mb-8">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+            className="w-20 h-20 rounded-full bg-hotPink/10 flex items-center justify-center mx-auto mb-5"
           >
-            Try Again
-          </Link>
-          <Link
-            to="/"
-            className="btn-primary inline-block px-8 py-3 rounded-md text-lg transition duration-300 ease-in-out"
-          >
-            Return to Home
-          </Link>
+            <FiXCircle className="w-10 h-10 text-hotPink" />
+          </motion.div>
+          <h1 className="font-titillium font-bold text-3xl md:text-4xl text-customGray tracking-wide">
+            Payment Cancelled
+          </h1>
+          <p className="text-customGray/60 font-titillium mt-2">
+            No worries — nothing has been charged.
+          </p>
         </div>
-      </div>
-    </motion.div>
+
+        {/* Card */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-8 py-8 text-center">
+          <p className="text-customGray/70 font-titillium text-sm leading-relaxed mb-8">
+            Your payment was cancelled. Your basket is still saved — you can head back and try again whenever you&apos;re ready.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              to="/cart"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-limeGreen via-brightYellow to-hotPink text-black font-bold font-titillium rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-hotPink/20 no-underline"
+            >
+              <FiShoppingCart className="w-4 h-4" />
+              Back to Basket
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-customGray font-bold font-titillium rounded-xl hover:border-brightYellow transition-colors duration-200 no-underline"
+            >
+              <FiHome className="w-4 h-4" />
+              Return to Home
+            </Link>
+          </div>
+        </div>
+
+        {/* Support note */}
+        <p className="text-center text-xs text-customGray/40 font-titillium mt-5">
+          Having trouble?{' '}
+          <Link to="/#Contact" className="text-hotPink hover:text-limeGreen transition-colors duration-200 underline">
+            Contact us
+          </Link>{' '}
+          and we&apos;ll help sort it out.
+        </p>
+      </motion.div>
+    </div>
   );
 };
 
